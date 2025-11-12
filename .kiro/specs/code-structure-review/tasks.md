@@ -152,40 +152,65 @@
   - status_history.py, animal_image.py, adoption_record.py等
   - _Requirements: 2.1, 2.2, 2.3, 8.1, 8.2_
 
-- [ ] 7. サービス層の改善
+- [x] 7. サービス層の改善
+
   - エラーハンドリングを統一
   - 型ヒントを改善
   - ロギングを追加
   - _Requirements: 3.5, 8.1, 8.2, 9.1, 9.2, 9.5_
 
-- [ ] 7.1 app/services/animal_service.pyの改善
+- [x] 7.1 app/services/animal_service.pyの改善
+
+
   - `from __future__ import annotations`を追加
   - エラーハンドリングパターンを実装
   - 型ヒントを`collections.abc`に更新
   - ロギングを追加
   - _Requirements: 8.1, 8.2, 9.1, 9.2, 9.5_
 
-- [ ] 7.2 app/services/care_log_service.pyの改善
+- [x] 7.2 app/services/care_log_service.pyの改善
+
+
   - エラーハンドリングとロギングを追加
   - 型ヒントを改善
   - _Requirements: 8.1, 8.2, 9.1, 9.2, 9.5_
 
-- [ ] 8. APIエンドポイントの改善
+- [x] 8. APIエンドポイントの改善
+
+
+
+
+
+
+
+
   - 型ヒントを最新構文に更新
   - ドキュメントを充実
   - _Requirements: 3.4, 8.1, 8.2, 8.3_
 
-- [ ] 8.1 app/api/v1/animals.pyの改善
+- [x] 8.1 app/api/v1/animals.pyの改善
+
+
   - `from __future__ import annotations`を追加
   - `collections.abc`の型を使用
   - Docstringを充実
   - _Requirements: 3.4, 8.1, 8.2_
 
-- [ ] 8.2 app/api/v1/care_logs.pyの改善
+- [x] 8.2 app/api/v1/care_logs.pyの改善
+
+
+
+
+
   - 型ヒントとドキュメントを改善
   - _Requirements: 3.4, 8.1, 8.2_
 
-- [ ] 8.3 app/api/v1/auth.pyの改善
+- [x] 8.3 app/api/v1/auth.pyの改善
+
+
+
+
+
   - 型ヒントとドキュメントを改善
   - _Requirements: 3.4, 8.1, 8.2_
 
