@@ -4,6 +4,8 @@
 世話記録のリクエスト・レスポンススキーマを定義します。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator

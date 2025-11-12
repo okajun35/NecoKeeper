@@ -214,21 +214,29 @@
   - 型ヒントとドキュメントを改善
   - _Requirements: 3.4, 8.1, 8.2_
 
-- [ ] 9. スキーマの改善
+- [x] 9. スキーマの改善
+
+
   - 型ヒントを最新構文に更新
   - バリデーションを強化
   - _Requirements: 8.1, 8.2, 9.2_
 
-- [ ] 9.1 app/schemas/animal.pyの改善
+- [x] 9.1 app/schemas/animal.pyの改善
+
+
   - `from __future__ import annotations`を追加
   - `X | None`構文を使用
   - _Requirements: 8.1, 8.2_
 
-- [ ] 9.2 app/schemas/care_log.pyの改善
+- [x] 9.2 app/schemas/care_log.pyの改善
+
+
   - 型ヒントを改善
   - _Requirements: 8.1, 8.2_
 
-- [ ] 9.3 app/schemas/auth.pyの改善
+- [x] 9.3 app/schemas/auth.pyの改善
+
+
   - 型ヒントを改善
   - _Requirements: 8.1, 8.2_
 
