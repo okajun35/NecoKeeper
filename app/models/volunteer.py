@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Index, Integer, String
+from sqlalchemy import Date, DateTime, Index, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -68,13 +68,13 @@ class Volunteer(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="作成日時",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
+        server_default=text("CURRENT_TIMESTAMP"),
         onupdate=func.now(),
         comment="更新日時",
     )
