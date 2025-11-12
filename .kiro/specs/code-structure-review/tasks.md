@@ -283,12 +283,17 @@
   - 必要に応じて`# type: ignore`を使用
   - _Requirements: 8.8_
 
+
+
 - [ ] 12. コードフォーマットとLint
   - Ruffでフォーマットとlintを実行
   - エラーを修正
+
+
   - _Requirements: 7.1_
 
-- [ ] 12.1 Ruffフォーマットの実行
+- [x] 12.1 Ruffフォーマットの実行
+
   - `ruff format .`を実行
   - フォーマットを確認
   - _Requirements: 7.1_
