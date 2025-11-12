@@ -267,13 +267,19 @@
 
   - _Requirements: 8.8_
 
+
+
 - [ ] 11.1 Mypyエラーの特定
   - `mypy .`を実行
   - エラーリストを作成
   - _Requirements: 8.8_
 
+
+
 - [ ] 11.2 Mypyエラーの修正
   - 優先度の高いファイルから修正
+
+
   - 必要に応じて`# type: ignore`を使用
   - _Requirements: 8.8_
 
