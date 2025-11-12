@@ -19,6 +19,7 @@ os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing-only")
 # テスト環境でのSECRET_KEY warningを抑制
 warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用されています")
 
+# ruff: noqa: E402
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
