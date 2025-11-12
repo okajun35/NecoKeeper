@@ -1,0 +1,94 @@
+[project]
+name = "necokeeper"
+version = "0.1.0"
+description = "猫保護施設管理システム"
+requires-python = ">=3.12"
+
+[tool.ruff]
+# 行の長さ制限（Blackのデフォルトと同じ）
+line-length = 88
+indent-width = 4
+
+# ターゲットPythonバージョン
+target-version = "py312"
+
+# 除外するディレクトリ
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".mypy_cache",
+    "htmlcov",
+    ".coverage",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+# 有効にするルールセット
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "B",    # flake8-bugbear
+    "I",    # isort (import sorting)
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "C4",   # flake8-comprehensions
+    "PTH",  # flake8-use-pathlib
+    "RUF",  # Ruff-specific rules
+]
+
+# 無視するルール
+ignore = [
+    "E501",  # Line too long (フォーマッターが処理)
+    "B008",  # Function calls in argument defaults (FastAPIで必要)
+]
+
+# 自動修正可能なルール
+fixable = ["ALL"]
+unfixable = []
+
+# ファイルごとの無視設定
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "E402"]  # 未使用インポート、インポート順序
+"tests/**/*.py" = ["S101"]  # assertの使用を許可
+
+# isort設定
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.format]
+# クォートスタイル（ダブルクォート推奨）
+quote-style = "double"
+
+# インデントスタイル
+indent-style = "space"
+
+# 行末スタイル
+line-ending = "auto"
+
+# docstring内のコード例もフォーマット
+docstring-code-format = true
+
+# マジックトレーリングカンマをスキップしない
+skip-magic-trailing-comma = false
+
+[tool.pytest.ini_options]
+# pytest設定（pytest.iniから移行）
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:passlib.*",
+    "ignore::DeprecationWarning:jose.*",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+]
