@@ -4,19 +4,41 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: Phase 1 完了、Phase 2 開始準備
-- ディレクトリ構造: ✅ 完了（app/, tests/, data/, media/, backups/）
-- requirements.txt: ✅ 完了（依存関係定義済み）
-- app/config.py: ✅ 完了（Pydantic Settings実装済み）
-- app/main.py: ✅ 完了（FastAPIアプリケーション初期化済み）
-- app/database.py: ✅ 完了（SQLAlchemyエンジン、セッション管理実装済み）
-- app/models/: ✅ 完了（全モデル実装済み - Animal, CareLog, MedicalRecord, User, Volunteer, Applicant, AdoptionRecord, StatusHistory, AuditLog, MedicalAction, AnimalImage, Setting）
-- Alembic: ✅ 完了（初期マイグレーション作成済み）
-- tests/models/: ✅ 完了（Animal, User, MedicalActionの単体テスト実装済み）
-- 実装済みコード: Phase 1完全完了（プロジェクト基盤とデータベース）
-- 次のステップ: Phase 2（認証・認可システム）から開始
+**プロジェクトステータス**: Phase 4 完了、Phase 5（画像ギャラリー機能）開始準備
 
-**重要**: すべてのコード実装前に、Context7 MCPを使用して最新のライブラリドキュメントを参照すること
+**完了済み:**
+- ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
+- ✅ Phase 2: 認証・認可システム（全7タスク）
+- ✅ Phase 3: 猫管理機能（全6タスク）
+- ✅ Phase 4: 世話記録機能（全5タスク）
+
+**実装済み機能:**
+- データベース（全12モデル）
+- JWT認証・認可システム（RBAC）
+- 猫管理機能（CRUD、検索、ステータス管理）
+- 世話記録機能（CRUD、CSV出力、前回値コピー）
+- 画像アップロード・最適化
+- 統合テスト（認証25テスト、猫管理7テスト、世話記録7テスト）
+
+**次のステップ**: Phase 5（画像ギャラリー機能）から開始
+
+**重要な注意事項:**
+
+1. **Context7 MCP使用**: すべてのコード実装前に、Context7 MCPを使用して最新のライブラリドキュメントを参照すること
+
+2. **コード品質基準（code-structure-review統合）**:
+   - すべてのファイルに `from __future__ import annotations` を追加
+   - 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
+   - Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
+   - Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
+   - 空のコレクションには明示的な型注釈を付与
+   - SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
+   - エラーハンドリングを統一（HTTPException、ロギング）
+   - すべての関数にDocstring（Args, Returns, Raises, Example）を記述
+
+3. **Mypy strict mode**: すべてのコードは `mypy --strict` をパスすること
+
+4. **テスト**: 実装と並行してテストを作成し、品質を担保すること
 
 ### Context7 MCP 使用方法
 1. **ライブラリID解決**: `mcp_context7_resolve_library_id` でライブラリ名を検索
@@ -85,14 +107,23 @@ pip install -r requirements.txt
 
 ---
 
-## Phase 1: プロジェクト基盤とデータベース
+## Phase 1: プロジェクト基盤とデータベース ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - 各タスク実装前に、必ず Context7 MCP を使用して最新ドキュメントを参照すること
-- FastAPI実装: `mcp_context7_get_library_docs` で `/tiangolo/fastapi` を参照（tokens: 5000）
+- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
 - SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
 - Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
 - WeasyPrint実装: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索後、ドキュメント取得
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのファイルに `from __future__ import annotations` を追加
+- 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
+- Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
+- Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
+- 空のコレクションには明示的な型注釈を付与
+- SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
+- データベースモジュールにPostgreSQL互換の命名規則を追加
 
 ### 1. プロジェクト構造とセットアップ
 
@@ -197,12 +228,17 @@ SQLiteデータベースとSQLAlchemyモデルを実装します。
   - _Requirements: Requirement 28_
 
 
-## Phase 2: 認証・認可システム（JWT + OAuth2）
+## Phase 2: 認証・認可システム（JWT + OAuth2） ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - JWT実装前: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のOAuth2/JWT関連ドキュメントを参照（tokens: 5000）
 - passlib実装前: `mcp_context7_resolve_library_id` で "passlib" を検索し、ドキュメント取得
 - python-jose実装前: `mcp_context7_resolve_library_id` で "python-jose" を検索し、ドキュメント取得
+
+**コード品質改善（code-structure-review統合）**:
+- すべての認証関連ファイルに型ヒント改善を適用
+- エラーハンドリングパターンを統一（HTTPException、ロギング）
+- Docstringを充実（Args, Returns, Raises, Example）
 
 ### 3. JWT認証機能の実装
 
@@ -254,7 +290,17 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - 権限チェックのテスト
   - _Requirements: Requirement 22_
 
-## Phase 3: 猫管理機能
+## Phase 3: 猫管理機能 ✅ 完了
+
+**Context7 MCP使用ガイドライン**:
+- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
+- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
+- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのスキーマ、サービス、APIファイルに型ヒント改善を適用
+- エラーハンドリングパターンを統一
+- ロギングを追加
 
 ### 4. 猫マスター管理
 
@@ -303,6 +349,15 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 
 ### 5. 画像ギャラリー機能
 
+**Context7 MCP使用ガイドライン**:
+- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+- ファイルアップロード: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のFile Upload関連を参照
+
+**コード品質改善**:
+- 型ヒント: `from __future__ import annotations`, `X | None`, `collections.abc`
+- エラーハンドリング: HTTPException、ロギング
+- Docstring: Args, Returns, Raises, Example
+
 猫の複数画像管理機能を実装します。
 
 - [ ] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
@@ -325,7 +380,15 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - _Requirements: Requirement 27.6-27.7, Requirement 27.10_
 
 
-## Phase 4: 世話記録機能
+## Phase 4: 世話記録機能 ✅ 完了
+
+**Context7 MCP使用ガイドライン**:
+- CSV処理: `mcp_context7_resolve_library_id` で "pandas" または標準ライブラリ `csv` の使用を検討
+- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのファイルに型ヒント改善を適用
+- エラーハンドリングとロギングを統一
 
 ### 6. 世話記録管理
 
@@ -389,6 +452,16 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - _Requirements: Requirement 4.4_
 
 ## Phase 5: 診療記録機能
+
+**Context7 MCP使用ガイドライン**:
+- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
+- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
+- Decimal型処理: Python標準ライブラリ `decimal` の使用方法を確認
+
+**コード品質改善**:
+- 型ヒント: `from __future__ import annotations`, `Decimal`, `X | None`
+- エラーハンドリング: IntegrityError、SQLAlchemyError
+- Docstring: 完全なドキュメント
 
 ### 8. 診療記録管理
 
@@ -1154,8 +1227,8 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 2: 認証・認可システム (7/7 完了) ✅
 - [x] Phase 3: 猫管理機能 (6/6 完了) ✅
 - [x] Phase 4: 世話記録機能 (5/5 完了) ✅
-- [ ] Phase 4: 世話記録機能 (0/5 完了)
-- [ ] Phase 5: 診療記録機能 (0/4 完了)
+- [ ] Phase 5: 画像ギャラリー機能 (0/3 完了)
+- [ ] Phase 6: 診療記録機能 (0/4 完了)
 - [ ] Phase 6: 診療マスターデータ管理 (0/4 完了)
 - [ ] Phase 7: 診療明細出力 (0/5 完了)
 - [ ] Phase 8: CSVインポート・エクスポート (0/4 完了)
@@ -1202,6 +1275,14 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - **世話記録**: 6エンドポイント
 
 ### 次に実装すべきタスク（MVP Core優先順位）
-1. **Task 5.1**: 画像ギャラリーサービスを実装
-2. **Task 5.2**: 画像管理APIエンドポイントを実装
-3. **Task 7.1**: ボランティア管理スキーマを実装
+
+**重要**: 実装前に必ずcode-structure-reviewの改善を適用すること
+- すべてのファイルに `from __future__ import annotations` を追加
+- 型ヒントは `collections.abc` と `X | None` 構文を使用
+- エラーハンドリングとロギングを統一
+- Docstringを完全に記述
+
+**次のタスク:**
+1. **Task 5.1**: 画像ギャラリーサービスを実装（app/services/image_service.py）
+2. **Task 5.2**: 画像管理APIエンドポイントを実装（app/api/v1/images.py）
+3. **Task 5.3**: 画像制限設定機能を実装

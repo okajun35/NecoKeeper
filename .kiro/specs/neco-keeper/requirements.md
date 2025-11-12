@@ -466,8 +466,12 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 ### 技術的制約
 
 1. THE NecoKeeper SHALL FastAPI、SQLite、WeasyPrint、AdminLTE、Tailwind CSSを使用する
-2. THE NecoKeeper SHALL Pythonバージョン3.9以降で動作する
+2. THE NecoKeeper SHALL Pythonバージョン3.10以降で動作する（型ヒント `X | None` 構文のため）
 3. THE NecoKeeper SHALL オープンソースライセンス（MIT、Apache 2.0等）のライブラリのみを使用する
+4. THE NecoKeeper SHALL SQLAlchemy 2.0+のモダンなパターン（`Mapped`, `mapped_column`）を使用する
+5. THE NecoKeeper SHALL Mypy strict modeでの型チェックをパスする
+6. THE NecoKeeper SHALL PostgreSQL互換の命名規則を使用する（将来の移行を考慮）
+7. THE NecoKeeper SHALL すべてのコードに完全な型ヒントとDocstringを含める
 
 ### 予算・リソース制約
 
