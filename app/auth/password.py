@@ -34,7 +34,8 @@ def hash_password(password: str) -> str:
         >>> hash_password("mypassword123")
         '$argon2id$v=19$m=65536,t=3,p=4$...'
     """
-    return ph.hash(password)
+    hashed: str = ph.hash(password)
+    return hashed
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -113,7 +114,8 @@ def needs_rehash(hashed_password: str) -> bool:
         bool: 再ハッシュ化が必要な場合True
     """
     try:
-        return ph.check_needs_rehash(hashed_password)
+        needs_rehash: bool = ph.check_needs_rehash(hashed_password)
+        return needs_rehash
     except InvalidHashError:
         # 無効なハッシュの場合は再ハッシュが必要
         return True
