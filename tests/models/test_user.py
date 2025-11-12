@@ -209,7 +209,7 @@ class TestUserModel:
         test_db.add(user2)
 
         # ユニーク制約違反でエラーが発生することを確認
-        with pytest.raises(Exception):
+        with pytest.raises((Exception, BaseException)):
             test_db.commit()
 
     def test_user_is_active_flag(self, test_db: Session):

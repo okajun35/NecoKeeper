@@ -96,7 +96,7 @@ def decode_access_token(token: str) -> dict[str, Any]:
         )
         return payload
     except InvalidTokenError as e:
-        raise InvalidTokenError(f"トークンの検証に失敗しました: {e!s}")
+        raise InvalidTokenError(f"トークンの検証に失敗しました: {e!s}") from e
 
 
 def get_token_user_id(token: str) -> int | None:

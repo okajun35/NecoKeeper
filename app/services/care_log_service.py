@@ -248,6 +248,6 @@ def get_latest_care_log(db: Session, animal_id: int) -> CareLog | None:
     return (
         db.query(CareLog)
         .filter(CareLog.animal_id == animal_id)
-        .order_by(CareLog.created_at.desc())
+        .order_by(CareLog.created_at.desc(), CareLog.id.desc())
         .first()
     )

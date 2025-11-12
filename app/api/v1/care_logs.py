@@ -5,7 +5,7 @@
 """
 
 from datetime import date
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
@@ -67,7 +67,7 @@ async def create_care_log(
     return care_log_service.create_care_log(db=db, care_log_data=care_log_data)
 
 
-@router.get("/latest/{animal_id}", response_model=Optional[CareLogResponse])
+@router.get("/latest/{animal_id}", response_model=CareLogResponse | None)
 async def get_latest_care_log(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],

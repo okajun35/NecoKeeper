@@ -4,6 +4,8 @@
 重要な操作の監査ログを管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text
@@ -76,9 +78,7 @@ class AuditLog(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="操作日時",
     )
 

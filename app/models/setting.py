@@ -4,6 +4,8 @@
 システム設定を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, Index, Integer, String, Text
@@ -43,24 +45,21 @@ class Setting(Base):
 
     value: Mapped[str | None] = mapped_column(Text, nullable=True, comment="設定値")
 
-    description: Mapped[str | None] = mapped_column(Text, nullable=True, comment="説明")
+    description: Mapped[str | None] = mapped_column(
+        Text, nullable=True, comment="説明"
+    )
 
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="作成日時",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
-        server_default=func.current_timestamp(),
-        server_onupdate=func.current_timestamp(),
+        server_default=func.now(),
+        onupdate=func.now(),
         comment="更新日時",
     )
 

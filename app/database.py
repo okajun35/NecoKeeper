@@ -5,9 +5,11 @@ SQLAlchemyエンジンとセッション管理を提供します。
 このモジュールは、アプリケーション全体でデータベース接続を一元管理します。
 """
 
+from __future__ import annotations
+
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import get_settings
@@ -15,6 +17,15 @@ from app.config import get_settings
 # 設定を取得
 settings = get_settings()
 
+# PostgreSQL互換の命名規則
+# Alembicマイグレーションと統合し、一貫性のある制約名を生成
+NAMING_CONVENTION = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
 
 # SQLAlchemyエンジンの作成
 # SQLiteの場合、check_same_threadをFalseに設定してマルチスレッド対応
@@ -41,12 +52,13 @@ SessionLocal = sessionmaker(
 # すべてのORMモデルはこのクラスを継承します
 class Base(DeclarativeBase):
     """
-    SQLAlchemy Declarative Base
+    SQLAlchemy Declarative Base with naming convention
 
     すべてのORMモデルクラスの基底クラスです。
+    PostgreSQL互換の命名規則を適用し、制約名の一貫性を保証します。
     """
 
-    pass
+    metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
 def get_db() -> Generator[Session, None, None]:

@@ -4,6 +4,8 @@
 システムユーザー（管理者、スタッフ、獣医師）を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, String
@@ -85,18 +87,15 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="作成日時",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
-        server_default=func.current_timestamp(),
-        server_onupdate=func.current_timestamp(),
+        server_default=func.now(),
+        onupdate=func.now(),
         comment="更新日時",
     )
 

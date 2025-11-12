@@ -47,6 +47,9 @@ select = [
 ignore = [
     "E501",  # Line too long (フォーマッターが処理)
     "B008",  # Function calls in argument defaults (FastAPIで必要)
+    "RUF001",  # 全角文字の曖昧さ警告（日本語ドキュメントで意図的）
+    "RUF002",  # docstring内の全角文字警告（日本語ドキュメントで意図的）
+    "RUF003",  # コメント内の全角文字警告（日本語ドキュメントで意図的）
 ]
 
 # 自動修正可能なルール

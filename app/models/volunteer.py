@@ -4,6 +4,8 @@
 記録者（ボランティア）を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime
 
 from sqlalchemy import Date, DateTime, Index, Integer, String
@@ -52,7 +54,6 @@ class Volunteer(Base):
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="active",
         server_default="active",
         comment="活動状態（active/inactive）",
     )
@@ -60,7 +61,6 @@ class Volunteer(Base):
     started_at: Mapped[date] = mapped_column(
         Date,
         nullable=False,
-        default=date.today,
         server_default=func.current_date(),
         comment="活動開始日",
     )
@@ -68,19 +68,14 @@ class Volunteer(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="作成日時",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
-        server_default=func.current_timestamp(),
-        server_onupdate=func.current_timestamp(),
+        server_default=func.now(),
+        onupdate=func.now(),
         comment="更新日時",
     )
 

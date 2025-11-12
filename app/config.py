@@ -125,6 +125,7 @@ class Settings(BaseSettings):
             warnings.warn(
                 "デフォルトのSECRET_KEYが使用されています。本番環境では必ず変更してください。",
                 UserWarning,
+                stacklevel=2,
             )
         return v
 
