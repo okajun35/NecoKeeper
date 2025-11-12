@@ -7,6 +7,7 @@ Userモデルの単体テスト
 from datetime import datetime, timedelta
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -209,7 +210,7 @@ class TestUserModel:
         test_db.add(user2)
 
         # ユニーク制約違反でエラーが発生することを確認
-        with pytest.raises((Exception, BaseException)):
+        with pytest.raises(IntegrityError):
             test_db.commit()
 
     def test_user_is_active_flag(self, test_db: Session):
