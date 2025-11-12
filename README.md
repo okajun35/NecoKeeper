@@ -103,26 +103,48 @@ NecoKeeper/
 └── requirements.txt       # Python依存関係
 ```
 
-### テスト実行
+### 開発ツール
+
+#### テスト実行
 
 ```bash
-pytest
+# すべてのテストを実行
+python -m pytest
+
+# 詳細出力
+python -m pytest -v
+
+# カバレッジ付き
+python -m pytest --cov=app
 ```
 
-### コードフォーマット
+#### コード品質チェック
 
 ```bash
 # Ruffでフォーマット
 ruff format .
 
 # Ruffでリント
-ruff check .
+ruff check . --fix
+
+# Mypyで型チェック
+mypy .
 ```
 
-## ライセンス
+#### Pre-commit
 
-TBD
+コミット前に自動的にコード品質チェックが実行されます：
 
-## 貢献
+```bash
+# Pre-commitフックをインストール
+pre-commit install
 
-TBD
+# 手動で全ファイルをチェック
+pre-commit run --all-files
+```
+
+Pre-commitは以下を自動実行します：
+- Ruff lint & format
+- Mypy型チェック
+- Pytest
+- 標準フック（trailing-whitespace、end-of-file-fixer等）
