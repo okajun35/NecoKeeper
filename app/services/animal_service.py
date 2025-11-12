@@ -4,6 +4,10 @@
 猫の個体情報のCRUD操作を提供します。
 """
 
+from __future__ import annotations
+
+import logging
+
 from fastapi import HTTPException, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -11,6 +15,8 @@ from sqlalchemy.orm import Session
 from app.models.animal import Animal
 from app.models.status_history import StatusHistory
 from app.schemas.animal import AnimalCreate, AnimalListResponse, AnimalUpdate
+
+logger = logging.getLogger(__name__)
 
 
 def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Animal:
@@ -24,26 +30,39 @@ def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Anima
 
     Returns:
         Animal: 登録された猫
+
+    Raises:
+        HTTPException: データベースエラーが発生した場合
     """
-    # 猫を作成
-    animal = Animal(**animal_data.model_dump())
-    db.add(animal)
-    db.flush()  # IDを取得するためにflush
+    try:
+        # 猫を作成
+        animal = Animal(**animal_data.model_dump())
+        db.add(animal)
+        db.flush()  # IDを取得するためにflush
 
-    # ステータス履歴を記録
-    status_history = StatusHistory(
-        animal_id=animal.id,
-        old_status=None,
-        new_status=animal.status,
-        changed_by=user_id,
-        reason="初回登録",
-    )
-    db.add(status_history)
+        # ステータス履歴を記録
+        status_history = StatusHistory(
+            animal_id=animal.id,
+            old_status=None,
+            new_status=animal.status,
+            changed_by=user_id,
+            reason="初回登録",
+        )
+        db.add(status_history)
 
-    db.commit()
-    db.refresh(animal)
+        db.commit()
+        db.refresh(animal)
 
-    return animal
+        logger.info(f"猫を登録しました: ID={animal.id}, 名前={animal.name}")
+        return animal
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"猫の登録に失敗しました: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="猫の登録に失敗しました",
+        ) from e
 
 
 def get_animal(db: Session, animal_id: int) -> Animal:
@@ -60,15 +79,26 @@ def get_animal(db: Session, animal_id: int) -> Animal:
     Raises:
         HTTPException: 猫が見つからない場合
     """
-    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+    try:
+        animal = db.query(Animal).filter(Animal.id == animal_id).first()
 
-    if not animal:
+        if not animal:
+            logger.warning(f"猫が見つかりません: ID={animal_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {animal_id} の猫が見つかりません",
+            )
+
+        return animal
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"猫の取得に失敗しました: ID={animal_id}, エラー={e}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ID {animal_id} の猫が見つかりません",
-        )
-
-    return animal
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="猫の取得に失敗しました",
+        ) from e
 
 
 def update_animal(
@@ -87,30 +117,42 @@ def update_animal(
         Animal: 更新された猫
 
     Raises:
-        HTTPException: 猫が見つからない場合
+        HTTPException: 猫が見つからない場合、またはデータベースエラーが発生した場合
     """
-    animal = get_animal(db, animal_id)
+    try:
+        animal = get_animal(db, animal_id)
 
-    # ステータスが変更された場合は履歴を記録
-    update_dict = animal_data.model_dump(exclude_unset=True)
-    if "status" in update_dict and update_dict["status"] != animal.status:
-        status_history = StatusHistory(
-            animal_id=animal.id,
-            old_status=animal.status,
-            new_status=update_dict["status"],
-            changed_by=user_id,
-            reason="ステータス更新",
-        )
-        db.add(status_history)
+        # ステータスが変更された場合は履歴を記録
+        update_dict = animal_data.model_dump(exclude_unset=True)
+        if "status" in update_dict and update_dict["status"] != animal.status:
+            status_history = StatusHistory(
+                animal_id=animal.id,
+                old_status=animal.status,
+                new_status=update_dict["status"],
+                changed_by=user_id,
+                reason="ステータス更新",
+            )
+            db.add(status_history)
 
-    # 猫情報を更新
-    for key, value in update_dict.items():
-        setattr(animal, key, value)
+        # 猫情報を更新
+        for key, value in update_dict.items():
+            setattr(animal, key, value)
 
-    db.commit()
-    db.refresh(animal)
+        db.commit()
+        db.refresh(animal)
 
-    return animal
+        logger.info(f"猫情報を更新しました: ID={animal.id}")
+        return animal
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"猫情報の更新に失敗しました: ID={animal_id}, エラー={e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="猫情報の更新に失敗しました",
+        ) from e
 
 
 def delete_animal(db: Session, animal_id: int) -> None:
@@ -124,11 +166,24 @@ def delete_animal(db: Session, animal_id: int) -> None:
         animal_id: 猫ID
 
     Raises:
-        HTTPException: 猫が見つからない場合
+        HTTPException: 猫が見つからない場合、またはデータベースエラーが発生した場合
     """
-    animal = get_animal(db, animal_id)
-    db.delete(animal)
-    db.commit()
+    try:
+        animal = get_animal(db, animal_id)
+        db.delete(animal)
+        db.commit()
+
+        logger.info(f"猫を削除しました: ID={animal_id}")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"猫の削除に失敗しました: ID={animal_id}, エラー={e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="猫の削除に失敗しました",
+        ) from e
 
 
 def list_animals(

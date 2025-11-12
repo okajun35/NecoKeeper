@@ -102,7 +102,7 @@ if Path("app/static").exists():
 
 # ルートエンドポイント
 @app.get("/", tags=["Root"])
-async def root():
+async def root() -> dict[str, str | None]:
     """
     ルートエンドポイント
 
@@ -119,7 +119,7 @@ async def root():
 
 # ヘルスチェックエンドポイント
 @app.get("/health", tags=["Health"])
-async def health_check():
+async def health_check() -> dict[str, str]:
     """
     ヘルスチェックエンドポイント
 
@@ -135,7 +135,7 @@ async def health_check():
 
 # グローバル例外ハンドラー
 @app.exception_handler(Exception)
-async def global_exception_handler(request, exc: Exception):
+async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: ignore[no-untyped-def]
     """
     グローバル例外ハンドラー
 

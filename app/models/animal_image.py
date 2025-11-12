@@ -52,13 +52,9 @@ class AnimalImage(Base):
         String(255), nullable=False, comment="画像ファイルパス"
     )
 
-    taken_at: Mapped[date | None] = mapped_column(
-        Date, nullable=True, comment="撮影日"
-    )
+    taken_at: Mapped[date | None] = mapped_column(Date, nullable=True, comment="撮影日")
 
-    description: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="説明"
-    )
+    description: Mapped[str | None] = mapped_column(Text, nullable=True, comment="説明")
 
     file_size: Mapped[int] = mapped_column(
         Integer,

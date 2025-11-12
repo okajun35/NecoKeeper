@@ -55,9 +55,7 @@ class StatusHistory(Base):
         String(20), nullable=False, comment="変更後ステータス"
     )
 
-    reason: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="変更理由"
-    )
+    reason: Mapped[str | None] = mapped_column(Text, nullable=True, comment="変更理由")
 
     changed_by: Mapped[int | None] = mapped_column(
         Integer,

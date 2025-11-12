@@ -49,9 +49,7 @@ class Applicant(Base):
 
     address: Mapped[str | None] = mapped_column(Text, nullable=True, comment="住所")
 
-    family: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="家族構成"
-    )
+    family: Mapped[str | None] = mapped_column(Text, nullable=True, comment="家族構成")
 
     environment: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="飼育環境"

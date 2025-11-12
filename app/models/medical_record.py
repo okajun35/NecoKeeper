@@ -96,9 +96,7 @@ class MedicalRecord(Base):
         Text, nullable=True, comment="その他（ロット番号等）"
     )
 
-    comment: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="コメント"
-    )
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True, comment="コメント")
 
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(

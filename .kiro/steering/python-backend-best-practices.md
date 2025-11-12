@@ -7,7 +7,7 @@ inclusion: always
 このドキュメントは、NecoKeeperプロジェクトにおけるPythonバックエンド開発（FastAPI、SQLAlchemy、Alembic、Pytest）のベストプラクティスを定義します。
 すべてのコード作成・修正時にこれらのルールに従ってください。
 
-**Context7参照**: 
+**Context7参照**:
 - `/zhanymkanov/fastapi-best-practices` (Trust Score: 8.8)
 - `/fastapi/fastapi` (Trust Score: 9.9)
 - `/websites/python_3_15` (Trust Score: 7.5)
@@ -183,13 +183,13 @@ f.close()
 def calculate_total(items: list[Item]) -> Decimal:
     """
     アイテムの合計金額を計算
-    
+
     Args:
         items: アイテムのリスト
-        
+
     Returns:
         Decimal: 合計金額
-        
+
     Example:
         >>> items = [Item(price=100), Item(price=200)]
         >>> calculate_total(items)
@@ -259,7 +259,7 @@ class ItemResponse(ItemBase):
     id: int
     price: Decimal
     created_at: datetime
-    
+
     model_config = {"from_attributes": True}
 ```
 
@@ -270,7 +270,7 @@ class ItemResponse(ItemBase):
 def create_item(db: Session, item_data: ItemCreate) -> Item:
     """
     アイテムを作成
-    
+
     ビジネスロジックはサービス層に配置
     """
     item = Item(**item_data.model_dump())
@@ -356,12 +356,12 @@ class Base(DeclarativeBase):
 
 class User(Base):
     __tablename__ = "user"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(255), unique=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, 
+        DateTime,
         server_default=func.now()
     )
     # オプショナルフィールドはOptional型を使用
@@ -435,7 +435,7 @@ q = (
 # テーブル名は単数形
 class User(Base):
     __tablename__ = "user"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True)
     created_at: Mapped[datetime] = mapped_column(
@@ -560,10 +560,10 @@ import pytest
 @pytest.mark.parametrize("n,expected", [(1, 2), (3, 4)])
 class TestClass:
     """クラス全体にパラメータを適用"""
-    
+
     def test_simple_case(self, n, expected):
         assert n + 1 == expected
-    
+
     def test_weird_simple_case(self, n, expected):
         assert (n * 1) + 1 == expected
 ```
@@ -579,7 +579,7 @@ pytestmark = pytest.mark.parametrize("n,expected", [(1, 2), (3, 4)])
 class TestClass:
     def test_simple_case(self, n, expected):
         assert n + 1 == expected
-    
+
     def test_weird_simple_case(self, n, expected):
         assert (n * 1) + 1 == expected
 ```
@@ -803,7 +803,7 @@ class Settings(BaseSettings):
     debug: bool = False
     secret_key: str
     database_url: str
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -909,7 +909,7 @@ def upgrade():
 def downgrade():
     """制約を削除"""
     op.drop_constraint("some_check_const", "t1", type_="check")
-    
+
     # または命名規則をバイパス
     op.drop_constraint(op.f("some_check_const"), "t1", type_="check")
 ```

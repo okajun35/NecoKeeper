@@ -9,19 +9,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         python-version: ["3.12"]
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Cache pip packages
       uses: actions/cache@v4
       with:
@@ -29,29 +29,29 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
     - name: Run Ruff (Lint)
       run: |
         ruff check .
-    
+
     - name: Run Ruff (Format Check)
       run: |
         ruff format --check .
-    
+
     - name: Run Mypy (Type Check)
       run: |
         mypy app/
       continue-on-error: true
-    
+
     - name: Run Tests
       run: |
         python -m pytest -v --tb=short
-    
+
     - name: Generate Coverage Report
       run: |
         python -m pytest --cov=app --cov-report=xml --cov-report=term

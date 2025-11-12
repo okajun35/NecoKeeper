@@ -112,7 +112,7 @@ SessionLocal = sessionmaker(
 
 class Base(DeclarativeBase):
     """SQLAlchemy Declarative Base with naming convention"""
-    
+
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
@@ -147,25 +147,25 @@ from app.database import Base
 
 class ImprovedModel(Base):
     """改善されたモデルパターン"""
-    
+
     __tablename__ = "improved_model"
-    
+
     # 主キー
     id: Mapped[int] = mapped_column(primary_key=True)
-    
+
     # 必須フィールド
     name: Mapped[str] = mapped_column(String(100))
-    
+
     # オプショナルフィールド（明示的にOptional型を使用）
     description: Mapped[Optional[str]] = mapped_column(String(500))
-    
+
     # タイムスタンプ（server_defaultとonupdateを使用）
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
         comment="作成日時"
     )
-    
+
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -366,15 +366,15 @@ def create_animal(
 ) -> Animal:
     """
     猫を作成
-    
+
     Args:
         db: データベースセッション
         animal_data: 猫作成データ
         user_id: 作成ユーザーID
-        
+
     Returns:
         Animal: 作成された猫
-        
+
     Raises:
         HTTPException: データベースエラーまたはバリデーションエラー
     """
@@ -384,11 +384,11 @@ def create_animal(
         db.commit()
         db.refresh(animal)
         return animal
-        
+
     except IntegrityError as e:
         db.rollback()
         logger.error(f"Integrity error creating animal: {e}")
-        
+
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -398,7 +398,7 @@ def create_animal(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="データの整合性エラーが発生しました"
         )
-        
+
     except SQLAlchemyError as e:
         db.rollback()
         logger.error(f"Database error creating animal: {e}")
@@ -447,7 +447,7 @@ def test_db(test_engine) -> Generator[Session, None, None]:
         autocommit=False,
         autoflush=False,
     )
-    
+
     db = TestingSessionLocal()
     try:
         yield db
@@ -464,7 +464,7 @@ def test_client(test_db: Session) -> TestClient:
             yield test_db
         finally:
             pass
-    
+
     app.dependency_overrides[get_db] = override_get_db
     return TestClient(app)
 ```
