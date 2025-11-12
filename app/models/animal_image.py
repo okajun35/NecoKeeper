@@ -4,6 +4,8 @@
 猫の複数画像を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import date, datetime
 
 from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, String, Text
@@ -57,7 +59,6 @@ class AnimalImage(Base):
     file_size: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
-        default=0,
         server_default="0",
         comment="ファイルサイズ（bytes）",
     )
@@ -65,9 +66,7 @@ class AnimalImage(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="作成日時",
     )
 

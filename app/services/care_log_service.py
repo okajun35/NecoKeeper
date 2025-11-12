@@ -4,8 +4,11 @@
 世話記録のCRUD操作とCSVエクスポートを提供します。
 """
 
+from __future__ import annotations
+
 import csv
 import io
+import logging
 from datetime import date, datetime
 
 from fastapi import HTTPException, status
@@ -13,6 +16,8 @@ from sqlalchemy.orm import Session
 
 from app.models.care_log import CareLog
 from app.schemas.care_log import CareLogCreate, CareLogListResponse, CareLogUpdate
+
+logger = logging.getLogger(__name__)
 
 
 def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
@@ -25,13 +30,28 @@ def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
 
     Returns:
         CareLog: 登録された世話記録
-    """
-    care_log = CareLog(**care_log_data.model_dump())
-    db.add(care_log)
-    db.commit()
-    db.refresh(care_log)
 
-    return care_log
+    Raises:
+        HTTPException: データベースエラーが発生した場合
+    """
+    try:
+        care_log = CareLog(**care_log_data.model_dump())
+        db.add(care_log)
+        db.commit()
+        db.refresh(care_log)
+
+        logger.info(
+            f"世話記録を登録しました: ID={care_log.id}, 猫ID={care_log.animal_id}"
+        )
+        return care_log
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"世話記録の登録に失敗しました: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="世話記録の登録に失敗しました",
+        ) from e
 
 
 def get_care_log(db: Session, care_log_id: int) -> CareLog:
@@ -48,15 +68,26 @@ def get_care_log(db: Session, care_log_id: int) -> CareLog:
     Raises:
         HTTPException: 世話記録が見つからない場合
     """
-    care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+    try:
+        care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
 
-    if not care_log:
+        if not care_log:
+            logger.warning(f"世話記録が見つかりません: ID={care_log_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {care_log_id} の世話記録が見つかりません",
+            )
+
+        return care_log
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"世話記録の取得に失敗しました: ID={care_log_id}, エラー={e}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"ID {care_log_id} の世話記録が見つかりません",
-        )
-
-    return care_log
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="世話記録の取得に失敗しました",
+        ) from e
 
 
 def update_care_log(
@@ -75,22 +106,34 @@ def update_care_log(
         CareLog: 更新された世話記録
 
     Raises:
-        HTTPException: 世話記録が見つからない場合
+        HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
     """
-    care_log = get_care_log(db, care_log_id)
+    try:
+        care_log = get_care_log(db, care_log_id)
 
-    # 世話記録を更新
-    update_dict = care_log_data.model_dump(exclude_unset=True)
-    for key, value in update_dict.items():
-        setattr(care_log, key, value)
+        # 世話記録を更新
+        update_dict = care_log_data.model_dump(exclude_unset=True)
+        for key, value in update_dict.items():
+            setattr(care_log, key, value)
 
-    # 更新者を記録
-    care_log.last_updated_by = user_id
+        # 更新者を記録
+        care_log.last_updated_by = user_id
 
-    db.commit()
-    db.refresh(care_log)
+        db.commit()
+        db.refresh(care_log)
 
-    return care_log
+        logger.info(f"世話記録を更新しました: ID={care_log_id}")
+        return care_log
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"世話記録の更新に失敗しました: ID={care_log_id}, エラー={e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="世話記録の更新に失敗しました",
+        ) from e
 
 
 def list_care_logs(
@@ -248,6 +291,6 @@ def get_latest_care_log(db: Session, animal_id: int) -> CareLog | None:
     return (
         db.query(CareLog)
         .filter(CareLog.animal_id == animal_id)
-        .order_by(CareLog.created_at.desc())
+        .order_by(CareLog.created_at.desc(), CareLog.id.desc())
         .first()
     )

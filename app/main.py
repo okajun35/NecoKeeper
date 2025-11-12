@@ -7,12 +7,14 @@ FastAPIアプリケーションの初期化、ミドルウェアの設定、ル�
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.v1 import animals, auth, care_logs
 from app.config import get_settings
 
 # 設定を取得
@@ -34,13 +36,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print(f"🔧 デバッグモード: {settings.debug}")
 
     # 必要なディレクトリを作成
-    import os
-
-    os.makedirs(settings.media_dir, exist_ok=True)
-    os.makedirs(settings.backup_dir, exist_ok=True)
-    os.makedirs(os.path.dirname(settings.log_file), exist_ok=True)
-    os.makedirs(
-        os.path.dirname(settings.database_url.replace("sqlite:///", "")), exist_ok=True
+    Path(settings.media_dir).mkdir(parents=True, exist_ok=True)
+    Path(settings.backup_dir).mkdir(parents=True, exist_ok=True)
+    Path(settings.log_file).parent.mkdir(parents=True, exist_ok=True)
+    Path(settings.database_url.replace("sqlite:///", "")).parent.mkdir(
+        parents=True, exist_ok=True
     )
 
     print("✅ 起動完了")
@@ -57,20 +57,20 @@ app = FastAPI(
     version=settings.app_version,
     description="""
     ## NecoKeeper - 保護猫管理システム
-    
+
     保護猫団体向けの包括的な管理システムです。
-    
+
     ### 主な機能
-    
+
     * **猫管理**: 保護猫の情報管理、写真管理
     * **世話記録**: 日々の世話記録、健康管理
     * **里親管理**: 里親希望者の管理、譲渡プロセス管理
     * **PDF生成**: QRコード付き猫カードの生成
     * **レポート**: 統計情報とレポート生成
     * **バックアップ**: 自動バックアップ機能
-    
+
     ### 認証
-    
+
     管理画面へのアクセスにはログインが必要です。
     """,
     debug=settings.debug,
@@ -92,19 +92,17 @@ app.add_middleware(
 
 # 静的ファイルのマウント
 # メディアファイル（画像など）
-import os
-
-if os.path.exists(settings.media_dir):
+if Path(settings.media_dir).exists():
     app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")
 
 # 静的アセット（CSS、JS、画像など）
-if os.path.exists("app/static"):
+if Path("app/static").exists():
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 # ルートエンドポイント
 @app.get("/", tags=["Root"])
-async def root():
+async def root() -> dict[str, str | None]:
     """
     ルートエンドポイント
 
@@ -121,7 +119,7 @@ async def root():
 
 # ヘルスチェックエンドポイント
 @app.get("/health", tags=["Health"])
-async def health_check():
+async def health_check() -> dict[str, str]:
     """
     ヘルスチェックエンドポイント
 
@@ -137,7 +135,7 @@ async def health_check():
 
 # グローバル例外ハンドラー
 @app.exception_handler(Exception)
-async def global_exception_handler(request, exc: Exception):
+async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: ignore[no-untyped-def]
     """
     グローバル例外ハンドラー
 
@@ -167,8 +165,6 @@ async def global_exception_handler(request, exc: Exception):
 
 
 # APIルーターの登録
-from app.api.v1 import animals, auth, care_logs
-
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")
@@ -183,7 +179,7 @@ app.include_router(care_logs.router, prefix="/api/v1")
 if __name__ == "__main__":
     """
     開発用サーバーの起動
-    
+
     本番環境では uvicorn または gunicorn を使用してください。
     """
     import uvicorn

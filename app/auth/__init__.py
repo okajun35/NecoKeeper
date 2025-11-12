@@ -14,19 +14,15 @@ from app.auth.password import hash_password, validate_password_policy, verify_pa
 from app.auth.permissions import has_permission, require_permission, require_role
 
 __all__ = [
-    # Dependencies
-    "oauth2_scheme",
-    "get_current_user",
-    "get_current_active_user",
-    # JWT
     "create_access_token",
     "decode_access_token",
-    # Password
-    "hash_password",
-    "verify_password",
-    "validate_password_policy",
-    # Permissions
+    "get_current_active_user",
+    "get_current_user",
     "has_permission",
-    "require_role",
+    "hash_password",
+    "oauth2_scheme",
     "require_permission",
+    "require_role",
+    "validate_password_policy",
+    "verify_password",
 ]

@@ -107,13 +107,17 @@ async def save_upload_file(file: UploadFile, destination_dir: str = "animals") -
     save_dir.mkdir(parents=True, exist_ok=True)
 
     # ユニークなファイル名を生成
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ファイル名が指定されていません",
+        )
     filename = generate_unique_filename(file.filename)
     file_path = save_dir / filename
 
     # ファイルを保存
     contents = await file.read()
-    with open(file_path, "wb") as f:
-        f.write(contents)
+    file_path.write_bytes(contents)
 
     # 相対パスを返す
     return f"{destination_dir}/{filename}"

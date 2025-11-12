@@ -17,18 +17,15 @@ from app.schemas.care_log import (
 )
 
 __all__ = [
-    # Auth
+    "AnimalCreate",
+    "AnimalListResponse",
+    "AnimalResponse",
+    "AnimalUpdate",
+    "CareLogCreate",
+    "CareLogListResponse",
+    "CareLogResponse",
+    "CareLogUpdate",
     "Token",
     "TokenData",
     "UserResponse",
-    # Animal
-    "AnimalCreate",
-    "AnimalUpdate",
-    "AnimalResponse",
-    "AnimalListResponse",
-    # CareLog
-    "CareLogCreate",
-    "CareLogUpdate",
-    "CareLogResponse",
-    "CareLogListResponse",
 ]

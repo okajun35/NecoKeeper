@@ -61,11 +61,11 @@ async def get_current_user(
         # ユーザーIDを整数に変換
         try:
             user_id = int(user_id)
-        except ValueError:
-            raise credentials_exception
+        except ValueError as e:
+            raise credentials_exception from e
 
-    except InvalidTokenError:
-        raise credentials_exception
+    except InvalidTokenError as e:
+        raise credentials_exception from e
 
     # データベースからユーザーを取得
     user = db.query(User).filter(User.id == user_id).first()

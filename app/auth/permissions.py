@@ -6,7 +6,7 @@
 Requirements: Requirement 10.1-10.5
 """
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 
@@ -66,7 +66,7 @@ def has_permission(user: User, permission: str) -> bool:
     return permission in user_permissions
 
 
-def require_role(allowed_roles: list[str]):
+def require_role(allowed_roles: list[str]) -> Any:
     """
     指定されたロールのいずれかを要求する依存性を生成
 
@@ -95,7 +95,7 @@ def require_role(allowed_roles: list[str]):
     return role_checker
 
 
-def require_permission(required_permission: str):
+def require_permission(required_permission: str) -> Any:
     """
     指定された権限を要求する依存性を生成
 

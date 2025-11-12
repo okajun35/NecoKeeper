@@ -145,9 +145,9 @@ necokeeper/
 │ status      │       │ food         │       │ ...         │
 │ ...         │       │ created_at   │       └─────────────┘
 └─────────────┘       └──────────────┘
-      │1                     
-      │                      
-      │n                     
+      │1
+      │
+      │n
 ┌──────────────┐       ┌─────────────┐
 │MedicalRecord │n    1 │    Users    │
 │──────────────│───────│─────────────│
@@ -331,7 +331,7 @@ necokeeper/
 
 **インデックス**: name, valid_from, valid_to
 
-**料金計算式**: 
+**料金計算式**:
 - 実際の請求価格 = (請求価格 × 投薬量) + 投薬・処置料金
 
 #### AnimalImages（猫画像ギャラリー）
@@ -604,7 +604,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
-    
+
     to_encode.update({"exp": expire, "sub": str(data["user_id"])})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -643,7 +643,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token = create_access_token(
         data={"user_id": user.id, "role": user.role},
         expires_delta=timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
@@ -1007,17 +1007,17 @@ async def backup_database():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_dir = Path("/backups")
     backup_dir.mkdir(exist_ok=True)
-    
+
     # SQLiteバックアップ
     db_path = Path("/data/app.sqlite3")
     backup_db = backup_dir / f"app_{timestamp}.sqlite3"
     shutil.copy2(db_path, backup_db)
-    
+
     # メディアファイルバックアップ
     media_path = Path("/media")
     backup_media = backup_dir / f"media_{timestamp}.tar.gz"
     shutil.make_archive(backup_media.with_suffix(""), "gztar", media_path)
-    
+
     # 90日以上前のバックアップを削除
     cutoff = datetime.now() - timedelta(days=90)
     for backup_file in backup_dir.glob("*"):
@@ -1138,7 +1138,7 @@ from logging.handlers import RotatingFileHandler
 def setup_logging():
     logger = logging.getLogger("necokeeper")
     logger.setLevel(logging.INFO)
-    
+
     # ファイルハンドラー（ローテーション）
     file_handler = RotatingFileHandler(
         "logs/app.log",
@@ -1151,7 +1151,7 @@ def setup_logging():
         )
     )
     logger.addHandler(file_handler)
-    
+
     # コンソールハンドラー
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
@@ -1175,14 +1175,14 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
         response = await call_next(request)
         duration = time.time() - start_time
-        
+
         request_count.labels(
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code
         ).inc()
         request_duration.observe(duration)
-        
+
         return response
 ```
 
@@ -1202,7 +1202,7 @@ async def init_database():
         role="admin"
     )
     db.add(admin_user)
-    
+
     # サンプル猫データ
     sample_animal = Animal(
         name="サンプル猫",
@@ -1212,14 +1212,14 @@ async def init_database():
         status="保護中"
     )
     db.add(sample_animal)
-    
+
     # サンプルボランティア
     sample_volunteer = Volunteer(
         name="サンプルボランティア",
         status="active"
     )
     db.add(sample_volunteer)
-    
+
     await db.commit()
 ```
 
@@ -1322,4 +1322,3 @@ httpx==0.25.1
 - [AdminLTE Documentation](https://adminlte.io/docs/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [PWA Documentation](https://web.dev/progressive-web-apps/)
-

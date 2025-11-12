@@ -1,0 +1,57 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+
+repos:
+  # Ruff - Python linter and formatter (replaces black, isort, flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix]
+      # Run the formatter
+      - id: ruff-format
+
+  # Mypy - Static type checker
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - sqlalchemy[mypy]==2.0.23
+          - pydantic==2.5.0
+          - pydantic-settings==2.1.0
+          - fastapi==0.104.1
+          - pyjwt==2.8.0
+          - argon2-cffi==23.1.0
+          - pillow==10.1.0
+          - uvicorn==0.24.0
+          - types-pillow
+        args: [--config-file=mypy.ini]
+        files: ^app/
+
+  # Pytest - Run tests before commit
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: python -m pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: [-v, --tb=short, -x]
+        stages: [pre-commit]
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: detect-private-key

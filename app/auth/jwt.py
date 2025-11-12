@@ -84,7 +84,7 @@ def decode_access_token(token: str) -> dict[str, Any]:
         1
     """
     try:
-        payload = jwt.decode(
+        payload: dict[str, Any] = jwt.decode(
             token,
             settings.secret_key,
             algorithms=[ALGORITHM],
@@ -96,7 +96,7 @@ def decode_access_token(token: str) -> dict[str, Any]:
         )
         return payload
     except InvalidTokenError as e:
-        raise InvalidTokenError(f"トークンの検証に失敗しました: {e!s}")
+        raise InvalidTokenError(f"トークンの検証に失敗しました: {e!s}") from e
 
 
 def get_token_user_id(token: str) -> int | None:
@@ -168,4 +168,5 @@ def get_unverified_claims(token: str) -> dict[str, Any]:
         >>> claims["user_id"]
         1
     """
-    return jwt.decode(token, options={"verify_signature": False})
+    result: dict[str, Any] = jwt.decode(token, options={"verify_signature": False})
+    return result

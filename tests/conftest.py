@@ -4,13 +4,16 @@ pytest共通設定
 全テストで共有されるフィクスチャとデータベース設定
 """
 
+from __future__ import annotations
+
 import os
 import warnings
+from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 # テスト用のSECRET_KEYを設定（warningを抑制）
@@ -19,6 +22,7 @@ os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing-only")
 # テスト環境でのSECRET_KEY warningを抑制
 warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用されています")
 
+# ruff: noqa: E402
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
@@ -37,7 +41,7 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-def override_get_db():
+def override_get_db() -> Generator[Session, None, None]:
     """テスト用のデータベースセッションを提供"""
     try:
         db = TestingSessionLocal()
@@ -51,7 +55,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup_test_database():
+def setup_test_database() -> Generator[None, None, None]:
     """テストセッション開始時にテーブルを作成"""
     Base.metadata.create_all(bind=engine)
     yield
@@ -59,13 +63,13 @@ def setup_test_database():
 
 
 @pytest.fixture(scope="function")
-def test_client():
+def test_client() -> TestClient:
     """テストクライアントを提供（関数スコープ）"""
     return TestClient(app)
 
 
 @pytest.fixture(scope="function", autouse=True)
-def test_db():
+def test_db() -> Generator[Session, None, None]:
     """各テスト関数ごとにデータベースセッションを提供（自動使用）"""
     db = TestingSessionLocal()
 
@@ -120,7 +124,7 @@ def test_db():
 
 
 @pytest.fixture(scope="function")
-def auth_token(test_client, test_db):
+def auth_token(test_client: TestClient, test_db: Session) -> str:
     """認証トークンを取得（test_dbに依存してユーザーが作成済みであることを保証）"""
     response = test_client.post(
         "/api/v1/auth/token",

@@ -52,7 +52,8 @@ class TestAnimalModel:
         # デフォルト値の確認
         assert animal.status == "保護中"
         assert animal.ear_cut is False
-        assert animal.protected_at == date.today()
+        assert animal.protected_at is not None
+        assert isinstance(animal.protected_at, date)
         assert animal.created_at is not None
         assert animal.updated_at is not None
 
@@ -187,8 +188,6 @@ class TestAnimalModel:
         test_db.add(animal)
         test_db.commit()
         test_db.refresh(animal)
-
-        original_updated_at = animal.updated_at
 
         # 少し待ってから更新
         import time

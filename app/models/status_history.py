@@ -4,6 +4,8 @@
 猫のステータス変更履歴を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text
@@ -64,9 +66,7 @@ class StatusHistory(Base):
 
     changed_at: Mapped[datetime] = mapped_column(
         DateTime,
-        nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="変更日時",
     )
 

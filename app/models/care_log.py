@@ -4,6 +4,8 @@
 日々の世話記録を管理するORMモデルです。
 """
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text
@@ -131,18 +133,15 @@ class CareLog(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.now,
-        server_default=func.current_timestamp(),
+        server_default=func.now(),
         comment="記録日時",
     )
 
     last_updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        default=datetime.now,
-        onupdate=datetime.now,
-        server_default=func.current_timestamp(),
-        server_onupdate=func.current_timestamp(),
+        server_default=func.now(),
+        onupdate=func.now(),
         comment="最終更新日時",
     )
 
