@@ -252,13 +252,19 @@
 
 - [ ] 10.1 tests/conftest.pyの改善
   - `from __future__ import annotations`を追加
+
+
   - フィクスチャのスコープを最適化
   - 型ヒントを`collections.abc.Generator`に更新
   - _Requirements: 4.1, 4.2, 8.1, 8.2_
 
+
+
 - [ ] 11. 型チェックの実行と修正
   - mypy .を実行してエラーを特定
   - エラーを修正
+
+
   - _Requirements: 8.8_
 
 - [ ] 11.1 Mypyエラーの特定
