@@ -206,3 +206,24 @@ def test_volunteer(test_db: Session) -> Volunteer:
     test_db.commit()
     test_db.refresh(volunteer)
     return volunteer
+
+
+@pytest.fixture(scope="function")
+def temp_media_dir(tmp_path, monkeypatch):
+    """テスト用の一時メディアディレクトリを作成"""
+    # 一時ディレクトリを作成
+    media_dir = tmp_path / "media"
+    media_dir.mkdir()
+
+    # 環境変数をモンキーパッチ
+    monkeypatch.setenv("MEDIA_DIR", str(media_dir))
+
+    # app.configのmedia_dirもオーバーライド
+    from app.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "media_dir", str(media_dir))
+
+    yield media_dir
+
+    # クリーンアップは自動的に行われる（tmp_pathが削除される）

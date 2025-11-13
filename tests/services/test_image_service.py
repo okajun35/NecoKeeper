@@ -133,7 +133,11 @@ class TestUploadImage:
 
     @pytest.mark.asyncio
     async def test_upload_image_success(
-        self, test_db: Session, test_animal: Animal, mock_image_file: UploadFile
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        mock_image_file: UploadFile,
+        temp_media_dir,
     ):
         """正常系: 画像をアップロードできる"""
         # Given
@@ -159,7 +163,11 @@ class TestUploadImage:
 
     @pytest.mark.asyncio
     async def test_upload_image_without_optional_fields(
-        self, test_db: Session, test_animal: Animal, mock_image_file: UploadFile
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        mock_image_file: UploadFile,
+        temp_media_dir,
     ):
         """正常系: オプションフィールドなしで画像をアップロードできる"""
         # When
@@ -175,7 +183,7 @@ class TestUploadImage:
 
     @pytest.mark.asyncio
     async def test_upload_image_nonexistent_animal(
-        self, test_db: Session, mock_image_file: UploadFile
+        self, test_db: Session, mock_image_file: UploadFile, temp_media_dir
     ):
         """異常系: 存在しない猫IDの場合は404エラー"""
         # When/Then
@@ -189,7 +197,11 @@ class TestUploadImage:
 
     @pytest.mark.asyncio
     async def test_upload_image_exceeds_limit(
-        self, test_db: Session, test_animal: Animal, mock_image_file: UploadFile
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        mock_image_file: UploadFile,
+        temp_media_dir,
     ):
         """異常系: 枚数制限を超える場合は400エラー"""
         # Given: 最大枚数を2枚に設定
