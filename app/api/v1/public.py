@@ -17,7 +17,6 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.animal import Animal
 from app.models.care_log import CareLog
-from app.models.volunteer import Volunteer
 from app.schemas.care_log import CareLogCreate, CareLogResponse
 from app.schemas.volunteer import VolunteerResponse
 from app.services import care_log_service, volunteer_service
@@ -67,7 +66,7 @@ async def get_animal_info(
 @router.get("/volunteers", response_model=list[VolunteerResponse])
 async def get_active_volunteers(
     db: Annotated[Session, Depends(get_db)],
-) -> list[Volunteer]:
+) -> list[VolunteerResponse]:
     """
     アクティブなボランティア一覧を取得（認証不要）
 
@@ -83,10 +82,13 @@ async def get_active_volunteers(
         GET /api/v1/public/volunteers
         Response: [{"id": 1, "name": "田中太郎", ...}, ...]
     """
-    return volunteer_service.get_active_volunteers(db=db)
+    volunteers = volunteer_service.get_active_volunteers(db=db)
+    return [VolunteerResponse.model_validate(volunteer) for volunteer in volunteers]
 
 
-@router.post("/care-logs", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/care-logs", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_care_log_public(
     care_log_data: CareLogCreate,
     request: Request,
@@ -176,4 +178,4 @@ async def get_latest_care_log(
     if not latest_log:
         return None
 
-    return latest_log
+    return CareLogResponse.model_validate(latest_log)

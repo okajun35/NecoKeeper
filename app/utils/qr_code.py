@@ -12,8 +12,8 @@ from __future__ import annotations
 import io
 from typing import BinaryIO
 
-import qrcode
-from qrcode.image.pil import PilImage
+import qrcode  # type: ignore[import-untyped]
+from qrcode.image.pil import PilImage  # type: ignore[import-untyped]
 
 
 def generate_qr_code(
@@ -92,7 +92,7 @@ def generate_qr_code_bytes(
     img.save(buffer, format=image_format)
     buffer.seek(0)
 
-    return buffer.getvalue()
+    return buffer.getvalue()  # type: ignore[no-any-return,attr-defined]
 
 
 def generate_animal_qr_url(base_url: str, animal_id: int) -> str:

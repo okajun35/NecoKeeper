@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: Phase 6 完了、Phase 9（Publicフォーム）開始準備
+**プロジェクトステータス**: Phase 9 Public API完了、MVP Core バックエンド完成！
 
 **完了済み:**
 - ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
@@ -13,6 +13,7 @@
 - ✅ Phase 4: 世話記録機能（全5タスク）
 - ✅ Phase 4: ボランティア管理（全4タスク）
 - ✅ Phase 6: PDF生成機能（全5タスク）
+- ✅ Phase 9: Public API（Task 14.2完了）
 
 **実装済み機能:**
 - データベース（全12モデル）
@@ -22,9 +23,10 @@
 - ボランティア管理機能（CRUD、活動履歴）
 - 画像アップロード・最適化・ギャラリー管理
 - PDF生成機能（QRカード、面付けカード、紙記録フォーム）
-- 統合テスト（221テスト、カバレッジ84.41%）
+- **Public API（認証不要の世話記録入力）**
+- 統合テスト（232テスト、カバレッジ84.90%）
 
-**次のステップ**: Phase 9（Publicフォーム）から開始（MVP Core完成に向けて）
+**次のステップ**: Phase 9 フロントエンド実装（Publicフォーム、PWA機能）またはPhase 5（診療記録機能）
 
 **重要な注意事項:**
 
@@ -746,11 +748,12 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 保存ボタン（画面下部固定）
   - _Requirements: Requirement 3.1-3.4, Requirement 13.1-13.5_
 
-- [ ] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）
-  - GET /api/v1/public/care/{animal_id}（猫情報取得）
+- [x] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）
+  - GET /api/v1/public/animals/{animal_id}（猫情報取得）
   - GET /api/v1/public/volunteers（アクティブボランティア一覧）
-  - POST /api/v1/public/care-logs（記録保存）
+  - POST /api/v1/public/care-logs（記録保存、IPアドレス・User-Agent自動記録）
   - GET /api/v1/public/care-logs/latest/{animal_id}（前回入力値取得）
+  - テスト11個実装（カバレッジ97.62%）
   - _Requirements: Requirement 3.5-3.7_
 
 - [ ] 14.3 前回入力値コピー機能を実装（JavaScript）

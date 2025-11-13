@@ -8,92 +8,92 @@
             size: A4 portrait;
             margin: 15mm;
         }
-        
+
         body {
             font-family: 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
             margin: 0;
             padding: 0;
             font-size: 9pt;
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 10mm;
             border-bottom: 2px solid #333;
             padding-bottom: 5mm;
         }
-        
+
         .title {
             font-size: 16pt;
             font-weight: bold;
             margin-bottom: 3mm;
         }
-        
+
         .animal-info {
             font-size: 11pt;
             margin-bottom: 2mm;
         }
-        
+
         .period {
             font-size: 10pt;
             color: #666;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 5mm;
         }
-        
+
         th, td {
             border: 1px solid #333;
             padding: 2mm;
             text-align: center;
         }
-        
+
         th {
             background-color: #f0f0f0;
             font-weight: bold;
             font-size: 8pt;
         }
-        
+
         td {
             height: 8mm;
         }
-        
+
         .date-col {
             width: 12%;
             font-weight: bold;
         }
-        
+
         .time-col {
             width: 10%;
         }
-        
+
         .appetite-col, .energy-col {
             width: 10%;
         }
-        
+
         .urination-col, .cleaning-col {
             width: 8%;
         }
-        
+
         .recorder-col {
             width: 15%;
         }
-        
+
         .memo-col {
             width: 27%;
             text-align: left;
         }
-        
+
         .footer {
             margin-top: 10mm;
             font-size: 8pt;
             color: #666;
             text-align: center;
         }
-        
+
         .legend {
             margin-top: 5mm;
             font-size: 8pt;
@@ -101,7 +101,7 @@
             background-color: #f9f9f9;
             border: 1px solid #ddd;
         }
-        
+
         .legend-title {
             font-weight: bold;
             margin-bottom: 2mm;
@@ -116,7 +116,7 @@
         </div>
         <div class="period">{{ year }}年{{ month }}月</div>
     </div>
-    
+
     <table>
         <thead>
             <tr>
@@ -166,7 +166,7 @@
             {% endfor %}
         </tbody>
     </table>
-    
+
     <div class="legend">
         <div class="legend-title">記入方法</div>
         <ul style="margin: 0; padding-left: 15px;">
@@ -176,7 +176,7 @@
             <li><strong>メモ:</strong> 気になることがあれば記入</li>
         </ul>
     </div>
-    
+
     <div class="footer">
         NecoKeeper - 保護猫管理システム
     </div>

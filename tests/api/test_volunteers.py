@@ -49,9 +49,7 @@ class TestListVolunteers:
 class TestCreateVolunteer:
     """ボランティア登録APIのテスト"""
 
-    def test_create_volunteer_success(
-        self, test_client: TestClient, auth_token: str
-    ):
+    def test_create_volunteer_success(self, test_client: TestClient, auth_token: str):
         """正常系: ボランティアを登録できる"""
         # Given
         volunteer_data = {
@@ -106,9 +104,7 @@ class TestGetVolunteer:
         assert data["id"] == test_volunteer.id
         assert data["name"] == test_volunteer.name
 
-    def test_get_volunteer_not_found(
-        self, test_client: TestClient, auth_token: str
-    ):
+    def test_get_volunteer_not_found(self, test_client: TestClient, auth_token: str):
         """異常系: 存在しないIDで404エラー"""
         # When
         response = test_client.get(
@@ -143,9 +139,7 @@ class TestUpdateVolunteer:
         assert data["contact"] == "080-9876-5432"
         assert data["status"] == "inactive"
 
-    def test_update_volunteer_not_found(
-        self, test_client: TestClient, auth_token: str
-    ):
+    def test_update_volunteer_not_found(self, test_client: TestClient, auth_token: str):
         """異常系: 存在しないIDで404エラー"""
         # Given
         update_data = {"status": "inactive"}

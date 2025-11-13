@@ -11,7 +11,6 @@ t-wada準拠のテスト設計:
 from __future__ import annotations
 
 import io
-import time
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -22,7 +21,6 @@ from sqlalchemy.orm import Session
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
 from app.models.setting import Setting
-from app.models.user import User
 from app.services import image_service
 
 
@@ -38,9 +36,7 @@ def mock_image_file() -> UploadFile:
     file = io.BytesIO(png_data)
     # headers引数でcontent_typeを設定
     upload_file = UploadFile(
-        filename="test.png",
-        file=file,
-        headers={"content-type": "image/png"}
+        filename="test.png", file=file, headers={"content-type": "image/png"}
     )
     return upload_file
 
@@ -261,7 +257,7 @@ class TestListImages:
         """正常系: 作成日時の降順でソートできる"""
         # Given: 明示的に異なる作成日時を設定
         now = datetime.now()
-        
+
         image1 = AnimalImage(
             animal_id=test_animal.id,
             image_path="test_1.jpg",

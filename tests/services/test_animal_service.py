@@ -355,7 +355,7 @@ class TestListAnimals:
         """正常系: 総ページ数が正しく計算される"""
         # Given
         page_size = 3
-        
+
         # 実際のデータベース内の総数を取得（他のテストで追加された動物も含む）
         total_count = test_db.query(Animal).count()
         expected_total_pages = (total_count + page_size - 1) // page_size

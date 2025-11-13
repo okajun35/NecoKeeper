@@ -138,7 +138,9 @@ class TestGetCareLog:
             care_log_service.get_care_log(test_db, non_existent_id)
 
         assert exc_info.value.status_code == 404
-        assert f"ID {non_existent_id} の世話記録が見つかりません" in exc_info.value.detail
+        assert (
+            f"ID {non_existent_id} の世話記録が見つかりません" in exc_info.value.detail
+        )
 
 
 class TestUpdateCareLog:
@@ -473,9 +475,7 @@ class TestExportCareLogsCSV:
         assert "対象記録者" in csv_content
         assert "他の記録者" not in csv_content
 
-    def test_export_csv_with_date_filter(
-        self, test_db: Session, test_animal: Animal
-    ):
+    def test_export_csv_with_date_filter(self, test_db: Session, test_animal: Animal):
         """正常系: 日付範囲でフィルタリングしてCSV出力できる"""
         # Given
         today = date.today()
@@ -555,9 +555,7 @@ class TestExportCareLogsCSV:
 class TestGetLatestCareLog:
     """最新世話記録取得のテスト"""
 
-    def test_get_latest_care_log_success(
-        self, test_db: Session, test_animal: Animal
-    ):
+    def test_get_latest_care_log_success(self, test_db: Session, test_animal: Animal):
         """正常系: 最新の世話記録を取得できる"""
         # Given
         # 古い記録

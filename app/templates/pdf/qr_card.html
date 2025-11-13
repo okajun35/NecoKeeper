@@ -8,7 +8,7 @@
             size: A6 landscape;
             margin: 5mm;
         }
-        
+
         body {
             font-family: 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
             margin: 0;
@@ -19,12 +19,12 @@
             justify-content: center;
             height: 100%;
         }
-        
+
         .card {
             text-align: center;
             width: 100%;
         }
-        
+
         .animal-photo {
             width: 40mm;
             height: 40mm;
@@ -33,26 +33,26 @@
             margin-bottom: 5mm;
             border: 2px solid #333;
         }
-        
+
         .animal-name {
             font-size: 18pt;
             font-weight: bold;
             margin-bottom: 3mm;
             color: #333;
         }
-        
+
         .animal-id {
             font-size: 10pt;
             color: #666;
             margin-bottom: 5mm;
         }
-        
+
         .qr-code {
             width: 35mm;
             height: 35mm;
             margin: 0 auto;
         }
-        
+
         .instructions {
             font-size: 8pt;
             color: #666;
@@ -69,12 +69,12 @@
             <span style="color: #999;">写真なし</span>
         </div>
         {% endif %}
-        
+
         <div class="animal-name">{{ animal.name or '名前未設定' }}</div>
         <div class="animal-id">ID: {{ animal.id }}</div>
-        
+
         <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code">
-        
+
         <div class="instructions">
             スマホでQRコードをスキャンして<br>
             世話記録を入力してください

@@ -16,6 +16,7 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.models.animal import Animal
 from app.models.care_log import CareLog
 from app.models.volunteer import Volunteer
 from app.schemas.volunteer import VolunteerCreate, VolunteerUpdate
@@ -25,7 +26,7 @@ from app.services import volunteer_service
 class TestCreateVolunteer:
     """ボランティア登録のテスト"""
 
-    def test_create_volunteer_success(self, test_db: Session):
+    def test_create_volunteer_success(self, test_db: Session) -> None:
         """正常系: ボランティアを登録できる"""
         # Given
         volunteer_data = VolunteerCreate(
@@ -46,7 +47,7 @@ class TestCreateVolunteer:
         assert result.status == "active"
         assert result.started_at == date.today()
 
-    def test_create_volunteer_with_minimal_fields(self, test_db: Session):
+    def test_create_volunteer_with_minimal_fields(self, test_db: Session) -> None:
         """正常系: 必須フィールドのみでボランティアを登録できる"""
         # Given
         volunteer_data = VolunteerCreate(name="佐藤花子")
@@ -61,7 +62,7 @@ class TestCreateVolunteer:
         assert result.affiliation is None
         assert result.status == "active"  # デフォルト値
 
-    def test_create_volunteer_with_inactive_status(self, test_db: Session):
+    def test_create_volunteer_with_inactive_status(self, test_db: Session) -> None:
         """正常系: 非アクティブ状態でボランティアを登録できる"""
         # Given
         volunteer_data = VolunteerCreate(name="山田次郎", status="inactive")
@@ -76,7 +77,9 @@ class TestCreateVolunteer:
 class TestGetVolunteer:
     """ボランティア詳細取得のテスト"""
 
-    def test_get_volunteer_success(self, test_db: Session, test_volunteer: Volunteer):
+    def test_get_volunteer_success(
+        self, test_db: Session, test_volunteer: Volunteer
+    ) -> None:
         """正常系: ボランティアを取得できる"""
         # When
         result = volunteer_service.get_volunteer(test_db, test_volunteer.id)
@@ -85,7 +88,7 @@ class TestGetVolunteer:
         assert result.id == test_volunteer.id
         assert result.name == test_volunteer.name
 
-    def test_get_volunteer_not_found(self, test_db: Session):
+    def test_get_volunteer_not_found(self, test_db: Session) -> None:
         """異常系: 存在しないIDで404エラー"""
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
@@ -98,7 +101,7 @@ class TestGetVolunteer:
 class TestListVolunteers:
     """ボランティア一覧取得のテスト"""
 
-    def test_list_volunteers_success(self, test_db: Session):
+    def test_list_volunteers_success(self, test_db: Session) -> None:
         """正常系: ボランティア一覧を取得できる"""
         # Given: 3人のボランティアを作成
         for i in range(3):
@@ -116,7 +119,7 @@ class TestListVolunteers:
         assert result.page_size == 10
         assert result.total_pages == 1
 
-    def test_list_volunteers_with_pagination(self, test_db: Session):
+    def test_list_volunteers_with_pagination(self, test_db: Session) -> None:
         """正常系: ページネーション付きで一覧を取得できる"""
         # Given: 5人のボランティアを作成
         for i in range(5):
@@ -139,7 +142,7 @@ class TestListVolunteers:
         assert len(result_page2.items) == 2
         assert result_page2.page == 2
 
-    def test_list_volunteers_with_status_filter(self, test_db: Session):
+    def test_list_volunteers_with_status_filter(self, test_db: Session) -> None:
         """正常系: ステータスフィルター付きで一覧を取得できる"""
         # Given: アクティブ2人、非アクティブ1人
         for i in range(2):
@@ -158,7 +161,7 @@ class TestListVolunteers:
         assert result.total == 2
         assert all(v.status == "active" for v in result.items)
 
-    def test_list_volunteers_empty(self, test_db: Session):
+    def test_list_volunteers_empty(self, test_db: Session) -> None:
         """境界値: ボランティアが0件の場合"""
         # When
         result = volunteer_service.list_volunteers(test_db, page=1, page_size=10)
@@ -172,7 +175,9 @@ class TestListVolunteers:
 class TestUpdateVolunteer:
     """ボランティア更新のテスト"""
 
-    def test_update_volunteer_success(self, test_db: Session, test_volunteer: Volunteer):
+    def test_update_volunteer_success(
+        self, test_db: Session, test_volunteer: Volunteer
+    ) -> None:
         """正常系: ボランティア情報を更新できる"""
         # Given
         update_data = VolunteerUpdate(
@@ -190,7 +195,9 @@ class TestUpdateVolunteer:
         assert result.affiliation == "保護猫団体B"
         assert result.name == test_volunteer.name  # 変更されていない
 
-    def test_update_volunteer_status(self, test_db: Session, test_volunteer: Volunteer):
+    def test_update_volunteer_status(
+        self, test_db: Session, test_volunteer: Volunteer
+    ) -> None:
         """正常系: ステータスを更新できる"""
         # Given
         update_data = VolunteerUpdate(status="inactive")
@@ -203,7 +210,7 @@ class TestUpdateVolunteer:
         # Then
         assert result.status == "inactive"
 
-    def test_update_volunteer_not_found(self, test_db: Session):
+    def test_update_volunteer_not_found(self, test_db: Session) -> None:
         """異常系: 存在しないIDで404エラー"""
         # Given
         update_data = VolunteerUpdate(status="inactive")
@@ -219,11 +226,11 @@ class TestGetActivityHistory:
     """活動履歴取得のテスト"""
 
     def test_get_activity_history_with_records(
-        self, test_db: Session, test_volunteer: Volunteer, test_animal
-    ):
+        self, test_db: Session, test_volunteer: Volunteer, test_animal: Animal
+    ) -> None:
         """正常系: 記録がある場合の活動履歴を取得できる"""
         # Given: 3件の世話記録を作成
-        for i in range(3):
+        for _i in range(3):
             care_log = CareLog(
                 animal_id=test_animal.id,
                 recorder_id=test_volunteer.id,
@@ -246,7 +253,7 @@ class TestGetActivityHistory:
 
     def test_get_activity_history_no_records(
         self, test_db: Session, test_volunteer: Volunteer
-    ):
+    ) -> None:
         """正常系: 記録がない場合の活動履歴を取得できる"""
         # When
         result = volunteer_service.get_activity_history(test_db, test_volunteer.id)
@@ -256,7 +263,7 @@ class TestGetActivityHistory:
         assert result["record_count"] == 0
         assert result["last_record_date"] is None
 
-    def test_get_activity_history_not_found(self, test_db: Session):
+    def test_get_activity_history_not_found(self, test_db: Session) -> None:
         """異常系: 存在しないIDで404エラー"""
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
@@ -268,7 +275,7 @@ class TestGetActivityHistory:
 class TestGetActiveVolunteers:
     """アクティブボランティア取得のテスト"""
 
-    def test_get_active_volunteers_success(self, test_db: Session):
+    def test_get_active_volunteers_success(self, test_db: Session) -> None:
         """正常系: アクティブなボランティアのみ取得できる"""
         # Given: アクティブ2人、非アクティブ1人
         for i in range(2):
@@ -285,7 +292,7 @@ class TestGetActiveVolunteers:
         assert len(result) == 2
         assert all(v.status == "active" for v in result)
 
-    def test_get_active_volunteers_empty(self, test_db: Session):
+    def test_get_active_volunteers_empty(self, test_db: Session) -> None:
         """境界値: アクティブなボランティアが0人の場合"""
         # Given: 非アクティブのみ
         volunteer = Volunteer(name="非アクティブ", status="inactive")
@@ -298,7 +305,7 @@ class TestGetActiveVolunteers:
         # Then
         assert len(result) == 0
 
-    def test_get_active_volunteers_sorted_by_name(self, test_db: Session):
+    def test_get_active_volunteers_sorted_by_name(self, test_db: Session) -> None:
         """正常系: 名前順でソートされている"""
         # Given: 名前が逆順のボランティアを作成
         for name in ["Charlie", "Alice", "Bob"]:

@@ -10,13 +10,16 @@ Context7: /websites/doc_courtbouillon_weasyprint_stable
 from __future__ import annotations
 
 import base64
-from datetime import date, datetime
-from io import BytesIO
+from datetime import date
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import (  # type: ignore[import-not-found]
+    Environment,
+    FileSystemLoader,
+    select_autoescape,
+)
 from sqlalchemy.orm import Session
-from weasyprint import HTML
+from weasyprint import HTML  # type: ignore[import-not-found]
 
 from app.config import get_settings
 from app.models.animal import Animal
@@ -79,9 +82,9 @@ def generate_qr_card_pdf(
 
     # PDFを生成
     html_doc = HTML(string=html_content, base_url=str(template_dir))
-    pdf_bytes = html_doc.write_pdf(pdf_identifier=False)
+    pdf_bytes = html_doc.write_pdf()
 
-    return pdf_bytes
+    return pdf_bytes  # type: ignore[no-any-return]
 
 
 def generate_qr_card_grid_pdf(
@@ -142,9 +145,9 @@ def generate_qr_card_grid_pdf(
 
     # PDFを生成
     html_doc = HTML(string=html_content, base_url=str(template_dir))
-    pdf_bytes = html_doc.write_pdf(pdf_identifier=False)
+    pdf_bytes = html_doc.write_pdf()
 
-    return pdf_bytes
+    return pdf_bytes  # type: ignore[no-any-return]
 
 
 def generate_paper_form_pdf(
@@ -199,9 +202,9 @@ def generate_paper_form_pdf(
 
     # PDFを生成
     html_doc = HTML(string=html_content, base_url=str(template_dir))
-    pdf_bytes = html_doc.write_pdf(pdf_identifier=False)
+    pdf_bytes = html_doc.write_pdf()
 
-    return pdf_bytes
+    return pdf_bytes  # type: ignore[no-any-return]
 
 
 def generate_medical_detail_pdf(
@@ -255,7 +258,9 @@ def generate_report_pdf(
 
     Example:
         >>> from datetime import date
-        >>> pdf_bytes = generate_report_pdf(db, "daily", date(2024, 11, 1), date(2024, 11, 30))
+        >>> pdf_bytes = generate_report_pdf(
+        ...     db, "daily", date(2024, 11, 1), date(2024, 11, 30)
+        ... )
         >>> with open("report.pdf", "wb") as f:
         ...     f.write(pdf_bytes)
     """
