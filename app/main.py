@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.v1 import animals, auth, care_logs
+from app.api.v1 import animals, auth, care_logs, images
 from app.config import get_settings
 
 # 設定を取得
@@ -168,6 +168,7 @@ async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")
+app.include_router(images.router, prefix="/api/v1")
 
 # TODO: 以下のルーターを追加予定
 # from app.api.v1 import medical_records, volunteers, adopters

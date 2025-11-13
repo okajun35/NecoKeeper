@@ -360,7 +360,7 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 
 猫の複数画像管理機能を実装します。
 
-- [ ] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
+- [x] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
   - upload_image（画像アップロード）
   - list_images（画像一覧取得）
   - delete_image（画像削除）
@@ -368,13 +368,13 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - ファイルサイズ制限チェック
   - _Requirements: Requirement 27.2-27.3, Requirement 27.8-27.9_
 
-- [ ] 5.2 画像管理APIエンドポイントを実装（app/api/v1/images.py）
+- [x] 5.2 画像管理APIエンドポイントを実装（app/api/v1/images.py）
   - POST /api/v1/animals/{id}/images（画像アップロード）
   - GET /api/v1/animals/{id}/images（画像一覧取得）
   - DELETE /api/v1/images/{id}（画像削除）
   - _Requirements: Requirement 27.1-27.5_
 
-- [ ] 5.3 画像制限設定機能を実装
+- [x] 5.3 画像制限設定機能を実装
   - Settingsテーブルでの設定管理
   - デフォルト値（最大20枚、最大5MB）
   - _Requirements: Requirement 27.6-27.7, Requirement 27.10_
