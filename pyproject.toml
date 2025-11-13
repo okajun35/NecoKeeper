@@ -89,9 +89,45 @@ pythonpath = ["."]
 addopts = [
     "--strict-markers",
     "--tb=short",
+    "--cov=app",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-report=term:skip-covered",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:passlib.*",
     "ignore::DeprecationWarning:jose.*",
     "ignore::pydantic.warnings.PydanticDeprecatedSince20",
 ]
+
+[tool.coverage.run]
+# カバレッジ測定設定
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+branch = true
+
+[tool.coverage.report]
+# カバレッジレポート設定
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+# HTMLレポート設定
+directory = "htmlcov"
