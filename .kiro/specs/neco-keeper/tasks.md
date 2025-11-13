@@ -739,7 +739,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 認証不要の世話記録入力フォームを実装します。
 
-- [ ] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）
+- [x] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）
   - Tailwind CSSでモバイル最適化
   - 1画面完結型レイアウト
   - 猫の名前・顔写真サムネイル表示
@@ -756,28 +756,28 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - テスト11個実装（カバレッジ97.62%）
   - _Requirements: Requirement 3.5-3.7_
 
-- [ ] 14.3 前回入力値コピー機能を実装（JavaScript）
+- [x] 14.3 前回入力値コピー機能を実装（JavaScript）
   - 最新記録の取得
   - フォームへの自動入力
   - _Requirements: Requirement 3.7_
 
-- [ ] 14.4 PWA設定を実装
+- [x] 14.4 PWA設定を実装
   - manifest.json作成（アイコン、名前、テーマカラー）
   - Service Worker実装（app/static/js/sw.js）
   - オフラインキャッシュ戦略
   - _Requirements: Requirement 18.1-18.2_
 
-- [ ] 14.5 オフライン機能を実装
+- [x] 14.5 オフライン機能を実装
   - IndexedDBへの一時保存
   - オンライン復帰時の自動同期
   - 同期状態表示（同期済み、同期待ち、同期中）
   - _Requirements: Requirement 18.3-18.5_
 
-- [ ] 14.6 ホーム画面追加プロンプトを実装
+- [x] 14.6 ホーム画面追加プロンプトを実装
   - 初回アクセス時のプロンプト表示
   - _Requirements: Requirement 18.2_
 
-- [ ] 14.7 Publicフォームの動作テストを作成
+- [x] 14.7 Publicフォームの動作テストを作成
   - フォーム入力・保存のテスト
   - オフライン機能のテスト
   - _Requirements: Requirement 3, Requirement 18_

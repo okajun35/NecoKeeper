@@ -17,6 +17,7 @@
     <meta name="apple-mobile-web-app-title" content="NecoKeeper">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/offline.js"></script>
     <style>
         /* カスタムスタイル */
         .rating-button {
@@ -42,6 +43,12 @@
                 </div>
             </div>
         </div>
+
+        <!-- 接続状態 -->
+        <div id="connectionStatus" class="mb-4"></div>
+
+        <!-- 同期状態 -->
+        <div id="syncStatus" class="mb-4"></div>
 
         <!-- エラーメッセージ -->
         <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
@@ -385,7 +392,7 @@
             }
         });
 
-        // フォーム送信
+        // フォーム送信（オフライン対応）
         document.getElementById('careForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -407,20 +414,14 @@
                     recorder_id: parseInt(document.getElementById('volunteer').value)
                 };
 
-                const response = await fetch(`${API_BASE}/care-logs`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+                // オフラインマネージャーを使用して保存
+                const result = await window.offlineManager.saveCareLog(formData);
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || '保存に失敗しました');
+                if (result.online) {
+                    showSuccess('記録を保存しました');
+                } else {
+                    showSuccess('記録を一時保存しました（オンライン時に自動同期されます）');
                 }
-
-                showSuccess('記録を保存しました');
 
                 // フォームをリセット
                 setTimeout(() => {
