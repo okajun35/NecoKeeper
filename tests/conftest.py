@@ -138,3 +138,47 @@ def auth_token(test_client: TestClient, test_db: Session) -> str:
             f"Failed to get auth token: {response.status_code} - {response.text}"
         )
     return response.json()["access_token"]
+
+
+@pytest.fixture(scope="function")
+def test_user(test_db: Session) -> User:
+    """テスト用ユーザーを取得"""
+    user = test_db.query(User).filter(User.email == "test@example.com").first()
+    if not user:
+        raise Exception("Test user not found in database")
+    return user
+
+
+@pytest.fixture(scope="function")
+def test_animal(test_db: Session) -> Animal:
+    """テスト用の猫を取得"""
+    animal = test_db.query(Animal).filter(Animal.name == "テスト猫").first()
+    if not animal:
+        raise Exception("Test animal not found in database")
+    return animal
+
+
+@pytest.fixture(scope="function")
+def test_animals_bulk(test_db: Session) -> list[Animal]:
+    """テスト用の複数の猫を作成"""
+    animals: list[Animal] = []
+    for i in range(10):
+        animal = Animal(
+            name=f"猫{i}",
+            photo=f"photo{i}.jpg",
+            pattern="三毛" if i % 2 == 0 else "キジトラ",
+            tail_length="長い" if i % 2 == 0 else "短い",
+            age="成猫",
+            gender="female" if i % 2 == 0 else "male",
+            status="保護中" if i % 3 == 0 else "譲渡可能",
+        )
+        test_db.add(animal)
+        animals.append(animal)
+
+    test_db.commit()
+
+    # 各animalをrefreshしてIDを取得
+    for animal in animals:
+        test_db.refresh(animal)
+
+    return animals
