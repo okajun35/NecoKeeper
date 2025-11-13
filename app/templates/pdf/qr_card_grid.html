@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>QRカード面付け</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 5mm;
+            height: 100%;
+        }
+        
+        .card {
+            border: 1px dashed #ccc;
+            padding: 3mm;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .animal-photo {
+            width: 25mm;
+            height: 25mm;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 2mm;
+            border: 1px solid #333;
+        }
+        
+        .animal-name {
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 1mm;
+            color: #333;
+        }
+        
+        .animal-id {
+            font-size: 8pt;
+            color: #666;
+            margin-bottom: 2mm;
+        }
+        
+        .qr-code {
+            width: 20mm;
+            height: 20mm;
+        }
+        
+        .instructions {
+            font-size: 6pt;
+            color: #666;
+            margin-top: 1mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid">
+        {% for item in animals_with_qr %}
+        <div class="card">
+            {% if item.animal.photo %}
+            <img src="{{ item.animal.photo }}" alt="{{ item.animal.name }}" class="animal-photo">
+            {% else %}
+            <div class="animal-photo" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                <span style="color: #999; font-size: 6pt;">写真なし</span>
+            </div>
+            {% endif %}
+            
+            <div class="animal-name">{{ item.animal.name or '名前未設定' }}</div>
+            <div class="animal-id">ID: {{ item.animal.id }}</div>
+            
+            <img src="data:image/png;base64,{{ item.qr_code_base64 }}" alt="QR Code" class="qr-code">
+            
+            <div class="instructions">
+                QRコードをスキャン
+            </div>
+        </div>
+        {% endfor %}
+        
+        {# 空のカードで埋める（10枚未満の場合） #}
+        {% for i in range(10 - animals_with_qr|length) %}
+        <div class="card" style="border-style: dotted; opacity: 0.3;">
+            <div style="color: #ccc; font-size: 10pt;">空き</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

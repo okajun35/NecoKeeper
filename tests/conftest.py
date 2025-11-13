@@ -27,9 +27,12 @@ from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
 from app.models.animal import Animal
+from app.models.animal_image import AnimalImage
 from app.models.care_log import CareLog
+from app.models.setting import Setting
 from app.models.status_history import StatusHistory
 from app.models.user import User
+from app.models.volunteer import Volunteer
 
 # テスト用のインメモリデータベース（StaticPoolで接続を共有）
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -75,9 +78,12 @@ def test_db() -> Generator[Session, None, None]:
 
     # 既存のデータをクリア
     try:
+        db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
+        db.query(Setting).delete()
+        db.query(Volunteer).delete()
         db.query(User).delete()
         db.commit()
     except Exception:
@@ -112,9 +118,12 @@ def test_db() -> Generator[Session, None, None]:
 
     # テスト後のクリーンアップ
     try:
+        db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
+        db.query(Setting).delete()
+        db.query(Volunteer).delete()
         db.query(User).delete()
         db.commit()
     except Exception:
@@ -160,9 +169,9 @@ def test_animal(test_db: Session) -> Animal:
 
 @pytest.fixture(scope="function")
 def test_animals_bulk(test_db: Session) -> list[Animal]:
-    """テスト用の複数の猫を作成"""
+    """テスト用の複数の猫を作成（15個）"""
     animals: list[Animal] = []
-    for i in range(10):
+    for i in range(15):
         animal = Animal(
             name=f"猫{i}",
             photo=f"photo{i}.jpg",
@@ -182,3 +191,18 @@ def test_animals_bulk(test_db: Session) -> list[Animal]:
         test_db.refresh(animal)
 
     return animals
+
+
+@pytest.fixture(scope="function")
+def test_volunteer(test_db: Session) -> Volunteer:
+    """テスト用ボランティアを作成"""
+    volunteer = Volunteer(
+        name="テストボランティア",
+        contact="090-1234-5678",
+        affiliation="保護猫団体A",
+        status="active",
+    )
+    test_db.add(volunteer)
+    test_db.commit()
+    test_db.refresh(volunteer)
+    return volunteer

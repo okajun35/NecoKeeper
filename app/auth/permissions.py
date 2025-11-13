@@ -25,6 +25,7 @@ PERMISSIONS = {
         "medical:write",
         "medical:delete",
         "report:read",
+        "volunteer:read",
     ],
     "staff": [
         "animal:read",
@@ -36,12 +37,16 @@ PERMISSIONS = {
         "report:write",
         "csv:import",
         "csv:export",
+        "volunteer:read",
+        "volunteer:write",
+        "pdf:generate",
     ],
     "read_only": [
         "animal:read",
         "care:read",
         "medical:read",
         "report:read",
+        "volunteer:read",
     ],
 }
 

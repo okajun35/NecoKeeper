@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.v1 import animals, auth, care_logs, images
+from app.api.v1 import animals, auth, care_logs, images, pdf, public, volunteers
 from app.config import get_settings
 
 # 設定を取得
@@ -169,11 +169,13 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")
 app.include_router(images.router, prefix="/api/v1")
+app.include_router(pdf.router, prefix="/api/v1")
+app.include_router(public.router, prefix="/api/v1")  # Public API（認証不要）
+app.include_router(volunteers.router, prefix="/api/v1")
 
 # TODO: 以下のルーターを追加予定
-# from app.api.v1 import medical_records, volunteers, adopters
+# from app.api.v1 import medical_records, adopters
 # app.include_router(medical_records.router, prefix="/api/v1", tags=["Medical Records"])
-# app.include_router(volunteers.router, prefix="/api/v1", tags=["Volunteers"])
 # app.include_router(adopters.router, prefix="/api/v1", tags=["Adopters"])
 
 

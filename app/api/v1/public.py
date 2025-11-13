@@ -1,0 +1,179 @@
+"""
+Public APIエンドポイント
+
+認証不要の世話記録入力フォーム用APIを提供します。
+QRコードからアクセスするPublicフォームで使用されます。
+
+Requirements: Requirement 3, Requirement 13, Requirement 18
+"""
+
+from __future__ import annotations
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.animal import Animal
+from app.models.care_log import CareLog
+from app.models.volunteer import Volunteer
+from app.schemas.care_log import CareLogCreate, CareLogResponse
+from app.schemas.volunteer import VolunteerResponse
+from app.services import care_log_service, volunteer_service
+
+router = APIRouter(prefix="/public", tags=["Public API（認証不要）"])
+
+
+@router.get("/animals/{animal_id}")
+async def get_animal_info(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> dict[str, int | str | None]:
+    """
+    猫の基本情報を取得（認証不要）
+
+    Publicフォームで猫の名前と顔写真を表示するために使用します。
+
+    Args:
+        animal_id: 猫のID
+        db: データベースセッション
+
+    Returns:
+        dict: 猫の基本情報（id, name, photo）
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+
+    Example:
+        GET /api/v1/public/animals/123
+        Response: {"id": 123, "name": "たま", "photo": "tama.jpg"}
+    """
+    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+
+    if not animal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"猫ID {animal_id} が見つかりません",
+        )
+
+    return {
+        "id": animal.id,
+        "name": animal.name,
+        "photo": animal.photo,
+    }
+
+
+@router.get("/volunteers", response_model=list[VolunteerResponse])
+async def get_active_volunteers(
+    db: Annotated[Session, Depends(get_db)],
+) -> list[Volunteer]:
+    """
+    アクティブなボランティア一覧を取得（認証不要）
+
+    Publicフォームのボランティア選択リストで使用します。
+
+    Args:
+        db: データベースセッション
+
+    Returns:
+        list[VolunteerResponse]: アクティブなボランティアのリスト
+
+    Example:
+        GET /api/v1/public/volunteers
+        Response: [{"id": 1, "name": "田中太郎", ...}, ...]
+    """
+    return volunteer_service.get_active_volunteers(db=db)
+
+
+@router.post("/care-logs", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED)
+async def create_care_log_public(
+    care_log_data: CareLogCreate,
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+) -> CareLog:
+    """
+    世話記録を登録（認証不要）
+
+    Publicフォームから世話記録を登録します。
+    IPアドレス、User-Agent、デバイスタグを自動記録します。
+
+    Args:
+        care_log_data: 世話記録データ
+        request: HTTPリクエスト（IPアドレス、User-Agent取得用）
+        db: データベースセッション
+
+    Returns:
+        CareLogResponse: 登録された世話記録
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）、またはデータベースエラー（500）
+
+    Example:
+        POST /api/v1/public/care-logs
+        Body: {
+            "animal_id": 123,
+            "recorder_id": 1,
+            "time_slot": "朝",
+            "appetite": 5,
+            "energy": 5,
+            "urination": true,
+            "cleaning": true,
+            "memo": "元気です"
+        }
+    """
+    # 猫の存在確認
+    animal = db.query(Animal).filter(Animal.id == care_log_data.animal_id).first()
+    if not animal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"猫ID {care_log_data.animal_id} が見つかりません",
+        )
+
+    # IPアドレスとUser-Agentを取得して設定
+    care_log_data.ip_address = request.client.host if request.client else None
+    care_log_data.user_agent = request.headers.get("user-agent")
+
+    # 世話記録を作成
+    care_log = care_log_service.create_care_log(
+        db=db,
+        care_log_data=care_log_data,
+    )
+
+    return care_log
+
+
+@router.get("/care-logs/latest/{animal_id}")
+async def get_latest_care_log(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> CareLogResponse | None:
+    """
+    最新の世話記録を取得（認証不要）
+
+    前回入力値コピー機能で使用します。
+    指定された猫の最新の世話記録を返します。
+
+    Args:
+        animal_id: 猫のID
+        db: データベースセッション
+
+    Returns:
+        CareLogResponse | None: 最新の世話記録（存在しない場合はNone）
+
+    Example:
+        GET /api/v1/public/care-logs/latest/123
+        Response: {
+            "id": 456,
+            "animal_id": 123,
+            "time_slot": "朝",
+            "appetite": 5,
+            ...
+        }
+    """
+    latest_log = care_log_service.get_latest_care_log(db=db, animal_id=animal_id)
+
+    if not latest_log:
+        return None
+
+    return latest_log

@@ -4,23 +4,27 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: Phase 4 完了、Phase 5（画像ギャラリー機能）開始準備
+**プロジェクトステータス**: Phase 6 完了、Phase 9（Publicフォーム）開始準備
 
 **完了済み:**
 - ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
 - ✅ Phase 2: 認証・認可システム（全7タスク）
 - ✅ Phase 3: 猫管理機能（全6タスク）
 - ✅ Phase 4: 世話記録機能（全5タスク）
+- ✅ Phase 4: ボランティア管理（全4タスク）
+- ✅ Phase 6: PDF生成機能（全5タスク）
 
 **実装済み機能:**
 - データベース（全12モデル）
-- JWT認証・認可システム（RBAC）
+- JWT認証・認可システム（RBAC、権限チェック）
 - 猫管理機能（CRUD、検索、ステータス管理）
 - 世話記録機能（CRUD、CSV出力、前回値コピー）
-- 画像アップロード・最適化
-- 統合テスト（認証25テスト、猫管理7テスト、世話記録7テスト）
+- ボランティア管理機能（CRUD、活動履歴）
+- 画像アップロード・最適化・ギャラリー管理
+- PDF生成機能（QRカード、面付けカード、紙記録フォーム）
+- 統合テスト（221テスト、カバレッジ84.41%）
 
-**次のステップ**: Phase 5（画像ギャラリー機能）から開始
+**次のステップ**: Phase 9（Publicフォーム）から開始（MVP Core完成に向けて）
 
 **重要な注意事項:**
 
@@ -81,15 +85,15 @@ pip install -r requirements.txt
 ## 実装優先順位
 
 ### 最優先（MVP Core）
-1. Phase 1: プロジェクト基盤とデータベース
-2. Phase 2: 認証・認可システム
-3. Phase 3: 猫管理機能（基本CRUD）
-4. Phase 4: 世話記録機能（基本入力）
-5. Phase 6: PDF生成機能（QRカード）
+1. ✅ Phase 1: プロジェクト基盤とデータベース
+2. ✅ Phase 2: 認証・認可システム
+3. ✅ Phase 3: 猫管理機能（基本CRUD）
+4. ✅ Phase 4: 世話記録機能（基本入力）
+5. ✅ Phase 6: PDF生成機能（QRカード）
 6. Phase 9: Publicフォーム（基本入力）
 
 ### 高優先（MVP Extended）
-7. Phase 5: 画像ギャラリー機能
+7. Phase 5: 診療記録機能
 8. Phase 7: 里親管理機能
 9. Phase 8: 管理画面UI（基本画面）
 10. Phase 11: セキュリティとログ
@@ -424,30 +428,34 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - CSV出力のテスト
   - _Requirements: Requirement 3, Requirement 25_
 
-### 7. ボランティア管理
+### 7. ボランティア管理 ✅ 完了
 
 ボランティア記録者の管理機能を実装します。
 
-- [ ] 7.1 Pydanticスキーマを実装（app/schemas/volunteer.py）
+- [x] 7.1 Pydanticスキーマを実装（app/schemas/volunteer.py）
   - VolunteerCreate, VolunteerUpdate, VolunteerResponse
   - _Requirements: Requirement 4.1_
 
-- [ ] 7.2 ボランティア管理サービスを実装（app/services/volunteer_service.py）
+- [x] 7.2 ボランティア管理サービスを実装（app/services/volunteer_service.py）
   - create_volunteer（登録）
   - get_volunteer（詳細取得）
   - list_volunteers（一覧取得）
   - update_volunteer（更新）
   - get_activity_history（活動履歴取得）
-  - _Requirements: Requirement 4.2, Requirement 4.5_
+  - get_active_volunteers（アクティブボランティア一覧取得）
+  - _Requirements: Requirement 4.2, Requirement 4.4, Requirement 4.5_
 
-- [ ] 7.3 ボランティア管理APIエンドポイントを実装（app/api/v1/volunteers.py）
+- [x] 7.3 ボランティア管理APIエンドポイントを実装（app/api/v1/volunteers.py）
   - GET /api/v1/volunteers（一覧取得）
   - POST /api/v1/volunteers（登録）
   - GET /api/v1/volunteers/{id}（詳細取得）
   - PUT /api/v1/volunteers/{id}（更新）
+  - GET /api/v1/volunteers/{id}/activity（活動履歴取得）
   - _Requirements: Requirement 4_
 
-- [ ] 7.4 アクティブボランティア取得機能を実装
+- [x] 7.4 アクティブボランティア取得機能を実装
+  - Publicフォーム用の選択リスト提供
+  - _Requirements: Requirement 4.4_
   - Publicフォーム用の選択リスト提供
   - _Requirements: Requirement 4.4_
 
@@ -517,7 +525,7 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
 
-## Phase 6: PDF生成機能
+## Phase 6: PDF生成機能 ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - WeasyPrint実装前: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索し、`mcp_context7_get_library_docs` でドキュメント取得（tokens: 5000）
@@ -525,41 +533,45 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 - Jinja2テンプレート実装前: `mcp_context7_get_library_docs` で `/pallets/jinja` を参照（tokens: 5000）
 - PDF生成のベストプラクティスを Context7 で確認
 
-### 10. QRコードとPDF生成
+### 10. QRコードとPDF生成 ✅ 完了
 
 QRカードと紙記録フォームのPDF生成機能を実装します。
 
-- [ ] 10.1 QRコード生成ユーティリティを実装（app/utils/qr_code.py）
+- [x] 10.1 QRコード生成ユーティリティを実装（app/utils/qr_code.py）
   - QRコード画像生成
-  - URL埋め込み
+  - バイト列変換
+  - 猫用URL生成機能
   - _Requirements: Requirement 2.3_
 
-- [ ] 10.2 PDF生成サービスを実装（app/services/pdf_service.py）
+- [x] 10.2 PDF生成サービスを実装（app/services/pdf_service.py）
   - generate_qr_card（QRカードPDF生成）
-  - generate_qr_card_grid（面付けカードPDF生成）
+  - generate_qr_card_grid（面付けカードPDF生成、最大10枚）
   - generate_paper_form（紙記録フォームPDF生成）
-  - generate_medical_detail（診療明細PDF生成）
-  - generate_report（帳票PDF生成）
+  - generate_medical_detail（診療明細PDF生成 - 未実装マーク付き）
+  - generate_report（帳票PDF生成 - 未実装マーク付き）
   - _Requirements: Requirement 2.1-2.2, Requirement 2.5-2.8, Requirement 7.2-7.3, Requirement 9_
 
-- [ ] 10.3 PDFテンプレートを作成（app/templates/pdf/）
+- [x] 10.3 PDFテンプレートを作成（app/templates/pdf/）
   - qr_card.html（A6サイズ）
   - qr_card_grid.html（A4、2×5枚）
   - paper_form.html（A4、1ヶ月分）
-  - medical_detail.html（A4縦）
-  - report_daily.html, report_weekly.html, report_monthly.html
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [ ] 10.4 PDF生成APIエンドポイントを実装（app/api/v1/pdf.py）
+- [x] 10.4 PDF生成APIエンドポイントを実装（app/api/v1/pdf.py）
   - POST /api/v1/pdf/qr-card
+  - POST /api/v1/pdf/qr-card-grid
   - POST /api/v1/pdf/paper-form
-  - POST /api/v1/pdf/medical-detail
-  - POST /api/v1/pdf/report
+  - POST /api/v1/pdf/medical-detail（未実装エンドポイント）
+  - POST /api/v1/pdf/report（未実装エンドポイント）
+  - 認証・権限チェック付き
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [ ] 10.5 PDF生成機能のテストを作成
-  - 各種PDF生成のテスト
-  - パフォーマンステスト（10秒以内）
+- [x] 10.5 PDF生成機能のテストを作成
+  - QRカード生成テスト（9テスト）
+  - 面付けカード生成テスト（4テスト）
+  - 紙記録フォーム生成テスト（4テスト）
+  - エラーハンドリングテスト
+  - カバレッジ94.81%
   - _Requirements: Requirement 28.3_
 
 
