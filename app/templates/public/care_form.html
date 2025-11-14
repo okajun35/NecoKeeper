@@ -88,7 +88,7 @@
                     </button>
                     <button type="button"
                             class="time-slot-btn py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
-                            data-value="afternoon">
+                            data-value="noon">
                         ☀️ 昼
                     </button>
                     <button type="button"
@@ -427,6 +427,11 @@
             submitBtn.textContent = '保存中...';
 
             try {
+                // ボランティア情報を取得
+                const volunteerSelect = document.getElementById('volunteer');
+                const selectedOption = volunteerSelect.options[volunteerSelect.selectedIndex];
+                const recorderName = selectedOption.textContent;
+
                 const formData = {
                     animal_id: parseInt(animalId),
                     log_date: document.getElementById('logDate').value,
@@ -438,7 +443,8 @@
                     cleaning: document.getElementById('cleaning').value === 'true' ? true :
                              document.getElementById('cleaning').value === 'false' ? false : null,
                     notes: document.getElementById('notes').value || null,
-                    recorder_id: parseInt(document.getElementById('volunteer').value)
+                    recorder_id: parseInt(document.getElementById('volunteer').value),
+                    recorder_name: recorderName
                 };
 
                 // オフラインマネージャーを使用して保存
