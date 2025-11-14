@@ -32,18 +32,60 @@ ruff check . --fix
 ruff format .
 ```
 
-### 2. テスト実行
+### 2. テスト実行とカバレッジ測定
 **すべてのコード変更後、Pytestを実施してすべてのテストケースがPassするまでテストを修正・実施すること**
 
+**カバレッジ目標**:
+- **サービス層**: 80%以上
+- **API層**: 70%以上
+- **全体**: 70%以上（最終的に80%を目指す）
+
 ```bash
-# すべてのテストを実行
-python -m pytest
+# すべてのテストを実行（カバレッジ付き）
+python -m pytest --cov=app --cov-report=html --cov-report=term-missing
+
+# カバレッジ閾値チェック（70%未満で失敗）
+python -m pytest --cov=app --cov-report=term-missing --cov-fail-under=70
 
 # 詳細出力
-python -m pytest -v
+python -m pytest -v --cov=app
 
 # 特定のテストファイルのみ
-python -m pytest tests/test_specific.py
+python -m pytest tests/test_specific.py --cov=app
+
+# HTMLレポートをブラウザで確認
+# Linux: xdg-open htmlcov/index.html
+# macOS: open htmlcov/index.html
+# Windows: start htmlcov/index.html
+```
+
+**カバレッジ設定（pyproject.toml）**:
+```toml
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=app",
+    "--cov-report=html",
+    "--cov-report=term-missing",
+    "--cov-report=term:skip-covered",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["*/tests/*", "*/test_*.py"]
+branch = true
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@(abc\\.)?abstractmethod",
+]
 ```
 
 ### 3. 非推奨ライブラリの検証
@@ -55,6 +97,84 @@ python -m pytest tests/test_specific.py
 # 2. Trust Scoreが高い(8.0以上)ライブラリを選択
 # 3. 最新バージョンのドキュメントを確認
 # 4. 移行パスを確認して実装
+```
+
+### 4. テストカバレッジとDDD/TDD原則
+
+**DDD（Domain-Driven Design）とTDD（Test-Driven Development）の観点**:
+
+#### テストカバレッジの優先順位（t-wada準拠）
+
+1. **ドメイン層（最優先）**: 90%以上
+   - ビジネスルールの検証
+   - エンティティの不変条件
+   - 値オブジェクトの検証
+   - ドメインサービスのロジック
+
+2. **アプリケーション層（高優先）**: 80%以上
+   - ユースケースの実行フロー
+   - サービス層のビジネスロジック
+   - トランザクション境界
+
+3. **インフラ層（中優先）**: 70%以上
+   - リポジトリの永続化ロジック
+   - 外部サービス連携
+
+4. **プレゼンテーション層（低優先）**: 60%以上
+   - APIエンドポイント
+   - リクエスト/レスポンス変換
+
+#### カバレッジ73%での開発継続判断
+
+**✅ 開発を継続してよい条件**:
+- ドメイン層（models/）のカバレッジが80%以上
+- サービス層（services/）の主要ユースケースがテスト済み
+- 既存機能の回帰テストが整備されている
+- 新機能開発時にテストファーストで進める
+
+**⚠️ 改善が必要な条件**:
+- サービス層のカバレッジが50%未満（現在36%のファイルあり）
+- ドメインロジックのテストが不足
+- エッジケースのテストが未実装
+
+**現在の状況（73.48%）**:
+- ✅ ドメイン層（models/）: 高カバレッジ（90%以上）
+- ⚠️ サービス層（services/）: 改善必要（36-68%）
+- ✅ 認証層（auth/）: 良好（75-95%）
+- ❌ ユーティリティ層（utils/image.py）: 未テスト（0%）
+
+**推奨アクション**:
+1. **Phase 5実装前に**: `app/services/animal_service.py`（36%）のテストを追加
+2. **Phase 5実装時に**: 新機能はテストファーストで開発
+3. **Phase 5完了後に**: `app/utils/image.py`（0%）のテストを追加
+4. **継続的に**: 各Phase完了時にカバレッジ70%以上を維持
+
+**テストファースト開発の原則**:
+```python
+# 1. Red: 失敗するテストを書く
+def test_create_image_gallery():
+    # Given
+    animal_id = 1
+    image_data = b"fake_image_data"
+
+    # When
+    result = image_service.upload_image(animal_id, image_data)
+
+    # Then
+    assert result.success is True
+    assert result.image_id is not None
+
+# 2. Green: テストをパスする最小限のコードを書く
+def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
+    # 最小限の実装
+    return UploadResult(success=True, image_id=1)
+
+# 3. Refactor: コードを改善
+def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
+    # リファクタリング後の実装
+    validated_data = validate_image(image_data)
+    saved_path = save_to_storage(validated_data)
+    return UploadResult(success=True, image_id=saved_path.id)
 ```
 
 ---

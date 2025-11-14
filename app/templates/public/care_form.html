@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="保護猫の世話記録を簡単に入力できるアプリ">
+    <meta name="theme-color" content="#4f46e5">
+    <title>世話記録入力 - NecoKeeper</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="NecoKeeper">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/offline.js"></script>
+    <style>
+        /* カスタムスタイル */
+        .rating-button {
+            transition: all 0.2s;
+        }
+        .rating-button.selected {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-2xl mx-auto p-4 pb-24">
+        <!-- ヘッダー: 猫情報 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center gap-4">
+                <img id="animalPhoto"
+                     src=""
+                     alt="猫の写真"
+                     class="w-24 h-24 rounded-full object-cover border-4 border-indigo-200">
+                <div class="flex-1">
+                    <h1 id="animalName" class="text-2xl font-bold text-gray-800 mb-1"></h1>
+                    <p class="text-sm text-gray-500">世話記録を入力してください</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 接続状態 -->
+        <div id="connectionStatus" class="mb-4"></div>
+
+        <!-- 同期状態 -->
+        <div id="syncStatus" class="mb-4"></div>
+
+        <!-- エラーメッセージ -->
+        <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <p class="font-medium">エラーが発生しました</p>
+            <p id="errorText" class="text-sm"></p>
+        </div>
+
+        <!-- 成功メッセージ -->
+        <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+            <p class="font-medium">✓ 記録を保存しました</p>
+        </div>
+
+        <!-- 入力フォーム -->
+        <form id="careForm" class="space-y-6">
+            <!-- 時点選択 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    時点 <span class="text-red-500">*</span>
+                </label>
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button"
+                            class="time-slot-btn py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            data-value="morning">
+                        🌅 朝
+                    </button>
+                    <button type="button"
+                            class="time-slot-btn py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            data-value="afternoon">
+                        ☀️ 昼
+                    </button>
+                    <button type="button"
+                            class="time-slot-btn py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            data-value="evening">
+                        🌙 夜
+                    </button>
+                </div>
+                <input type="hidden" id="timeSlot" name="time_slot" required>
+            </div>
+
+            <!-- 食欲 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    食欲 <span class="text-red-500">*</span>
+                </label>
+                <div class="flex justify-between gap-2">
+                    <button type="button"
+                            class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="1">
+                        1
+                    </button>
+                    <button type="button"
+                            class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="2">
+                        2
+                    </button>
+                    <button type="button"
+                            class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="3">
+                        3
+                    </button>
+                    <button type="button"
+                            class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="4">
+                        4
+                    </button>
+                    <button type="button"
+                            class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="5">
+                        5
+                    </button>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-2 px-1">
+                    <span>少ない</span>
+                    <span>普通</span>
+                    <span>多い</span>
+                </div>
+                <input type="hidden" id="appetite" name="appetite" required>
+            </div>
+
+            <!-- 元気 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    元気 <span class="text-red-500">*</span>
+                </label>
+                <div class="flex justify-between gap-2">
+                    <button type="button"
+                            class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="1">
+                        1
+                    </button>
+                    <button type="button"
+                            class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="2">
+                        2
+                    </button>
+                    <button type="button"
+                            class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="3">
+                        3
+                    </button>
+                    <button type="button"
+                            class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="4">
+                        4
+                    </button>
+                    <button type="button"
+                            class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-all"
+                            data-value="5">
+                        5
+                    </button>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-2 px-1">
+                    <span>低い</span>
+                    <span>普通</span>
+                    <span>高い</span>
+                </div>
+                <input type="hidden" id="energy" name="energy" required>
+            </div>
+
+            <!-- 排尿・清掃 -->
+            <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                <!-- 排尿 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        排尿
+                    </label>
+                    <div class="flex gap-3">
+                        <button type="button"
+                                class="urination-btn flex-1 py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                                data-value="true">
+                            あり
+                        </button>
+                        <button type="button"
+                                class="urination-btn flex-1 py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                                data-value="false">
+                            なし
+                        </button>
+                    </div>
+                    <input type="hidden" id="urination" name="urination">
+                </div>
+
+                <!-- 清掃 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        清掃
+                    </label>
+                    <div class="flex gap-3">
+                        <button type="button"
+                                class="cleaning-btn flex-1 py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                                data-value="true">
+                            済
+                        </button>
+                        <button type="button"
+                                class="cleaning-btn flex-1 py-3 px-4 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                                data-value="false">
+                            未
+                        </button>
+                    </div>
+                    <input type="hidden" id="cleaning" name="cleaning">
+                </div>
+            </div>
+
+            <!-- メモ -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-3">
+                    メモ
+                </label>
+                <textarea id="notes"
+                          name="notes"
+                          rows="3"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                          placeholder="気になることがあれば記入してください"></textarea>
+            </div>
+
+            <!-- ボランティア選択 -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <label for="volunteer" class="block text-sm font-medium text-gray-700 mb-3">
+                    記録者 <span class="text-red-500">*</span>
+                </label>
+                <select id="volunteer"
+                        name="recorder_id"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <option value="">選択してください</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- 固定フッター: 保存ボタン -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg">
+        <div class="max-w-2xl mx-auto flex gap-3">
+            <button type="button"
+                    id="copyLastBtn"
+                    class="flex-1 py-3 px-6 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                前回値コピー
+            </button>
+            <button type="submit"
+                    form="careForm"
+                    id="submitBtn"
+                    class="flex-1 py-3 px-6 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                保存
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // URLからanimal_idを取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const animalId = urlParams.get('animal_id');
+
+        if (!animalId) {
+            showError('猫のIDが指定されていません');
+        }
+
+        // API Base URL
+        const API_BASE = '/api/v1/public';
+
+        // 猫情報を取得
+        async function loadAnimalInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/animals/${animalId}`);
+                if (!response.ok) throw new Error('猫情報の取得に失敗しました');
+
+                const animal = await response.json();
+                document.getElementById('animalName').textContent = animal.name || '名前未設定';
+                document.getElementById('animalPhoto').src = animal.photo || '/static/images/no-image.png';
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // ボランティア一覧を取得
+        async function loadVolunteers() {
+            try {
+                const response = await fetch(`${API_BASE}/volunteers`);
+                if (!response.ok) throw new Error('ボランティア一覧の取得に失敗しました');
+
+                const volunteers = await response.json();
+                const select = document.getElementById('volunteer');
+
+                volunteers.forEach(volunteer => {
+                    const option = document.createElement('option');
+                    option.value = volunteer.id;
+                    option.textContent = volunteer.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // ボタングループの選択処理
+        function setupButtonGroup(className, inputId) {
+            const buttons = document.querySelectorAll(`.${className}`);
+            const input = document.getElementById(inputId);
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 他のボタンの選択を解除
+                    buttons.forEach(btn => {
+                        btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+                        btn.classList.add('border-gray-300');
+                    });
+
+                    // クリックされたボタンを選択状態に
+                    button.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+                    button.classList.remove('border-gray-300');
+
+                    // hidden inputに値を設定
+                    input.value = button.dataset.value;
+                });
+            });
+        }
+
+        // 各ボタングループを初期化
+        setupButtonGroup('time-slot-btn', 'timeSlot');
+        setupButtonGroup('appetite-btn', 'appetite');
+        setupButtonGroup('energy-btn', 'energy');
+        setupButtonGroup('urination-btn', 'urination');
+        setupButtonGroup('cleaning-btn', 'cleaning');
+
+        // 前回値コピー
+        document.getElementById('copyLastBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/care-logs/latest/${animalId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showError('前回の記録がありません');
+                        return;
+                    }
+                    throw new Error('前回値の取得に失敗しました');
+                }
+
+                const lastLog = await response.json();
+
+                // 各フィールドに値を設定
+                if (lastLog.time_slot) {
+                    const timeSlotBtn = document.querySelector(`.time-slot-btn[data-value="${lastLog.time_slot}"]`);
+                    if (timeSlotBtn) timeSlotBtn.click();
+                }
+
+                if (lastLog.appetite) {
+                    const appetiteBtn = document.querySelector(`.appetite-btn[data-value="${lastLog.appetite}"]`);
+                    if (appetiteBtn) appetiteBtn.click();
+                }
+
+                if (lastLog.energy) {
+                    const energyBtn = document.querySelector(`.energy-btn[data-value="${lastLog.energy}"]`);
+                    if (energyBtn) energyBtn.click();
+                }
+
+                if (lastLog.urination !== null) {
+                    const urinationBtn = document.querySelector(`.urination-btn[data-value="${lastLog.urination}"]`);
+                    if (urinationBtn) urinationBtn.click();
+                }
+
+                if (lastLog.cleaning !== null) {
+                    const cleaningBtn = document.querySelector(`.cleaning-btn[data-value="${lastLog.cleaning}"]`);
+                    if (cleaningBtn) cleaningBtn.click();
+                }
+
+                // メモはコピーしない（毎回異なる可能性が高いため）
+
+                showSuccess('前回値をコピーしました');
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        // フォーム送信（オフライン対応）
+        document.getElementById('careForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '保存中...';
+
+            try {
+                const formData = {
+                    animal_id: parseInt(animalId),
+                    time_slot: document.getElementById('timeSlot').value,
+                    appetite: parseInt(document.getElementById('appetite').value),
+                    energy: parseInt(document.getElementById('energy').value),
+                    urination: document.getElementById('urination').value === 'true' ? true :
+                               document.getElementById('urination').value === 'false' ? false : null,
+                    cleaning: document.getElementById('cleaning').value === 'true' ? true :
+                             document.getElementById('cleaning').value === 'false' ? false : null,
+                    notes: document.getElementById('notes').value || null,
+                    recorder_id: parseInt(document.getElementById('volunteer').value)
+                };
+
+                // オフラインマネージャーを使用して保存
+                const result = await window.offlineManager.saveCareLog(formData);
+
+                if (result.online) {
+                    showSuccess('記録を保存しました');
+                } else {
+                    showSuccess('記録を一時保存しました（オンライン時に自動同期されます）');
+                }
+
+                // フォームをリセット
+                setTimeout(() => {
+                    document.getElementById('careForm').reset();
+                    // ボタンの選択状態をクリア
+                    document.querySelectorAll('.selected').forEach(btn => {
+                        btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+                        btn.classList.add('border-gray-300');
+                    });
+                    // hidden inputをクリア
+                    ['timeSlot', 'appetite', 'energy', 'urination', 'cleaning'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
+                    hideSuccess();
+                }, 2000);
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '保存';
+            }
+        });
+
+        // エラー表示
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        // 成功表示
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.querySelector('p').textContent = '✓ ' + message;
+            successDiv.classList.remove('hidden');
+        }
+
+        function hideSuccess() {
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+
+        // 初期化
+        loadAnimalInfo();
+        loadVolunteers();
+    </script>
+</body>
+</html>

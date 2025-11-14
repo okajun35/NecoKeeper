@@ -19,8 +19,8 @@ NecoKeeperは、保護猫団体が日々の業務を効率的に管理するた�
 
 ### 必要要件
 
-- Python 3.9以上
-- pip または uv
+- **Python 3.12以上** (このプロジェクトは Python 3.12 で開発されています)
+- pip または uv (パッケージマネージャー)
 
 ### インストール手順
 
@@ -33,21 +33,51 @@ cd NecoKeeper
 
 2. 仮想環境を作成してアクティベート
 
+**方法1: 標準の venv を使用**
 ```bash
 # 仮想環境作成
 python3 -m venv .venv
 
-# アクティベート（Linux/Mac）
+# アクティベート（Linux/macOS）
 source .venv/bin/activate
 
-# アクティベート（Windows）
-.venv\Scripts\activate
+# アクティベート（Windows PowerShell）
+.venv\Scripts\Activate.ps1
+
+# アクティベート（Windows CMD）
+.venv\Scripts\activate.bat
+```
+
+**方法2: uv を使用（推奨・高速）**
+```bash
+# uvで仮想環境を作成して自動アクティベート
+uv venv
+
+# アクティベート（Linux/macOS）
+source .venv/bin/activate
+
+# アクティベート（Windows PowerShell）
+.venv\Scripts\Activate.ps1
 ```
 
 3. 依存関係をインストール
 
+**方法1: pip を使用**
 ```bash
 pip install -r requirements.txt
+```
+
+**方法2: uv を使用（推奨・高速）**
+```bash
+# uvのインストール（初回のみ）
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Linux/macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# uvで依存関係をインストール
+uv pip install -r requirements.txt
 ```
 
 4. 環境変数を設定

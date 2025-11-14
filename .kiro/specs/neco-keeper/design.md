@@ -14,9 +14,9 @@ NecoKeeperは、保護猫活動のデジタル化を実現するWebアプリケ�
 
 ### 技術スタック
 
-- **バックエンド**: FastAPI 0.104+ (Python 3.9+)
+- **バックエンド**: FastAPI 0.104+ (Python 3.10+)
 - **データベース**: SQLite 3.35+
-- **ORM**: SQLAlchemy 2.0+
+- **ORM**: SQLAlchemy 2.0+ (Mapped, mapped_column)
 - **認証**: JWT + OAuth2 Password Flow（python-jose + passlib/bcrypt）
 - **PDF生成**: WeasyPrint 60+
 - **管理画面UI**: AdminLTE 3.2+
@@ -24,6 +24,16 @@ NecoKeeperは、保護猫活動のデジタル化を実現するWebアプリケ�
 - **PWA**: Workbox 7+
 - **多言語**: i18next（JSON対訳ファイル）
 - **OCR**: Tesseract（オプション、MCP連携）
+- **型チェック**: Mypy (strict mode)
+- **コードフォーマット**: Ruff
+
+### コード品質基準
+
+- **型ヒント**: すべての関数に完全な型ヒント（`from __future__ import annotations`, `X | None`, `collections.abc`）
+- **Docstring**: すべての関数・クラスにDocstring（Args, Returns, Raises, Example）
+- **エラーハンドリング**: 統一されたパターン（HTTPException、ロギング）
+- **命名規則**: PostgreSQL互換の命名規則（将来の移行を考慮）
+- **テスト**: Pytest（DDD準拠、ドメイン・アプリケーション・インフラ層）
 
 ## Architecture
 

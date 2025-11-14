@@ -27,9 +27,12 @@ from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
 from app.models.animal import Animal
+from app.models.animal_image import AnimalImage
 from app.models.care_log import CareLog
+from app.models.setting import Setting
 from app.models.status_history import StatusHistory
 from app.models.user import User
+from app.models.volunteer import Volunteer
 
 # テスト用のインメモリデータベース（StaticPoolで接続を共有）
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -75,9 +78,12 @@ def test_db() -> Generator[Session, None, None]:
 
     # 既存のデータをクリア
     try:
+        db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
+        db.query(Setting).delete()
+        db.query(Volunteer).delete()
         db.query(User).delete()
         db.commit()
     except Exception:
@@ -112,9 +118,12 @@ def test_db() -> Generator[Session, None, None]:
 
     # テスト後のクリーンアップ
     try:
+        db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
+        db.query(Setting).delete()
+        db.query(Volunteer).delete()
         db.query(User).delete()
         db.commit()
     except Exception:
@@ -138,3 +147,83 @@ def auth_token(test_client: TestClient, test_db: Session) -> str:
             f"Failed to get auth token: {response.status_code} - {response.text}"
         )
     return response.json()["access_token"]
+
+
+@pytest.fixture(scope="function")
+def test_user(test_db: Session) -> User:
+    """テスト用ユーザーを取得"""
+    user = test_db.query(User).filter(User.email == "test@example.com").first()
+    if not user:
+        raise Exception("Test user not found in database")
+    return user
+
+
+@pytest.fixture(scope="function")
+def test_animal(test_db: Session) -> Animal:
+    """テスト用の猫を取得"""
+    animal = test_db.query(Animal).filter(Animal.name == "テスト猫").first()
+    if not animal:
+        raise Exception("Test animal not found in database")
+    return animal
+
+
+@pytest.fixture(scope="function")
+def test_animals_bulk(test_db: Session) -> list[Animal]:
+    """テスト用の複数の猫を作成（15個）"""
+    animals: list[Animal] = []
+    for i in range(15):
+        animal = Animal(
+            name=f"猫{i}",
+            photo=f"photo{i}.jpg",
+            pattern="三毛" if i % 2 == 0 else "キジトラ",
+            tail_length="長い" if i % 2 == 0 else "短い",
+            age="成猫",
+            gender="female" if i % 2 == 0 else "male",
+            status="保護中" if i % 3 == 0 else "譲渡可能",
+        )
+        test_db.add(animal)
+        animals.append(animal)
+
+    test_db.commit()
+
+    # 各animalをrefreshしてIDを取得
+    for animal in animals:
+        test_db.refresh(animal)
+
+    return animals
+
+
+@pytest.fixture(scope="function")
+def test_volunteer(test_db: Session) -> Volunteer:
+    """テスト用ボランティアを作成"""
+    volunteer = Volunteer(
+        name="テストボランティア",
+        contact="090-1234-5678",
+        affiliation="保護猫団体A",
+        status="active",
+    )
+    test_db.add(volunteer)
+    test_db.commit()
+    test_db.refresh(volunteer)
+    return volunteer
+
+
+@pytest.fixture(scope="function")
+def temp_media_dir(tmp_path, monkeypatch):
+    """テスト用の一時メディアディレクトリを作成"""
+    # 一時ディレクトリを作成
+    media_dir = tmp_path / "media"
+    media_dir.mkdir()
+
+    # 環境変数をモンキーパッチ
+    monkeypatch.setenv("MEDIA_DIR", str(media_dir))
+
+    # app.configのmedia_dirもオーバーライド
+    from app.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "media_dir", str(media_dir))
+
+    yield media_dir
+
+    # クリーンアップは自動的に行われる（tmp_pathが削除される）

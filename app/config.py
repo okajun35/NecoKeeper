@@ -108,6 +108,11 @@ class Settings(BaseSettings):
         default="admin@example.com", description="管理者メールアドレス"
     )
 
+    # アプリケーションURL設定
+    base_url: str = Field(
+        default="http://localhost:8000", description="アプリケーションのベースURL"
+    )
+
     @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:

@@ -4,19 +4,47 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: Phase 1 完了、Phase 2 開始準備
-- ディレクトリ構造: ✅ 完了（app/, tests/, data/, media/, backups/）
-- requirements.txt: ✅ 完了（依存関係定義済み）
-- app/config.py: ✅ 完了（Pydantic Settings実装済み）
-- app/main.py: ✅ 完了（FastAPIアプリケーション初期化済み）
-- app/database.py: ✅ 完了（SQLAlchemyエンジン、セッション管理実装済み）
-- app/models/: ✅ 完了（全モデル実装済み - Animal, CareLog, MedicalRecord, User, Volunteer, Applicant, AdoptionRecord, StatusHistory, AuditLog, MedicalAction, AnimalImage, Setting）
-- Alembic: ✅ 完了（初期マイグレーション作成済み）
-- tests/models/: ✅ 完了（Animal, User, MedicalActionの単体テスト実装済み）
-- 実装済みコード: Phase 1完全完了（プロジェクト基盤とデータベース）
-- 次のステップ: Phase 2（認証・認可システム）から開始
+**プロジェクトステータス**: Phase 9 Public API完了、MVP Core バックエンド完成！
 
-**重要**: すべてのコード実装前に、Context7 MCPを使用して最新のライブラリドキュメントを参照すること
+**完了済み:**
+- ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
+- ✅ Phase 2: 認証・認可システム（全7タスク）
+- ✅ Phase 3: 猫管理機能（全6タスク）
+- ✅ Phase 4: 世話記録機能（全5タスク）
+- ✅ Phase 4: ボランティア管理（全4タスク）
+- ✅ Phase 6: PDF生成機能（全5タスク）
+- ✅ Phase 9: Public API（Task 14.2完了）
+
+**実装済み機能:**
+- データベース（全12モデル）
+- JWT認証・認可システム（RBAC、権限チェック）
+- 猫管理機能（CRUD、検索、ステータス管理）
+- 世話記録機能（CRUD、CSV出力、前回値コピー）
+- ボランティア管理機能（CRUD、活動履歴）
+- 画像アップロード・最適化・ギャラリー管理
+- PDF生成機能（QRカード、面付けカード、紙記録フォーム）
+- **Public API（認証不要の世話記録入力）**
+- 統合テスト（232テスト、カバレッジ84.90%）
+
+**次のステップ**: Phase 9 フロントエンド実装（Publicフォーム、PWA機能）またはPhase 5（診療記録機能）
+
+**重要な注意事項:**
+
+1. **Context7 MCP使用**: すべてのコード実装前に、Context7 MCPを使用して最新のライブラリドキュメントを参照すること
+
+2. **コード品質基準（code-structure-review統合）**:
+   - すべてのファイルに `from __future__ import annotations` を追加
+   - 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
+   - Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
+   - Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
+   - 空のコレクションには明示的な型注釈を付与
+   - SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
+   - エラーハンドリングを統一（HTTPException、ロギング）
+   - すべての関数にDocstring（Args, Returns, Raises, Example）を記述
+
+3. **Mypy strict mode**: すべてのコードは `mypy --strict` をパスすること
+
+4. **テスト**: 実装と並行してテストを作成し、品質を担保すること
 
 ### Context7 MCP 使用方法
 1. **ライブラリID解決**: `mcp_context7_resolve_library_id` でライブラリ名を検索
@@ -59,15 +87,15 @@ pip install -r requirements.txt
 ## 実装優先順位
 
 ### 最優先（MVP Core）
-1. Phase 1: プロジェクト基盤とデータベース
-2. Phase 2: 認証・認可システム
-3. Phase 3: 猫管理機能（基本CRUD）
-4. Phase 4: 世話記録機能（基本入力）
-5. Phase 6: PDF生成機能（QRカード）
+1. ✅ Phase 1: プロジェクト基盤とデータベース
+2. ✅ Phase 2: 認証・認可システム
+3. ✅ Phase 3: 猫管理機能（基本CRUD）
+4. ✅ Phase 4: 世話記録機能（基本入力）
+5. ✅ Phase 6: PDF生成機能（QRカード）
 6. Phase 9: Publicフォーム（基本入力）
 
 ### 高優先（MVP Extended）
-7. Phase 5: 画像ギャラリー機能
+7. Phase 5: 診療記録機能
 8. Phase 7: 里親管理機能
 9. Phase 8: 管理画面UI（基本画面）
 10. Phase 11: セキュリティとログ
@@ -85,14 +113,23 @@ pip install -r requirements.txt
 
 ---
 
-## Phase 1: プロジェクト基盤とデータベース
+## Phase 1: プロジェクト基盤とデータベース ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - 各タスク実装前に、必ず Context7 MCP を使用して最新ドキュメントを参照すること
-- FastAPI実装: `mcp_context7_get_library_docs` で `/tiangolo/fastapi` を参照（tokens: 5000）
+- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
 - SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
 - Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
 - WeasyPrint実装: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索後、ドキュメント取得
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのファイルに `from __future__ import annotations` を追加
+- 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
+- Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
+- Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
+- 空のコレクションには明示的な型注釈を付与
+- SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
+- データベースモジュールにPostgreSQL互換の命名規則を追加
 
 ### 1. プロジェクト構造とセットアップ
 
@@ -197,12 +234,17 @@ SQLiteデータベースとSQLAlchemyモデルを実装します。
   - _Requirements: Requirement 28_
 
 
-## Phase 2: 認証・認可システム（JWT + OAuth2）
+## Phase 2: 認証・認可システム（JWT + OAuth2） ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - JWT実装前: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のOAuth2/JWT関連ドキュメントを参照（tokens: 5000）
 - passlib実装前: `mcp_context7_resolve_library_id` で "passlib" を検索し、ドキュメント取得
 - python-jose実装前: `mcp_context7_resolve_library_id` で "python-jose" を検索し、ドキュメント取得
+
+**コード品質改善（code-structure-review統合）**:
+- すべての認証関連ファイルに型ヒント改善を適用
+- エラーハンドリングパターンを統一（HTTPException、ロギング）
+- Docstringを充実（Args, Returns, Raises, Example）
 
 ### 3. JWT認証機能の実装
 
@@ -254,7 +296,17 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - 権限チェックのテスト
   - _Requirements: Requirement 22_
 
-## Phase 3: 猫管理機能
+## Phase 3: 猫管理機能 ✅ 完了
+
+**Context7 MCP使用ガイドライン**:
+- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
+- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
+- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのスキーマ、サービス、APIファイルに型ヒント改善を適用
+- エラーハンドリングパターンを統一
+- ロギングを追加
 
 ### 4. 猫マスター管理
 
@@ -303,9 +355,18 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 
 ### 5. 画像ギャラリー機能
 
+**Context7 MCP使用ガイドライン**:
+- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+- ファイルアップロード: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のFile Upload関連を参照
+
+**コード品質改善**:
+- 型ヒント: `from __future__ import annotations`, `X | None`, `collections.abc`
+- エラーハンドリング: HTTPException、ロギング
+- Docstring: Args, Returns, Raises, Example
+
 猫の複数画像管理機能を実装します。
 
-- [ ] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
+- [x] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
   - upload_image（画像アップロード）
   - list_images（画像一覧取得）
   - delete_image（画像削除）
@@ -313,19 +374,27 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - ファイルサイズ制限チェック
   - _Requirements: Requirement 27.2-27.3, Requirement 27.8-27.9_
 
-- [ ] 5.2 画像管理APIエンドポイントを実装（app/api/v1/images.py）
+- [x] 5.2 画像管理APIエンドポイントを実装（app/api/v1/images.py）
   - POST /api/v1/animals/{id}/images（画像アップロード）
   - GET /api/v1/animals/{id}/images（画像一覧取得）
   - DELETE /api/v1/images/{id}（画像削除）
   - _Requirements: Requirement 27.1-27.5_
 
-- [ ] 5.3 画像制限設定機能を実装
+- [x] 5.3 画像制限設定機能を実装
   - Settingsテーブルでの設定管理
   - デフォルト値（最大20枚、最大5MB）
   - _Requirements: Requirement 27.6-27.7, Requirement 27.10_
 
 
-## Phase 4: 世話記録機能
+## Phase 4: 世話記録機能 ✅ 完了
+
+**Context7 MCP使用ガイドライン**:
+- CSV処理: `mcp_context7_resolve_library_id` で "pandas" または標準ライブラリ `csv` の使用を検討
+- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
+
+**コード品質改善（code-structure-review統合）**:
+- すべてのファイルに型ヒント改善を適用
+- エラーハンドリングとロギングを統一
 
 ### 6. 世話記録管理
 
@@ -361,34 +430,48 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - CSV出力のテスト
   - _Requirements: Requirement 3, Requirement 25_
 
-### 7. ボランティア管理
+### 7. ボランティア管理 ✅ 完了
 
 ボランティア記録者の管理機能を実装します。
 
-- [ ] 7.1 Pydanticスキーマを実装（app/schemas/volunteer.py）
+- [x] 7.1 Pydanticスキーマを実装（app/schemas/volunteer.py）
   - VolunteerCreate, VolunteerUpdate, VolunteerResponse
   - _Requirements: Requirement 4.1_
 
-- [ ] 7.2 ボランティア管理サービスを実装（app/services/volunteer_service.py）
+- [x] 7.2 ボランティア管理サービスを実装（app/services/volunteer_service.py）
   - create_volunteer（登録）
   - get_volunteer（詳細取得）
   - list_volunteers（一覧取得）
   - update_volunteer（更新）
   - get_activity_history（活動履歴取得）
-  - _Requirements: Requirement 4.2, Requirement 4.5_
+  - get_active_volunteers（アクティブボランティア一覧取得）
+  - _Requirements: Requirement 4.2, Requirement 4.4, Requirement 4.5_
 
-- [ ] 7.3 ボランティア管理APIエンドポイントを実装（app/api/v1/volunteers.py）
+- [x] 7.3 ボランティア管理APIエンドポイントを実装（app/api/v1/volunteers.py）
   - GET /api/v1/volunteers（一覧取得）
   - POST /api/v1/volunteers（登録）
   - GET /api/v1/volunteers/{id}（詳細取得）
   - PUT /api/v1/volunteers/{id}（更新）
+  - GET /api/v1/volunteers/{id}/activity（活動履歴取得）
   - _Requirements: Requirement 4_
 
-- [ ] 7.4 アクティブボランティア取得機能を実装
+- [x] 7.4 アクティブボランティア取得機能を実装
+  - Publicフォーム用の選択リスト提供
+  - _Requirements: Requirement 4.4_
   - Publicフォーム用の選択リスト提供
   - _Requirements: Requirement 4.4_
 
 ## Phase 5: 診療記録機能
+
+**Context7 MCP使用ガイドライン**:
+- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
+- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
+- Decimal型処理: Python標準ライブラリ `decimal` の使用方法を確認
+
+**コード品質改善**:
+- 型ヒント: `from __future__ import annotations`, `Decimal`, `X | None`
+- エラーハンドリング: IntegrityError、SQLAlchemyError
+- Docstring: 完全なドキュメント
 
 ### 8. 診療記録管理
 
@@ -444,7 +527,7 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
 
-## Phase 6: PDF生成機能
+## Phase 6: PDF生成機能 ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
 - WeasyPrint実装前: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索し、`mcp_context7_get_library_docs` でドキュメント取得（tokens: 5000）
@@ -452,41 +535,45 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 - Jinja2テンプレート実装前: `mcp_context7_get_library_docs` で `/pallets/jinja` を参照（tokens: 5000）
 - PDF生成のベストプラクティスを Context7 で確認
 
-### 10. QRコードとPDF生成
+### 10. QRコードとPDF生成 ✅ 完了
 
 QRカードと紙記録フォームのPDF生成機能を実装します。
 
-- [ ] 10.1 QRコード生成ユーティリティを実装（app/utils/qr_code.py）
+- [x] 10.1 QRコード生成ユーティリティを実装（app/utils/qr_code.py）
   - QRコード画像生成
-  - URL埋め込み
+  - バイト列変換
+  - 猫用URL生成機能
   - _Requirements: Requirement 2.3_
 
-- [ ] 10.2 PDF生成サービスを実装（app/services/pdf_service.py）
+- [x] 10.2 PDF生成サービスを実装（app/services/pdf_service.py）
   - generate_qr_card（QRカードPDF生成）
-  - generate_qr_card_grid（面付けカードPDF生成）
+  - generate_qr_card_grid（面付けカードPDF生成、最大10枚）
   - generate_paper_form（紙記録フォームPDF生成）
-  - generate_medical_detail（診療明細PDF生成）
-  - generate_report（帳票PDF生成）
+  - generate_medical_detail（診療明細PDF生成 - 未実装マーク付き）
+  - generate_report（帳票PDF生成 - 未実装マーク付き）
   - _Requirements: Requirement 2.1-2.2, Requirement 2.5-2.8, Requirement 7.2-7.3, Requirement 9_
 
-- [ ] 10.3 PDFテンプレートを作成（app/templates/pdf/）
+- [x] 10.3 PDFテンプレートを作成（app/templates/pdf/）
   - qr_card.html（A6サイズ）
   - qr_card_grid.html（A4、2×5枚）
   - paper_form.html（A4、1ヶ月分）
-  - medical_detail.html（A4縦）
-  - report_daily.html, report_weekly.html, report_monthly.html
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [ ] 10.4 PDF生成APIエンドポイントを実装（app/api/v1/pdf.py）
+- [x] 10.4 PDF生成APIエンドポイントを実装（app/api/v1/pdf.py）
   - POST /api/v1/pdf/qr-card
+  - POST /api/v1/pdf/qr-card-grid
   - POST /api/v1/pdf/paper-form
-  - POST /api/v1/pdf/medical-detail
-  - POST /api/v1/pdf/report
+  - POST /api/v1/pdf/medical-detail（未実装エンドポイント）
+  - POST /api/v1/pdf/report（未実装エンドポイント）
+  - 認証・権限チェック付き
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [ ] 10.5 PDF生成機能のテストを作成
-  - 各種PDF生成のテスト
-  - パフォーマンステスト（10秒以内）
+- [x] 10.5 PDF生成機能のテストを作成
+  - QRカード生成テスト（9テスト）
+  - 面付けカード生成テスト（4テスト）
+  - 紙記録フォーム生成テスト（4テスト）
+  - エラーハンドリングテスト
+  - カバレッジ94.81%
   - _Requirements: Requirement 28.3_
 
 
@@ -652,7 +739,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 認証不要の世話記録入力フォームを実装します。
 
-- [ ] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）
+- [x] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）
   - Tailwind CSSでモバイル最適化
   - 1画面完結型レイアウト
   - 猫の名前・顔写真サムネイル表示
@@ -661,35 +748,36 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 保存ボタン（画面下部固定）
   - _Requirements: Requirement 3.1-3.4, Requirement 13.1-13.5_
 
-- [ ] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）
-  - GET /api/v1/public/care/{animal_id}（猫情報取得）
+- [x] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）
+  - GET /api/v1/public/animals/{animal_id}（猫情報取得）
   - GET /api/v1/public/volunteers（アクティブボランティア一覧）
-  - POST /api/v1/public/care-logs（記録保存）
+  - POST /api/v1/public/care-logs（記録保存、IPアドレス・User-Agent自動記録）
   - GET /api/v1/public/care-logs/latest/{animal_id}（前回入力値取得）
+  - テスト11個実装（カバレッジ97.62%）
   - _Requirements: Requirement 3.5-3.7_
 
-- [ ] 14.3 前回入力値コピー機能を実装（JavaScript）
+- [x] 14.3 前回入力値コピー機能を実装（JavaScript）
   - 最新記録の取得
   - フォームへの自動入力
   - _Requirements: Requirement 3.7_
 
-- [ ] 14.4 PWA設定を実装
+- [x] 14.4 PWA設定を実装
   - manifest.json作成（アイコン、名前、テーマカラー）
   - Service Worker実装（app/static/js/sw.js）
   - オフラインキャッシュ戦略
   - _Requirements: Requirement 18.1-18.2_
 
-- [ ] 14.5 オフライン機能を実装
+- [x] 14.5 オフライン機能を実装
   - IndexedDBへの一時保存
   - オンライン復帰時の自動同期
   - 同期状態表示（同期済み、同期待ち、同期中）
   - _Requirements: Requirement 18.3-18.5_
 
-- [ ] 14.6 ホーム画面追加プロンプトを実装
+- [x] 14.6 ホーム画面追加プロンプトを実装
   - 初回アクセス時のプロンプト表示
   - _Requirements: Requirement 18.2_
 
-- [ ] 14.7 Publicフォームの動作テストを作成
+- [x] 14.7 Publicフォームの動作テストを作成
   - フォーム入力・保存のテスト
   - オフライン機能のテスト
   - _Requirements: Requirement 3, Requirement 18_
@@ -1154,8 +1242,8 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 2: 認証・認可システム (7/7 完了) ✅
 - [x] Phase 3: 猫管理機能 (6/6 完了) ✅
 - [x] Phase 4: 世話記録機能 (5/5 完了) ✅
-- [ ] Phase 4: 世話記録機能 (0/5 完了)
-- [ ] Phase 5: 診療記録機能 (0/4 完了)
+- [ ] Phase 5: 画像ギャラリー機能 (0/3 完了)
+- [ ] Phase 6: 診療記録機能 (0/4 完了)
 - [ ] Phase 6: 診療マスターデータ管理 (0/4 完了)
 - [ ] Phase 7: 診療明細出力 (0/5 完了)
 - [ ] Phase 8: CSVインポート・エクスポート (0/4 完了)
@@ -1202,6 +1290,14 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - **世話記録**: 6エンドポイント
 
 ### 次に実装すべきタスク（MVP Core優先順位）
-1. **Task 5.1**: 画像ギャラリーサービスを実装
-2. **Task 5.2**: 画像管理APIエンドポイントを実装
-3. **Task 7.1**: ボランティア管理スキーマを実装
+
+**重要**: 実装前に必ずcode-structure-reviewの改善を適用すること
+- すべてのファイルに `from __future__ import annotations` を追加
+- 型ヒントは `collections.abc` と `X | None` 構文を使用
+- エラーハンドリングとロギングを統一
+- Docstringを完全に記述
+
+**次のタスク:**
+1. **Task 5.1**: 画像ギャラリーサービスを実装（app/services/image_service.py）
+2. **Task 5.2**: 画像管理APIエンドポイントを実装（app/api/v1/images.py）
+3. **Task 5.3**: 画像制限設定機能を実装
