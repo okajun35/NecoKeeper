@@ -292,10 +292,17 @@
         // API Base URL
         const API_BASE = '/api/v1/public';
 
+        // 今日の日付を取得する関数（ローカルタイムゾーン対応）
+        function getTodayString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // 記録日に今日の日付を設定
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        document.getElementById('logDate').value = todayStr;
+        document.getElementById('logDate').value = getTodayString();
 
         // 猫情報を取得
         async function loadAnimalInfo() {
@@ -447,7 +454,7 @@
                 setTimeout(() => {
                     document.getElementById('careForm').reset();
                     // 記録日を今日の日付に戻す
-                    document.getElementById('logDate').value = todayStr;
+                    document.getElementById('logDate').value = getTodayString();
                     // ボタンの選択状態をクリア
                     document.querySelectorAll('.selected').forEach(btn => {
                         btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
