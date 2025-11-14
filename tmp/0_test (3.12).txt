@@ -1,0 +1,763 @@
+﻿2025-11-13T19:53:02.2509097Z Current runner version: '2.329.0'
+2025-11-13T19:53:02.2534034Z ##[group]Runner Image Provisioner
+2025-11-13T19:53:02.2534987Z Hosted Compute Agent
+2025-11-13T19:53:02.2535610Z Version: 20251016.436
+2025-11-13T19:53:02.2536348Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+2025-11-13T19:53:02.2537108Z Build Date: 2025-10-15T20:44:12Z
+2025-11-13T19:53:02.2537727Z ##[endgroup]
+2025-11-13T19:53:02.2538265Z ##[group]Operating System
+2025-11-13T19:53:02.2538820Z Ubuntu
+2025-11-13T19:53:02.2539423Z 24.04.3
+2025-11-13T19:53:02.2539867Z LTS
+2025-11-13T19:53:02.2540320Z ##[endgroup]
+2025-11-13T19:53:02.2540907Z ##[group]Runner Image
+2025-11-13T19:53:02.2541497Z Image: ubuntu-24.04
+2025-11-13T19:53:02.2542041Z Version: 20251102.99.1
+2025-11-13T19:53:02.2543110Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251102.99/images/ubuntu/Ubuntu2404-Readme.md
+2025-11-13T19:53:02.2544652Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251102.99
+2025-11-13T19:53:02.2545697Z ##[endgroup]
+2025-11-13T19:53:02.2547140Z ##[group]GITHUB_TOKEN Permissions
+2025-11-13T19:53:02.2549325Z Contents: read
+2025-11-13T19:53:02.2549853Z Metadata: read
+2025-11-13T19:53:02.2550376Z Packages: read
+2025-11-13T19:53:02.2550941Z ##[endgroup]
+2025-11-13T19:53:02.2552944Z Secret source: Actions
+2025-11-13T19:53:02.2554006Z Prepare workflow directory
+2025-11-13T19:53:02.2871486Z Prepare all required actions
+2025-11-13T19:53:02.2909049Z Getting action download info
+2025-11-13T19:53:02.7109442Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-11-13T19:53:02.8147130Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2025-11-13T19:53:02.8975506Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2025-11-13T19:53:03.0090336Z Download action repository 'codecov/codecov-action@v4' (SHA:b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238)
+2025-11-13T19:53:03.4094309Z Download action repository 'py-cov-action/python-coverage-comment-action@v3' (SHA:6494290850a5098c2836298dad8f11082b4ceaa9)
+2025-11-13T19:53:03.8320306Z Complete job name: test (3.12)
+2025-11-13T19:53:03.8807738Z ##[group]Build container for action use: '/home/runner/work/_actions/py-cov-action/python-coverage-comment-action/v3/Dockerfile'.
+2025-11-13T19:53:03.8863044Z ##[command]/usr/bin/docker build -t 99a3c0:9c4a41a262084839a0978a398db27621 -f "/home/runner/work/_actions/py-cov-action/python-coverage-comment-action/v3/Dockerfile" "/home/runner/work/_actions/py-cov-action/python-coverage-comment-action/v3"
+2025-11-13T19:53:06.2685046Z #0 building with "default" instance using docker driver
+2025-11-13T19:53:06.2685700Z
+2025-11-13T19:53:06.2686239Z #1 [internal] load build definition from Dockerfile
+2025-11-13T19:53:06.2686880Z #1 transferring dockerfile: 257B done
+2025-11-13T19:53:06.2687387Z #1 DONE 0.0s
+2025-11-13T19:53:06.2687637Z
+2025-11-13T19:53:06.2688206Z #2 [internal] load metadata for ghcr.io/py-cov-action/python-coverage-comment-action-base:v7
+2025-11-13T19:53:06.5388157Z #2 DONE 0.4s
+2025-11-13T19:53:06.6571094Z
+2025-11-13T19:53:06.6572020Z #3 [internal] load .dockerignore
+2025-11-13T19:53:06.6573135Z #3 transferring context: 2B done
+2025-11-13T19:53:06.6574102Z #3 DONE 0.0s
+2025-11-13T19:53:06.6576309Z
+2025-11-13T19:53:06.6576771Z #4 [internal] load build context
+2025-11-13T19:53:06.6577247Z #4 transferring context: 98.26kB done
+2025-11-13T19:53:06.6577683Z #4 DONE 0.0s
+2025-11-13T19:53:06.6577886Z
+2025-11-13T19:53:06.6578667Z #5 [1/3] FROM ghcr.io/py-cov-action/python-coverage-comment-action-base:v7@sha256:dc01b707ec9c8f749f1402f5d484c5b0169ca9a41ad5e4945ed8dd81b55d65f7
+2025-11-13T19:53:06.6580439Z #5 resolve ghcr.io/py-cov-action/python-coverage-comment-action-base:v7@sha256:dc01b707ec9c8f749f1402f5d484c5b0169ca9a41ad5e4945ed8dd81b55d65f7 done
+2025-11-13T19:53:06.6581530Z #5 sha256:fe9a3615460dd5d72b4f1b0e19ac053cfb32a6059ae6ee103013a87f6106ecab 2.38kB / 2.38kB done
+2025-11-13T19:53:06.6582169Z #5 sha256:963010aaad3b35fe41f5accfb3da3e6a12ca711542ae537fdb283b5b30058c79 1.29MB / 1.29MB 0.1s
+2025-11-13T19:53:06.6583225Z #5 sha256:d7ecded7702a5dbf6d0f79a71edc34b534d08f3051980e2c948fba72db3197fc 6.29MB / 29.78MB 0.1s
+2025-11-13T19:53:06.6584062Z #5 sha256:f2b97c97aa66d4fb1e4a8405a2e403985ddedb59766575db075d172896fe2797 0B / 12.17MB 0.1s
+2025-11-13T19:53:06.6584662Z #5 sha256:dc01b707ec9c8f749f1402f5d484c5b0169ca9a41ad5e4945ed8dd81b55d65f7 1.61kB / 1.61kB done
+2025-11-13T19:53:06.6585268Z #5 sha256:01c3c30e1bb263ccbfb1f2fbac3a270e621d70c3aea769cdbca50322598a7f15 10.54kB / 10.54kB done
+2025-11-13T19:53:06.7680782Z #5 sha256:963010aaad3b35fe41f5accfb3da3e6a12ca711542ae537fdb283b5b30058c79 1.29MB / 1.29MB 0.1s done
+2025-11-13T19:53:06.7682315Z #5 sha256:d7ecded7702a5dbf6d0f79a71edc34b534d08f3051980e2c948fba72db3197fc 29.78MB / 29.78MB 0.2s done
+2025-11-13T19:53:06.7683551Z #5 sha256:f2b97c97aa66d4fb1e4a8405a2e403985ddedb59766575db075d172896fe2797 12.17MB / 12.17MB 0.2s done
+2025-11-13T19:53:06.7684665Z #5 sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb 0B / 43.77MB 0.2s
+2025-11-13T19:53:06.7685916Z #5 sha256:feae240f352d7a935929cf27eb013ca06372a3cf81337987f48b3afc15d99746 248B / 248B 0.2s done
+2025-11-13T19:53:06.7686966Z #5 sha256:db7d6dc0a89e456364e801f8d9c1b4742173548ee98ebf183453d316a089f385 0B / 229B 0.2s
+2025-11-13T19:53:06.7687957Z #5 sha256:5cd48a0cbce3a1a470ad3ebc19a180bf2bdbe5a8d0c9afeb5913072544c575f5 0B / 97B 0.2s
+2025-11-13T19:53:06.7688745Z #5 extracting sha256:d7ecded7702a5dbf6d0f79a71edc34b534d08f3051980e2c948fba72db3197fc
+2025-11-13T19:53:06.8682400Z #5 sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb 15.73MB / 43.77MB 0.3s
+2025-11-13T19:53:06.8687643Z #5 sha256:db7d6dc0a89e456364e801f8d9c1b4742173548ee98ebf183453d316a089f385 229B / 229B 0.2s done
+2025-11-13T19:53:06.8688750Z #5 sha256:5cd48a0cbce3a1a470ad3ebc19a180bf2bdbe5a8d0c9afeb5913072544c575f5 97B / 97B 0.2s done
+2025-11-13T19:53:06.8689871Z #5 sha256:6a314dacd41ed2f2eb0683913bf5fdff6e7eb7bb4acfdc212282d338859c7a55 0B / 25.10kB 0.3s
+2025-11-13T19:53:06.8690999Z #5 sha256:d9f677b687357d0cb413bb684e2fd05a137cd2f99a103cff76c899c72de9921e 0B / 6.03MB 0.3s
+2025-11-13T19:53:06.8692388Z #5 sha256:e6623bb105c8558c8b536a4517514f9ba7ed208da90d26da2c5176f78043e084 1.92kB / 1.92kB 0.3s done
+2025-11-13T19:53:06.8693436Z #5 sha256:5e0a1b2969b92c46935681daba6f9c57a899f83cee3f1058c95e490c04db90c9 179B / 179B 0.3s done
+2025-11-13T19:53:06.9776294Z #5 sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb 43.77MB / 43.77MB 0.4s
+2025-11-13T19:53:06.9777361Z #5 sha256:6a314dacd41ed2f2eb0683913bf5fdff6e7eb7bb4acfdc212282d338859c7a55 25.10kB / 25.10kB 0.3s done
+2025-11-13T19:53:06.9778365Z #5 sha256:d9f677b687357d0cb413bb684e2fd05a137cd2f99a103cff76c899c72de9921e 6.03MB / 6.03MB 0.4s done
+2025-11-13T19:53:07.0796702Z #5 sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb 43.77MB / 43.77MB 0.4s done
+2025-11-13T19:53:07.8320422Z #5 extracting sha256:d7ecded7702a5dbf6d0f79a71edc34b534d08f3051980e2c948fba72db3197fc 0.9s done
+2025-11-13T19:53:07.8321669Z #5 extracting sha256:963010aaad3b35fe41f5accfb3da3e6a12ca711542ae537fdb283b5b30058c79 0.1s
+2025-11-13T19:53:07.9857582Z #5 extracting sha256:963010aaad3b35fe41f5accfb3da3e6a12ca711542ae537fdb283b5b30058c79 0.1s done
+2025-11-13T19:53:08.5720392Z #5 extracting sha256:f2b97c97aa66d4fb1e4a8405a2e403985ddedb59766575db075d172896fe2797
+2025-11-13T19:53:09.1956460Z #5 extracting sha256:f2b97c97aa66d4fb1e4a8405a2e403985ddedb59766575db075d172896fe2797 0.5s done
+2025-11-13T19:53:09.1958040Z #5 extracting sha256:feae240f352d7a935929cf27eb013ca06372a3cf81337987f48b3afc15d99746 done
+2025-11-13T19:53:09.1959197Z #5 extracting sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb
+2025-11-13T19:53:10.4240131Z #5 extracting sha256:4312d7ffa40573cb7367a91354b3c715dad20d9ac410b981d85256396cd62ceb 1.1s done
+2025-11-13T19:53:10.4241341Z #5 extracting sha256:db7d6dc0a89e456364e801f8d9c1b4742173548ee98ebf183453d316a089f385
+2025-11-13T19:53:10.5839744Z #5 extracting sha256:db7d6dc0a89e456364e801f8d9c1b4742173548ee98ebf183453d316a089f385 done
+2025-11-13T19:53:10.5841088Z #5 extracting sha256:5cd48a0cbce3a1a470ad3ebc19a180bf2bdbe5a8d0c9afeb5913072544c575f5 done
+2025-11-13T19:53:10.5842151Z #5 extracting sha256:e6623bb105c8558c8b536a4517514f9ba7ed208da90d26da2c5176f78043e084 done
+2025-11-13T19:53:10.5844357Z #5 extracting sha256:5e0a1b2969b92c46935681daba6f9c57a899f83cee3f1058c95e490c04db90c9 done
+2025-11-13T19:53:10.5845349Z #5 extracting sha256:6a314dacd41ed2f2eb0683913bf5fdff6e7eb7bb4acfdc212282d338859c7a55 done
+2025-11-13T19:53:10.5846531Z #5 extracting sha256:d9f677b687357d0cb413bb684e2fd05a137cd2f99a103cff76c899c72de9921e 0.1s
+2025-11-13T19:53:10.9297785Z #5 extracting sha256:d9f677b687357d0cb413bb684e2fd05a137cd2f99a103cff76c899c72de9921e 0.4s done
+2025-11-13T19:53:10.9298603Z #5 DONE 4.4s
+2025-11-13T19:53:11.0789841Z
+2025-11-13T19:53:11.0790273Z #6 [2/3] COPY coverage_comment ./coverage_comment
+2025-11-13T19:53:11.0790844Z #6 DONE 0.0s
+2025-11-13T19:53:11.0791071Z
+2025-11-13T19:53:11.0791322Z #7 [3/3] RUN md5sum -c pyproject.toml.md5 || pip install -e .
+2025-11-13T19:53:11.0791837Z #7 0.134 pyproject.toml: OK
+2025-11-13T19:53:11.2355475Z #7 DONE 0.1s
+2025-11-13T19:53:11.2355960Z
+2025-11-13T19:53:11.2360307Z #8 exporting to image
+2025-11-13T19:53:11.2363506Z #8 exporting layers
+2025-11-13T19:53:12.0096862Z #8 exporting layers 0.9s done
+2025-11-13T19:53:12.0281935Z #8 writing image sha256:9dd02cac9773aded96edc13a146aa22f888ddd32c701491407912d4859d824e9 done
+2025-11-13T19:53:12.0283404Z #8 naming to docker.io/library/99a3c0:9c4a41a262084839a0978a398db27621 done
+2025-11-13T19:53:12.0284213Z #8 DONE 0.9s
+2025-11-13T19:53:12.0335136Z ##[endgroup]
+2025-11-13T19:53:12.0640017Z ##[group]Run actions/checkout@v4
+2025-11-13T19:53:12.0640566Z with:
+2025-11-13T19:53:12.0640754Z   repository: okajun35/NecoKeeper
+2025-11-13T19:53:12.0641201Z   token: ***
+2025-11-13T19:53:12.0641367Z   ssh-strict: true
+2025-11-13T19:53:12.0641542Z   ssh-user: git
+2025-11-13T19:53:12.0641728Z   persist-credentials: true
+2025-11-13T19:53:12.0641941Z   clean: true
+2025-11-13T19:53:12.0642120Z   sparse-checkout-cone-mode: true
+2025-11-13T19:53:12.0642352Z   fetch-depth: 1
+2025-11-13T19:53:12.0642523Z   fetch-tags: false
+2025-11-13T19:53:12.0642694Z   show-progress: true
+2025-11-13T19:53:12.0642874Z   lfs: false
+2025-11-13T19:53:12.0643025Z   submodules: false
+2025-11-13T19:53:12.0643205Z   set-safe-directory: true
+2025-11-13T19:53:12.0643593Z ##[endgroup]
+2025-11-13T19:53:12.1697982Z Syncing repository: okajun35/NecoKeeper
+2025-11-13T19:53:12.1699190Z ##[group]Getting Git version info
+2025-11-13T19:53:12.1699563Z Working directory is '/home/runner/work/NecoKeeper/NecoKeeper'
+2025-11-13T19:53:12.1700138Z [command]/usr/bin/git version
+2025-11-13T19:53:12.1717458Z git version 2.51.2
+2025-11-13T19:53:12.1743448Z ##[endgroup]
+2025-11-13T19:53:12.1759420Z Temporarily overriding HOME='/home/runner/work/_temp/328448b7-6a6b-4e17-844b-8cb3f96997e8' before making global git config changes
+2025-11-13T19:53:12.1760804Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-13T19:53:12.1765478Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:53:12.1800455Z Deleting the contents of '/home/runner/work/NecoKeeper/NecoKeeper'
+2025-11-13T19:53:12.1803978Z ##[group]Initializing the repository
+2025-11-13T19:53:12.1808702Z [command]/usr/bin/git init /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:53:12.1908022Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-11-13T19:53:12.1909064Z hint: is subject to change. To configure the initial branch name to use in all
+2025-11-13T19:53:12.1909625Z hint: of your new repositories, which will suppress this warning, call:
+2025-11-13T19:53:12.1909954Z hint:
+2025-11-13T19:53:12.1910192Z hint: 	git config --global init.defaultBranch <name>
+2025-11-13T19:53:12.1910545Z hint:
+2025-11-13T19:53:12.1911039Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-11-13T19:53:12.1912033Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-11-13T19:53:12.1912395Z hint:
+2025-11-13T19:53:12.1912580Z hint: 	git branch -m <name>
+2025-11-13T19:53:12.1912956Z hint:
+2025-11-13T19:53:12.1913499Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-11-13T19:53:12.1914490Z Initialized empty Git repository in /home/runner/work/NecoKeeper/NecoKeeper/.git/
+2025-11-13T19:53:12.1923832Z [command]/usr/bin/git remote add origin https://github.com/okajun35/NecoKeeper
+2025-11-13T19:53:12.1960558Z ##[endgroup]
+2025-11-13T19:53:12.1961176Z ##[group]Disabling automatic garbage collection
+2025-11-13T19:53:12.1965961Z [command]/usr/bin/git config --local gc.auto 0
+2025-11-13T19:53:12.1992144Z ##[endgroup]
+2025-11-13T19:53:12.1992671Z ##[group]Setting up auth
+2025-11-13T19:53:12.2000034Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-13T19:53:12.2029959Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-13T19:53:12.2348149Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-11-13T19:53:12.2376778Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-11-13T19:53:12.2594229Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-11-13T19:53:12.2628192Z ##[endgroup]
+2025-11-13T19:53:12.2628900Z ##[group]Fetching the repository
+2025-11-13T19:53:12.2637000Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f014b107354f9ec0b946b79701b8813f45b1e3de:refs/remotes/pull/4/merge
+2025-11-13T19:53:12.5744924Z From https://github.com/okajun35/NecoKeeper
+2025-11-13T19:53:12.5745678Z  * [new ref]         f014b107354f9ec0b946b79701b8813f45b1e3de -> pull/4/merge
+2025-11-13T19:53:12.5781446Z ##[endgroup]
+2025-11-13T19:53:12.5782025Z ##[group]Determining the checkout info
+2025-11-13T19:53:12.5783438Z ##[endgroup]
+2025-11-13T19:53:12.5789235Z [command]/usr/bin/git sparse-checkout disable
+2025-11-13T19:53:12.5829816Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-11-13T19:53:12.5860152Z ##[group]Checking out the ref
+2025-11-13T19:53:12.5865212Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/4/merge
+2025-11-13T19:53:12.5980629Z Note: switching to 'refs/remotes/pull/4/merge'.
+2025-11-13T19:53:12.5981209Z
+2025-11-13T19:53:12.5981602Z You are in 'detached HEAD' state. You can look around, make experimental
+2025-11-13T19:53:12.5982410Z changes and commit them, and you can discard any commits you make in this
+2025-11-13T19:53:12.5983172Z state without impacting any branches by switching back to a branch.
+2025-11-13T19:53:12.5983662Z
+2025-11-13T19:53:12.5983965Z If you want to create a new branch to retain commits you create, you may
+2025-11-13T19:53:12.5984669Z do so (now or later) by using -c with the switch command. Example:
+2025-11-13T19:53:12.5985087Z
+2025-11-13T19:53:12.5985244Z   git switch -c <new-branch-name>
+2025-11-13T19:53:12.5985529Z
+2025-11-13T19:53:12.5985696Z Or undo this operation with:
+2025-11-13T19:53:12.5986268Z
+2025-11-13T19:53:12.5986407Z   git switch -
+2025-11-13T19:53:12.5986620Z
+2025-11-13T19:53:12.5986979Z Turn off this advice by setting config variable advice.detachedHead to false
+2025-11-13T19:53:12.5987499Z
+2025-11-13T19:53:12.5988081Z HEAD is now at f014b10 Merge 345de03ca18fa6e747957605396107a058495241 into 87e3bf4cf4282d6e3e4637ec8990be55fce50c6e
+2025-11-13T19:53:12.5989712Z ##[endgroup]
+2025-11-13T19:53:12.6025514Z [command]/usr/bin/git log -1 --format=%H
+2025-11-13T19:53:12.6047333Z f014b107354f9ec0b946b79701b8813f45b1e3de
+2025-11-13T19:53:12.6273414Z ##[group]Run actions/setup-python@v5
+2025-11-13T19:53:12.6273683Z with:
+2025-11-13T19:53:12.6273848Z   python-version: 3.12
+2025-11-13T19:53:12.6274048Z   check-latest: false
+2025-11-13T19:53:12.6274341Z   token: ***
+2025-11-13T19:53:12.6274529Z   update-environment: true
+2025-11-13T19:53:12.6274746Z   allow-prereleases: false
+2025-11-13T19:53:12.6274943Z   freethreaded: false
+2025-11-13T19:53:12.6275130Z ##[endgroup]
+2025-11-13T19:53:12.7909479Z ##[group]Installed versions
+2025-11-13T19:53:12.8018500Z Successfully set up CPython (3.12.12)
+2025-11-13T19:53:12.8019587Z ##[endgroup]
+2025-11-13T19:53:12.8669464Z ##[group]Run actions/cache@v4
+2025-11-13T19:53:12.8669708Z with:
+2025-11-13T19:53:12.8669880Z   path: ~/.cache/pip
+2025-11-13T19:53:12.8670229Z   key: Linux-pip-e0b44cc247d76f1937d00bfd4f0671b71cd9d5b1e9919d33373588dcd551ac02
+2025-11-13T19:53:12.8670631Z   restore-keys: Linux-pip-
+
+2025-11-13T19:53:12.8670859Z   enableCrossOsArchive: false
+2025-11-13T19:53:12.8671071Z   fail-on-cache-miss: false
+2025-11-13T19:53:12.8671286Z   lookup-only: false
+2025-11-13T19:53:12.8671461Z   save-always: false
+2025-11-13T19:53:12.8671627Z env:
+2025-11-13T19:53:12.8671847Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:12.8672253Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:53:12.8672628Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:12.8672970Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:12.8673309Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:12.8673679Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:53:12.8673955Z ##[endgroup]
+2025-11-13T19:53:13.1118775Z Cache hit for restore-key: Linux-pip-e57c02b6b76ec382ad3d912ad63ca1ba3f1dcb97a62bd440a33b9a4e851296db
+2025-11-13T19:53:14.0577307Z Received 67895073 of 67895073 (100.0%), 78.8 MBs/sec
+2025-11-13T19:53:14.0579010Z Cache Size: ~65 MB (67895073 B)
+2025-11-13T19:53:14.0613753Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8e68c0bf-0585-43d6-a4b5-68028af411db/cache.tzst -P -C /home/runner/work/NecoKeeper/NecoKeeper --use-compress-program unzstd
+2025-11-13T19:53:14.2130886Z Cache restored successfully
+2025-11-13T19:53:14.2343333Z Cache restored from key: Linux-pip-e57c02b6b76ec382ad3d912ad63ca1ba3f1dcb97a62bd440a33b9a4e851296db
+2025-11-13T19:53:14.2465414Z ##[group]Run python -m pip install --upgrade pip
+2025-11-13T19:53:14.2466223Z [36;1mpython -m pip install --upgrade pip[0m
+2025-11-13T19:53:14.2466581Z [36;1mpip install -r requirements.txt[0m
+2025-11-13T19:53:14.2504915Z shell: /usr/bin/bash -e {0}
+2025-11-13T19:53:14.2505157Z env:
+2025-11-13T19:53:14.2505406Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:14.2506099Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:53:14.2506519Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:14.2506873Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:14.2507236Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:14.2507590Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:53:14.2507876Z ##[endgroup]
+2025-11-13T19:53:15.3133972Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages (25.3)
+2025-11-13T19:53:15.9204087Z Collecting fastapi==0.104.1 (from -r requirements.txt (line 2))
+2025-11-13T19:53:15.9218830Z   Using cached fastapi-0.104.1-py3-none-any.whl.metadata (24 kB)
+2025-11-13T19:53:15.9507829Z Collecting uvicorn==0.24.0 (from uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:15.9520135Z   Using cached uvicorn-0.24.0-py3-none-any.whl.metadata (6.4 kB)
+2025-11-13T19:53:15.9659744Z Collecting python-multipart==0.0.6 (from -r requirements.txt (line 4))
+2025-11-13T19:53:15.9671444Z   Using cached python_multipart-0.0.6-py3-none-any.whl.metadata (2.5 kB)
+2025-11-13T19:53:16.2401552Z Collecting sqlalchemy==2.0.23 (from -r requirements.txt (line 7))
+2025-11-13T19:53:16.2415318Z   Using cached SQLAlchemy-2.0.23-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.6 kB)
+2025-11-13T19:53:16.2686419Z Collecting alembic==1.12.1 (from -r requirements.txt (line 8))
+2025-11-13T19:53:16.2698721Z   Using cached alembic-1.12.1-py3-none-any.whl.metadata (7.3 kB)
+2025-11-13T19:53:16.3799537Z Collecting pydantic==2.5.0 (from -r requirements.txt (line 11))
+2025-11-13T19:53:16.3812083Z   Using cached pydantic-2.5.0-py3-none-any.whl.metadata (174 kB)
+2025-11-13T19:53:16.4005574Z Collecting pydantic-settings==2.1.0 (from -r requirements.txt (line 12))
+2025-11-13T19:53:16.4017575Z   Using cached pydantic_settings-2.1.0-py3-none-any.whl.metadata (2.9 kB)
+2025-11-13T19:53:16.4193833Z Collecting email-validator==2.1.0 (from -r requirements.txt (line 13))
+2025-11-13T19:53:16.4205394Z   Using cached email_validator-2.1.0-py3-none-any.whl.metadata (25 kB)
+2025-11-13T19:53:16.4407524Z Collecting argon2-cffi==23.1.0 (from -r requirements.txt (line 16))
+2025-11-13T19:53:16.4419011Z   Using cached argon2_cffi-23.1.0-py3-none-any.whl.metadata (5.2 kB)
+2025-11-13T19:53:16.4569719Z Collecting pyjwt==2.8.0 (from -r requirements.txt (line 17))
+2025-11-13T19:53:16.4581245Z   Using cached PyJWT-2.8.0-py3-none-any.whl.metadata (4.2 kB)
+2025-11-13T19:53:16.4739793Z Collecting python-dotenv==1.0.0 (from -r requirements.txt (line 18))
+2025-11-13T19:53:16.4751269Z   Using cached python_dotenv-1.0.0-py3-none-any.whl.metadata (21 kB)
+2025-11-13T19:53:16.4956217Z Collecting weasyprint==60.1 (from -r requirements.txt (line 21))
+2025-11-13T19:53:16.4968088Z   Using cached weasyprint-60.1-py3-none-any.whl.metadata (3.7 kB)
+2025-11-13T19:53:16.5106687Z Collecting qrcode==7.4.2 (from qrcode[pil]==7.4.2->-r requirements.txt (line 22))
+2025-11-13T19:53:16.5117893Z   Using cached qrcode-7.4.2-py3-none-any.whl.metadata (17 kB)
+2025-11-13T19:53:16.5278290Z Collecting jinja2==3.1.2 (from -r requirements.txt (line 25))
+2025-11-13T19:53:16.5289699Z   Using cached Jinja2-3.1.2-py3-none-any.whl.metadata (3.5 kB)
+2025-11-13T19:53:16.5453390Z Collecting apscheduler==3.10.4 (from -r requirements.txt (line 28))
+2025-11-13T19:53:16.5465049Z   Using cached APScheduler-3.10.4-py3-none-any.whl.metadata (5.7 kB)
+2025-11-13T19:53:16.5632486Z Collecting openpyxl==3.1.2 (from -r requirements.txt (line 31))
+2025-11-13T19:53:16.5643791Z   Using cached openpyxl-3.1.2-py2.py3-none-any.whl.metadata (2.5 kB)
+2025-11-13T19:53:16.7201088Z Collecting pillow==10.1.0 (from -r requirements.txt (line 34))
+2025-11-13T19:53:16.7213929Z   Using cached Pillow-10.1.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+2025-11-13T19:53:16.7362636Z Collecting prometheus-client==0.19.0 (from -r requirements.txt (line 37))
+2025-11-13T19:53:16.7374499Z   Using cached prometheus_client-0.19.0-py3-none-any.whl.metadata (1.8 kB)
+2025-11-13T19:53:16.7683888Z Collecting pytest==7.4.3 (from -r requirements.txt (line 40))
+2025-11-13T19:53:16.7695717Z   Using cached pytest-7.4.3-py3-none-any.whl.metadata (7.9 kB)
+2025-11-13T19:53:16.8098355Z Collecting pytest-asyncio==0.21.1 (from -r requirements.txt (line 41))
+2025-11-13T19:53:16.8109265Z   Using cached pytest_asyncio-0.21.1-py3-none-any.whl.metadata (4.0 kB)
+2025-11-13T19:53:16.8255035Z Collecting pytest-cov==4.1.0 (from -r requirements.txt (line 42))
+2025-11-13T19:53:16.8974745Z   Downloading pytest_cov-4.1.0-py3-none-any.whl.metadata (26 kB)
+2025-11-13T19:53:16.9227750Z Collecting httpx==0.25.1 (from -r requirements.txt (line 43))
+2025-11-13T19:53:16.9239732Z   Using cached httpx-0.25.1-py3-none-any.whl.metadata (7.1 kB)
+2025-11-13T19:53:16.9934026Z Collecting faker==20.1.0 (from -r requirements.txt (line 44))
+2025-11-13T19:53:16.9945742Z   Using cached Faker-20.1.0-py3-none-any.whl.metadata (15 kB)
+2025-11-13T19:53:17.3202699Z Collecting ruff==0.8.4 (from -r requirements.txt (line 47))
+2025-11-13T19:53:17.3216215Z   Using cached ruff-0.8.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (25 kB)
+2025-11-13T19:53:17.4271535Z Collecting mypy==1.18.2 (from -r requirements.txt (line 48))
+2025-11-13T19:53:17.4284398Z   Using cached mypy-1.18.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.2 kB)
+2025-11-13T19:53:17.4613478Z Collecting pre-commit==4.4.0 (from -r requirements.txt (line 49))
+2025-11-13T19:53:17.4625136Z   Using cached pre_commit-4.4.0-py2.py3-none-any.whl.metadata (1.2 kB)
+2025-11-13T19:53:17.4798465Z Collecting anyio<4.0.0,>=3.7.1 (from fastapi==0.104.1->-r requirements.txt (line 2))
+2025-11-13T19:53:17.4809421Z   Using cached anyio-3.7.1-py3-none-any.whl.metadata (4.7 kB)
+2025-11-13T19:53:17.5280711Z Collecting starlette<0.28.0,>=0.27.0 (from fastapi==0.104.1->-r requirements.txt (line 2))
+2025-11-13T19:53:17.5297037Z   Using cached starlette-0.27.0-py3-none-any.whl.metadata (5.8 kB)
+2025-11-13T19:53:17.5469654Z Collecting typing-extensions>=4.8.0 (from fastapi==0.104.1->-r requirements.txt (line 2))
+2025-11-13T19:53:17.5480814Z   Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+2025-11-13T19:53:17.5581427Z Collecting annotated-types>=0.4.0 (from pydantic==2.5.0->-r requirements.txt (line 11))
+2025-11-13T19:53:17.5592362Z   Using cached annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+2025-11-13T19:53:18.2257442Z Collecting pydantic-core==2.14.1 (from pydantic==2.5.0->-r requirements.txt (line 11))
+2025-11-13T19:53:18.2271278Z   Using cached pydantic_core-2.14.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+2025-11-13T19:53:18.2975075Z Collecting click>=7.0 (from uvicorn==0.24.0->uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:18.2988194Z   Using cached click-8.3.0-py3-none-any.whl.metadata (2.6 kB)
+2025-11-13T19:53:18.3087675Z Collecting h11>=0.8 (from uvicorn==0.24.0->uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:18.3098683Z   Using cached h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2025-11-13T19:53:18.4308264Z Collecting greenlet!=0.4.17 (from sqlalchemy==2.0.23->-r requirements.txt (line 7))
+2025-11-13T19:53:18.4321084Z   Using cached greenlet-3.2.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (4.1 kB)
+2025-11-13T19:53:18.4617960Z Collecting Mako (from alembic==1.12.1->-r requirements.txt (line 8))
+2025-11-13T19:53:18.4629888Z   Using cached mako-1.3.10-py3-none-any.whl.metadata (2.9 kB)
+2025-11-13T19:53:18.5022201Z Collecting dnspython>=2.0.0 (from email-validator==2.1.0->-r requirements.txt (line 13))
+2025-11-13T19:53:18.5033147Z   Using cached dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+2025-11-13T19:53:18.5178089Z Collecting idna>=2.0.0 (from email-validator==2.1.0->-r requirements.txt (line 13))
+2025-11-13T19:53:18.5189008Z   Using cached idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+2025-11-13T19:53:18.5308827Z Collecting argon2-cffi-bindings (from argon2-cffi==23.1.0->-r requirements.txt (line 16))
+2025-11-13T19:53:18.5320022Z   Using cached argon2_cffi_bindings-25.1.0-cp39-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (7.4 kB)
+2025-11-13T19:53:18.5442324Z Collecting pydyf>=0.8.0 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.5453077Z   Using cached pydyf-0.11.0-py3-none-any.whl.metadata (2.5 kB)
+2025-11-13T19:53:18.6436529Z Collecting cffi>=0.6 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.6448810Z   Using cached cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+2025-11-13T19:53:18.6576435Z Collecting html5lib>=1.1 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.6587678Z   Using cached html5lib-1.1-py2.py3-none-any.whl.metadata (16 kB)
+2025-11-13T19:53:18.6699745Z Collecting tinycss2>=1.0.0 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.6710755Z   Using cached tinycss2-1.4.0-py3-none-any.whl.metadata (3.0 kB)
+2025-11-13T19:53:18.6808719Z Collecting cssselect2>=0.1 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.6819691Z   Using cached cssselect2-0.8.0-py3-none-any.whl.metadata (2.9 kB)
+2025-11-13T19:53:18.6934216Z Collecting Pyphen>=0.9.1 (from weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.6944965Z   Using cached pyphen-0.17.2-py3-none-any.whl.metadata (3.2 kB)
+2025-11-13T19:53:18.8446279Z Collecting fonttools>=4.0.0 (from fonttools[woff]>=4.0.0->weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:18.8459455Z   Using cached fonttools-4.60.1-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (112 kB)
+2025-11-13T19:53:18.8682390Z Collecting pypng (from qrcode==7.4.2->qrcode[pil]==7.4.2->-r requirements.txt (line 22))
+2025-11-13T19:53:18.8693277Z   Using cached pypng-0.20220715.0-py3-none-any.whl.metadata (13 kB)
+2025-11-13T19:53:18.9214522Z Collecting MarkupSafe>=2.0 (from jinja2==3.1.2->-r requirements.txt (line 25))
+2025-11-13T19:53:18.9226896Z   Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+2025-11-13T19:53:18.9354749Z Collecting six>=1.4.0 (from apscheduler==3.10.4->-r requirements.txt (line 28))
+2025-11-13T19:53:18.9365645Z   Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2025-11-13T19:53:18.9690047Z Collecting pytz (from apscheduler==3.10.4->-r requirements.txt (line 28))
+2025-11-13T19:53:18.9705641Z   Using cached pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)
+2025-11-13T19:53:18.9881213Z Collecting tzlocal!=3.*,>=2.0 (from apscheduler==3.10.4->-r requirements.txt (line 28))
+2025-11-13T19:53:18.9892629Z   Using cached tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+2025-11-13T19:53:18.9984251Z Collecting et-xmlfile (from openpyxl==3.1.2->-r requirements.txt (line 31))
+2025-11-13T19:53:18.9996254Z   Using cached et_xmlfile-2.0.0-py3-none-any.whl.metadata (2.7 kB)
+2025-11-13T19:53:19.0105381Z Collecting iniconfig (from pytest==7.4.3->-r requirements.txt (line 40))
+2025-11-13T19:53:19.0116223Z   Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2025-11-13T19:53:19.0258989Z Collecting packaging (from pytest==7.4.3->-r requirements.txt (line 40))
+2025-11-13T19:53:19.0269829Z   Using cached packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+2025-11-13T19:53:19.0383178Z Collecting pluggy<2.0,>=0.12 (from pytest==7.4.3->-r requirements.txt (line 40))
+2025-11-13T19:53:19.0394482Z   Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2025-11-13T19:53:19.4722939Z Collecting coverage>=5.2.1 (from coverage[toml]>=5.2.1->pytest-cov==4.1.0->-r requirements.txt (line 42))
+2025-11-13T19:53:19.4762377Z   Downloading coverage-7.11.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (9.1 kB)
+2025-11-13T19:53:19.4995540Z Collecting certifi (from httpx==0.25.1->-r requirements.txt (line 43))
+2025-11-13T19:53:19.5007785Z   Using cached certifi-2025.11.12-py3-none-any.whl.metadata (2.5 kB)
+2025-11-13T19:53:19.5170629Z Collecting httpcore (from httpx==0.25.1->-r requirements.txt (line 43))
+2025-11-13T19:53:19.5182317Z   Using cached httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2025-11-13T19:53:19.5279109Z Collecting sniffio (from httpx==0.25.1->-r requirements.txt (line 43))
+2025-11-13T19:53:19.5290581Z   Using cached sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2025-11-13T19:53:19.5429318Z Collecting python-dateutil>=2.4 (from faker==20.1.0->-r requirements.txt (line 44))
+2025-11-13T19:53:19.5440889Z   Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+2025-11-13T19:53:19.5613112Z Collecting mypy_extensions>=1.0.0 (from mypy==1.18.2->-r requirements.txt (line 48))
+2025-11-13T19:53:19.5624790Z   Using cached mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
+2025-11-13T19:53:19.5729423Z Collecting pathspec>=0.9.0 (from mypy==1.18.2->-r requirements.txt (line 48))
+2025-11-13T19:53:19.5740871Z   Using cached pathspec-0.12.1-py3-none-any.whl.metadata (21 kB)
+2025-11-13T19:53:19.5864110Z Collecting cfgv>=2.0.0 (from pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:19.5876207Z   Using cached cfgv-3.4.0-py2.py3-none-any.whl.metadata (8.5 kB)
+2025-11-13T19:53:19.6305744Z Collecting identify>=1.0.0 (from pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:19.6317801Z   Using cached identify-2.6.15-py2.py3-none-any.whl.metadata (4.4 kB)
+2025-11-13T19:53:19.6457870Z Collecting nodeenv>=0.11.1 (from pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:19.6469393Z   Using cached nodeenv-1.9.1-py2.py3-none-any.whl.metadata (21 kB)
+2025-11-13T19:53:19.6820760Z Collecting pyyaml>=5.1 (from pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:19.6832926Z   Using cached pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+2025-11-13T19:53:19.7258462Z Collecting virtualenv>=20.10.0 (from pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:19.7270153Z   Using cached virtualenv-20.35.4-py3-none-any.whl.metadata (4.6 kB)
+2025-11-13T19:53:19.7713254Z Collecting httptools>=0.5.0 (from uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:19.7725350Z   Using cached httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+2025-11-13T19:53:19.8140814Z Collecting uvloop!=0.15.0,!=0.15.1,>=0.14.0 (from uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:19.8152809Z   Using cached uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
+2025-11-13T19:53:19.8875468Z Collecting watchfiles>=0.13 (from uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:19.8889281Z   Using cached watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+2025-11-13T19:53:19.9724040Z Collecting websockets>=10.4 (from uvicorn[standard]==0.24.0->-r requirements.txt (line 3))
+2025-11-13T19:53:19.9737455Z   Using cached websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+2025-11-13T19:53:19.9996412Z Collecting pycparser (from cffi>=0.6->weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:20.0007685Z   Using cached pycparser-2.23-py3-none-any.whl.metadata (993 bytes)
+2025-11-13T19:53:20.0138880Z Collecting webencodings (from cssselect2>=0.1->weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:20.0149751Z   Using cached webencodings-0.5.1-py2.py3-none-any.whl.metadata (2.1 kB)
+2025-11-13T19:53:20.0486893Z Collecting brotli>=1.0.1 (from fonttools[woff]>=4.0.0->weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:20.0498466Z   Using cached brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.1 kB)
+2025-11-13T19:53:20.0873031Z Collecting zopfli>=0.1.4 (from fonttools[woff]>=4.0.0->weasyprint==60.1->-r requirements.txt (line 21))
+2025-11-13T19:53:20.0884556Z   Using cached zopfli-0.4.0-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.5 kB)
+2025-11-13T19:53:20.1467463Z Collecting distlib<1,>=0.3.7 (from virtualenv>=20.10.0->pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:20.1478803Z   Using cached distlib-0.4.0-py2.py3-none-any.whl.metadata (5.2 kB)
+2025-11-13T19:53:20.1683327Z Collecting filelock<4,>=3.12.2 (from virtualenv>=20.10.0->pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:20.1694278Z   Using cached filelock-3.20.0-py3-none-any.whl.metadata (2.1 kB)
+2025-11-13T19:53:20.1869091Z Collecting platformdirs<5,>=3.9.1 (from virtualenv>=20.10.0->pre-commit==4.4.0->-r requirements.txt (line 49))
+2025-11-13T19:53:20.1879975Z   Using cached platformdirs-4.5.0-py3-none-any.whl.metadata (12 kB)
+2025-11-13T19:53:20.2424390Z WARNING: The candidate selected for download or install is a yanked version: 'email-validator' candidate (version 2.1.0 at https://files.pythonhosted.org/packages/90/41/4767ff64e422734487a06384a66e62615b1f5cf9cf3b23295e22d3ecf711/email_validator-2.1.0-py3-none-any.whl (from https://pypi.org/simple/email-validator/) (requires-python:>=3.7))
+2025-11-13T19:53:20.2427667Z Reason for being yanked: Forgot to drop Python 3.7 from python_requires, see https://github.com/JoshData/python-email-validator/pull/118
+2025-11-13T19:53:20.2439244Z Using cached fastapi-0.104.1-py3-none-any.whl (92 kB)
+2025-11-13T19:53:20.2451175Z Using cached pydantic-2.5.0-py3-none-any.whl (407 kB)
+2025-11-13T19:53:20.2465341Z Using cached uvicorn-0.24.0-py3-none-any.whl (59 kB)
+2025-11-13T19:53:20.2476902Z Using cached python_multipart-0.0.6-py3-none-any.whl (45 kB)
+2025-11-13T19:53:20.2488630Z Using cached SQLAlchemy-2.0.23-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+2025-11-13T19:53:20.2523009Z Using cached alembic-1.12.1-py3-none-any.whl (226 kB)
+2025-11-13T19:53:20.2535526Z Using cached pydantic_settings-2.1.0-py3-none-any.whl (11 kB)
+2025-11-13T19:53:20.2546630Z Using cached email_validator-2.1.0-py3-none-any.whl (32 kB)
+2025-11-13T19:53:20.2557858Z Using cached argon2_cffi-23.1.0-py3-none-any.whl (15 kB)
+2025-11-13T19:53:20.2600628Z Using cached PyJWT-2.8.0-py3-none-any.whl (22 kB)
+2025-11-13T19:53:20.2601354Z Using cached python_dotenv-1.0.0-py3-none-any.whl (19 kB)
+2025-11-13T19:53:20.2602065Z Using cached weasyprint-60.1-py3-none-any.whl (268 kB)
+2025-11-13T19:53:20.2612219Z Using cached qrcode-7.4.2-py3-none-any.whl (46 kB)
+2025-11-13T19:53:20.2623682Z Using cached Jinja2-3.1.2-py3-none-any.whl (133 kB)
+2025-11-13T19:53:20.2635427Z Using cached APScheduler-3.10.4-py3-none-any.whl (59 kB)
+2025-11-13T19:53:20.2646870Z Using cached openpyxl-3.1.2-py2.py3-none-any.whl (249 kB)
+2025-11-13T19:53:20.2659595Z Using cached Pillow-10.1.0-cp312-cp312-manylinux_2_28_x86_64.whl (3.6 MB)
+2025-11-13T19:53:20.2696717Z Using cached prometheus_client-0.19.0-py3-none-any.whl (54 kB)
+2025-11-13T19:53:20.2708354Z Using cached pytest-7.4.3-py3-none-any.whl (325 kB)
+2025-11-13T19:53:20.2721462Z Using cached pytest_asyncio-0.21.1-py3-none-any.whl (13 kB)
+2025-11-13T19:53:20.2754553Z Downloading pytest_cov-4.1.0-py3-none-any.whl (21 kB)
+2025-11-13T19:53:20.2814096Z Using cached httpx-0.25.1-py3-none-any.whl (75 kB)
+2025-11-13T19:53:20.2825586Z Using cached Faker-20.1.0-py3-none-any.whl (1.7 MB)
+2025-11-13T19:53:20.2849733Z Using cached ruff-0.8.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (11.2 MB)
+2025-11-13T19:53:20.2940854Z Using cached mypy-1.18.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (13.3 MB)
+2025-11-13T19:53:20.3045652Z Using cached pre_commit-4.4.0-py2.py3-none-any.whl (226 kB)
+2025-11-13T19:53:20.3058866Z Using cached pydantic_core-2.14.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+2025-11-13T19:53:20.3084355Z Using cached anyio-3.7.1-py3-none-any.whl (80 kB)
+2025-11-13T19:53:20.3096033Z Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+2025-11-13T19:53:20.3107130Z Using cached starlette-0.27.0-py3-none-any.whl (66 kB)
+2025-11-13T19:53:20.3118475Z Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+2025-11-13T19:53:20.3129920Z Using cached cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)
+2025-11-13T19:53:20.3141881Z Using cached cfgv-3.4.0-py2.py3-none-any.whl (7.2 kB)
+2025-11-13T19:53:20.3152737Z Using cached click-8.3.0-py3-none-any.whl (107 kB)
+2025-11-13T19:53:20.3188680Z Downloading coverage-7.11.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (251 kB)
+2025-11-13T19:53:20.3341934Z Using cached cssselect2-0.8.0-py3-none-any.whl (15 kB)
+2025-11-13T19:53:20.3353210Z Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+2025-11-13T19:53:20.3367664Z Using cached fonttools-4.60.1-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (4.9 MB)
+2025-11-13T19:53:20.3414051Z Using cached brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+2025-11-13T19:53:20.3435292Z Using cached greenlet-3.2.4-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (607 kB)
+2025-11-13T19:53:20.3450763Z Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+2025-11-13T19:53:20.3462045Z Using cached html5lib-1.1-py2.py3-none-any.whl (112 kB)
+2025-11-13T19:53:20.3474169Z Using cached httptools-0.7.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (517 kB)
+2025-11-13T19:53:20.3489038Z Using cached identify-2.6.15-py2.py3-none-any.whl (99 kB)
+2025-11-13T19:53:20.3500608Z Using cached idna-3.11-py3-none-any.whl (71 kB)
+2025-11-13T19:53:20.3512505Z Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+2025-11-13T19:53:20.3523535Z Using cached mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+2025-11-13T19:53:20.3534443Z Using cached nodeenv-1.9.1-py2.py3-none-any.whl (22 kB)
+2025-11-13T19:53:20.3545471Z Using cached pathspec-0.12.1-py3-none-any.whl (31 kB)
+2025-11-13T19:53:20.3556390Z Using cached pydyf-0.11.0-py3-none-any.whl (8.1 kB)
+2025-11-13T19:53:20.3567588Z Using cached pyphen-0.17.2-py3-none-any.whl (2.1 MB)
+2025-11-13T19:53:20.3594073Z Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+2025-11-13T19:53:20.3606845Z Using cached pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+2025-11-13T19:53:20.3623711Z Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+2025-11-13T19:53:20.3634802Z Using cached sniffio-1.3.1-py3-none-any.whl (10 kB)
+2025-11-13T19:53:20.3646239Z Using cached tinycss2-1.4.0-py3-none-any.whl (26 kB)
+2025-11-13T19:53:20.3657678Z Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+2025-11-13T19:53:20.3668926Z Using cached tzlocal-5.3.1-py3-none-any.whl (18 kB)
+2025-11-13T19:53:20.3680548Z Using cached uvloop-0.22.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.4 MB)
+2025-11-13T19:53:20.3722877Z Using cached virtualenv-20.35.4-py3-none-any.whl (6.0 MB)
+2025-11-13T19:53:20.3776652Z Using cached distlib-0.4.0-py2.py3-none-any.whl (469 kB)
+2025-11-13T19:53:20.3791159Z Using cached filelock-3.20.0-py3-none-any.whl (16 kB)
+2025-11-13T19:53:20.3802014Z Using cached platformdirs-4.5.0-py3-none-any.whl (18 kB)
+2025-11-13T19:53:20.3812902Z Using cached watchfiles-1.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+2025-11-13T19:53:20.3826528Z Using cached webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
+2025-11-13T19:53:20.3838217Z Using cached websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (182 kB)
+2025-11-13T19:53:20.3849217Z Using cached zopfli-0.4.0-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (847 kB)
+2025-11-13T19:53:20.3865643Z Using cached argon2_cffi_bindings-25.1.0-cp39-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (87 kB)
+2025-11-13T19:53:20.3876934Z Using cached certifi-2025.11.12-py3-none-any.whl (159 kB)
+2025-11-13T19:53:20.3888458Z Using cached et_xmlfile-2.0.0-py3-none-any.whl (18 kB)
+2025-11-13T19:53:20.3899073Z Using cached httpcore-1.0.9-py3-none-any.whl (78 kB)
+2025-11-13T19:53:20.3909914Z Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2025-11-13T19:53:20.3920305Z Using cached mako-1.3.10-py3-none-any.whl (78 kB)
+2025-11-13T19:53:20.3931242Z Using cached packaging-25.0-py3-none-any.whl (66 kB)
+2025-11-13T19:53:20.3942652Z Using cached pycparser-2.23-py3-none-any.whl (118 kB)
+2025-11-13T19:53:20.3953987Z Using cached pypng-0.20220715.0-py3-none-any.whl (58 kB)
+2025-11-13T19:53:20.3964725Z Using cached pytz-2025.2-py2.py3-none-any.whl (509 kB)
+2025-11-13T19:53:20.6506711Z Installing collected packages: webencodings, pytz, pypng, distlib, brotli, zopfli, websockets, uvloop, tzlocal, typing-extensions, tinycss2, sniffio, six, ruff, pyyaml, python-multipart, python-dotenv, Pyphen, pyjwt, pydyf, pycparser, prometheus-client, pluggy, platformdirs, pillow, pathspec, packaging, nodeenv, mypy_extensions, MarkupSafe, iniconfig, idna, identify, httptools, h11, greenlet, fonttools, filelock, et-xmlfile, dnspython, coverage, click, cfgv, certifi, annotated-types, virtualenv, uvicorn, sqlalchemy, qrcode, python-dateutil, pytest, pydantic-core, openpyxl, mypy, Mako, jinja2, httpcore, html5lib, email-validator, cssselect2, cffi, apscheduler, anyio, weasyprint, watchfiles, starlette, pytest-cov, pytest-asyncio, pydantic, pre-commit, httpx, faker, argon2-cffi-bindings, alembic, pydantic-settings, fastapi, argon2-cffi
+2025-11-13T19:53:29.4259512Z
+2025-11-13T19:53:29.4332900Z Successfully installed Mako-1.3.10 MarkupSafe-3.0.3 Pyphen-0.17.2 alembic-1.12.1 annotated-types-0.7.0 anyio-3.7.1 apscheduler-3.10.4 argon2-cffi-23.1.0 argon2-cffi-bindings-25.1.0 brotli-1.2.0 certifi-2025.11.12 cffi-2.0.0 cfgv-3.4.0 click-8.3.0 coverage-7.11.3 cssselect2-0.8.0 distlib-0.4.0 dnspython-2.8.0 email-validator-2.1.0 et-xmlfile-2.0.0 faker-20.1.0 fastapi-0.104.1 filelock-3.20.0 fonttools-4.60.1 greenlet-3.2.4 h11-0.16.0 html5lib-1.1 httpcore-1.0.9 httptools-0.7.1 httpx-0.25.1 identify-2.6.15 idna-3.11 iniconfig-2.3.0 jinja2-3.1.2 mypy-1.18.2 mypy_extensions-1.1.0 nodeenv-1.9.1 openpyxl-3.1.2 packaging-25.0 pathspec-0.12.1 pillow-10.1.0 platformdirs-4.5.0 pluggy-1.6.0 pre-commit-4.4.0 prometheus-client-0.19.0 pycparser-2.23 pydantic-2.5.0 pydantic-core-2.14.1 pydantic-settings-2.1.0 pydyf-0.11.0 pyjwt-2.8.0 pypng-0.20220715.0 pytest-7.4.3 pytest-asyncio-0.21.1 pytest-cov-4.1.0 python-dateutil-2.9.0.post0 python-dotenv-1.0.0 python-multipart-0.0.6 pytz-2025.2 pyyaml-6.0.3 qrcode-7.4.2 ruff-0.8.4 six-1.17.0 sniffio-1.3.1 sqlalchemy-2.0.23 starlette-0.27.0 tinycss2-1.4.0 typing-extensions-4.15.0 tzlocal-5.3.1 uvicorn-0.24.0 uvloop-0.22.1 virtualenv-20.35.4 watchfiles-1.1.1 weasyprint-60.1 webencodings-0.5.1 websockets-15.0.1 zopfli-0.4.0
+2025-11-13T19:53:29.9363065Z ##[group]Run ruff check .
+2025-11-13T19:53:29.9363347Z [36;1mruff check .[0m
+2025-11-13T19:53:29.9363557Z [36;1mruff format --check .[0m
+2025-11-13T19:53:29.9396220Z shell: /usr/bin/bash -e {0}
+2025-11-13T19:53:29.9396448Z env:
+2025-11-13T19:53:29.9396697Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9397107Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:53:29.9397518Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9397869Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9398222Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9398568Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:53:29.9398861Z ##[endgroup]
+2025-11-13T19:53:29.9635317Z All checks passed!
+2025-11-13T19:53:29.9826921Z 76 files already formatted
+2025-11-13T19:53:29.9862760Z ##[group]Run mypy .
+2025-11-13T19:53:29.9863001Z [36;1mmypy .[0m
+2025-11-13T19:53:29.9896310Z shell: /usr/bin/bash -e {0}
+2025-11-13T19:53:29.9896537Z env:
+2025-11-13T19:53:29.9896791Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9897202Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:53:29.9897588Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9897947Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9898290Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:29.9898638Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:53:29.9898921Z ##[endgroup]
+2025-11-13T19:53:40.5412021Z app/services/pdf_service.py:16: error: Unused "type: ignore" comment  [unused-ignore]
+2025-11-13T19:53:40.5412751Z app/services/pdf_service.py:22: error: Unused "type: ignore" comment  [unused-ignore]
+2025-11-13T19:53:40.5413733Z app/services/pdf_service.py:22: error: Skipping analyzing "weasyprint": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+2025-11-13T19:53:40.5414705Z app/services/pdf_service.py:22: note: Error code "import-untyped" not covered by "type: ignore" comment
+2025-11-13T19:53:40.5415528Z app/services/pdf_service.py:22: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+2025-11-13T19:53:40.6496507Z Found 3 errors in 1 file (checked 49 source files)
+2025-11-13T19:53:40.6719719Z ##[error]Process completed with exit code 1.
+2025-11-13T19:53:40.6762132Z ##[group]Run python -m pytest --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=70
+2025-11-13T19:53:40.6762792Z [36;1mpython -m pytest --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=70[0m
+2025-11-13T19:53:40.6795731Z shell: /usr/bin/bash -e {0}
+2025-11-13T19:53:40.6796144Z env:
+2025-11-13T19:53:40.6796392Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:40.6796803Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:53:40.6797207Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:40.6797546Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:40.6797891Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:53:40.6798235Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:53:40.6798533Z ##[endgroup]
+2025-11-13T19:53:46.1467806Z ============================= test session starts ==============================
+2025-11-13T19:53:46.1468528Z platform linux -- Python 3.12.12, pytest-7.4.3, pluggy-1.6.0
+2025-11-13T19:53:46.1469222Z rootdir: /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:53:46.1469747Z configfile: pyproject.toml
+2025-11-13T19:53:46.1470112Z testpaths: tests
+2025-11-13T19:53:46.1470543Z plugins: anyio-3.7.1, asyncio-0.21.1, Faker-20.1.0, cov-4.1.0
+2025-11-13T19:53:46.1471065Z asyncio: mode=Mode.STRICT
+2025-11-13T19:53:46.1471422Z collected 253 items
+2025-11-13T19:53:46.1471630Z
+2025-11-13T19:53:46.5681165Z tests/api/test_animals.py ..                                             [  0%]
+2025-11-13T19:53:47.3872677Z tests/api/test_care_logs.py .......                                      [  3%]
+2025-11-13T19:53:47.5647249Z tests/api/test_pdf.py s..ssssss                                          [  7%]
+2025-11-13T19:53:48.2136651Z tests/api/test_public.py ...........                                     [ 11%]
+2025-11-13T19:53:49.2272823Z tests/api/test_volunteers.py ..........                                  [ 15%]
+2025-11-13T19:53:49.7241386Z tests/auth/test_auth_api.py ......                                       [ 17%]
+2025-11-13T19:53:50.1317642Z tests/auth/test_jwt.py ........                                          [ 20%]
+2025-11-13T19:53:51.1163419Z tests/auth/test_password.py ...........                                  [ 25%]
+2025-11-13T19:53:52.2962911Z tests/auth/test_permissions.py .......................                   [ 34%]
+2025-11-13T19:53:53.5473257Z tests/frontend/test_public_form.py .....................                 [ 42%]
+2025-11-13T19:53:54.1268208Z tests/models/test_animal.py .........                                    [ 46%]
+2025-11-13T19:53:54.8600743Z tests/models/test_medical_action.py ..............                       [ 51%]
+2025-11-13T19:53:55.4964988Z tests/models/test_user.py ............                                   [ 56%]
+2025-11-13T19:53:56.8605179Z tests/services/test_animal_service.py ........................           [ 66%]
+2025-11-13T19:53:58.0798702Z tests/services/test_care_log_service.py ......................           [ 74%]
+2025-11-13T19:53:59.4258911Z tests/services/test_image_service.py .........................           [ 84%]
+2025-11-13T19:53:59.4407828Z tests/services/test_pdf_service.py ssssssssssss                          [ 89%]
+2025-11-13T19:54:00.4058609Z tests/services/test_volunteer_service.py ..................              [ 96%]
+2025-11-13T19:54:02.3188677Z tests/utils/test_qr_code.py .........                                    [100%]
+2025-11-13T19:54:02.3189452Z
+2025-11-13T19:54:02.3189972Z ---------- coverage: platform linux, python 3.12.12-final-0 ----------
+2025-11-13T19:54:02.3190836Z Name                                Stmts   Miss Branch BrPart   Cover   Missing
+2025-11-13T19:54:02.3191560Z --------------------------------------------------------------------------------
+2025-11-13T19:54:02.3192790Z app/api/v1/animals.py                  30      4      0      0  86.67%   107, 132, 160, 187
+2025-11-13T19:54:02.3194022Z app/api/v1/auth.py                     34      3     10      3  86.36%   90, 102, 109
+2025-11-13T19:54:02.3194996Z app/api/v1/images.py                   58     34      4      0  38.71%   57-69, 99-108, 131-137, 168-171, 199-218, 245-247, 276-286
+2025-11-13T19:54:02.3196222Z app/api/v1/pdf.py                      68     27      2      0  58.57%   97, 131-148, 174-190, 216-234, 260-280
+2025-11-13T19:54:02.3196794Z app/auth/dependencies.py               32      6      8      4  75.00%   59, 64-65, 74, 97, 103
+2025-11-13T19:54:02.3197243Z app/auth/jwt.py                        36      1      4      1  95.00%   121
+2025-11-13T19:54:02.3197662Z app/auth/password.py                   27      2      6      0  93.94%   119-121
+2025-11-13T19:54:02.3198067Z app/config.py                          51      3      4      2  90.91%   128-130, 144
+2025-11-13T19:54:02.3198491Z app/database.py                        22      8      0      0  63.64%   82-86, 103-104, 117-118
+2025-11-13T19:54:02.3198925Z app/main.py                            48     17      6      2  61.11%   43-60, 105, 108->113, 120, 138, 153-167
+2025-11-13T19:54:02.3199380Z app/models/adoption_record.py          27      7      6      0  60.61%   111-118
+2025-11-13T19:54:02.3199851Z app/models/animal_image.py             22      4      2      0  75.00%   88-91, 100
+2025-11-13T19:54:02.3200312Z app/models/applicant.py                20      1      0      0  95.00%   88
+2025-11-13T19:54:02.3200751Z app/models/audit_log.py                20      1      0      0  95.00%   102
+2025-11-13T19:54:02.3201171Z app/models/care_log.py                 28      1      0      0  96.43%   173
+2025-11-13T19:54:02.3201608Z app/models/medical_record.py           28      1      0      0  96.43%   146
+2025-11-13T19:54:02.3202063Z app/models/setting.py                  17      1      0      0  94.12%   73
+2025-11-13T19:54:02.3202521Z app/models/status_history.py           20      3      2      0  77.27%   88-91
+2025-11-13T19:54:02.3202982Z app/models/volunteer.py                21      2      0      0  90.48%   96, 105
+2025-11-13T19:54:02.3203425Z app/schemas/animal.py                  55      6      6      1  81.97%   41, 72-78
+2025-11-13T19:54:02.3203870Z app/schemas/animal_image.py            25      1      0      0  96.00%   52
+2025-11-13T19:54:02.3204312Z app/schemas/care_log.py                58      5      6      0  85.94%   68-74
+2025-11-13T19:54:02.3204761Z app/schemas/volunteer.py               43      2      6      3  89.80%   50, 103->109, 106
+2025-11-13T19:54:02.3205279Z app/services/animal_service.py         83     15      8      0  83.52%   59-62, 96-98, 149-152, 180-183
+2025-11-13T19:54:02.3206001Z app/services/care_log_service.py       87     11     20      0  89.72%   48-51, 85-87, 130-133
+2025-11-13T19:54:02.3206611Z app/services/image_service.py         147     21     32      5  84.36%   76-78, 191-194, 243-246, 249, 317->323, 329-332, 397, 419, 438-441
+2025-11-13T19:54:02.3207209Z app/services/pdf_service.py            60     39     16      1  28.95%   68-87, 115-150, 180-207
+2025-11-13T19:54:02.3207738Z app/services/volunteer_service.py      82     20      6      0  77.27%   58-61, 100-102, 161-163, 208-213, 270-274, 310-312
+2025-11-13T19:54:02.3208275Z app/utils/image.py                     66     15     18      9  71.43%   42, 50, 57, 64, 72-73, 111, 140->151, 144, 155-157, 203-204, 206-208
+2025-11-13T19:54:02.3208694Z --------------------------------------------------------------------------------
+2025-11-13T19:54:02.3209020Z TOTAL                                1595    261    190     31  81.29%
+2025-11-13T19:54:02.3209215Z
+2025-11-13T19:54:02.3209319Z 19 files skipped due to complete coverage.
+2025-11-13T19:54:02.3209581Z Coverage HTML written to dir htmlcov
+2025-11-13T19:54:02.3209829Z Coverage XML written to file coverage.xml
+2025-11-13T19:54:02.3210040Z
+2025-11-13T19:54:02.3210188Z Required test coverage of 70% reached. Total coverage: 81.29%
+2025-11-13T19:54:02.3210566Z
+2025-11-13T19:54:02.3210809Z ======================= 234 passed, 19 skipped in 17.13s =======================
+2025-11-13T19:54:02.7149140Z ##[group]Run codecov/codecov-action@v4
+2025-11-13T19:54:02.7149415Z with:
+2025-11-13T19:54:02.7149581Z   file: ./coverage.xml
+2025-11-13T19:54:02.7149774Z   flags: unittests
+2025-11-13T19:54:02.7149962Z   name: codecov-umbrella
+2025-11-13T19:54:02.7150163Z   fail_ci_if_error: false
+2025-11-13T19:54:02.7150355Z env:
+2025-11-13T19:54:02.7150584Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:02.7150992Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:54:02.7151372Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:02.7151723Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:02.7152071Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:02.7152420Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:54:02.7152715Z   CODECOV_TOKEN:
+2025-11-13T19:54:02.7152895Z ##[endgroup]
+2025-11-13T19:54:02.7983961Z eventName: pull_request
+2025-11-13T19:54:02.7985576Z baseRef: okajun35:main | headRef: okajun35:feature/neco-keeper-implementation
+2025-11-13T19:54:02.7993315Z ==> linux OS detected
+2025-11-13T19:54:03.4492790Z https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+2025-11-13T19:54:03.7012394Z gpg: directory '/home/runner/.gnupg' created
+2025-11-13T19:54:03.7047535Z gpg: keybox '/home/runner/.gnupg/pubring.kbx' created
+2025-11-13T19:54:03.7176099Z gpg: /home/runner/.gnupg/trustdb.gpg: trustdb created
+2025-11-13T19:54:03.7177088Z gpg: key 806BB28AED779869: public key "Codecov Uploader (Codecov Uploader Verification Key) <security@codecov.io>" imported
+2025-11-13T19:54:03.7532698Z gpg: Total number processed: 1
+2025-11-13T19:54:03.7533129Z gpg:               imported: 1
+2025-11-13T19:54:03.7582104Z gpg: Signature made Mon Nov 10 14:58:43 2025 UTC
+2025-11-13T19:54:03.7582611Z gpg:                using RSA key 27034E7FDB850E0BBC2C62FF806BB28AED779869
+2025-11-13T19:54:03.7585120Z gpg: Good signature from "Codecov Uploader (Codecov Uploader Verification Key) <security@codecov.io>" [unknown]
+2025-11-13T19:54:03.7585694Z gpg: WARNING: This key is not certified with a trusted signature!
+2025-11-13T19:54:03.7586346Z gpg:          There is no indication that the signature belongs to the owner.
+2025-11-13T19:54:03.7586797Z Primary key fingerprint: 2703 4E7F DB85 0E0B BC2C  62FF 806B B28A ED77 9869
+2025-11-13T19:54:03.7824531Z ==> Uploader SHASUM verified (80b5e6f898d6080be523f53ff169702a008a1c91b20c63c49df1175ed794d822  codecov)
+2025-11-13T19:54:03.7826121Z ==> Running version latest
+2025-11-13T19:54:03.8839239Z Could not pull latest version information: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+2025-11-13T19:54:03.8840991Z ==> Running git config --global --add safe.directory /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:54:03.8932164Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:54:03.8980461Z ==> Running command '/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-commit'
+2025-11-13T19:54:03.8983368Z [command]/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-commit --git-service github -C 345de03ca18fa6e747957605396107a058495241
+2025-11-13T19:54:04.2431179Z info - 2025-11-13 19:54:04,242 -- ci service found: github-actions
+2025-11-13T19:54:04.2523676Z warning - 2025-11-13 19:54:04,252 -- No config file could be found. Ignoring config.
+2025-11-13T19:54:04.2820879Z warning - 2025-11-13 19:54:04,281 -- Branch `feature/neco-keeper-implementation` is protected but no token was provided
+2025-11-13T19:54:04.2822087Z warning - 2025-11-13 19:54:04,281 -- For information on Codecov upload tokens, see https://docs.codecov.com/docs/codecov-tokens
+2025-11-13T19:54:04.4490660Z info - 2025-11-13 19:54:04,448 -- Process Commit creating complete
+2025-11-13T19:54:04.4491911Z error - 2025-11-13 19:54:04,448 -- Commit creating failed: {"message":"Token required - not valid tokenless upload"}
+2025-11-13T19:54:04.5546199Z Sentry is attempting to send 2 pending events
+2025-11-13T19:54:04.5546621Z Waiting up to 2 seconds
+2025-11-13T19:54:04.5546904Z Press Ctrl-C to quit
+2025-11-13T19:54:04.6172013Z ==> Running command '/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-report'
+2025-11-13T19:54:04.6174312Z [command]/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov create-report --git-service github -C 345de03ca18fa6e747957605396107a058495241
+2025-11-13T19:54:04.9626123Z info - 2025-11-13 19:54:04,962 -- ci service found: github-actions
+2025-11-13T19:54:04.9715536Z warning - 2025-11-13 19:54:04,971 -- No config file could be found. Ignoring config.
+2025-11-13T19:54:05.1590624Z info - 2025-11-13 19:54:05,158 -- Process Report creating complete
+2025-11-13T19:54:05.1595343Z error - 2025-11-13 19:54:05,159 -- Report creating failed: {"message":"Token required - not valid tokenless upload"}
+2025-11-13T19:54:05.2648832Z Sentry is attempting to send 2 pending events
+2025-11-13T19:54:05.2649507Z Waiting up to 2 seconds
+2025-11-13T19:54:05.2649803Z Press Ctrl-C to quit
+2025-11-13T19:54:05.3090864Z ==> Running command '/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov do-upload'
+2025-11-13T19:54:05.3093028Z [command]/home/runner/work/_actions/codecov/codecov-action/v4/dist/codecov do-upload -f ./coverage.xml -F unittests --git-service github -n codecov-umbrella -C 345de03ca18fa6e747957605396107a058495241
+2025-11-13T19:54:05.6522178Z info - 2025-11-13 19:54:05,651 -- ci service found: github-actions
+2025-11-13T19:54:05.6612969Z warning - 2025-11-13 19:54:05,660 -- No config file could be found. Ignoring config.
+2025-11-13T19:54:05.6930747Z warning - 2025-11-13 19:54:05,692 -- xcrun is not installed or can't be found.
+2025-11-13T19:54:05.7167996Z warning - 2025-11-13 19:54:05,716 -- No gcov data found.
+2025-11-13T19:54:05.7173561Z info - 2025-11-13 19:54:05,717 -- Generating coverage.xml report in /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:54:06.0863877Z info - 2025-11-13 19:54:06,085 -- Wrote XML report to coverage.xml
+2025-11-13T19:54:06.1547440Z info - 2025-11-13 19:54:06,154 -- Found 1 coverage files to report
+2025-11-13T19:54:06.1548960Z info - 2025-11-13 19:54:06,154 -- > /home/runner/work/NecoKeeper/NecoKeeper/coverage.xml
+2025-11-13T19:54:06.3188322Z info - 2025-11-13 19:54:06,318 -- Process Upload complete
+2025-11-13T19:54:06.3189461Z error - 2025-11-13 19:54:06,318 -- Upload failed: {"message":"Token required - not valid tokenless upload"}
+2025-11-13T19:54:06.4259371Z Sentry is attempting to send 2 pending events
+2025-11-13T19:54:06.4259786Z Waiting up to 2 seconds
+2025-11-13T19:54:06.4260067Z Press Ctrl-C to quit
+2025-11-13T19:54:06.4957486Z ##[group]Run py-cov-action/python-coverage-comment-action@v3
+2025-11-13T19:54:06.4957827Z with:
+2025-11-13T19:54:06.4958365Z   GITHUB_TOKEN: ***
+2025-11-13T19:54:06.4958580Z   MINIMUM_GREEN: 80
+2025-11-13T19:54:06.4958763Z   MINIMUM_ORANGE: 70
+2025-11-13T19:54:06.4958977Z   GITHUB_BASE_URL: https://api.github.com
+2025-11-13T19:54:06.4959318Z   COVERAGE_DATA_BRANCH: python-coverage-comment-action-data
+2025-11-13T19:54:06.4959623Z   COVERAGE_PATH: .
+2025-11-13T19:54:06.4959861Z   COMMENT_ARTIFACT_NAME: python-coverage-comment-action
+2025-11-13T19:54:06.4960203Z   COMMENT_FILENAME: python-coverage-comment-action.txt
+2025-11-13T19:54:06.4960487Z   MAX_FILES_IN_COMMENT: 25
+2025-11-13T19:54:06.4960692Z   MERGE_COVERAGE_FILES: false
+2025-11-13T19:54:06.4960917Z   ANNOTATE_MISSING_LINES: false
+2025-11-13T19:54:06.4961133Z   ANNOTATION_TYPE: warning
+2025-11-13T19:54:06.4961337Z   USE_GH_PAGES_HTML_URL: false
+2025-11-13T19:54:06.4961563Z   VERBOSE: false
+2025-11-13T19:54:06.4961735Z env:
+2025-11-13T19:54:06.4961986Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:06.4962373Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+2025-11-13T19:54:06.4962922Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:06.4963263Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:06.4963605Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+2025-11-13T19:54:06.4963947Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+2025-11-13T19:54:06.4964236Z ##[endgroup]
+2025-11-13T19:54:06.5072806Z ##[command]/usr/bin/docker run --name a3c09c4a41a262084839a0978a398db27621_24fbcc --label 99a3c0 --workdir /github/workspace --rm -e "pythonLocation" -e "PKG_CONFIG_PATH" -e "Python_ROOT_DIR" -e "Python2_ROOT_DIR" -e "Python3_ROOT_DIR" -e "LD_LIBRARY_PATH" -e "INPUT_GITHUB_TOKEN" -e "INPUT_MINIMUM_GREEN" -e "INPUT_MINIMUM_ORANGE" -e "INPUT_GITHUB_BASE_URL" -e "INPUT_GITHUB_PR_RUN_ID" -e "INPUT_COMMENT_TEMPLATE" -e "INPUT_COVERAGE_DATA_BRANCH" -e "INPUT_COVERAGE_PATH" -e "INPUT_COMMENT_ARTIFACT_NAME" -e "INPUT_COMMENT_FILENAME" -e "INPUT_SUBPROJECT_ID" -e "INPUT_MAX_FILES_IN_COMMENT" -e "INPUT_MERGE_COVERAGE_FILES" -e "INPUT_ANNOTATE_MISSING_LINES" -e "INPUT_ANNOTATION_TYPE" -e "INPUT_USE_GH_PAGES_HTML_URL" -e "INPUT_VERBOSE" -e "GITHUB_BASE_URL" -e "GITHUB_TOKEN" -e "GITHUB_PR_RUN_ID" -e "COMMENT_TEMPLATE" -e "COVERAGE_DATA_BRANCH" -e "COVERAGE_PATH" -e "COMMENT_ARTIFACT_NAME" -e "COMMENT_FILENAME" -e "SUBPROJECT_ID" -e "MINIMUM_GREEN" -e "MINIMUM_ORANGE" -e "MERGE_COVERAGE_FILES" -e "ANNOTATE_MISSING_LINES" -e "ANNOTATION_TYPE" -e "VERBOSE" -e "HOME" -e "GITHUB_JOB" -e "GITHUB_REF" -e "GITHUB_SHA" -e "GITHUB_REPOSITORY" -e "GITHUB_REPOSITORY_OWNER" -e "GITHUB_REPOSITORY_OWNER_ID" -e "GITHUB_RUN_ID" -e "GITHUB_RUN_NUMBER" -e "GITHUB_RETENTION_DAYS" -e "GITHUB_RUN_ATTEMPT" -e "GITHUB_ACTOR_ID" -e "GITHUB_ACTOR" -e "GITHUB_WORKFLOW" -e "GITHUB_HEAD_REF" -e "GITHUB_BASE_REF" -e "GITHUB_EVENT_NAME" -e "GITHUB_SERVER_URL" -e "GITHUB_API_URL" -e "GITHUB_GRAPHQL_URL" -e "GITHUB_REF_NAME" -e "GITHUB_REF_PROTECTED" -e "GITHUB_REF_TYPE" -e "GITHUB_WORKFLOW_REF" -e "GITHUB_WORKFLOW_SHA" -e "GITHUB_REPOSITORY_ID" -e "GITHUB_TRIGGERING_ACTOR" -e "GITHUB_WORKSPACE" -e "GITHUB_ACTION" -e "GITHUB_EVENT_PATH" -e "GITHUB_ACTION_REPOSITORY" -e "GITHUB_ACTION_REF" -e "GITHUB_PATH" -e "GITHUB_ENV" -e "GITHUB_STEP_SUMMARY" -e "GITHUB_STATE" -e "GITHUB_OUTPUT" -e "RUNNER_OS" -e "RUNNER_ARCH" -e "RUNNER_NAME" -e "RUNNER_ENVIRONMENT" -e "RUNNER_TOOL_CACHE" -e "RUNNER_TEMP" -e "RUNNER_WORKSPACE" -e "ACTIONS_RUNTIME_URL" -e "ACTIONS_RUNTIME_TOKEN" -e "ACTIONS_CACHE_URL" -e "ACTIONS_RESULTS_URL" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "/home/runner/work/NecoKeeper/NecoKeeper":"/github/workspace" 99a3c0:9c4a41a262084839a0978a398db27621
+2025-11-13T19:54:06.8735097Z ##[notice]Starting action
+2025-11-13T19:54:07.1702596Z ##[notice]HTTP Request: GET https://api.github.com/repos/okajun35/NecoKeeper "HTTP/1.1 200 OK"
+2025-11-13T19:54:07.1715173Z ##[notice]Generating comment for PR
+2025-11-13T19:54:07.3227580Z ##[error]Cannot read .coverage files because files are absolute. You need to configure coverage to write relative paths by adding the following option to your coverage configuration file:
+[run]
+relative_files = true
+
+Note that the specific format can be slightly different if you're using setup.cfg or pyproject.toml. See details in: https://coverage.readthedocs.io/en/latest/config.html#config-run-relative-files
+2025-11-13T19:54:07.3257125Z ##[error]Critical error. This error possibly occurred because the permissions of the workflow are set incorrectly. You can see the correct setting of permissions here: https://github.com/py-cov-action/python-coverage-comment-action#basic-usage
+Otherwise please look for open issues or open one in https://github.com/py-cov-action/python-coverage-comment-action/
+Traceback (most recent call last):
+  File "/workdir/coverage_comment/subprocess.py", line 22, in run
+    return subprocess.run(
+           ~~~~~~~~~~~~~~^
+        args,
+        ^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ).stdout
+    ^
+  File "/usr/local/lib/python3.14/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '('coverage', 'json', '-o', '-')' returned non-zero exit status 1.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workdir/coverage_comment/main.py", line 46, in main
+    exit_code = action(
+        config=config,
+    ...<2 lines>...
+        git=git,
+    )
+  File "/workdir/coverage_comment/main.py", line 101, in action
+    return process_pr(
+        config=config,
+        gh=gh,
+        repo_info=repo_info,
+    )
+  File "/workdir/coverage_comment/main.py", line 130, in process_pr
+    _, coverage = coverage_module.get_coverage_info(
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        merge=config.MERGE_COVERAGE_FILES,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        coverage_path=config.COVERAGE_PATH,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/workdir/coverage_comment/coverage.py", line 121, in get_coverage_info
+    subprocess.run("coverage", "json", "-o", "-", path=coverage_path)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/coverage_comment/subprocess.py", line 36, in run
+    raise SubProcessError("\n".join([exc.stderr, exc.stdout])) from exc
+coverage_comment.subprocess.SubProcessError:
+No source for code: '/home/runner/work/NecoKeeper/NecoKeeper/app/__init__.py'; see https://coverage.readthedocs.io/en/7.11.3/messages.html#error-no-source
+
+2025-11-13T19:54:07.4331780Z Post job cleanup.
+2025-11-13T19:54:07.5267492Z [command]/usr/bin/git version
+2025-11-13T19:54:07.5311518Z git version 2.51.2
+2025-11-13T19:54:07.5347375Z Copying '/home/runner/.gitconfig' to '/home/runner/work/_temp/81bdc48c-c23d-42e8-a75e-f02f8069de46/.gitconfig'
+2025-11-13T19:54:07.5357045Z Temporarily overriding HOME='/home/runner/work/_temp/81bdc48c-c23d-42e8-a75e-f02f8069de46' before making global git config changes
+2025-11-13T19:54:07.5358127Z Adding repository directory to the temporary git global config as a safe directory
+2025-11-13T19:54:07.5362471Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/NecoKeeper/NecoKeeper
+2025-11-13T19:54:07.5395387Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-11-13T19:54:07.5426962Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-11-13T19:54:07.5650823Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-11-13T19:54:07.5671193Z http.https://github.com/.extraheader
+2025-11-13T19:54:07.5684720Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-11-13T19:54:07.5715728Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-11-13T19:54:07.6036999Z Cleaning up orphan processes

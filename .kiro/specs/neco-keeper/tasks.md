@@ -92,7 +92,7 @@ pip install -r requirements.txt
 3. ✅ Phase 3: 猫管理機能（基本CRUD）
 4. ✅ Phase 4: 世話記録機能（基本入力）
 5. ✅ Phase 6: PDF生成機能（QRカード）
-6. Phase 9: Publicフォーム（基本入力）
+6. ✅ Phase 9: Publicフォーム（基本入力）
 
 ### 高優先（MVP Extended）
 7. Phase 5: 診療記録機能

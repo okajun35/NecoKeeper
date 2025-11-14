@@ -256,7 +256,7 @@
     </div>
 
     <script>
-        // Service Worker登録
+        // Service Worker登録（オプション）
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/static/js/sw.js')
@@ -264,7 +264,7 @@
                         console.log('Service Worker registered:', registration.scope);
                     })
                     .catch((error) => {
-                        console.error('Service Worker registration failed:', error);
+                        console.log('Service Worker not available (optional feature):', error);
                     });
             });
         }
