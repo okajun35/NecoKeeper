@@ -232,6 +232,7 @@ class TestGetActivityHistory:
         # Given: 3件の世話記録を作成
         for _i in range(3):
             care_log = CareLog(
+                log_date=date.today(),
                 animal_id=test_animal.id,
                 recorder_id=test_volunteer.id,
                 recorder_name=test_volunteer.name,

@@ -6,9 +6,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -70,6 +70,13 @@ class CareLog(Base):
     )
 
     # 記録内容
+    log_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        server_default=func.current_date(),
+        comment="記録日（年月日）",
+    )
+
     time_slot: Mapped[str] = mapped_column(
         String(10), nullable=False, comment="時点（morning/noon/evening）"
     )
@@ -155,6 +162,7 @@ class CareLog(Base):
     # インデックス定義
     __table_args__ = (
         Index("ix_care_logs_animal_id", "animal_id"),
+        Index("ix_care_logs_log_date", "log_date"),
         Index("ix_care_logs_created_at", "created_at"),
         Index("ix_care_logs_recorder_id", "recorder_id"),
         Index("ix_care_logs_time_slot", "time_slot"),

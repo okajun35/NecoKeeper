@@ -2,6 +2,8 @@
 世話記録APIの統合テスト
 """
 
+from datetime import date
+
 from app.models.animal import Animal
 from app.models.care_log import CareLog
 
@@ -21,6 +23,7 @@ class TestCareLogCRUD:
             json={
                 "animal_id": animal_id,
                 "recorder_name": "テスト記録者",
+                "log_date": "2025-11-15",
                 "time_slot": "morning",
                 "appetite": 4,
                 "energy": 5,
@@ -44,6 +47,7 @@ class TestCareLogCRUD:
         animal = test_db.query(Animal).first()
 
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
@@ -70,6 +74,7 @@ class TestCareLogCRUD:
         animal = test_db.query(Animal).first()
 
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="noon",
@@ -98,6 +103,7 @@ class TestCareLogCRUD:
         animal = test_db.query(Animal).first()
 
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="evening",
@@ -129,6 +135,7 @@ class TestCareLogCRUD:
         animal_id = animal.id
 
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=animal_id,
             recorder_name="テスト記録者",
             time_slot="morning",
@@ -161,6 +168,7 @@ class TestCareLogCSVExport:
         animal = test_db.query(Animal).first()
 
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
@@ -200,6 +208,7 @@ class TestLatestCareLog:
 
         # 古い記録
         old_log = CareLog(
+            log_date=date.today(),
             animal_id=animal_id,
             recorder_name="古い記録者",
             time_slot="morning",
@@ -213,6 +222,7 @@ class TestLatestCareLog:
 
         # 新しい記録
         new_log = CareLog(
+            log_date=date.today(),
             animal_id=animal_id,
             recorder_name="新しい記録者",
             time_slot="noon",

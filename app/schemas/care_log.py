@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -16,6 +16,7 @@ class CareLogBase(BaseModel):
 
     animal_id: int = Field(..., description="猫ID")
     recorder_name: str = Field(..., max_length=100, description="記録者名")
+    log_date: date = Field(..., description="記録日（年月日）")
     time_slot: str = Field(..., description="時点（morning/noon/evening）")
     appetite: int = Field(3, ge=1, le=5, description="食欲（1〜5段階、5が最良）")
     energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
@@ -53,6 +54,7 @@ class CareLogUpdate(BaseModel):
     """世話記録更新リクエストスキーマ（全フィールド任意）"""
 
     recorder_name: str | None = Field(None, max_length=100)
+    log_date: date | None = None
     time_slot: str | None = None
     appetite: int | None = Field(None, ge=1, le=5)
     energy: int | None = Field(None, ge=1, le=5)
