@@ -1,0 +1,186 @@
+"""
+Admin Pages API
+
+管理画面のHTMLページを提供するエンドポイント。
+認証が必要な管理画面。
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+router = APIRouter(prefix="/admin", tags=["admin-pages"])
+
+# テンプレートディレクトリを設定
+templates_dir = Path(__file__).parent.parent.parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
+
+
+@router.get("", response_class=HTMLResponse)
+async def dashboard_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    ダッシュボードページを表示
+
+    管理画面のトップページ。
+    統計情報、最近の活動、記録が必要な猫などを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: ダッシュボードページのHTML
+
+    Example:
+        GET /admin
+    """
+    return templates.TemplateResponse("admin/dashboard.html", {"request": request})
+
+
+@router.get("/animals", response_class=HTMLResponse)
+async def animals_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    猫一覧ページを表示
+
+    保護猫の一覧を表示。
+    検索、フィルター、ページネーション機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 猫一覧ページのHTML
+
+    Example:
+        GET /admin/animals
+    """
+    return templates.TemplateResponse("admin/animals/list.html", {"request": request})
+
+
+@router.get("/animals/new", response_class=HTMLResponse)
+async def animal_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    猫新規登録ページを表示
+
+    新しい猫を登録するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 猫新規登録ページのHTML
+
+    Example:
+        GET /admin/animals/new
+    """
+    return templates.TemplateResponse("admin/animals/new.html", {"request": request})
+
+
+@router.get("/animals/{animal_id}", response_class=HTMLResponse)
+async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+    """
+    猫詳細ページを表示
+
+    指定された猫の詳細情報を表示。
+    世話記録、画像ギャラリー、ステータス履歴などを含む。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        animal_id: 猫のID
+
+    Returns:
+        HTMLResponse: 猫詳細ページのHTML
+
+    Example:
+        GET /admin/animals/123
+    """
+    return templates.TemplateResponse(
+        "admin/animals/detail.html", {"request": request, "animal_id": animal_id}
+    )
+
+
+@router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
+async def animal_edit_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+    """
+    猫編集ページを表示
+
+    指定された猫の情報を編集するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        animal_id: 猫のID
+
+    Returns:
+        HTMLResponse: 猫編集ページのHTML
+
+    Example:
+        GET /admin/animals/123/edit
+    """
+    return templates.TemplateResponse(
+        "admin/animals/edit.html", {"request": request, "animal_id": animal_id}
+    )
+
+
+@router.get("/care-logs", response_class=HTMLResponse)
+async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    世話記録一覧ページを表示
+
+    世話記録の一覧を表示。
+    フィルター、検索、CSVエクスポート機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 世話記録一覧ページのHTML
+
+    Example:
+        GET /admin/care-logs
+    """
+    return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
+
+
+@router.get("/volunteers", response_class=HTMLResponse)
+async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    ボランティア一覧ページを表示
+
+    ボランティアの一覧を表示。
+    活動履歴、記録回数などを含む。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: ボランティア一覧ページのHTML
+
+    Example:
+        GET /admin/volunteers
+    """
+    return templates.TemplateResponse(
+        "admin/volunteers/list.html", {"request": request}
+    )
+
+
+@router.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    設定ページを表示
+
+    システム設定を管理。
+    画像制限、バックアップ設定などを含む。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 設定ページのHTML
+
+    Example:
+        GET /admin/settings
+    """
+    return templates.TemplateResponse("admin/settings.html", {"request": request})
