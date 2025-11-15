@@ -6,13 +6,17 @@
 
 from __future__ import annotations
 
+from io import BytesIO
 from typing import Annotated
 
+import qrcode  # type: ignore[import-untyped]
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
 from app.auth.permissions import require_permission
+from app.config import get_settings
 from app.database import get_db
 from app.models.animal import Animal
 from app.models.user import User
@@ -185,3 +189,59 @@ async def delete_animal(  # type: ignore[no-untyped-def]
         実際のアプリケーションでは論理削除を推奨
     """
     animal_service.delete_animal(db=db, animal_id=animal_id)
+
+
+@router.get("/{animal_id}/qr")
+async def get_animal_qr_code(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> Response:
+    """
+    猫のQRコード画像を生成
+
+    指定された猫の世話記録入力画面へのQRコードを生成します。
+    QRコードをスキャンすると、公開世話記録入力画面が開きます。
+
+    このエンドポイントは認証不要です（QRコードは公開情報のため）。
+
+    Args:
+        animal_id: 猫ID
+        db: データベースセッション
+
+    Returns:
+        Response: QRコード画像（PNG形式）
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+    """
+    # 猫の存在確認
+    animal = animal_service.get_animal(db=db, animal_id=animal_id)
+
+    # 設定から基本URLを取得
+    settings = get_settings()
+    base_url = (
+        settings.base_url if hasattr(settings, "base_url") else "http://localhost:8000"
+    )
+
+    # 世話記録入力画面のURL
+    care_log_url = f"{base_url}/public/care?animal_id={animal.id}"
+
+    # QRコード生成
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(care_log_url)
+    qr.make(fit=True)
+
+    # 画像生成
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # BytesIOに保存
+    img_io = BytesIO()
+    img.save(img_io, "PNG")
+    img_io.seek(0)
+
+    return Response(content=img_io.getvalue(), media_type="image/png")
