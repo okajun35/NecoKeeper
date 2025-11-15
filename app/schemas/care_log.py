@@ -99,3 +99,45 @@ class CareLogListResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+class CareLogSummary(BaseModel):
+    """世話記録サマリースキーマ（一覧表示用）"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    log_date: date
+    time_slot: str
+    recorder_name: str
+    has_record: bool = Field(True, description="記録済みフラグ（常にTrue）")
+
+
+class AnimalCareLogListResponse(BaseModel):
+    """個別猫の記録一覧レスポンススキーマ"""
+
+    animal_id: int
+    animal_name: str
+    animal_photo: str | None
+    today_status: dict[str, bool] = Field(
+        ..., description="当日の記録状況（morning/noon/evening: True/False）"
+    )
+    recent_logs: list[CareLogSummary] = Field(..., description="直近7日間の記録一覧")
+
+
+class AnimalStatusSummary(BaseModel):
+    """猫の記録状況サマリースキーマ"""
+
+    animal_id: int
+    animal_name: str
+    animal_photo: str | None
+    morning_recorded: bool = Field(..., description="朝の記録済みフラグ")
+    noon_recorded: bool = Field(..., description="昼の記録済みフラグ")
+    evening_recorded: bool = Field(..., description="夕の記録済みフラグ")
+
+
+class AllAnimalsStatusResponse(BaseModel):
+    """全猫の記録状況一覧レスポンススキーマ"""
+
+    target_date: date = Field(..., description="対象日（当日）")
+    animals: list[AnimalStatusSummary] = Field(..., description="全猫の記録状況")
