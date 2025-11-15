@@ -473,56 +473,58 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 - エラーハンドリング: IntegrityError、SQLAlchemyError
 - Docstring: 完全なドキュメント
 
-### 8. 診療記録管理
+### 8. 診療記録管理 ✅ 完了
 
 獣医診療記録のCRUD機能を実装します。
 
-- [ ] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）
+- [x] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）
   - MedicalRecordCreate, MedicalRecordUpdate, MedicalRecordResponse
   - バリデーションルール（必須項目：診療年月日、体重、症状）
   - _Requirements: Requirement 5.3_
 
-- [ ] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）
+- [x] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）
   - create_medical_record（記録登録）
   - get_medical_record（記録詳細取得）
   - list_medical_records（一覧取得、時系列表示）
   - update_medical_record（記録更新）
   - _Requirements: Requirement 5.1, Requirement 5.5_
 
-- [ ] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）
+- [x] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）
   - GET /api/v1/medical-records（一覧取得）
   - POST /api/v1/medical-records（登録）
   - GET /api/v1/medical-records/{id}（詳細取得）
   - PUT /api/v1/medical-records/{id}（更新）
   - _Requirements: Requirement 5_
 
-- [ ] 8.4 診療記録機能の統合テストを作成
+- [x] 8.4 診療記録機能の統合テストを作成
   - CRUD操作のテスト
   - バリデーションのテスト
   - _Requirements: Requirement 5_
 
-### 9. 診療マスターデータ管理
+### 9. 診療マスターデータ管理 ✅ 完了
 
 処置・薬剤・ワクチンのマスターデータ管理機能を実装します。
 
-- [ ] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）
+- [x] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）
   - MedicalActionCreate, MedicalActionUpdate, MedicalActionResponse
   - 期間別価格と通貨単位のバリデーション
   - _Requirements: Requirement 6.1-6.3_
 
-- [ ] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）
+- [x] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）
   - create_medical_action（診療行為登録）
   - list_medical_actions（一覧取得）
   - update_medical_action（更新）
   - calculate_billing（料金計算：請求価格×投薬量＋処置料金）
   - _Requirements: Requirement 6.4_
 
-- [ ] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）
+- [x] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）
   - GET/POST /api/v1/medical-actions
   - GET/PUT /api/v1/medical-actions/{id}
+  - GET /api/v1/medical-actions/{id}/calculate（料金計算）
+  - GET /api/v1/medical-actions/active/list（有効な診療行為一覧）
   - _Requirements: Requirement 6_
 
-- [ ] 9.4 診療行為選択機能を実装
+- [x] 9.4 診療行為選択機能を実装
   - MedicalActionsマスターからの選択リスト提供
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
@@ -674,11 +676,20 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - _Requirements: Requirement 1.3, Requirement 15.2_
 
 - [x] 13.5 世話記録一覧画面を実装（app/templates/admin/care_logs/list.html）✅
-  - フィルター機能（猫、日付範囲、時点）
-  - モバイル: カード表示
-  - デスクトップ: テーブル表示
-  - CSVエクスポートボタン
-  - ページネーション
+  - 静的HTMLテンプレート作成完了
+  - モバイル: カード表示レイアウト
+  - デスクトップ: テーブル表示レイアウト
+  - CSVエクスポートボタン配置
+  - ページネーション UI
+  - _Requirements: Requirement 25.1_
+
+- [x] 13.5.1 世話記録一覧の動的機能実装（JavaScript）✅
+  - APIからデータ取得（`/api/v1/care-logs`）
+  - フィルター機能実装（猫、日付範囲、時点）
+  - ページネーション処理
+  - CSVエクスポートボタンの配線
+  - データの動的レンダリング（モバイル/デスクトップ）
+  - ローディング状態とエラーハンドリング
   - _Requirements: Requirement 25.1_
 
 - [ ] 13.6 診療記録一覧画面を実装（app/templates/admin/medical_records/list.html）
@@ -719,7 +730,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - ユーザー管理
   - _Requirements: Requirement 27.6-27.7, Requirement 31.3-31.4_
 
-- [ ] 13.11 ログイン画面を実装（app/templates/admin/login.html）
+- [x] 13.11 ログイン画面を実装（app/templates/admin/login.html）✅
   - メールアドレス・パスワード入力フォーム
   - エラーメッセージ表示
   - _Requirements: Requirement 21.1-21.2_
@@ -1306,7 +1317,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [ ] Phase 9: 帳票出力（日報・週報・月次集計） (0/4 完了)
 - [ ] Phase 10: 権限管理とアクセス制御 (0/1 完了)
 - [ ] Phase 11: データバックアップ (0/4 完了)
-- [ ] Phase 12: 管理画面UI (5/14 完了) 🚧
+- [ ] Phase 12: 管理画面UI (7/15 完了) 🚧
 - [ ] Phase 13: Publicフォーム（PWA） (0/7 完了)
 - [ ] Phase 14: 里親管理機能 (0/4 完了)
 - [ ] Phase 15: 猫のステータス管理と論理削除 (0/1 完了)
@@ -1328,9 +1339,9 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [ ] Phase 31: リリース準備 (0/6 完了)
 
 ### 全体進捗
-**完了タスク数**: 29 / 140 タスク (20.7%)
+**完了タスク数**: 31 / 141 タスク (22.0%)
 **MVP Core完了**: Phase 1, 2, 3, 4 完全完了 ✅
-**推定残り時間**: 約105-165時間（1タスク平均1-1.5時間）
+**推定残り時間**: 約104-165時間（1タスク平均1-1.5時間）
 
 ### 実装済み機能
 - ✅ データベース（全12モデル）

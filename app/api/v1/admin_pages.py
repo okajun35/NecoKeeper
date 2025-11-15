@@ -186,6 +186,94 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
     )
 
 
+@router.get("/medical-records", response_class=HTMLResponse)
+async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療記録一覧ページを表示
+
+    診療記録の一覧を表示。
+    フィルター、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療記録一覧ページのHTML
+
+    Example:
+        GET /admin/medical-records
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/list.html", {"request": request}
+    )
+
+
+@router.get("/medical-records/new", response_class=HTMLResponse)
+async def medical_record_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療記録新規登録ページを表示
+
+    新しい診療記録を登録するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療記録新規登録ページのHTML
+
+    Example:
+        GET /admin/medical-records/new
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/new.html", {"request": request}
+    )
+
+
+@router.get("/medical-records/{record_id}", response_class=HTMLResponse)
+async def medical_record_detail_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+    """
+    診療記録詳細ページを表示
+
+    指定された診療記録の詳細情報を表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        record_id: 診療記録のID
+
+    Returns:
+        HTMLResponse: 診療記録詳細ページのHTML
+
+    Example:
+        GET /admin/medical-records/123
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/detail.html",
+        {"request": request, "record_id": record_id},
+    )
+
+
+@router.get("/medical-actions", response_class=HTMLResponse)
+async def medical_actions_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療行為マスター一覧ページを表示
+
+    診療行為（薬剤、ワクチン、検査等）のマスターデータ一覧を表示。
+    期間別価格管理、通貨単位設定機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療行為マスター一覧ページのHTML
+
+    Example:
+        GET /admin/medical-actions
+    """
+    return templates.TemplateResponse(
+        "admin/medical_actions/list.html", {"request": request}
+    )
+
+
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):  # type: ignore[no-untyped-def]
     """

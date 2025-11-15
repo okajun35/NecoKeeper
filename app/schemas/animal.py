@@ -4,8 +4,6 @@
 猫の個体情報のリクエスト・レスポンススキーマを定義します。
 """
 
-from __future__ import annotations
-
 from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator

@@ -4,8 +4,6 @@
 猫の複数画像管理のためのPydanticスキーマです。
 """
 
-from __future__ import annotations
-
 from datetime import date, datetime
 
 from pydantic import BaseModel, Field

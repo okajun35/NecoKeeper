@@ -1,13 +1,13 @@
 {% extends "admin/base.html" %}
 
-{% block title %}世話記録一覧{% endblock %}
-{% block page_title %}世話記録一覧{% endblock %}
-{% block page_description %}全ての世話記録を管理{% endblock %}
+{% block title %}診療記録一覧{% endblock %}
+{% block page_title %}診療記録一覧{% endblock %}
+{% block page_description %}全ての診療記録を管理{% endblock %}
 
 {% block header_actions %}
-<button id="exportCsvBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-    <span class="hidden sm:inline">CSV</span>エクスポート
-</button>
+<a href="/admin/medical-records/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+    <span class="hidden sm:inline">新規</span>登録
+</a>
 {% endblock %}
 
 {% block content %}
@@ -23,6 +23,14 @@
                 </select>
             </div>
 
+            <!-- 獣医師選択 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">獣医師</label>
+                <select id="filterVet" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <option value="">すべて</option>
+                </select>
+            </div>
+
             <!-- 日付範囲 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">開始日</label>
@@ -32,17 +40,6 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">終了日</label>
                 <input id="filterEndDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <!-- 時点 -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">時点</label>
-                <select id="filterTimeSlot" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="">すべて</option>
-                    <option value="morning">朝</option>
-                    <option value="noon">昼</option>
-                    <option value="evening">夕</option>
-                </select>
             </div>
         </div>
 
@@ -68,7 +65,7 @@
     </div>
 
     <!-- 記録一覧 -->
-    <div id="careLogsContainer" class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div id="medicalRecordsContainer" class="bg-white rounded-lg shadow-sm overflow-hidden">
         <!-- モバイル: カード表示 -->
         <div id="mobileList" class="lg:hidden divide-y divide-gray-200">
             <!-- データはJavaScriptで動的に生成 -->
@@ -79,14 +76,12 @@
             <table class="w-full">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日時</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日付</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">猫</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時点</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">記録者</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">食欲</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">元気</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排尿</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">清掃</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">獣医師</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">体重</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">体温</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">症状</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                     </tr>
                 </thead>
@@ -117,5 +112,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/admin/care_logs_list.js"></script>
+<script src="/static/js/admin/medical_records_list.js"></script>
 {% endblock %}

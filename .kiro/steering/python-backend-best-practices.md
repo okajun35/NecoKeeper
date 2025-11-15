@@ -1158,10 +1158,44 @@ def get_items(
 
 コード作成・修正時に以下を確認すること:
 
+### 🔴 実装後の必須確認項目（コミット前に必ず実行）
+
+**すべてのタスク実装完了後、以下を順番に実行してからコミットすること:**
+
+1. **コードフォーマット**
+   ```bash
+   ruff format .
+   ```
+
+2. **テスト実行**
+   ```bash
+   python -m pytest
+   ```
+   - すべてのテストがPassすることを確認
+   - 新規実装の場合は、カバレッジ70%以上を確認
+
+3. **UI実装の場合: Chrome DevToolsで画面確認**
+   - 開発サーバーを起動: `uvicorn app.main:app --reload`
+   - ブラウザでアクセス: `http://localhost:8000`
+   - Chrome DevTools (F12) で以下を確認:
+     - Console: JavaScriptエラーがないか
+     - Network: APIリクエストが正常に動作しているか
+     - Application: PWA機能（Service Worker、Cache）が動作しているか
+     - Lighthouse: パフォーマンス、アクセシビリティスコア
+   - モバイル表示確認: DevToolsのデバイスモードで確認
+   - レスポンシブデザイン確認: 画面幅を変更して確認
+
+4. **Gitコミット**
+   ```bash
+   git add .
+   git commit -m "feat(scope): 機能を追加"
+   ```
+
 ### 基本チェック
 - [ ] Ruffでフォーマット実行済み (`ruff format .`)
 - [ ] Ruffでlintチェック実行済み (`ruff check . --fix`)
 - [ ] すべてのテストがPass (`python -m pytest`)
+- [ ] UI実装の場合: Chrome DevToolsで画面確認済み
 - [ ] Mypyで型チェック実行済み (`mypy .`)
 - [ ] 型ヒントを付与（`from __future__ import annotations`使用）
 - [ ] Docstringを記述
