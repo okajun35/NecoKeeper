@@ -238,16 +238,21 @@ async function loadMedicalActions() {
             }
         });
 
-        if (!response.ok) throw new Error('データの取得に失敗しました');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'データの取得に失敗しました');
+        }
 
         const data = await response.json();
         totalPages = data.total_pages;
 
+        // データが0件でもエラーではない
         renderMobileList(data.items);
         renderDesktopList(data.items);
         updatePagination(data);
 
     } catch (err) {
+        console.error('Error loading medical actions:', err);
         error.textContent = err.message;
         error.classList.remove('hidden');
     } finally {

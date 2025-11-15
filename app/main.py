@@ -25,6 +25,7 @@ from app.api.v1 import (
     pdf,
     public,
     public_pages,
+    users,
     volunteers,
 )
 from app.config import get_settings
@@ -187,6 +188,7 @@ app.include_router(pdf.router, prefix="/api/v1")
 app.include_router(public.router, prefix="/api/v1")  # Public API（認証不要）
 app.include_router(public_pages.router)  # Public Pages（HTMLテンプレート）
 app.include_router(admin_pages.router)  # Admin Pages（管理画面）
+app.include_router(users.router, prefix="/api/v1")
 app.include_router(volunteers.router, prefix="/api/v1")
 
 # TODO: 以下のルーターを追加予定

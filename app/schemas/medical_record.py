@@ -75,6 +75,11 @@ class MedicalRecordResponse(MedicalRecordBase):
     updated_at: datetime
     last_updated_at: datetime
     last_updated_by: int | None
+    # リレーション情報
+    animal_name: str | None = None
+    vet_name: str | None = None
+    medical_action_name: str | None = None
+    dosage_unit: str | None = None
 
 
 class MedicalRecordListResponse(BaseModel):

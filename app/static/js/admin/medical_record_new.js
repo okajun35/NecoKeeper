@@ -129,9 +129,11 @@ function handleMedicalActionChange(e) {
 
   if (actionId && dosageLabel) {
     const action = medicalActionsData.find(a => a.id === actionId);
-    if (action) {
-      // 投薬単位を表示（通貨単位を使用）
-      dosageLabel.innerHTML = `投薬回数 <span class="text-sm text-gray-500">(${action.currency})</span>`;
+    if (action && action.unit) {
+      // 投薬単位を表示
+      dosageLabel.innerHTML = `投薬回数 <span class="text-sm text-gray-500">(${action.unit})</span>`;
+    } else {
+      dosageLabel.textContent = '投薬回数';
     }
   } else if (dosageLabel) {
     dosageLabel.textContent = '投薬回数';

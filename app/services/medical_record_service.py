@@ -12,10 +12,14 @@ from datetime import date
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.animal import Animal
+from app.models.medical_action import MedicalAction
 from app.models.medical_record import MedicalRecord
+from app.models.user import User
 from app.schemas.medical_record import (
     MedicalRecordCreate,
     MedicalRecordListResponse,
+    MedicalRecordResponse,
     MedicalRecordUpdate,
 )
 
@@ -169,11 +173,60 @@ def list_medical_records(
         .all()
     )
 
+    # リレーション情報を含むレスポンスを作成
+    items: list[MedicalRecordResponse] = []
+    for record in medical_records:
+        # 猫名を取得
+        animal = db.query(Animal).filter(Animal.id == record.animal_id).first()
+        animal_name = animal.name if animal else None
+
+        # 獣医師名を取得
+        vet = db.query(User).filter(User.id == record.vet_id).first()
+        vet_name = vet.name if vet else None
+
+        # 診療行為名と投薬単位を取得
+        medical_action_name = None
+        dosage_unit = None
+        if record.medical_action_id:
+            medical_action = (
+                db.query(MedicalAction)
+                .filter(MedicalAction.id == record.medical_action_id)
+                .first()
+            )
+            if medical_action:
+                medical_action_name = medical_action.name
+                dosage_unit = medical_action.unit
+
+        # レスポンスオブジェクトを作成
+        response = MedicalRecordResponse(
+            id=record.id,
+            animal_id=record.animal_id,
+            vet_id=record.vet_id,
+            date=record.date,
+            time_slot=record.time_slot,
+            weight=record.weight,
+            temperature=record.temperature,
+            symptoms=record.symptoms,
+            medical_action_id=record.medical_action_id,
+            dosage=record.dosage,
+            other=record.other,
+            comment=record.comment,
+            created_at=record.created_at,
+            updated_at=record.updated_at,
+            last_updated_at=record.last_updated_at,
+            last_updated_by=record.last_updated_by,
+            animal_name=animal_name,
+            vet_name=vet_name,
+            medical_action_name=medical_action_name,
+            dosage_unit=dosage_unit,
+        )
+        items.append(response)
+
     # 総ページ数を計算
     total_pages = (total + page_size - 1) // page_size
 
     return MedicalRecordListResponse(
-        items=medical_records,
+        items=items,
         total=total,
         page=page,
         page_size=page_size,
