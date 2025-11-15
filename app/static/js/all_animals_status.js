@@ -8,42 +8,41 @@
  * 全猫の記録状況を取得
  */
 async function loadAllAnimalsStatus() {
-    try {
-        const response = await fetch(`${API_BASE}/care-logs/status/today`);
-        if (!response.ok) throw new Error('記録状況の取得に失敗しました');
+  try {
+    const response = await fetch(`${API_BASE}/care-logs/status/today`);
+    if (!response.ok) throw new Error('記録状況の取得に失敗しました');
 
-        const data = await response.json();
+    const data = await response.json();
 
-        // 対象日を表示
-        document.getElementById('targetDate').textContent = formatDate(data.target_date);
+    // 対象日を表示
+    document.getElementById('targetDate').textContent = formatDate(data.target_date);
 
-        // 猫一覧を表示
-        displayAnimalsList(data.animals);
-
-    } catch (error) {
-        showError(error.message);
-    }
+    // 猫一覧を表示
+    displayAnimalsList(data.animals);
+  } catch (error) {
+    showError(error.message);
+  }
 }
 
 /**
  * 猫一覧を表示
  */
 function displayAnimalsList(animals) {
-    const container = document.getElementById('animalsList');
-    const noAnimalsDiv = document.getElementById('noAnimals');
+  const container = document.getElementById('animalsList');
+  const noAnimalsDiv = document.getElementById('noAnimals');
 
-    if (animals.length === 0) {
-        container.classList.add('hidden');
-        noAnimalsDiv.classList.remove('hidden');
-        return;
-    }
+  if (animals.length === 0) {
+    container.classList.add('hidden');
+    noAnimalsDiv.classList.remove('hidden');
+    return;
+  }
 
-    container.innerHTML = '';
-    animals.forEach(animal => {
-        const animalCard = document.createElement('div');
-        animalCard.className = 'bg-white rounded-lg shadow-md p-6';
+  container.innerHTML = '';
+  animals.forEach(animal => {
+    const animalCard = document.createElement('div');
+    animalCard.className = 'bg-white rounded-lg shadow-md p-6';
 
-        animalCard.innerHTML = `
+    animalCard.innerHTML = `
             <div class="flex items-center gap-4 mb-4">
                 <img src="${animal.animal_photo || '/static/images/default.svg'}"
                      alt="${animal.animal_name}"
@@ -89,21 +88,21 @@ function displayAnimalsList(animals) {
             </div>
         `;
 
-        container.appendChild(animalCard);
-    });
+    container.appendChild(animalCard);
+  });
 }
 
 /**
  * 日付フォーマット
  */
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    const weekday = weekdays[date.getDay()];
-    return `${year}年${month}月${day}日（${weekday}）`;
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const weekday = weekdays[date.getDay()];
+  return `${year}年${month}月${day}日（${weekday}）`;
 }
 
 // 初期化
