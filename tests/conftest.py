@@ -90,12 +90,12 @@ def test_db() -> Generator[Session, None, None]:
         db.rollback()
 
     # APIテスト用のデータを作成
-    # テスト用ユーザーを作成
+    # テスト用ユーザーを作成（vet role for medical:write permission）
     test_user = User(
         email="test@example.com",
         password_hash=hash_password("TestPassword123"),
         name="Test User",
-        role="staff",
+        role="vet",  # vet role has medical:write permission
         is_active=True,
     )
     db.add(test_user)
