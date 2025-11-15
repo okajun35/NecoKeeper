@@ -4,8 +4,6 @@
 ボランティア記録者のリクエスト・レスポンススキーマを定義します。
 """
 
-from __future__ import annotations
-
 from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -160,7 +158,11 @@ class VolunteerListResponse(BaseModel):
 
     Example:
         >>> response = VolunteerListResponse(
-        ...     items=[volunteer1, volunteer2], total=2, page=1, page_size=10, total_pages=1
+        ...     items=[volunteer1, volunteer2],
+        ...     total=2,
+        ...     page=1,
+        ...     page_size=10,
+        ...     total_pages=1,
         ... )
     """
 

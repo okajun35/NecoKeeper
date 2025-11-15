@@ -230,9 +230,7 @@ async def medical_record_new_page(request: Request):  # type: ignore[no-untyped-
 
 
 @router.get("/medical-records/{record_id}", response_class=HTMLResponse)
-async def medical_record_detail_page(
-    request: Request, record_id: int
-):  # type: ignore[no-untyped-def]
+async def medical_record_detail_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
     """
     診療記録詳細ページを表示
 

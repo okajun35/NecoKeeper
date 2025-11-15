@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type
+from datetime import datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -16,7 +17,7 @@ class MedicalRecordBase(BaseModel):
     """診療記録の基本情報スキーマ"""
 
     animal_id: int
-    date: date
+    date: date_type
     time_slot: str | None = None
     weight: Decimal
     temperature: Decimal | None = None
@@ -52,7 +53,7 @@ class MedicalRecordCreate(MedicalRecordBase):
 class MedicalRecordUpdate(BaseModel):
     """診療記録更新リクエストスキーマ（全フィールド任意）"""
 
-    date: date | None = None
+    date: date_type | None = None
     time_slot: str | None = None
     weight: Decimal | None = None
     temperature: Decimal | None = None
