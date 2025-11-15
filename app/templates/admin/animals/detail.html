@@ -2,51 +2,520 @@
 
 {% block title %}猫詳細 - NecoKeeper{% endblock %}
 
-{% block content %}
-<div class="space-y-6">
-  <!-- ヘッダー -->
-  <div class="flex justify-between items-center">
-    <div>
-      <h2 class="text-2xl font-bold text-gray-900">猫詳細</h2>
-      <p class="mt-1 text-sm text-gray-500">猫の詳細情報と世話記録</p>
-    </div>
-    <div class="flex gap-2">
-      <a href="/admin/animals/{{ animal_id }}/edit"
-         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        編集
-      </a>
-      <a href="/admin/animals"
-         class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-        一覧に戻る
-      </a>
-    </div>
-  </div>
-
-  <!-- 猫の基本情報 -->
-  <div id="animal-detail" class="bg-white rounded-lg shadow p-6">
-    <div class="animate-pulse">
-      <div class="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-      <div class="space-y-3">
-        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div class="h-4 bg-gray-200 rounded w-2/3"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 世話記録 -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">最近の世話記録</h3>
-    <div id="care-logs-list" class="space-y-4">
-      <div class="animate-pulse">
-        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-      </div>
-    </div>
-  </div>
+{% block header_actions %}
+<div class="flex items-center space-x-2">
+    <a href="/admin/animals/{{ animal_id }}/edit" class="btn btn-primary">
+        <i class="fas fa-edit mr-2"></i>編集
+    </a>
+    <button id="qrCodeBtn" class="btn btn-secondary">
+        <i class="fas fa-qrcode mr-2"></i>QRコード
+    </button>
+    <button id="statusChangeBtn" class="btn btn-secondary">
+        <i class="fas fa-exchange-alt mr-2"></i>ステータス変更
+    </button>
 </div>
 {% endblock %}
 
-{% block extra_scripts %}
-<script src="/static/js/admin/animal_detail.js"></script>
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- ローディング表示 -->
+    <div id="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        <p id="errorMessage"></p>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div id="mainContent" class="hidden">
+        <!-- 猫の基本情報ヘッダー -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                <!-- 顔写真 -->
+                <div class="flex-shrink-0">
+                    <img id="animalPhoto" src="/static/img/default-cat.svg" alt="猫の写真"
+                         class="w-32 h-32 rounded-lg object-cover border-2 border-gray-200">
+                </div>
+
+                <!-- 基本情報 -->
+                <div class="flex-grow">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <h1 id="animalName" class="text-3xl font-bold text-gray-800"></h1>
+                        <span id="animalStatus" class="px-3 py-1 rounded-full text-sm font-semibold"></span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div>
+                            <p class="text-sm text-gray-500">柄・色</p>
+                            <p id="animalPattern" class="font-semibold"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">性別</p>
+                            <p id="animalGender" class="font-semibold"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">年齢</p>
+                            <p id="animalAge" class="font-semibold"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">保護日</p>
+                            <p id="animalProtectedAt" class="font-semibold"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- タブナビゲーション -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px overflow-x-auto">
+                    <button class="tab-button active" data-tab="basic">
+                        <i class="fas fa-info-circle mr-2"></i>基本情報
+                    </button>
+                    <button class="tab-button" data-tab="care-logs">
+                        <i class="fas fa-clipboard-list mr-2"></i>世話記録
+                    </button>
+                    <button class="tab-button" data-tab="medical-records">
+                        <i class="fas fa-stethoscope mr-2"></i>診療記録
+                    </button>
+                    <button class="tab-button" data-tab="gallery">
+                        <i class="fas fa-images mr-2"></i>画像ギャラリー
+                    </button>
+                    <button class="tab-button" data-tab="weight-chart">
+                        <i class="fas fa-chart-line mr-2"></i>体重推移
+                    </button>
+                </nav>
+            </div>
+
+            <!-- タブコンテンツ -->
+            <div class="p-6">
+                <!-- 基本情報タブ -->
+                <div id="tab-basic" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">識別情報</h3>
+                            <dl class="space-y-3">
+                                <div>
+                                    <dt class="text-sm text-gray-500">尻尾の長さ</dt>
+                                    <dd id="animalTailLength" class="font-semibold"></dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm text-gray-500">首輪</dt>
+                                    <dd id="animalCollar" class="font-semibold"></dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm text-gray-500">耳カット</dt>
+                                    <dd id="animalEarCut" class="font-semibold"></dd>
+                                </div>
+                            </dl>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">特徴・性格</h3>
+                            <p id="animalFeatures" class="text-gray-700 whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-4">ステータス履歴</h3>
+                        <div id="statusHistory" class="space-y-2">
+                            <!-- JavaScriptで動的に生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 世話記録タブ -->
+                <div id="tab-care-logs" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">最近の世話記録</h3>
+                        <a href="/admin/care-logs?animal_id={{ animal_id }}" class="text-blue-600 hover:text-blue-800">
+                            すべて表示 <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                    <div id="careLogsList" class="space-y-3">
+                        <!-- JavaScriptで動的に生成 -->
+                    </div>
+                </div>
+
+                <!-- 診療記録タブ -->
+                <div id="tab-medical-records" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">診療記録</h3>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus mr-2"></i>新規登録
+                        </button>
+                    </div>
+                    <div id="medicalRecordsList" class="space-y-3">
+                        <p class="text-gray-500 text-center py-8">診療記録機能は実装予定です</p>
+                    </div>
+                </div>
+
+                <!-- 画像ギャラリータブ -->
+                <div id="tab-gallery" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">画像ギャラリー</h3>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-upload mr-2"></i>画像アップロード
+                        </button>
+                    </div>
+                    <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <p class="text-gray-500 text-center py-8 col-span-full">画像ギャラリー機能は実装予定です</p>
+                    </div>
+                </div>
+
+                <!-- 体重推移タブ -->
+                <div id="tab-weight-chart" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">体重推移グラフ</h3>
+                        <select id="chartPeriod" class="form-select">
+                            <option value="1m">1ヶ月</option>
+                            <option value="3m">3ヶ月</option>
+                            <option value="6m">6ヶ月</option>
+                            <option value="1y">1年</option>
+                            <option value="all">全期間</option>
+                        </select>
+                    </div>
+                    <div id="weightChart">
+                        <p class="text-gray-500 text-center py-8">体重推移グラフ機能は実装予定です</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QRコードモーダル -->
+<div id="qrModal" class="modal hidden">
+    <div class="modal-content max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">QRコード</h3>
+            <button class="modal-close text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="text-center">
+            <img id="qrCodeImage" src="" alt="QRコード" class="mx-auto mb-4 border-2 border-gray-200 rounded">
+            <p class="text-sm text-gray-600 mb-4">このQRコードをスキャンすると、世話記録入力画面が開きます</p>
+            <button id="downloadQrBtn" class="btn btn-primary">
+                <i class="fas fa-download mr-2"></i>ダウンロード
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ステータス変更モーダル -->
+<div id="statusModal" class="modal hidden">
+    <div class="modal-content max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">ステータス変更</h3>
+            <button class="modal-close text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <form id="statusChangeForm">
+            <div class="mb-4">
+                <label class="form-label">新しいステータス</label>
+                <select id="newStatus" class="form-select" required>
+                    <option value="">選択してください</option>
+                    <option value="保護中">保護中</option>
+                    <option value="治療中">治療中</option>
+                    <option value="譲渡可能">譲渡可能</option>
+                    <option value="譲渡済み">譲渡済み</option>
+                    <option value="その他">その他</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">変更理由（任意）</label>
+                <textarea id="statusReason" class="form-textarea" rows="3"
+                          placeholder="ステータス変更の理由を入力してください"></textarea>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" class="btn btn-secondary modal-close">キャンセル</button>
+                <button type="submit" class="btn btn-primary">変更</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.tab-button {
+    @apply px-6 py-3 text-sm font-medium text-gray-600 hover:text-blue-600 hover:border-blue-600 border-b-2 border-transparent transition-colors whitespace-nowrap;
+}
+
+.tab-button.active {
+    @apply text-blue-600 border-blue-600;
+}
+
+.tab-content {
+    @apply min-h-[300px];
+}
+
+.modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4;
+}
+
+.modal-content {
+    @apply bg-white rounded-lg shadow-xl p-6 w-full;
+}
+</style>
+
+<script>
+// グローバル変数
+let animalData = null;
+const animalId = {{ animal_id }};
+
+// ページ読み込み時の初期化
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadAnimalData();
+    initializeTabs();
+    initializeModals();
+    initializeButtons();
+});
+
+// 猫データの読み込み
+async function loadAnimalData() {
+    try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/admin/login';
+            return;
+        }
+
+        const response = await fetch(`/api/v1/animals/${animalId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401) {
+            window.location.href = '/admin/login';
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error('猫データの取得に失敗しました');
+        }
+
+        animalData = await response.json();
+        renderAnimalData();
+        await loadCareLogs();
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+    } catch (error) {
+        console.error('Error loading animal data:', error);
+        showError(error.message);
+        document.getElementById('loading').classList.add('hidden');
+    }
+}
+
+// 猫データの表示
+function renderAnimalData() {
+    if (!animalData) return;
+
+    // ヘッダー情報
+    document.getElementById('animalName').textContent = animalData.name || '名前未設定';
+    document.getElementById('animalPhoto').src = animalData.photo || '/static/img/default-cat.svg';
+
+    // ステータスバッジ
+    const statusBadge = document.getElementById('animalStatus');
+    statusBadge.textContent = animalData.status || '不明';
+    statusBadge.className = `px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(animalData.status)}`;
+
+    // 基本情報（ヘッダー）
+    document.getElementById('animalPattern').textContent = animalData.pattern || '-';
+    document.getElementById('animalGender').textContent = animalData.gender || '-';
+    document.getElementById('animalAge').textContent = animalData.age || '-';
+    document.getElementById('animalProtectedAt').textContent = animalData.protected_at || '-';
+
+    // 詳細情報（基本情報タブ）
+    document.getElementById('animalTailLength').textContent = animalData.tail_length || '-';
+    document.getElementById('animalCollar').textContent = animalData.collar || '-';
+    document.getElementById('animalEarCut').textContent = animalData.ear_cut || '-';
+    document.getElementById('animalFeatures').textContent = animalData.features || '特徴・性格の記載なし';
+}
+
+// ステータスの色を取得
+function getStatusColor(status) {
+    const colors = {
+        '保護中': 'bg-blue-100 text-blue-800',
+        '治療中': 'bg-yellow-100 text-yellow-800',
+        '譲渡可能': 'bg-green-100 text-green-800',
+        '譲渡済み': 'bg-gray-100 text-gray-800',
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+}
+
+// 世話記録の読み込み
+async function loadCareLogs() {
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`/api/v1/care-logs?animal_id=${animalId}&page=1&page_size=10`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        renderCareLogs(data.items || []);
+    } catch (error) {
+        console.error('Error loading care logs:', error);
+    }
+}
+
+// 世話記録の表示
+function renderCareLogs(careLogs) {
+    const container = document.getElementById('careLogsList');
+
+    if (careLogs.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">世話記録がありません</p>';
+        return;
+    }
+
+    container.innerHTML = careLogs.map(log => `
+        <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <span class="font-semibold">${log.time_slot || '-'}</span>
+                    <span class="text-sm text-gray-500 ml-2">${formatDate(log.created_at)}</span>
+                </div>
+                <span class="text-sm text-gray-600">${log.recorder_name || '記録者不明'}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>食欲: ${log.appetite || '-'}/5</div>
+                <div>元気: ${log.energy || '-'}/5</div>
+                <div>排尿: ${log.urination ? '○' : '×'}</div>
+                <div>清掃: ${log.cleaning ? '済' : '未'}</div>
+            </div>
+            ${log.memo ? `<p class="text-sm text-gray-600 mt-2">${log.memo}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+// 日付フォーマット
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// タブの初期化
+function initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+
+            // すべてのタブを非アクティブに
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.add('hidden'));
+
+            // 選択されたタブをアクティブに
+            button.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        });
+    });
+}
+
+// モーダルの初期化
+function initializeModals() {
+    // モーダルを閉じる
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
+            });
+        });
+    });
+
+    // モーダル外クリックで閉じる
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+}
+
+// ボタンの初期化
+function initializeButtons() {
+    // QRコードボタン
+    document.getElementById('qrCodeBtn').addEventListener('click', showQRCode);
+
+    // ステータス変更ボタン
+    document.getElementById('statusChangeBtn').addEventListener('click', showStatusModal);
+
+    // ステータス変更フォーム
+    document.getElementById('statusChangeForm').addEventListener('submit', handleStatusChange);
+
+    // QRコードダウンロード
+    document.getElementById('downloadQrBtn').addEventListener('click', downloadQRCode);
+}
+
+// QRコード表示
+async function showQRCode() {
+    const qrImage = document.getElementById('qrCodeImage');
+    qrImage.src = `/api/v1/animals/${animalId}/qr`;
+    document.getElementById('qrModal').classList.remove('hidden');
+}
+
+// QRコードダウンロード
+function downloadQRCode() {
+    const link = document.createElement('a');
+    link.href = `/api/v1/animals/${animalId}/qr`;
+    link.download = `qr_${animalData.name || animalId}.png`;
+    link.click();
+}
+
+// ステータス変更モーダル表示
+function showStatusModal() {
+    document.getElementById('statusModal').classList.remove('hidden');
+}
+
+// ステータス変更処理
+async function handleStatusChange(e) {
+    e.preventDefault();
+
+    const newStatus = document.getElementById('newStatus').value;
+    if (!newStatus) return;
+
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch(`/api/v1/animals/${animalId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: newStatus
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('ステータスの変更に失敗しました');
+        }
+
+        // 成功したらリロード
+        window.location.reload();
+    } catch (error) {
+        console.error('Error changing status:', error);
+        alert(error.message);
+    }
+}
+
+// エラー表示
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.textContent = message;
+    errorDiv.classList.remove('hidden');
+}
+</script>
 {% endblock %}
