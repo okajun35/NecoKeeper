@@ -120,11 +120,13 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 
 #### Acceptance Criteria
 
-1. WHEN 管理者が診療行為マスター画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 診療名称、適用開始日、適用終了日、原価、請求価格、投薬・処置料金、通貨単位（JPY/USD）の入力フォームを表示する
-2. WHEN 管理者がマスターデータを入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 当該マスターデータをデータベースに保存する
-3. THE NecoKeeper SHALL 適用終了日を未設定（NULL）にすることで、現在も有効な価格として扱う
-4. THE NecoKeeper SHALL 料金計算を「請求価格×投薬量＋投薬・処置料金」で実施する
-5. THE NecoKeeper SHALL 原価、請求価格、投薬・処置料金を小数点2桁までのDECIMAL型で管理する
+1. WHEN 管理者が診療行為マスター画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 診療名称、適用開始日、適用終了日、原価、請求価格、投薬・処置料金、通貨単位（JPY/USD）、投薬単位の入力フォームを表示する
+2. THE NecoKeeper SHALL 投薬単位として「錠」「本」「回」「mL」の選択肢を提供する
+3. WHEN 管理者がマスターデータを入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 当該マスターデータをデータベースに保存する
+4. THE NecoKeeper SHALL 適用終了日を未設定（NULL）にすることで、現在も有効な価格として扱う
+5. THE NecoKeeper SHALL 料金計算を「請求価格×投薬量＋投薬・処置料金」で実施する
+6. THE NecoKeeper SHALL 原価、請求価格、投薬・処置料金を小数点2桁までのDECIMAL型で管理する
+7. WHEN 診療記録登録画面で診療行為を選択したとき、THE NecoKeeper SHALL 対応する投薬単位を投薬回数ラベルに表示する
 
 ### Requirement 7: 診療明細出力
 

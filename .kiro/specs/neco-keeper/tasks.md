@@ -529,6 +529,13 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
 
+- [ ] 9.5 診療行為マスターに投薬単位選択機能を追加
+  - データベースマイグレーション: `dosage_unit` カラムを VARCHAR(10) で追加（既存）
+  - Pydanticスキーマ更新: `dosage_unit` フィールドを追加（選択肢: 錠、本、回、mL）
+  - 管理画面UI更新: 診療行為マスター登録・編集モーダルに投薬単位選択ドロップダウンを追加
+  - 診療記録登録画面更新: 診療行為選択時に対応する投薬単位を表示
+  - _Requirements: Requirement 6.2, Requirement 6.7_
+
 ## Phase 6: PDF生成機能 ✅ 完了
 
 **Context7 MCP使用ガイドライン**:
