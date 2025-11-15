@@ -374,7 +374,7 @@
                 const response = await fetch(`${API_BASE}/care-logs/latest/${animalId}`);
                 if (!response.ok) {
                     if (response.status === 404) {
-                        showError('前回の記録がありません');
+                        showSuccess('前回の記録がありません（初回記録です）');
                         return;
                     }
                     throw new Error('前回値の取得に失敗しました');
