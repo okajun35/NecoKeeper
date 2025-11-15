@@ -252,6 +252,28 @@ async def medical_record_detail_page(request: Request, record_id: int):  # type:
     )
 
 
+@router.get("/medical-actions", response_class=HTMLResponse)
+async def medical_actions_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療行為マスター一覧ページを表示
+
+    診療行為（薬剤、ワクチン、検査等）のマスターデータ一覧を表示。
+    期間別価格管理、通貨単位設定機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療行為マスター一覧ページのHTML
+
+    Example:
+        GET /admin/medical-actions
+    """
+    return templates.TemplateResponse(
+        "admin/medical_actions/list.html", {"request": request}
+    )
+
+
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):  # type: ignore[no-untyped-def]
     """
