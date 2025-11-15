@@ -41,9 +41,23 @@ async function loadAnimals() {
       option.disabled = true;
       select.appendChild(option);
     }
+
+    // 猫選択時のイベントリスナー
+    select.addEventListener('change', handleAnimalChange);
   } catch (error) {
     console.error('Error loading animals:', error);
     showError('猫一覧の読み込みに失敗しました');
+  }
+}
+
+// 猫選択時の処理
+function handleAnimalChange(e) {
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  const animalStatus = selectedOption.textContent.match(/\((.+)\)/)?.[1];
+
+  if (animalStatus === '譲渡済み') {
+    showError('譲渡済みの猫は診療記録を登録できません');
+    e.target.value = '';
   }
 }
 
@@ -66,6 +80,8 @@ async function loadVets() {
 }
 
 // 診療行為一覧を読み込み
+let medicalActionsData = [];
+
 async function loadMedicalActions() {
   try {
     const response = await fetch(
@@ -80,6 +96,7 @@ async function loadMedicalActions() {
     if (!response.ok) throw new Error('診療行為一覧の取得に失敗しました');
 
     const data = await response.json();
+    medicalActionsData = data;
     const select = document.getElementById('medicalActionId');
 
     data.forEach(action => {
@@ -96,9 +113,28 @@ async function loadMedicalActions() {
       option.disabled = true;
       select.appendChild(option);
     }
+
+    // 診療行為選択時のイベントリスナー
+    select.addEventListener('change', handleMedicalActionChange);
   } catch (error) {
     console.error('Error loading medical actions:', error);
     showError('診療行為一覧の読み込みに失敗しました');
+  }
+}
+
+// 診療行為選択時の処理
+function handleMedicalActionChange(e) {
+  const actionId = parseInt(e.target.value);
+  const dosageLabel = document.querySelector('label[for="dosage"]');
+
+  if (actionId && dosageLabel) {
+    const action = medicalActionsData.find(a => a.id === actionId);
+    if (action) {
+      // 投薬単位を表示（通貨単位を使用）
+      dosageLabel.innerHTML = `投薬回数 <span class="text-sm text-gray-500">(${action.currency})</span>`;
+    }
+  } else if (dosageLabel) {
+    dosageLabel.textContent = '投薬回数';
   }
 }
 
@@ -119,7 +155,9 @@ async function handleSubmit(e) {
     vet_id: parseInt(document.getElementById('vetId').value),
     date: document.getElementById('date').value,
     time_slot: document.getElementById('timeSlot').value || null,
-    weight: parseFloat(document.getElementById('weight').value),
+    weight: document.getElementById('weight').value
+      ? parseFloat(document.getElementById('weight').value)
+      : 0.0, // 体重を任意項目に（デフォルト0.0）
     temperature: document.getElementById('temperature').value
       ? parseFloat(document.getElementById('temperature').value)
       : null,

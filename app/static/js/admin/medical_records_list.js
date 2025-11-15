@@ -32,7 +32,7 @@ function setupEventListeners() {
     .addEventListener('click', () => changePage(currentPage + 1));
 }
 
-// 猫一覧を読み込み
+// 猫一覧を読み込み（全ステータス含む）
 async function loadAnimals() {
   try {
     const response = await fetch('/api/v1/animals?page=1&page_size=100', {
@@ -46,10 +46,11 @@ async function loadAnimals() {
     const data = await response.json();
     const select = document.getElementById('filterAnimal');
 
+    // 全ステータスの猫を表示（譲渡済み含む）
     data.items.forEach(animal => {
       const option = document.createElement('option');
       option.value = animal.id;
-      option.textContent = animal.name;
+      option.textContent = `${animal.name} (${animal.status})`;
       select.appendChild(option);
     });
   } catch (error) {
