@@ -17,7 +17,14 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.animal import Animal
 from app.models.care_log import CareLog
-from app.schemas.care_log import CareLogCreate, CareLogResponse
+from app.schemas.care_log import (
+    AllAnimalsStatusResponse,
+    AnimalCareLogListResponse,
+    AnimalStatusSummary,
+    CareLogCreate,
+    CareLogResponse,
+    CareLogSummary,
+)
 from app.schemas.volunteer import VolunteerResponse
 from app.services import care_log_service, volunteer_service
 
@@ -179,3 +186,223 @@ async def get_latest_care_log(
         return None
 
     return CareLogResponse.model_validate(latest_log)
+
+
+@router.get("/care-logs/animal/{animal_id}", response_model=AnimalCareLogListResponse)
+async def get_animal_care_logs(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> AnimalCareLogListResponse:
+    """
+    個別猫の記録一覧を取得（認証不要）
+
+    指定された猫の直近7日間の世話記録一覧と、当日の記録状況を返します。
+    ボランティアが記録状況を確認するために使用します。
+
+    Args:
+        animal_id: 猫のID
+        db: データベースセッション
+
+    Returns:
+        AnimalCareLogListResponse: 猫の記録一覧と当日の記録状況
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+
+    Example:
+        GET /api/v1/public/care-logs/animal/123
+        Response: {
+            "animal_id": 123,
+            "animal_name": "たま",
+            "animal_photo": "tama.jpg",
+            "today_status": {
+                "morning": true,
+                "noon": false,
+                "evening": true
+            },
+            "recent_logs": [
+                {
+                    "id": 1,
+                    "log_date": "2025-11-15",
+                    "time_slot": "morning",
+                    "recorder_name": "田中太郎",
+                    "has_record": true
+                },
+                ...
+            ]
+        }
+    """
+    from datetime import date, timedelta
+
+    # 猫の存在確認
+    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+    if not animal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"猫ID {animal_id} が見つかりません",
+        )
+
+    # 直近7日間の記録を取得
+    today = date.today()
+    seven_days_ago = today - timedelta(days=7)
+
+    recent_logs = (
+        db.query(CareLog)
+        .filter(
+            CareLog.animal_id == animal_id,
+            CareLog.log_date >= seven_days_ago,
+            CareLog.log_date <= today,
+        )
+        .order_by(CareLog.log_date.desc(), CareLog.time_slot.desc())
+        .all()
+    )
+
+    # 当日の記録状況を集計
+    today_logs = [log for log in recent_logs if log.log_date == today]
+    today_status = {
+        "morning": any(log.time_slot == "morning" for log in today_logs),
+        "noon": any(log.time_slot == "noon" for log in today_logs),
+        "evening": any(log.time_slot == "evening" for log in today_logs),
+    }
+
+    # レスポンスを構築
+    return AnimalCareLogListResponse(
+        animal_id=animal.id,
+        animal_name=animal.name or "名前なし",
+        animal_photo=animal.photo,
+        today_status=today_status,
+        recent_logs=[CareLogSummary.model_validate(log) for log in recent_logs],
+    )
+
+
+@router.get("/care-logs/animal/{animal_id}/{log_id}", response_model=CareLogResponse)
+async def get_care_log_detail(
+    animal_id: int,
+    log_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> CareLogResponse:
+    """
+    特定の世話記録の詳細を取得（認証不要）
+
+    指定された猫の特定の世話記録の詳細情報を返します。
+    記録一覧から詳細を確認するために使用します。
+
+    Args:
+        animal_id: 猫のID
+        log_id: 世話記録のID
+        db: データベースセッション
+
+    Returns:
+        CareLogResponse: 世話記録の詳細
+
+    Raises:
+        HTTPException: 猫または記録が見つからない場合（404）
+
+    Example:
+        GET /api/v1/public/care-logs/animal/123/456
+        Response: {
+            "id": 456,
+            "animal_id": 123,
+            "recorder_name": "田中太郎",
+            "log_date": "2025-11-15",
+            "time_slot": "morning",
+            "appetite": 5,
+            "energy": 5,
+            "urination": true,
+            "cleaning": true,
+            "memo": "元気です",
+            ...
+        }
+    """
+    # 猫の存在確認
+    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+    if not animal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"猫ID {animal_id} が見つかりません",
+        )
+
+    # 記録の取得
+    care_log = (
+        db.query(CareLog)
+        .filter(CareLog.id == log_id, CareLog.animal_id == animal_id)
+        .first()
+    )
+
+    if not care_log:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"記録ID {log_id} が見つかりません",
+        )
+
+    return CareLogResponse.model_validate(care_log)
+
+
+@router.get("/care-logs/status/today", response_model=AllAnimalsStatusResponse)
+async def get_all_animals_status_today(
+    db: Annotated[Session, Depends(get_db)],
+) -> AllAnimalsStatusResponse:
+    """
+    全猫の当日記録状況一覧を取得（認証不要）
+
+    全猫の当日の朝・昼・夕の記録状況を返します。
+    ボランティアが記録漏れを確認するために使用します。
+
+    Args:
+        db: データベースセッション
+
+    Returns:
+        AllAnimalsStatusResponse: 全猫の当日記録状況
+
+    Example:
+        GET /api/v1/public/care-logs/status/today
+        Response: {
+            "target_date": "2025-11-15",
+            "animals": [
+                {
+                    "animal_id": 123,
+                    "animal_name": "たま",
+                    "animal_photo": "tama.jpg",
+                    "morning_recorded": true,
+                    "noon_recorded": false,
+                    "evening_recorded": true
+                },
+                ...
+            ]
+        }
+    """
+    from datetime import date
+
+    today = date.today()
+
+    # 保護中・治療中・譲渡可能な猫のみを取得
+    animals = (
+        db.query(Animal)
+        .filter(Animal.status.in_(["保護中", "治療中", "譲渡可能"]))
+        .order_by(Animal.name)
+        .all()
+    )
+
+    # 当日の全記録を取得
+    today_logs = db.query(CareLog).filter(CareLog.log_date == today).all()
+
+    # 猫ごとの記録状況を集計
+    animal_statuses: list[AnimalStatusSummary] = []
+    for animal in animals:
+        animal_logs = [log for log in today_logs if log.animal_id == animal.id]
+
+        animal_statuses.append(
+            AnimalStatusSummary(
+                animal_id=animal.id,
+                animal_name=animal.name or "名前なし",
+                animal_photo=animal.photo,
+                morning_recorded=any(log.time_slot == "morning" for log in animal_logs),
+                noon_recorded=any(log.time_slot == "noon" for log in animal_logs),
+                evening_recorded=any(log.time_slot == "evening" for log in animal_logs),
+            )
+        )
+
+    return AllAnimalsStatusResponse(
+        target_date=today,
+        animals=animal_statuses,
+    )

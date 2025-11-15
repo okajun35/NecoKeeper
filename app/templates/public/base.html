@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="保護猫の世話記録を簡単に入力できるアプリ">
+    <meta name="theme-color" content="#4f46e5">
+    <title>{% block title %}NecoKeeper{% endblock %}</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="NecoKeeper">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/offline.js"></script>
+
+    {% block extra_head %}{% endblock %}
+
+    <style>
+        /* カスタムスタイル */
+        .rating-button {
+            transition: all 0.2s;
+        }
+        .rating-button.selected {
+            transform: scale(1.1);
+        }
+        {% block extra_styles %}{% endblock %}
+    </style>
+
+    <script>
+        // Service Worker登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js')
+                    .then(registration => {
+                        console.log('[SW] Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('[SW] Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // API Base URL
+        const API_BASE = '/api/v1/public';
+
+        // 今日の日付を取得する関数（ローカルタイムゾーン対応）
+        function getTodayString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // エラー表示
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (!errorDiv) return;
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        // 成功表示
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            if (!successDiv) return;
+            successDiv.querySelector('p').textContent = '✓ ' + message;
+            successDiv.classList.remove('hidden');
+        }
+
+        function hideSuccess() {
+            const successDiv = document.getElementById('successMessage');
+            if (successDiv) {
+                successDiv.classList.add('hidden');
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    {% block content %}{% endblock %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -21,7 +21,7 @@ class TestPublicFormRendering:
         """正常系: 世話記録フォームページが読み込める"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -36,7 +36,7 @@ class TestPublicFormRendering:
         """正常系: フォームに必要な要素が含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -56,10 +56,8 @@ class TestPublicFormRendering:
         assert 'id="copyLastBtn"' in html
         assert 'id="submitBtn"' in html
 
-        # JavaScript
-        assert "loadAnimalInfo" in html
-        assert "loadVolunteers" in html
-        assert "setupButtonGroup" in html
+        # JavaScript（分離されたファイル）
+        assert "/static/js/care_form.js" in html
 
     def test_care_form_includes_pwa_manifest(
         self, test_client: TestClient, test_animal: Animal
@@ -67,7 +65,7 @@ class TestPublicFormRendering:
         """正常系: PWA manifestが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -82,7 +80,7 @@ class TestPublicFormRendering:
         """正常系: Service Worker登録コードが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -97,14 +95,14 @@ class TestPublicFormRendering:
         """正常系: オフラインマネージャーが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
         # Then
         html = response.text
         assert "/static/js/offline.js" in html
-        assert "offlineManager" in html
+        # offlineManagerはoffline.jsに定義されているため、HTMLには直接含まれない
 
 
 class TestPublicFormDataFlow:
@@ -126,7 +124,7 @@ class TestPublicFormDataFlow:
 
         # Step 1: フォームページを読み込む
         form_response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
         assert form_response.status_code == 200
@@ -328,7 +326,7 @@ class TestResponsiveDesign:
         """正常系: モバイル用viewportメタタグが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -342,7 +340,7 @@ class TestResponsiveDesign:
         """正常系: Tailwind CSSが使用されている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -356,7 +354,7 @@ class TestResponsiveDesign:
         """正常系: モバイル最適化されたボタンが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -375,7 +373,7 @@ class TestAccessibility:
         """正常系: フォーム要素にラベルが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -393,7 +391,7 @@ class TestAccessibility:
         """正常系: 必須項目インジケーターが含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 
@@ -408,7 +406,7 @@ class TestAccessibility:
         """正常系: 画像にalt属性が含まれている"""
         # When
         response = test_client.get(
-            f"/public/care-form?animal_id={test_animal.id}",
+            f"/public/care?animal_id={test_animal.id}",
             follow_redirects=True,
         )
 

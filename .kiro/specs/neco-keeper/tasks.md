@@ -782,6 +782,47 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - オフライン機能のテスト
   - _Requirements: Requirement 3, Requirement 18_
 
+### 14.8 記録一覧機能の実装
+
+ボランティアが記録状況を確認できる機能を実装します。
+
+- [ ] 14.8.1 個別猫の記録一覧APIエンドポイントを実装（app/api/v1/public.py）
+  - GET /api/v1/public/care-logs/animal/{animal_id}（直近7日間の記録一覧）
+  - GET /api/v1/public/care-logs/animal/{animal_id}/{log_id}（特定記録の詳細）
+  - 日付・時点・記録者名・記録状況（〇/×）を返却
+  - _Requirements: Requirement 3.11-3.13_
+
+- [ ] 14.8.2 全猫の記録状況一覧APIエンドポイントを実装（app/api/v1/public.py）
+  - GET /api/v1/public/care-logs/status/today（全猫の当日記録状況）
+  - 各猫の名前、顔写真、当日の朝・昼・夕の記録状況（〇/×）を返却
+  - _Requirements: Requirement 3.14-3.16_
+
+- [ ] 14.8.3 個別猫の記録一覧ページを実装（app/templates/public/care_log_list.html）
+  - Tailwind CSSでモバイル最適化
+  - 今日の記録状況（朝・昼・夕）を視覚的に表示
+  - 直近7日間の記録一覧（日付、時点、記録者名、記録状況）
+  - 記録詳細表示機能（食欲、元気、排尿、清掃、メモ）
+  - 記録入力フォームへの遷移リンク
+  - _Requirements: Requirement 3.11-3.13_
+
+- [ ] 14.8.4 全猫の記録状況一覧ページを実装（app/templates/public/all_animals_status.html）
+  - Tailwind CSSでモバイル最適化
+  - 全猫の一覧表示（顔写真サムネイル、名前）
+  - 各猫の当日記録状況（朝〇/×、昼〇/×、夕〇/×）
+  - 各猫の記録入力フォームへの遷移リンク
+  - _Requirements: Requirement 3.14-3.17_
+
+- [ ] 14.8.5 記録入力フォームに記録一覧へのリンクを追加
+  - 「記録一覧を見る」ボタンを追加
+  - 個別猫の記録一覧ページへ遷移
+  - _Requirements: Requirement 3.10_
+
+- [ ] 14.8.6 記録一覧機能のテストを作成
+  - 個別猫の記録一覧APIのテスト
+  - 全猫の記録状況一覧APIのテスト
+  - 記録状況判定ロジックのテスト
+  - _Requirements: Requirement 3_
+
 ## Phase 10: 多言語対応
 
 **Context7 MCP使用ガイドライン**:

@@ -209,3 +209,9 @@ __marimo__/
 
 # Media files (uploaded images, etc.)
 media/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

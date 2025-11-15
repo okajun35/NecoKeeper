@@ -80,6 +80,15 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 7. THE NecoKeeper SHALL Public記録フォームで前回入力値をコピーする機能を提供する
 8. THE NecoKeeper SHALL Public記録フォームをPWA対応とし、オフライン入力後のオンライン同期を可能にする
 9. THE NecoKeeper SHALL QR URLに乱数UUIDを用いて推測困難化する
+10. WHEN ボランティアがPublic記録フォームにアクセスしたとき、THE NecoKeeper SHALL 当該猫の直近7日間の世話記録一覧へのリンクを表示する
+11. WHEN ボランティアが記録一覧ページにアクセスしたとき、THE NecoKeeper SHALL 当該猫の直近7日間の世話記録を日付・時点（朝/昼/夕）・記録者名・記録状況（〇/×）で表示する
+12. THE NecoKeeper SHALL 当日の朝・昼・夕の記録状況を視覚的に表示する（〇=記録済み、×=未記録）
+13. WHEN ボランティアが記録一覧から特定の記録を選択したとき、THE NecoKeeper SHALL 当該記録の詳細（食欲、元気、排尿、清掃、メモ）を表示する
+14. THE NecoKeeper SHALL 認証不要で全猫の記録状況一覧ページを提供する
+15. WHEN ボランティアが全猫記録状況一覧ページにアクセスしたとき、THE NecoKeeper SHALL 全猫の当日の朝・昼・夕の記録状況を一覧表示する
+16. THE NecoKeeper SHALL 全猫記録状況一覧で各猫の名前、顔写真サムネイル、当日の記録状況（朝〇/×、昼〇/×、夕〇/×）を表示する
+17. WHEN ボランティアが全猫記録状況一覧で猫を選択したとき、THE NecoKeeper SHALL 当該猫のPublic記録フォームに遷移する
+17. WHEN ボランティアが全猫記録状況一覧で猫を選択したとき、THE NecoKeeper SHALL 当該猫のPublic記録フォームに遷移する
 
 ### Requirement 4: 記録者管理
 

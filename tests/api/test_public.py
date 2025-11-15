@@ -376,3 +376,370 @@ class TestGetLatestCareLog:
         data = response.json()
         assert data["id"] == log1.id
         assert data["memo"] == "猫1の記録"
+
+
+class TestGetAnimalCareLogsList:
+    """個別猫の記録一覧取得エンドポイントのテスト"""
+
+    def test_get_animal_care_logs_success(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """正常系: 個別猫の記録一覧を取得できる"""
+        from datetime import date, timedelta
+
+        # Given
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        today = date.today()
+
+        # 当日の記録（朝・夕）
+        morning_log = CareLog(
+            animal_id=test_animal.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today,
+            time_slot="morning",
+            appetite=5,
+            energy=5,
+            urination=True,
+            cleaning=True,
+        )
+        evening_log = CareLog(
+            animal_id=test_animal.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today,
+            time_slot="evening",
+            appetite=4,
+            energy=4,
+            urination=True,
+            cleaning=False,
+        )
+
+        # 過去の記録
+        past_log = CareLog(
+            animal_id=test_animal.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today - timedelta(days=3),
+            time_slot="noon",
+            appetite=3,
+            energy=3,
+            urination=False,
+            cleaning=True,
+        )
+
+        test_db.add(morning_log)
+        test_db.add(evening_log)
+        test_db.add(past_log)
+        test_db.commit()
+
+        # When
+        response = test_client.get(f"/api/v1/public/care-logs/animal/{test_animal.id}")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["animal_id"] == test_animal.id
+        assert data["animal_name"] == test_animal.name
+        assert data["animal_photo"] == test_animal.photo
+
+        # 当日の記録状況
+        assert data["today_status"]["morning"] is True
+        assert data["today_status"]["noon"] is False
+        assert data["today_status"]["evening"] is True
+
+        # 直近7日間の記録
+        assert len(data["recent_logs"]) == 3
+
+    def test_get_animal_care_logs_no_records(
+        self, test_client: TestClient, test_animal: Animal
+    ):
+        """正常系: 記録がない場合は空リスト"""
+        # When
+        response = test_client.get(f"/api/v1/public/care-logs/animal/{test_animal.id}")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["animal_id"] == test_animal.id
+        assert data["today_status"]["morning"] is False
+        assert data["today_status"]["noon"] is False
+        assert data["today_status"]["evening"] is False
+        assert len(data["recent_logs"]) == 0
+
+    def test_get_animal_care_logs_not_found(self, test_client: TestClient):
+        """異常系: 存在しない猫IDで404エラー"""
+        # When
+        response = test_client.get("/api/v1/public/care-logs/animal/99999")
+
+        # Then
+        assert response.status_code == 404
+        assert "見つかりません" in response.json()["detail"]
+
+
+class TestGetCareLogDetail:
+    """特定記録の詳細取得エンドポイントのテスト"""
+
+    def test_get_care_log_detail_success(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """正常系: 特定記録の詳細を取得できる"""
+        # Given
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        care_log = CareLog(
+            animal_id=test_animal.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            time_slot="morning",
+            appetite=5,
+            energy=5,
+            urination=True,
+            cleaning=True,
+            memo="詳細テスト",
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        # When
+        response = test_client.get(
+            f"/api/v1/public/care-logs/animal/{test_animal.id}/{care_log.id}"
+        )
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == care_log.id
+        assert data["animal_id"] == test_animal.id
+        assert data["time_slot"] == "morning"
+        assert data["appetite"] == 5
+        assert data["energy"] == 5
+        assert data["urination"] is True
+        assert data["cleaning"] is True
+        assert data["memo"] == "詳細テスト"
+
+    def test_get_care_log_detail_not_found_animal(self, test_client: TestClient):
+        """異常系: 存在しない猫IDで404エラー"""
+        # When
+        response = test_client.get("/api/v1/public/care-logs/animal/99999/1")
+
+        # Then
+        assert response.status_code == 404
+        assert "見つかりません" in response.json()["detail"]
+
+    def test_get_care_log_detail_not_found_log(
+        self, test_client: TestClient, test_animal: Animal
+    ):
+        """異常系: 存在しない記録IDで404エラー"""
+        # When
+        response = test_client.get(
+            f"/api/v1/public/care-logs/animal/{test_animal.id}/99999"
+        )
+
+        # Then
+        assert response.status_code == 404
+        assert "見つかりません" in response.json()["detail"]
+
+
+class TestGetAllAnimalsStatusToday:
+    """全猫の当日記録状況一覧取得エンドポイントのテスト"""
+
+    def test_get_all_animals_status_today_success(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 全猫の当日記録状況を取得できる"""
+        from datetime import date
+
+        # Given
+        # test_animalのステータスを譲渡済みに変更（表示されないようにする）
+        test_animal.status = "譲渡済み"
+        test_db.commit()
+
+        animal1 = Animal(
+            name="猫1",
+            photo="cat1.jpg",
+            pattern="キジトラ",
+            tail_length="長い",
+            age="成猫",
+            gender="female",
+            status="保護中",
+        )
+        animal2 = Animal(
+            name="猫2",
+            photo="cat2.jpg",
+            pattern="三毛",
+            tail_length="短い",
+            age="成猫",
+            gender="male",
+            status="治療中",
+        )
+        animal3 = Animal(
+            name="猫3",
+            photo="cat3.jpg",
+            pattern="白",
+            tail_length="長い",
+            age="成猫",
+            gender="female",
+            status="譲渡済み",  # 譲渡済みは表示されない
+        )
+        test_db.add(animal1)
+        test_db.add(animal2)
+        test_db.add(animal3)
+        test_db.commit()
+        test_db.refresh(animal1)
+        test_db.refresh(animal2)
+
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        today = date.today()
+
+        # 猫1の記録（朝・夕）
+        log1_morning = CareLog(
+            animal_id=animal1.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today,
+            time_slot="morning",
+            appetite=5,
+            energy=5,
+            urination=True,
+            cleaning=True,
+        )
+        log1_evening = CareLog(
+            animal_id=animal1.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today,
+            time_slot="evening",
+            appetite=4,
+            energy=4,
+            urination=True,
+            cleaning=False,
+        )
+
+        # 猫2の記録（昼のみ）
+        log2_noon = CareLog(
+            animal_id=animal2.id,
+            recorder_id=volunteer.id,
+            recorder_name="テストボランティア",
+            log_date=today,
+            time_slot="noon",
+            appetite=3,
+            energy=3,
+            urination=False,
+            cleaning=True,
+        )
+
+        test_db.add(log1_morning)
+        test_db.add(log1_evening)
+        test_db.add(log2_noon)
+        test_db.commit()
+
+        # When
+        response = test_client.get("/api/v1/public/care-logs/status/today")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_date"] == today.isoformat()
+        assert len(data["animals"]) == 2  # 譲渡済みは除外
+
+        # 猫1の記録状況
+        animal1_status = next(
+            a for a in data["animals"] if a["animal_id"] == animal1.id
+        )
+        assert animal1_status["animal_name"] == "猫1"
+        assert animal1_status["morning_recorded"] is True
+        assert animal1_status["noon_recorded"] is False
+        assert animal1_status["evening_recorded"] is True
+
+        # 猫2の記録状況
+        animal2_status = next(
+            a for a in data["animals"] if a["animal_id"] == animal2.id
+        )
+        assert animal2_status["animal_name"] == "猫2"
+        assert animal2_status["morning_recorded"] is False
+        assert animal2_status["noon_recorded"] is True
+        assert animal2_status["evening_recorded"] is False
+
+    def test_get_all_animals_status_today_no_records(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 記録がない場合は全てFalse"""
+        from datetime import date
+
+        # Given
+        # test_animalのステータスを譲渡済みに変更（表示されないようにする）
+        test_animal.status = "譲渡済み"
+        test_db.commit()
+
+        animal = Animal(
+            name="猫",
+            photo="cat.jpg",
+            pattern="キジトラ",
+            tail_length="長い",
+            age="成猫",
+            gender="female",
+            status="保護中",
+        )
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        # When
+        response = test_client.get("/api/v1/public/care-logs/status/today")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_date"] == date.today().isoformat()
+        assert len(data["animals"]) == 1
+
+        animal_status = data["animals"][0]
+        assert animal_status["animal_id"] == animal.id
+        assert animal_status["morning_recorded"] is False
+        assert animal_status["noon_recorded"] is False
+        assert animal_status["evening_recorded"] is False
+
+    def test_get_all_animals_status_today_empty(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 猫がいない場合は空リスト"""
+        from datetime import date
+
+        # Given
+        # test_animalのステータスを譲渡済みに変更（表示されないようにする）
+        test_animal.status = "譲渡済み"
+        test_db.commit()
+
+        # When
+        response = test_client.get("/api/v1/public/care-logs/status/today")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_date"] == date.today().isoformat()
+        assert len(data["animals"]) == 0

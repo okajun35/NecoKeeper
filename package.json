@@ -1,0 +1,29 @@
+{
+  "name": "necokeeper",
+  "version": "1.0.0",
+  "description": "保護猫管理システム - 保護猫団体向けの包括的な管理システム",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "format": "prettier --write \"app/static/js/**/*.js\"",
+    "format:check": "prettier --check \"app/static/js/**/*.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okajun35/NecoKeeper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/okajun35/NecoKeeper/issues"
+  },
+  "homepage": "https://github.com/okajun35/NecoKeeper#readme",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
