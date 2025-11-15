@@ -58,6 +58,7 @@ unfixable = []
 
 # ファイルごとの無視設定
 [tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E402"]  # スクリプトではsys.path操作後のインポートを許可
 "__init__.py" = ["F401", "E402"]  # 未使用インポート、インポート順序
 "tests/**/*.py" = ["S101"]  # assertの使用を許可
 
