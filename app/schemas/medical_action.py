@@ -29,6 +29,9 @@ class MedicalActionBase(BaseModel):
         default=Decimal("0.00"), ge=0, description="投薬・処置料金", decimal_places=2
     )
     currency: str = Field(default="JPY", max_length=3, description="通貨単位")
+    unit: str | None = Field(
+        None, max_length=20, description="投薬単位（錠、本、回、mL）"
+    )
 
     @field_validator("currency")
     @classmethod
@@ -65,6 +68,9 @@ class MedicalActionUpdate(BaseModel):
     selling_price: Decimal | None = Field(None, ge=0, description="請求価格")
     procedure_fee: Decimal | None = Field(None, ge=0, description="投薬・処置料金")
     currency: str | None = Field(None, max_length=3, description="通貨単位")
+    unit: str | None = Field(
+        None, max_length=20, description="投薬単位（錠、本、回、mL）"
+    )
 
     @field_validator("currency")
     @classmethod

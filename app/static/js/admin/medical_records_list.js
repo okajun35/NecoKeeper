@@ -32,7 +32,7 @@ function setupEventListeners() {
     .addEventListener('click', () => changePage(currentPage + 1));
 }
 
-// 猫一覧を読み込み
+// 猫一覧を読み込み（全ステータス含む）
 async function loadAnimals() {
   try {
     const response = await fetch('/api/v1/animals?page=1&page_size=100', {
@@ -46,10 +46,11 @@ async function loadAnimals() {
     const data = await response.json();
     const select = document.getElementById('filterAnimal');
 
+    // 全ステータスの猫を表示（譲渡済み含む）
     data.items.forEach(animal => {
       const option = document.createElement('option');
       option.value = animal.id;
-      option.textContent = animal.name;
+      option.textContent = `${animal.name} (${animal.status})`;
       select.appendChild(option);
     });
   } catch (error) {
@@ -60,25 +61,35 @@ async function loadAnimals() {
 // 獣医師一覧を読み込み
 async function loadVets() {
   try {
-    const response = await fetch('/api/v1/auth/users?role=vet', {
+    // 全ユーザーを取得（獣医師ロールが設定されていない可能性があるため）
+    const response = await fetch('/api/v1/users?page=1&page_size=100', {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
     });
 
-    if (!response.ok) throw new Error('獣医師一覧の取得に失敗しました');
+    if (!response.ok) throw new Error('ユーザー一覧の取得に失敗しました');
 
     const data = await response.json();
     const select = document.getElementById('filterVet');
 
-    data.forEach(vet => {
+    // ユーザーをドロップダウンに追加
+    data.items.forEach(user => {
       const option = document.createElement('option');
-      option.value = vet.id;
-      option.textContent = vet.name;
+      option.value = user.id;
+      option.textContent = `${user.name} (${user.role})`;
       select.appendChild(option);
     });
+
+    // フィルターを有効化
+    select.disabled = false;
+    select.title = '';
   } catch (error) {
     console.error('Error loading vets:', error);
+    // エラーが発生してもフィルターは有効化
+    const select = document.getElementById('filterVet');
+    select.disabled = false;
+    select.title = '';
   }
 }
 
@@ -128,7 +139,7 @@ function renderMedicalRecords(data) {
   if (data.items.length === 0) {
     const emptyMessage = '<div class="p-8 text-center text-gray-500">診療記録がありません</div>';
     mobileList.innerHTML = emptyMessage;
-    desktopTableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">診療記録がありません</td></tr>`;
+    desktopTableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">診療記録がありません</td></tr>`;
     return;
   }
 
@@ -145,18 +156,29 @@ function renderMedicalRecords(data) {
 function createMobileCard(record) {
   const card = document.createElement('div');
   card.className = 'p-4 hover:bg-gray-50';
+
+  // 診療行為と投薬情報
+  let medicalActionInfo = '';
+  if (record.medical_action_name) {
+    medicalActionInfo = `<div class="text-sm text-gray-600 mb-2">
+      <span class="text-gray-500">診療行為:</span> ${record.medical_action_name}
+      ${record.dosage ? ` (${record.dosage}${record.dosage_unit || ''})` : ''}
+    </div>`;
+  }
+
   card.innerHTML = `
         <div class="flex justify-between items-start mb-2">
             <div>
                 <p class="font-medium text-gray-900">${record.date}</p>
-                <p class="text-sm text-gray-600">猫: ${record.animal_id}</p>
+                <p class="text-sm text-gray-600">${record.animal_name || '猫ID: ' + record.animal_id}</p>
             </div>
-            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_id}</span>
+            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_name || '獣医ID: ' + record.vet_id}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm mb-3">
             <div><span class="text-gray-500">体重:</span> ${record.weight}kg</div>
             <div><span class="text-gray-500">体温:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
         </div>
+        ${medicalActionInfo}
         <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
         <div class="flex gap-2">
             <a href="/admin/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
@@ -171,13 +193,24 @@ function createMobileCard(record) {
 function createDesktopRow(record) {
   const row = document.createElement('tr');
   row.className = 'hover:bg-gray-50';
+
+  // 診療行為と投薬情報
+  let medicalActionText = '-';
+  if (record.medical_action_name) {
+    medicalActionText = record.medical_action_name;
+    if (record.dosage) {
+      medicalActionText += ` (${record.dosage}${record.dosage_unit || ''})`;
+    }
+  }
+
   row.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || '猫ID: ' + record.animal_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_name || '獣医ID: ' + record.vet_id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight}kg</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>
+        <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <a href="/admin/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">詳細</a>
         </td>

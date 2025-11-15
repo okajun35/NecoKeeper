@@ -142,13 +142,26 @@
                     </div>
                 </div>
 
-                <!-- 通貨 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">通貨単位 <span class="text-red-500">*</span></label>
-                    <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="JPY">JPY (日本円)</option>
-                        <option value="USD">USD (米ドル)</option>
-                    </select>
+                <!-- 通貨と投薬単位 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">通貨単位 <span class="text-red-500">*</span></label>
+                        <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="JPY">JPY (日本円)</option>
+                            <option value="USD">USD (米ドル)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">投薬単位</label>
+                        <select id="unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">選択してください</option>
+                            <option value="錠">錠</option>
+                            <option value="本">本</option>
+                            <option value="回">回</option>
+                            <option value="mL">mL</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">投薬量の単位（錠、本、回、mL）</p>
+                    </div>
                 </div>
 
                 <!-- 料金計算式の説明 -->
@@ -225,16 +238,21 @@ async function loadMedicalActions() {
             }
         });
 
-        if (!response.ok) throw new Error('データの取得に失敗しました');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'データの取得に失敗しました');
+        }
 
         const data = await response.json();
         totalPages = data.total_pages;
 
+        // データが0件でもエラーではない
         renderMobileList(data.items);
         renderDesktopList(data.items);
         updatePagination(data);
 
     } catch (err) {
+        console.error('Error loading medical actions:', err);
         error.textContent = err.message;
         error.classList.remove('hidden');
     } finally {
@@ -369,6 +387,7 @@ async function loadActionData(actionId) {
         document.getElementById('sellingPrice').value = data.selling_price;
         document.getElementById('procedureFee').value = data.procedure_fee;
         document.getElementById('currency').value = data.currency;
+        document.getElementById('unit').value = data.unit || '';
 
     } catch (err) {
         alert(err.message);
@@ -388,7 +407,8 @@ async function handleSubmit(e) {
         cost_price: parseFloat(document.getElementById('costPrice').value),
         selling_price: parseFloat(document.getElementById('sellingPrice').value),
         procedure_fee: parseFloat(document.getElementById('procedureFee').value),
-        currency: document.getElementById('currency').value
+        currency: document.getElementById('currency').value,
+        unit: document.getElementById('unit').value || null
     };
 
     try {

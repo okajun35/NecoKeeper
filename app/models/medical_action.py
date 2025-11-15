@@ -93,6 +93,12 @@ class MedicalAction(Base):
         comment="通貨単位（JPY/USD）",
     )
 
+    unit: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="投薬単位（ml、錠、回等）",
+    )
+
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
