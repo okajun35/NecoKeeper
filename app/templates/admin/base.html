@@ -38,7 +38,7 @@
             {% include "admin/components/header.html" %}
 
             <!-- コンテンツ -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
                 {% block content %}{% endblock %}
             </main>
         </div>
@@ -49,6 +49,7 @@
 
     <!-- 共通JavaScript -->
     <script src="/static/js/admin/common.js"></script>
+    <script src="/static/js/admin/mobile-menu.js"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

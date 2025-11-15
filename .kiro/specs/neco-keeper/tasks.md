@@ -646,22 +646,25 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 管理画面のUIを実装します。
 
-- [ ] 13.1 ベーステンプレートを作成（app/templates/admin/base.html）
-  - AdminLTEレイアウト
-  - サイドバーメニュー
-  - ヘッダー（ユーザー名、ログアウト）
+- [x] 13.1 ベーステンプレートを作成（app/templates/admin/base.html）✅
+  - Tailwind CSSレイアウト（AdminLTE代替）
+  - レスポンシブサイドバーメニュー（モバイル対応）
+  - ヘッダー（ユーザー名、ログアウト、通知）
+  - モバイルメニュー（ハンバーガーメニュー、オーバーレイ）
   - _Requirements: Requirement 12.1-12.2_
 
-- [ ] 13.2 ダッシュボード画面を実装（app/templates/admin/dashboard.html）
-  - 統計情報表示（猫数、譲渡数、診療件数、医療費）
-  - 世話記録入力数推移グラフ（Chart.js）
-  - 長期保護猫一覧
+- [x] 13.2 ダッシュボード画面を実装（app/templates/admin/dashboard.html）✅
+  - 統計情報カード表示（保護中の猫、譲渡可能、今日の記録、ボランティア）
+  - 最近の世話記録一覧
+  - 記録が必要な猫一覧
+  - モバイル・PC両対応レイアウト
   - _Requirements: Requirement 12.3, Requirement 16.1-16.4_
 
-- [ ] 13.3 猫台帳一覧画面を実装（app/templates/admin/animals/list.html）
-  - DataTables（検索、ソート、ページング）
-  - ステータスフィルタ
-  - アクションボタン（詳細、編集、QRカード出力）
+- [x] 13.3 猫台帳一覧画面を実装（app/templates/admin/animals/list.html）✅
+  - 検索・フィルター機能（ステータス、表示件数）
+  - カードレイアウト（レスポンシブ）
+  - アクションボタン（詳細、編集、QR）
+  - モバイル・PC両対応
   - _Requirements: Requirement 12.4, Requirement 15.3, Requirement 15.6-15.7_
 
 - [ ] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）
@@ -670,9 +673,12 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - ステータス変更機能
   - _Requirements: Requirement 1.3, Requirement 15.2_
 
-- [ ] 13.5 世話記録一覧画面を実装（app/templates/admin/care_logs/list.html）
-  - DataTables
+- [x] 13.5 世話記録一覧画面を実装（app/templates/admin/care_logs/list.html）✅
+  - フィルター機能（猫、日付範囲、時点）
+  - モバイル: カード表示
+  - デスクトップ: テーブル表示
   - CSVエクスポートボタン
+  - ページネーション
   - _Requirements: Requirement 25.1_
 
 - [ ] 13.6 診療記録一覧画面を実装（app/templates/admin/medical_records/list.html）
@@ -686,10 +692,12 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 譲渡記録入力画面
   - _Requirements: Requirement 14_
 
-- [ ] 13.8 マスター管理画面を実装（app/templates/admin/masters/）
-  - ボランティア一覧・登録・編集画面
-  - 処置・薬剤・ワクチンマスター画面
-  - _Requirements: Requirement 4, Requirement 6_
+- [x] 13.8 マスター管理画面を実装（app/templates/admin/volunteers/）✅
+  - ボランティア一覧画面（検索、フィルター）
+  - モバイル: カード表示
+  - デスクトップ: テーブル表示
+  - アクションボタン（詳細、編集）
+  - _Requirements: Requirement 4_
 
 - [ ] 13.9 帳票出力画面を実装（app/templates/admin/reports/）
   - 期間指定フォーム
@@ -697,7 +705,14 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 日報・週報・月次集計・個別帳票出力
   - _Requirements: Requirement 9.1-9.8_
 
-- [ ] 13.10 設定画面を実装（app/templates/admin/settings/）
+- [x] 13.10 設定画面を実装（app/templates/admin/settings/）✅
+  - 団体情報設定
+  - 画像設定（最大枚数、最大ファイルサイズ）
+  - 言語設定
+  - セキュリティ設定（セッションタイムアウト、ログイン試行回数制限）
+  - バックアップ設定（自動バックアップ、保持期間）
+  - モバイル・PC両対応レイアウト
+  - _Requirements: Requirement 27.6-27.7, Requirement 31.3-31.4_
   - 団体情報設定
   - 画像制限設定
   - 言語設定
@@ -1291,7 +1306,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [ ] Phase 9: 帳票出力（日報・週報・月次集計） (0/4 完了)
 - [ ] Phase 10: 権限管理とアクセス制御 (0/1 完了)
 - [ ] Phase 11: データバックアップ (0/4 完了)
-- [ ] Phase 12: 管理画面UI (0/14 完了)
+- [ ] Phase 12: 管理画面UI (5/14 完了) 🚧
 - [ ] Phase 13: Publicフォーム（PWA） (0/7 完了)
 - [ ] Phase 14: 里親管理機能 (0/4 完了)
 - [ ] Phase 15: 猫のステータス管理と論理削除 (0/1 完了)

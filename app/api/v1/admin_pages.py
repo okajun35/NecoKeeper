@@ -203,4 +203,4 @@ async def settings_page(request: Request):  # type: ignore[no-untyped-def]
     Example:
         GET /admin/settings
     """
-    return templates.TemplateResponse("admin/settings.html", {"request": request})
+    return templates.TemplateResponse("admin/settings/index.html", {"request": request})
