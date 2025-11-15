@@ -32,6 +32,7 @@ class TestCreateCareLog:
         care_log_data = CareLogCreate(
             animal_id=test_animal.id,
             recorder_name="テスト記録者",
+            log_date=date.today(),
             time_slot="morning",
             appetite=4,
             energy=5,
@@ -62,6 +63,7 @@ class TestCreateCareLog:
         care_log_data = CareLogCreate(
             animal_id=test_animal.id,
             recorder_name="記録者",
+            log_date=date.today(),
             time_slot="noon",
             appetite=3,
             energy=3,
@@ -87,6 +89,7 @@ class TestCreateCareLog:
             care_log_data = CareLogCreate(
                 animal_id=test_animal.id,
                 recorder_name="記録者",
+                log_date=date.today(),
                 time_slot=time_slot,
                 appetite=3,
                 energy=3,
@@ -108,6 +111,7 @@ class TestGetCareLog:
         """正常系: 世話記録を取得できる"""
         # Given
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
@@ -152,6 +156,7 @@ class TestUpdateCareLog:
         """正常系: 世話記録を更新できる"""
         # Given
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
@@ -187,6 +192,7 @@ class TestUpdateCareLog:
         """正常系: 一部のフィールドのみ更新できる"""
         # Given
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="noon",
@@ -236,6 +242,7 @@ class TestListCareLogs:
         # Given: 複数の世話記録を作成
         for i in range(5):
             care_log = CareLog(
+                log_date=date.today(),
                 animal_id=test_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
@@ -263,6 +270,7 @@ class TestListCareLogs:
         # Given: 複数の世話記録を作成
         for i in range(10):
             care_log = CareLog(
+                log_date=date.today(),
                 animal_id=test_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
@@ -293,6 +301,7 @@ class TestListCareLogs:
         # 対象の猫の記録
         for i in range(3):
             care_log = CareLog(
+                log_date=date.today(),
                 animal_id=target_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
@@ -305,6 +314,7 @@ class TestListCareLogs:
 
         # 他の猫の記録
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=other_animal.id,
             recorder_name="他の記録者",
             time_slot="morning",
@@ -334,6 +344,7 @@ class TestListCareLogs:
 
         # 昨日の記録
         old_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="昨日の記録者",
             time_slot="morning",
@@ -347,6 +358,7 @@ class TestListCareLogs:
 
         # 今日の記録
         today_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="今日の記録者",
             time_slot="morning",
@@ -375,6 +387,7 @@ class TestListCareLogs:
         # Given
         for time_slot in ["morning", "noon", "evening"]:
             care_log = CareLog(
+                log_date=date.today(),
                 animal_id=test_animal.id,
                 recorder_name=f"{time_slot}の記録者",
                 time_slot=time_slot,
@@ -411,6 +424,7 @@ class TestExportCareLogsCSV:
         """正常系: CSVを出力できる"""
         # Given
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
@@ -443,6 +457,7 @@ class TestExportCareLogsCSV:
 
         # 対象の猫の記録
         target_log = CareLog(
+            log_date=date.today(),
             animal_id=target_animal.id,
             recorder_name="対象記録者",
             time_slot="morning",
@@ -455,6 +470,7 @@ class TestExportCareLogsCSV:
 
         # 他の猫の記録
         other_log = CareLog(
+            log_date=date.today(),
             animal_id=other_animal.id,
             recorder_name="他の記録者",
             time_slot="morning",
@@ -483,6 +499,7 @@ class TestExportCareLogsCSV:
 
         # 昨日の記録
         old_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="昨日の記録者",
             time_slot="morning",
@@ -496,6 +513,7 @@ class TestExportCareLogsCSV:
 
         # 今日の記録
         today_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="今日の記録者",
             time_slot="morning",
@@ -533,6 +551,7 @@ class TestExportCareLogsCSV:
         """正常系: 排尿・清掃のフォーマットが正しい"""
         # Given
         care_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
@@ -560,6 +579,7 @@ class TestGetLatestCareLog:
         # Given
         # 古い記録
         old_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="古い記録者",
             time_slot="morning",
@@ -574,6 +594,7 @@ class TestGetLatestCareLog:
 
         # 新しい記録
         new_log = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="新しい記録者",
             time_slot="noon",
@@ -613,6 +634,7 @@ class TestGetLatestCareLog:
         same_time = datetime.now()
 
         log1 = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者1",
             time_slot="morning",
@@ -626,6 +648,7 @@ class TestGetLatestCareLog:
         test_db.flush()
 
         log2 = CareLog(
+            log_date=date.today(),
             animal_id=test_animal.id,
             recorder_name="記録者2",
             time_slot="noon",
