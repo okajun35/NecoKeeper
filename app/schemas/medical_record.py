@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
@@ -18,14 +17,14 @@ class MedicalRecordBase(BaseModel):
 
     animal_id: int
     date: date
-    time_slot: Optional[str] = None
+    time_slot: str | None = None
     weight: Decimal
-    temperature: Optional[Decimal] = None
+    temperature: Decimal | None = None
     symptoms: str
-    medical_action_id: Optional[int] = None
-    dosage: Optional[int] = None
-    other: Optional[str] = None
-    comment: Optional[str] = None
+    medical_action_id: int | None = None
+    dosage: int | None = None
+    other: str | None = None
+    comment: str | None = None
 
     @field_validator("weight")
     @classmethod
@@ -37,7 +36,7 @@ class MedicalRecordBase(BaseModel):
 
     @field_validator("temperature")
     @classmethod
-    def validate_temperature(cls, v: Optional[Decimal]) -> Optional[Decimal]:
+    def validate_temperature(cls, v: Decimal | None) -> Decimal | None:
         """体温は35.0〜42.0の範囲でなければならない"""
         if v is not None and (v < Decimal("35.0") or v > Decimal("42.0")):
             raise ValueError("体温は35.0〜42.0の範囲でなければなりません")
@@ -53,15 +52,15 @@ class MedicalRecordCreate(MedicalRecordBase):
 class MedicalRecordUpdate(BaseModel):
     """診療記録更新リクエストスキーマ（全フィールド任意）"""
 
-    date: Optional[date] = None
-    time_slot: Optional[str] = None
-    weight: Optional[Decimal] = None
-    temperature: Optional[Decimal] = None
-    symptoms: Optional[str] = None
-    medical_action_id: Optional[int] = None
-    dosage: Optional[int] = None
-    other: Optional[str] = None
-    comment: Optional[str] = None
+    date: date | None = None
+    time_slot: str | None = None
+    weight: Decimal | None = None
+    temperature: Decimal | None = None
+    symptoms: str | None = None
+    medical_action_id: int | None = None
+    dosage: int | None = None
+    other: str | None = None
+    comment: str | None = None
 
 
 class MedicalRecordResponse(MedicalRecordBase):
@@ -74,7 +73,7 @@ class MedicalRecordResponse(MedicalRecordBase):
     created_at: datetime
     updated_at: datetime
     last_updated_at: datetime
-    last_updated_by: Optional[int]
+    last_updated_by: int | None
 
 
 class MedicalRecordListResponse(BaseModel):
