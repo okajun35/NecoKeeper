@@ -473,56 +473,58 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 - エラーハンドリング: IntegrityError、SQLAlchemyError
 - Docstring: 完全なドキュメント
 
-### 8. 診療記録管理
+### 8. 診療記録管理 ✅ 完了
 
 獣医診療記録のCRUD機能を実装します。
 
-- [ ] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）
+- [x] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）
   - MedicalRecordCreate, MedicalRecordUpdate, MedicalRecordResponse
   - バリデーションルール（必須項目：診療年月日、体重、症状）
   - _Requirements: Requirement 5.3_
 
-- [ ] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）
+- [x] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）
   - create_medical_record（記録登録）
   - get_medical_record（記録詳細取得）
   - list_medical_records（一覧取得、時系列表示）
   - update_medical_record（記録更新）
   - _Requirements: Requirement 5.1, Requirement 5.5_
 
-- [ ] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）
+- [x] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）
   - GET /api/v1/medical-records（一覧取得）
   - POST /api/v1/medical-records（登録）
   - GET /api/v1/medical-records/{id}（詳細取得）
   - PUT /api/v1/medical-records/{id}（更新）
   - _Requirements: Requirement 5_
 
-- [ ] 8.4 診療記録機能の統合テストを作成
+- [x] 8.4 診療記録機能の統合テストを作成
   - CRUD操作のテスト
   - バリデーションのテスト
   - _Requirements: Requirement 5_
 
-### 9. 診療マスターデータ管理
+### 9. 診療マスターデータ管理 ✅ 完了
 
 処置・薬剤・ワクチンのマスターデータ管理機能を実装します。
 
-- [ ] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）
+- [x] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）
   - MedicalActionCreate, MedicalActionUpdate, MedicalActionResponse
   - 期間別価格と通貨単位のバリデーション
   - _Requirements: Requirement 6.1-6.3_
 
-- [ ] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）
+- [x] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）
   - create_medical_action（診療行為登録）
   - list_medical_actions（一覧取得）
   - update_medical_action（更新）
   - calculate_billing（料金計算：請求価格×投薬量＋処置料金）
   - _Requirements: Requirement 6.4_
 
-- [ ] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）
+- [x] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）
   - GET/POST /api/v1/medical-actions
   - GET/PUT /api/v1/medical-actions/{id}
+  - GET /api/v1/medical-actions/{id}/calculate（料金計算）
+  - GET /api/v1/medical-actions/active/list（有効な診療行為一覧）
   - _Requirements: Requirement 6_
 
-- [ ] 9.4 診療行為選択機能を実装
+- [x] 9.4 診療行為選択機能を実装
   - MedicalActionsマスターからの選択リスト提供
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
