@@ -27,6 +27,20 @@
             transform: scale(1.1);
         }
     </style>
+    <script>
+        // Service Worker登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js')
+                    .then(registration => {
+                        console.log('[SW] Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('[SW] Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="max-w-2xl mx-auto p-4 pb-24">
@@ -312,7 +326,7 @@
 
                 const animal = await response.json();
                 document.getElementById('animalName').textContent = animal.name || '名前未設定';
-                document.getElementById('animalPhoto').src = animal.photo || '/static/images/no-image.png';
+                document.getElementById('animalPhoto').src = animal.photo || '/static/images/default.svg';
             } catch (error) {
                 showError(error.message);
             }

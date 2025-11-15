@@ -1,0 +1,21 @@
+# PWA アイコン用ディレクトリ
+
+## 必要なアイコンサイズ
+- icon-72x72.png
+- icon-96x96.png
+- icon-128x128.png
+- icon-144x144.png (Windows タイル)
+- icon-152x152.png (iPad)
+- icon-192x192.png (Android Chrome)
+- icon-384x384.png (Android Chrome 高解像度)
+- icon-512x512.png (スプラッシュスクリーン)
+
+## 作成方法
+1. 512x512px のマスター画像を作成
+2. 各サイズにリサイズ
+3. PNG フォーマットで保存
+
+## デザインガイドライン
+- シンプルで認識しやすいデザイン
+- 背景色: #4f46e5 (Indigo)
+- アイコン: 猫のシルエットまたはロゴ
