@@ -20,6 +20,26 @@ templates_dir = Path(__file__).parent.parent.parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
 
 
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    ログインページを表示
+
+    管理画面へのログインフォームを表示。
+    JWT認証を使用してアクセストークンを取得。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: ログインページのHTML
+
+    Example:
+        GET /admin/login
+    """
+    return templates.TemplateResponse("admin/login.html", {"request": request})
+
+
 @router.get("", response_class=HTMLResponse)
 async def dashboard_page(request: Request):  # type: ignore[no-untyped-def]
     """

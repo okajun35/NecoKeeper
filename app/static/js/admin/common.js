@@ -133,6 +133,33 @@ function getTimeSlotLabel(timeSlot) {
 }
 
 /**
+ * 認証トークンを取得
+ * @returns {string|null} - アクセストークン
+ */
+function getAccessToken() {
+  return localStorage.getItem('access_token');
+}
+
+/**
+ * ログアウト処理
+ */
+function logout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('token_type');
+  window.location.href = '/admin/login';
+}
+
+/**
+ * 認証チェック
+ */
+function checkAuth() {
+  const token = getAccessToken();
+  if (!token) {
+    window.location.href = '/admin/login';
+  }
+}
+
+/**
  * APIリクエストを送信
  * @param {string} url - リクエストURL
  * @param {object} options - fetchオプション
@@ -140,13 +167,22 @@ function getTimeSlotLabel(timeSlot) {
  */
 async function apiRequest(url, options = {}) {
   try {
+    const token = getAccessToken();
+
     const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
     });
+
+    // 401エラーの場合はログイン画面にリダイレクト
+    if (response.status === 401) {
+      logout();
+      return;
+    }
 
     if (!response.ok) {
       const error = await response.json();
@@ -175,6 +211,14 @@ document.addEventListener('htmx:afterRequest', event => {
   }
 });
 
+// ページ読み込み時に認証チェック
+document.addEventListener('DOMContentLoaded', () => {
+  // ログインページ以外では認証チェック
+  if (!window.location.pathname.includes('/login')) {
+    checkAuth();
+  }
+});
+
 // グローバルエクスポート
 window.showToast = showToast;
 window.confirmAction = confirmAction;
@@ -183,4 +227,7 @@ window.formatDateTime = formatDateTime;
 window.getStatusBadge = getStatusBadge;
 window.getTimeSlotLabel = getTimeSlotLabel;
 window.apiRequest = apiRequest;
+window.getAccessToken = getAccessToken;
+window.logout = logout;
+window.checkAuth = checkAuth;
 window.API_BASE = API_BASE;
