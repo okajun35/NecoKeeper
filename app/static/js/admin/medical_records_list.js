@@ -60,23 +60,9 @@ async function loadAnimals() {
 // 獣医師一覧を読み込み
 async function loadVets() {
   try {
-    const response = await fetch('/api/v1/auth/users?role=vet', {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
-
-    if (!response.ok) throw new Error('獣医師一覧の取得に失敗しました');
-
-    const data = await response.json();
-    const select = document.getElementById('filterVet');
-
-    data.forEach(vet => {
-      const option = document.createElement('option');
-      option.value = vet.id;
-      option.textContent = vet.name;
-      select.appendChild(option);
-    });
+    // TODO: ユーザー一覧APIが実装されたら修正
+    // 現時点では獣医師フィルターは手動入力またはスキップ
+    console.log('獣医師一覧の読み込みはスキップされました（API未実装）');
   } catch (error) {
     console.error('Error loading vets:', error);
   }
@@ -149,9 +135,9 @@ function createMobileCard(record) {
         <div class="flex justify-between items-start mb-2">
             <div>
                 <p class="font-medium text-gray-900">${record.date}</p>
-                <p class="text-sm text-gray-600">猫: ${record.animal_id}</p>
+                <p class="text-sm text-gray-600">猫ID: ${record.animal_id}</p>
             </div>
-            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_id}</span>
+            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">獣医ID: ${record.vet_id}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm mb-3">
             <div><span class="text-gray-500">体重:</span> ${record.weight}kg</div>
@@ -173,8 +159,8 @@ function createDesktopRow(record) {
   row.className = 'hover:bg-gray-50';
   row.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">猫ID: ${record.animal_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">獣医ID: ${record.vet_id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight}kg</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>
