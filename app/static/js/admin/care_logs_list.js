@@ -1,97 +1,92 @@
 /**
- * 世話記録一覧の動的機能
+ * 世話記録一覧（日次ビュー）
  *
- * APIからデータを取得し、フィルター、ページネーション、CSVエクスポートを実装
+ * 1日×1匹を1行で表示する形式で世話記録を管理します。
  */
 
-// 状態管理
-const state = {
-  currentPage: 1,
-  pageSize: 20,
-  totalPages: 0,
-  totalItems: 0,
-  filters: {
-    animalId: '',
-    startDate: '',
-    endDate: '',
-    timeSlot: '',
-  },
-  animals: [],
-};
+// グローバル変数
+let currentPage = 1;
+let currentFilters = {};
+let animals = [];
 
-// 時点の日本語マッピング
-const TIME_SLOT_MAP = {
-  morning: '朝',
-  noon: '昼',
-  evening: '夕',
-};
-
-// 時点のバッジカラー
-const TIME_SLOT_COLORS = {
-  morning: 'bg-blue-100 text-blue-800',
-  noon: 'bg-yellow-100 text-yellow-800',
-  evening: 'bg-purple-100 text-purple-800',
-};
-
-/**
- * 初期化
- */
+// 初期化
 document.addEventListener('DOMContentLoaded', () => {
-  initializeEventListeners();
+  initializeFilters();
   loadAnimals();
-  loadCareLogs();
+  loadDailyView();
+  setupEventListeners();
 });
 
 /**
- * イベントリスナーの初期化
+ * フィルタの初期化
  */
-function initializeEventListeners() {
+function initializeFilters() {
+  // デフォルト日付範囲: 過去7日間
+  const today = new Date();
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+
+  document.getElementById('filterStartDate').valueAsDate = sevenDaysAgo;
+  document.getElementById('filterEndDate').valueAsDate = today;
+}
+
+/**
+ * イベントリスナーの設定
+ */
+function setupEventListeners() {
   // 検索ボタン
   document.getElementById('searchBtn').addEventListener('click', () => {
-    state.currentPage = 1;
-    loadCareLogs();
+    currentPage = 1;
+    applyFilters();
   });
 
   // クリアボタン
   document.getElementById('clearBtn').addEventListener('click', () => {
     clearFilters();
-    state.currentPage = 1;
-    loadCareLogs();
   });
 
   // CSVエクスポートボタン
-  document.getElementById('exportCsvBtn').addEventListener('click', exportToCsv);
+  document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    exportCsv();
+  });
 
-  // ページネーションボタン
+  // ページネーション
   document.getElementById('prevPageBtn').addEventListener('click', () => {
-    if (state.currentPage > 1) {
-      state.currentPage--;
-      loadCareLogs();
+    if (currentPage > 1) {
+      currentPage--;
+      loadDailyView();
     }
   });
 
   document.getElementById('nextPageBtn').addEventListener('click', () => {
-    if (state.currentPage < state.totalPages) {
-      state.currentPage++;
-      loadCareLogs();
-    }
+    currentPage++;
+    loadDailyView();
   });
 }
 
 /**
- * 猫一覧を読み込み
+ * 猫リストを取得
  */
 async function loadAnimals() {
   try {
-    const response = await fetch('/api/v1/animals?page=1&page_size=100');
-    if (!response.ok) throw new Error('猫一覧の取得に失敗しました');
+    const response = await fetch('/api/v1/animals?page=1&page_size=100', {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('猫一覧の取得に失敗しました');
+    }
 
     const data = await response.json();
-    state.animals = data.items;
+    animals = data.items;
 
-    // セレクトボックスに追加
+    // ドロップダウンに追加
     const select = document.getElementById('filterAnimal');
-    data.items.forEach(animal => {
+    select.innerHTML = '<option value="">すべての猫</option>';
+
+    animals.forEach(animal => {
       const option = document.createElement('option');
       option.value = animal.id;
       option.textContent = animal.name || `猫 ${animal.id}`;
@@ -103,177 +98,262 @@ async function loadAnimals() {
 }
 
 /**
- * 世話記録を読み込み
+ * 日次ビューデータを取得
  */
-async function loadCareLogs() {
+async function loadDailyView() {
   showLoading();
   hideError();
 
   try {
-    // フィルターを取得
-    state.filters.animalId = document.getElementById('filterAnimal').value;
-    state.filters.startDate = document.getElementById('filterStartDate').value;
-    state.filters.endDate = document.getElementById('filterEndDate').value;
-    state.filters.timeSlot = document.getElementById('filterTimeSlot').value;
-
-    // クエリパラメータを構築
     const params = new URLSearchParams({
-      page: state.currentPage,
-      page_size: state.pageSize,
+      page: currentPage,
+      page_size: 20,
     });
 
-    if (state.filters.animalId) params.append('animal_id', state.filters.animalId);
-    if (state.filters.startDate) params.append('start_date', state.filters.startDate);
-    if (state.filters.endDate) params.append('end_date', state.filters.endDate);
-    if (state.filters.timeSlot) params.append('time_slot', state.filters.timeSlot);
+    // フィルタ条件を追加
+    if (currentFilters.animalId) {
+      params.append('animal_id', currentFilters.animalId);
+    }
+    if (currentFilters.startDate) {
+      params.append('start_date', currentFilters.startDate);
+    }
+    if (currentFilters.endDate) {
+      params.append('end_date', currentFilters.endDate);
+    }
 
-    // APIリクエスト
-    const response = await fetch(`/api/v1/care-logs?${params}`);
-    if (!response.ok) throw new Error('世話記録の取得に失敗しました');
+    const response = await fetch(`/api/v1/care-logs/daily-view?${params}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('世話記録の取得に失敗しました');
+    }
 
     const data = await response.json();
-
-    // 状態を更新
-    state.totalPages = data.total_pages;
-    state.totalItems = data.total;
-
-    // データを表示
-    renderCareLogs(data.items);
-    updatePagination();
-
-    hideLoading();
+    renderDailyView(data);
+    updatePagination(data);
   } catch (error) {
     console.error('世話記録の読み込みエラー:', error);
-    showError(error.message);
+    showError('世話記録の取得に失敗しました');
+  } finally {
     hideLoading();
   }
 }
 
 /**
- * 世話記録を表示
+ * 日次ビューを描画
  */
-function renderCareLogs(careLogs) {
-  renderMobileList(careLogs);
-  renderDesktopTable(careLogs);
-}
-
-/**
- * モバイルリストを表示
- */
-function renderMobileList(careLogs) {
-  const container = document.getElementById('mobileList');
-  container.innerHTML = '';
-
-  if (careLogs.length === 0) {
-    container.innerHTML = '<div class="p-4 text-center text-gray-500">記録がありません</div>';
-    return;
-  }
-
-  careLogs.forEach(log => {
-    const animalName = getAnimalName(log.animal_id);
-    const timeSlotLabel = TIME_SLOT_MAP[log.time_slot] || log.time_slot;
-    const timeSlotColor = TIME_SLOT_COLORS[log.time_slot] || 'bg-gray-100 text-gray-800';
-    const createdAt = formatDateTime(log.created_at);
-
-    const card = document.createElement('div');
-    card.className = 'p-4 hover:bg-gray-50';
-    card.innerHTML = `
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                    <h3 class="font-medium text-gray-900">${animalName}</h3>
-                    <p class="text-sm text-gray-500">${createdAt}</p>
-                </div>
-                <span class="px-2 py-1 text-xs ${timeSlotColor} rounded">${timeSlotLabel}</span>
-            </div>
-            <div class="space-y-1 text-sm">
-                <p class="text-gray-600">記録者: ${log.recorder_name}</p>
-                <div class="flex gap-3">
-                    <span class="text-gray-600">食欲: <span class="font-medium">${log.appetite}</span></span>
-                    <span class="text-gray-600">元気: <span class="font-medium">${log.energy}</span></span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-gray-600">排尿: ${log.urination ? '○' : '×'}</span>
-                    <span class="text-gray-600">清掃: ${log.cleaning ? '済' : '未'}</span>
-                </div>
-                ${log.memo ? `<p class="text-gray-600 mt-2">メモ: ${log.memo}</p>` : ''}
-            </div>
-        `;
-    container.appendChild(card);
-  });
-}
-
-/**
- * デスクトップテーブルを表示
- */
-function renderDesktopTable(careLogs) {
+function renderDailyView(data) {
   const tbody = document.getElementById('desktopTableBody');
-  tbody.innerHTML = '';
+  const mobileList = document.getElementById('mobileList');
 
-  if (careLogs.length === 0) {
+  tbody.innerHTML = '';
+  mobileList.innerHTML = '';
+
+  if (data.items.length === 0) {
     tbody.innerHTML =
-      '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">記録がありません</td></tr>';
+      '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">記録がありません</td></tr>';
+    mobileList.innerHTML = '<div class="p-8 text-center text-gray-500">記録がありません</div>';
     return;
   }
 
-  careLogs.forEach(log => {
-    const animalName = getAnimalName(log.animal_id);
-    const timeSlotLabel = TIME_SLOT_MAP[log.time_slot] || log.time_slot;
-    const timeSlotColor = TIME_SLOT_COLORS[log.time_slot] || 'bg-gray-100 text-gray-800';
-    const createdAt = formatDateTime(log.created_at);
-
-    const row = document.createElement('tr');
-    row.className = 'hover:bg-gray-50';
-    row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${createdAt}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${animalName}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 py-1 text-xs ${timeSlotColor} rounded">${timeSlotLabel}</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${log.recorder_name}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.appetite}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.energy}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.urination ? '○' : '×'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.cleaning ? '済' : '未'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3" onclick="viewDetail(${log.id})">詳細</button>
-            </td>
-        `;
+  data.items.forEach(item => {
+    // デスクトップ: テーブル行
+    const row = createDailyRow(item);
     tbody.appendChild(row);
+
+    // モバイル: カード
+    const card = createDailyCard(item);
+    mobileList.appendChild(card);
   });
 }
 
 /**
- * ページネーションを更新
+ * テーブル行を作成
  */
-function updatePagination() {
-  const start = state.totalItems === 0 ? 0 : (state.currentPage - 1) * state.pageSize + 1;
-  const end = Math.min(state.currentPage * state.pageSize, state.totalItems);
+function createDailyRow(item) {
+  const row = document.createElement('tr');
+  row.className = 'hover:bg-gray-50';
+
+  // 日付
+  const dateCell = document.createElement('td');
+  dateCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+  dateCell.textContent = item.date;
+  row.appendChild(dateCell);
+
+  // 猫名
+  const nameCell = document.createElement('td');
+  nameCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+  nameCell.textContent = item.animal_name;
+  row.appendChild(nameCell);
+
+  // 朝・昼・夕
+  ['morning', 'noon', 'evening'].forEach(timeSlot => {
+    const cell = document.createElement('td');
+    cell.className = 'px-6 py-4 whitespace-nowrap text-center';
+
+    const link = createRecordLink(item, timeSlot);
+    cell.appendChild(link);
+
+    row.appendChild(cell);
+  });
+
+  return row;
+}
+
+/**
+ * モバイルカードを作成
+ */
+function createDailyCard(item) {
+  const card = document.createElement('div');
+  card.className = 'p-4';
+
+  card.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+            <div>
+                <div class="text-sm font-medium text-gray-900">${item.animal_name}</div>
+                <div class="text-xs text-gray-500">${item.date}</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">朝</div>
+                <div id="morning-${item.date}-${item.animal_id}"></div>
+            </div>
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">昼</div>
+                <div id="noon-${item.date}-${item.animal_id}"></div>
+            </div>
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">夕</div>
+                <div id="evening-${item.date}-${item.animal_id}"></div>
+            </div>
+        </div>
+    `;
+
+  // リンクを追加
+  ['morning', 'noon', 'evening'].forEach(timeSlot => {
+    const container = card.querySelector(`#${timeSlot}-${item.date}-${item.animal_id}`);
+    const link = createRecordLink(item, timeSlot);
+    container.appendChild(link);
+  });
+
+  return card;
+}
+
+/**
+ * 記録リンクを作成
+ */
+function createRecordLink(item, timeSlot) {
+  const record = item[timeSlot];
+  const link = document.createElement('a');
+  link.className = 'text-2xl font-bold hover:opacity-70 transition-opacity';
+
+  if (record.exists) {
+    // 記録あり: ○ → 詳細/編集画面
+    link.textContent = '○';
+    link.href = `/admin/care-logs/${record.log_id}`;
+    link.className += ' text-green-600';
+    link.title = `食欲: ${record.appetite}, 元気: ${record.energy}`;
+  } else {
+    // 記録なし: × → 新規登録画面
+    link.textContent = '×';
+    link.href = `/admin/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
+    link.className += ' text-red-600';
+    link.title = '記録を追加';
+  }
+
+  return link;
+}
+
+/**
+ * ページネーション情報を更新
+ */
+function updatePagination(data) {
+  const { total, page, page_size, total_pages } = data;
+
+  // 表示範囲
+  const start = total === 0 ? 0 : (page - 1) * page_size + 1;
+  const end = Math.min(page * page_size, total);
 
   document.getElementById('paginationInfo').innerHTML = `
         <span class="font-medium">${start}</span> -
         <span class="font-medium">${end}</span> /
-        <span class="font-medium">${state.totalItems}</span> 件
+        <span class="font-medium">${total}</span> 件
     `;
 
-  // ボタンの有効/無効を設定
-  document.getElementById('prevPageBtn').disabled = state.currentPage === 1;
-  document.getElementById('nextPageBtn').disabled = state.currentPage >= state.totalPages;
+  // ボタンの有効/無効
+  document.getElementById('prevPageBtn').disabled = page <= 1;
+  document.getElementById('nextPageBtn').disabled = page >= total_pages;
+}
+
+/**
+ * フィルタを適用
+ */
+function applyFilters() {
+  const animalId = document.getElementById('filterAnimal').value;
+  const startDate = document.getElementById('filterStartDate').value;
+  const endDate = document.getElementById('filterEndDate').value;
+
+  currentFilters = {
+    animalId: animalId || null,
+    startDate: startDate || null,
+    endDate: endDate || null,
+  };
+
+  loadDailyView();
+}
+
+/**
+ * フィルタをクリア
+ */
+function clearFilters() {
+  document.getElementById('filterAnimal').value = '';
+  initializeFilters();
+  currentFilters = {};
+  currentPage = 1;
+  loadDailyView();
 }
 
 /**
  * CSVエクスポート
  */
-async function exportToCsv() {
+async function exportCsv() {
   try {
-    // フィルターを適用したURLを構築
     const params = new URLSearchParams();
-    if (state.filters.animalId) params.append('animal_id', state.filters.animalId);
-    if (state.filters.startDate) params.append('start_date', state.filters.startDate);
-    if (state.filters.endDate) params.append('end_date', state.filters.endDate);
 
-    // CSVダウンロード
-    const url = `/api/v1/care-logs/export?${params}`;
-    window.location.href = url;
+    // フィルタ条件を追加
+    if (currentFilters.animalId) {
+      params.append('animal_id', currentFilters.animalId);
+    }
+    if (currentFilters.startDate) {
+      params.append('start_date', currentFilters.startDate);
+    }
+    if (currentFilters.endDate) {
+      params.append('end_date', currentFilters.endDate);
+    }
+
+    const response = await fetch(`/api/v1/care-logs/export?${params}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('CSVエクスポートに失敗しました');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `care_logs_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   } catch (error) {
     console.error('CSVエクスポートエラー:', error);
     showError('CSVエクスポートに失敗しました');
@@ -281,42 +361,11 @@ async function exportToCsv() {
 }
 
 /**
- * フィルターをクリア
- */
-function clearFilters() {
-  document.getElementById('filterAnimal').value = '';
-  document.getElementById('filterStartDate').value = '';
-  document.getElementById('filterEndDate').value = '';
-  document.getElementById('filterTimeSlot').value = '';
-}
-
-/**
- * 猫名を取得
- */
-function getAnimalName(animalId) {
-  const animal = state.animals.find(a => a.id === animalId);
-  return animal ? animal.name || `猫 ${animalId}` : `猫 ${animalId}`;
-}
-
-/**
- * 日時をフォーマット
- */
-function formatDateTime(dateTimeStr) {
-  const date = new Date(dateTimeStr);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
-
-/**
  * ローディング表示
  */
 function showLoading() {
   document.getElementById('loadingIndicator').classList.remove('hidden');
-  document.getElementById('careLogsContainer').classList.add('hidden');
+  document.getElementById('careLogsContainer').style.opacity = '0.5';
 }
 
 /**
@@ -324,7 +373,7 @@ function showLoading() {
  */
 function hideLoading() {
   document.getElementById('loadingIndicator').classList.add('hidden');
-  document.getElementById('careLogsContainer').classList.remove('hidden');
+  document.getElementById('careLogsContainer').style.opacity = '1';
 }
 
 /**
@@ -344,8 +393,8 @@ function hideError() {
 }
 
 /**
- * 詳細表示（将来実装）
+ * JWTトークンを取得
  */
-function viewDetail(logId) {
-  alert(`詳細表示機能は今後実装予定です（記録ID: ${logId}）`);
+function getToken() {
+  return localStorage.getItem('access_token');
 }

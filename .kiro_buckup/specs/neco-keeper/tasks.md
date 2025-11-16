@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: MVP Core バックエンド完成！Phase 5（診療記録）完了、Phase 8（管理画面UI）47%完了、Phase 9（Public API + PWA）完了
+**プロジェクトステータス**: Phase 9 Public API完了、MVP Core バックエンド完成！
 
 **完了済み:**
 - ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
@@ -12,10 +12,8 @@
 - ✅ Phase 3: 猫管理機能（全6タスク）
 - ✅ Phase 4: 世話記録機能（全5タスク）
 - ✅ Phase 4: ボランティア管理（全4タスク）
-- ✅ Phase 5: 診療記録機能（全9タスク）
 - ✅ Phase 6: PDF生成機能（全5タスク）
-- ✅ Phase 8: 管理画面UI（7/15タスク完了）
-- ✅ Phase 9: Public API + PWA（全7タスク完了）
+- ✅ Phase 9: Public API（Task 14.2完了）
 
 **実装済み機能:**
 - データベース（全12モデル）
@@ -24,14 +22,11 @@
 - 世話記録機能（CRUD、CSV出力、前回値コピー）
 - ボランティア管理機能（CRUD、活動履歴）
 - 画像アップロード・最適化・ギャラリー管理
-- 診療記録機能（CRUD、診療行為マスター、料金計算）
 - PDF生成機能（QRカード、面付けカード、紙記録フォーム）
-- Public API（認証不要の世話記録入力）
-- PWA機能（manifest.json、Service Worker、オフライン同期）
-- 管理画面UI（ダッシュボード、猫台帳、世話記録、ボランティア、設定、ログイン）
+- **Public API（認証不要の世話記録入力）**
 - 統合テスト（232テスト、カバレッジ84.90%）
 
-**次のステップ**: Phase 9 記録一覧機能（Task 14.8）または Phase 8 残りの管理画面UI（診療記録、里親管理、帳票出力、体重グラフ、画像ギャラリー、検索）
+**次のステップ**: Phase 9 フロントエンド実装（Publicフォーム、PWA機能）またはPhase 5（診療記録機能）
 
 **重要な注意事項:**
 
@@ -466,7 +461,7 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
   - Publicフォーム用の選択リスト提供
   - _Requirements: Requirement 4.4_
 
-## Phase 5: 診療記録機能 ✅ 完了
+## Phase 5: 診療記録機能
 
 **Context7 MCP使用ガイドライン**:
 - Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
@@ -482,26 +477,26 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 
 獣医診療記録のCRUD機能を実装します。
 
-- [x] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）✅
+- [x] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）
   - MedicalRecordCreate, MedicalRecordUpdate, MedicalRecordResponse
   - バリデーションルール（必須項目：診療年月日、体重、症状）
   - _Requirements: Requirement 5.3_
 
-- [x] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）✅
+- [x] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）
   - create_medical_record（記録登録）
   - get_medical_record（記録詳細取得）
   - list_medical_records（一覧取得、時系列表示）
   - update_medical_record（記録更新）
   - _Requirements: Requirement 5.1, Requirement 5.5_
 
-- [x] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）✅
+- [x] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）
   - GET /api/v1/medical-records（一覧取得）
   - POST /api/v1/medical-records（登録）
   - GET /api/v1/medical-records/{id}（詳細取得）
   - PUT /api/v1/medical-records/{id}（更新）
   - _Requirements: Requirement 5_
 
-- [x] 8.4 診療記録機能の統合テストを作成 ✅
+- [x] 8.4 診療記録機能の統合テストを作成
   - CRUD操作のテスト
   - バリデーションのテスト
   - _Requirements: Requirement 5_
@@ -510,31 +505,31 @@ JWT + OAuth2 Password Flowによる認証システムを実装します。
 
 処置・薬剤・ワクチンのマスターデータ管理機能を実装します。
 
-- [x] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）✅
+- [x] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）
   - MedicalActionCreate, MedicalActionUpdate, MedicalActionResponse
   - 期間別価格と通貨単位のバリデーション
   - _Requirements: Requirement 6.1-6.3_
 
-- [x] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）✅
+- [x] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）
   - create_medical_action（診療行為登録）
   - list_medical_actions（一覧取得）
   - update_medical_action（更新）
   - calculate_billing（料金計算：請求価格×投薬量＋処置料金）
   - _Requirements: Requirement 6.4_
 
-- [x] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）✅
+- [x] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）
   - GET/POST /api/v1/medical-actions
   - GET/PUT /api/v1/medical-actions/{id}
   - GET /api/v1/medical-actions/{id}/calculate（料金計算）
   - GET /api/v1/medical-actions/active/list（有効な診療行為一覧）
   - _Requirements: Requirement 6_
 
-- [x] 9.4 診療行為選択機能を実装 ✅
+- [x] 9.4 診療行為選択機能を実装
   - MedicalActionsマスターからの選択リスト提供
   - 自由入力も可能
   - _Requirements: Requirement 5.4_
 
-- [x] 9.5 診療行為マスターに投薬単位選択機能を追加 ✅
+- [x] 9.5 診療行為マスターに投薬単位選択機能を追加
   - データベースマイグレーション: `dosage_unit` カラムを VARCHAR(10) で追加（既存）
   - Pydanticスキーマ更新: `dosage_unit` フィールドを追加（選択肢: 錠、本、回、mL）
   - 管理画面UI更新: 診療行為マスター登録・編集モーダルに投薬単位選択ドロップダウンを追加
@@ -648,7 +643,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - ステータス更新のテスト
   - _Requirements: Requirement 14_
 
-## Phase 8: 管理画面UI 🚧 進行中（47%完了）
+## Phase 8: 管理画面UI
 
 **Context7 MCP使用ガイドライン**:
 - AdminLTE実装前: `mcp_context7_resolve_library_id` で "AdminLTE" を検索し、ドキュメント取得
@@ -656,7 +651,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - DataTables実装前: `mcp_context7_resolve_library_id` で "DataTables" を検索し、ドキュメント取得
 - Jinja2テンプレート実装前: `mcp_context7_get_library_docs` で `/pallets/jinja` を参照
 
-### 13. AdminLTE管理画面の実装 🚧
+### 13. AdminLTE管理画面の実装
 
 管理画面のUIを実装します。
 
@@ -681,7 +676,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - モバイル・PC両対応
   - _Requirements: Requirement 12.4, Requirement 15.3, Requirement 15.6-15.7_
 
-- [x] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）✅
+- [x] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）
   - タブ構成（基本情報、世話記録、診療記録、画像ギャラリー、体重グラフ）
   - 基本情報編集フォーム
   - ステータス変更機能
@@ -766,18 +761,18 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - _Requirements: Requirement 24.1-24.5_
 
 
-## Phase 9: Publicフォーム（PWA） ✅ 完了
+## Phase 9: Publicフォーム（PWA）
 
 **Context7 MCP使用ガイドライン**:
 - Tailwind CSS実装前: `mcp_context7_get_library_docs` で `/tailwindlabs/tailwindcss` を参照（tokens: 5000）
 - PWA/Service Worker実装前: `mcp_context7_resolve_library_id` で "Workbox" を検索し、ドキュメント取得
 - IndexedDB実装前: `mcp_context7_resolve_library_id` で "IndexedDB" または "Dexie.js" を検索（ラッパーライブラリ推奨）
 
-### 14. Publicフォームの実装 ✅
+### 14. Publicフォームの実装
 
 認証不要の世話記録入力フォームを実装します。
 
-- [x] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）✅
+- [x] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）
   - Tailwind CSSでモバイル最適化
   - 1画面完結型レイアウト
   - 猫の名前・顔写真サムネイル表示
@@ -786,7 +781,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 保存ボタン（画面下部固定）
   - _Requirements: Requirement 3.1-3.4, Requirement 13.1-13.5_
 
-- [x] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）✅
+- [x] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）
   - GET /api/v1/public/animals/{animal_id}（猫情報取得）
   - GET /api/v1/public/volunteers（アクティブボランティア一覧）
   - POST /api/v1/public/care-logs（記録保存、IPアドレス・User-Agent自動記録）
@@ -794,28 +789,28 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - テスト11個実装（カバレッジ97.62%）
   - _Requirements: Requirement 3.5-3.7_
 
-- [x] 14.3 前回入力値コピー機能を実装（JavaScript）✅
+- [x] 14.3 前回入力値コピー機能を実装（JavaScript）
   - 最新記録の取得
   - フォームへの自動入力
   - _Requirements: Requirement 3.7_
 
-- [x] 14.4 PWA設定を実装 ✅
+- [x] 14.4 PWA設定を実装
   - manifest.json作成（アイコン、名前、テーマカラー）
   - Service Worker実装（app/static/js/sw.js）
   - オフラインキャッシュ戦略
   - _Requirements: Requirement 18.1-18.2_
 
-- [x] 14.5 オフライン機能を実装 ✅
+- [x] 14.5 オフライン機能を実装
   - IndexedDBへの一時保存
   - オンライン復帰時の自動同期
   - 同期状態表示（同期済み、同期待ち、同期中）
   - _Requirements: Requirement 18.3-18.5_
 
-- [x] 14.6 ホーム画面追加プロンプトを実装 ✅
+- [x] 14.6 ホーム画面追加プロンプトを実装
   - 初回アクセス時のプロンプト表示
   - _Requirements: Requirement 18.2_
 
-- [x] 14.7 Publicフォームの動作テストを作成 ✅
+- [x] 14.7 Publicフォームの動作テストを作成
   - フォーム入力・保存のテスト
   - オフライン機能のテスト
   - _Requirements: Requirement 3, Requirement 18_
@@ -1321,53 +1316,54 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 2: 認証・認可システム (7/7 完了) ✅
 - [x] Phase 3: 猫管理機能 (6/6 完了) ✅
 - [x] Phase 4: 世話記録機能 (5/5 完了) ✅
-- [x] Phase 4: ボランティア管理 (4/4 完了) ✅
-- [x] Phase 5: 診療記録機能 (4/4 完了) ✅
-- [x] Phase 5: 診療マスターデータ管理 (5/5 完了) ✅
-- [x] Phase 6: PDF生成機能 (5/5 完了) ✅
-- [ ] Phase 7: 里親管理機能 (0/4 完了)
-- [ ] Phase 8: 管理画面UI (7/15 完了) 🚧
-- [x] Phase 9: Publicフォーム（PWA） (7/7 完了) ✅
-- [ ] Phase 9: 記録一覧機能 (0/6 完了)
-- [ ] Phase 10: 多言語対応 (0/5 完了)
-- [ ] Phase 11: セキュリティとログ (0/10 完了)
-- [ ] Phase 12: バックアップとデータ管理 (0/7 完了)
-- [ ] Phase 13: OCR機能（オプション） (0/7 完了)
-- [ ] Phase 14: ヘルプとサポート (0/4 完了)
-- [ ] Phase 15: デプロイとドキュメント (0/10 完了)
-- [ ] Phase 16: パフォーマンス最適化とテスト (0/10 完了)
-- [ ] Phase 17: 最終調整とリリース (0/12 完了)
+- [ ] Phase 5: 画像ギャラリー機能 (0/3 完了)
+- [ ] Phase 6: 診療記録機能 (0/4 完了)
+- [ ] Phase 6: 診療マスターデータ管理 (0/4 完了)
+- [ ] Phase 7: 診療明細出力 (0/5 完了)
+- [ ] Phase 8: CSVインポート・エクスポート (0/4 完了)
+- [ ] Phase 9: 帳票出力（日報・週報・月次集計） (0/4 完了)
+- [ ] Phase 10: 権限管理とアクセス制御 (0/1 完了)
+- [ ] Phase 11: データバックアップ (0/4 完了)
+- [ ] Phase 12: 管理画面UI (7/15 完了) 🚧
+- [ ] Phase 13: Publicフォーム（PWA） (0/7 完了)
+- [ ] Phase 14: 里親管理機能 (0/4 完了)
+- [ ] Phase 15: 猫のステータス管理と論理削除 (0/1 完了)
+- [ ] Phase 16: 活動状況の可視化 (0/1 完了)
+- [ ] Phase 17: 紙記録からのデータ移行支援 (0/7 完了)
+- [ ] Phase 18: PWA対応とオフライン機能 (0/2 完了)
+- [ ] Phase 19: 多言語対応 (0/5 完了)
+- [ ] Phase 20: 簡単デプロイとホスティング (0/6 完了)
+- [ ] Phase 21: 認証とユーザー管理 (0/2 完了)
+- [ ] Phase 22: セキュリティ対策 (0/5 完了)
+- [ ] Phase 23: 監査ログ (0/5 完了)
+- [ ] Phase 24: 検索機能 (0/2 完了)
+- [ ] Phase 25: 世話記録のCSVエクスポート (0/2 完了)
+- [ ] Phase 26: 体重推移の可視化 (0/1 完了)
+- [ ] Phase 27: 画像ギャラリー (0/3 完了)
+- [ ] Phase 28: パフォーマンス最適化 (0/5 完了)
+- [ ] Phase 29: 統合テストとE2Eテスト (0/5 完了)
+- [ ] Phase 30: 最終調整 (0/6 完了)
+- [ ] Phase 31: リリース準備 (0/6 完了)
 
 ### 全体進捗
-**完了タスク数**: 55 / 141 タスク (39.0%)
-**MVP Core完了**: Phase 1-6, 9（バックエンド + PWA）完全完了 ✅
-**推定残り時間**: 約86-129時間（1タスク平均1-1.5時間）
+**完了タスク数**: 31 / 141 タスク (22.0%)
+**MVP Core完了**: Phase 1, 2, 3, 4 完全完了 ✅
+**推定残り時間**: 約104-165時間（1タスク平均1-1.5時間）
 
 ### 実装済み機能
 - ✅ データベース（全12モデル）
-- ✅ JWT認証・認可システム（RBAC、権限チェック）
+- ✅ JWT認証・認可システム（RBAC）
 - ✅ 猫管理機能（CRUD、検索、ステータス管理）
 - ✅ 世話記録機能（CRUD、CSV出力、前回値コピー）
-- ✅ ボランティア管理機能（CRUD、活動履歴）
-- ✅ 診療記録機能（CRUD、診療行為マスター、料金計算）
-- ✅ 画像アップロード・最適化・ギャラリー管理
-- ✅ PDF生成機能（QRカード、面付けカード、紙記録フォーム）
-- ✅ Public API（認証不要の世話記録入力）
-- ✅ PWA機能（manifest.json、Service Worker、オフライン同期）
-- ✅ 管理画面UI（ダッシュボード、猫台帳、世話記録、ボランティア、設定、ログイン）
-- ✅ 統合テスト（232テスト、カバレッジ84.90%）
+- ✅ 画像アップロード・最適化
+- ✅ 統合テスト（認証25テスト、猫管理7テスト、世話記録7テスト）
 
-### 実装済みAPI（合計30+エンドポイント）
+### 実装済みAPI（合計14エンドポイント）
 - **認証**: 2エンドポイント
 - **猫管理**: 6エンドポイント
 - **世話記録**: 6エンドポイント
-- **ボランティア管理**: 5エンドポイント
-- **診療記録**: 4エンドポイント
-- **診療行為マスター**: 5エンドポイント
-- **PDF生成**: 5エンドポイント
-- **Public API**: 4エンドポイント
 
-### 次に実装すべきタスク（優先順位）
+### 次に実装すべきタスク（MVP Core優先順位）
 
 **重要**: 実装前に必ずcode-structure-reviewの改善を適用すること
 - すべてのファイルに `from __future__ import annotations` を追加
@@ -1375,30 +1371,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - エラーハンドリングとロギングを統一
 - Docstringを完全に記述
 
-**推奨実装順序:**
-
-1. **Phase 9 完了**: Task 14.8（記録一覧機能）
-   - 個別猫の記録一覧API + UI
-   - 全猫の記録状況一覧API + UI
-   - 推定時間: 4-6時間
-
-2. **Phase 8 完了**: 残りの管理画面UI
-   - Task 13.6: 診療記録一覧画面
-   - Task 13.12: 体重推移グラフ
-   - Task 13.13: 画像ギャラリータブ
-   - Task 13.14: 検索機能
-   - 推定時間: 6-9時間
-
-3. **Phase 7**: 里親管理機能
-   - Task 12.1-12.4: 里親希望者と譲渡管理
-   - 推定時間: 4-6時間
-
-4. **Phase 11**: セキュリティとログ
-   - Task 16.1-16.5: セキュリティ強化
-   - Task 17.1-17.5: ログとエラーハンドリング
-   - 推定時間: 6-9時間
-
-5. **Phase 15**: デプロイとドキュメント
-   - Task 22.1-22.6: デプロイ設定
-   - Task 23.1-23.4: ドキュメント整備
-   - 推定時間: 4-6時間
+**次のタスク:**
+1. **Task 5.1**: 画像ギャラリーサービスを実装（app/services/image_service.py）
+2. **Task 5.2**: 画像管理APIエンドポイントを実装（app/api/v1/images.py）
+3. **Task 5.3**: 画像制限設定機能を実装

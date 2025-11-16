@@ -4,6 +4,8 @@
 JWTトークンとユーザー情報のレスポンススキーマを定義します。
 """
 
+from __future__ import annotations
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
