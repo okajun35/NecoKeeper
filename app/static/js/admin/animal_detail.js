@@ -258,7 +258,7 @@ async function loadGallery() {
 
   try {
     const response = await fetch(
-      `/api/v1/images/animals/${animalId}/images?sort_by=created_at&ascending=false`,
+      `/api/v1/animals/${animalId}/images?sort_by=created_at&ascending=false`,
       {
         headers: {
           Authorization: `Bearer ${getToken()}`,
@@ -296,9 +296,19 @@ async function loadGallery() {
     `;
 
     images.forEach(image => {
+      // 画像パスに/media/プレフィックスを追加
+      const imageSrc = image.image_path.startsWith('/')
+        ? image.image_path
+        : `/media/${image.image_path}`;
+      const imageAlt = image.description || '猫の画像';
+
       html += `
         <div class="relative group">
-          <img src="${image.image_path}" alt="${image.description || ''}" class="w-full h-48 object-cover rounded-lg cursor-pointer" onclick="openImageModal('${image.image_path}', '${image.description || ''}')">
+          <img src="${imageSrc}"
+               alt="${imageAlt}"
+               onerror="this.onerror=null; this.src='/static/images/default.svg';"
+               class="w-full h-48 object-cover rounded-lg cursor-pointer"
+               onclick="openImageModal('${imageSrc}', '${imageAlt}')">
           <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onclick="deleteImage(${image.id})" class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,8 +316,8 @@ async function loadGallery() {
               </svg>
             </button>
           </div>
-          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${image.taken_at}</p>` : ''}
-          ${image.description ? `<p class="text-xs text-gray-600 mt-1">${image.description}</p>` : ''}
+          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${new Date(image.taken_at).toLocaleDateString('ja-JP')}</p>` : ''}
+          ${image.description ? `<p class="text-xs text-gray-600 mt-1 truncate">${image.description}</p>` : ''}
         </div>
       `;
     });
@@ -341,7 +351,7 @@ async function uploadImage(file) {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`/api/v1/images/animals/${animalId}/images`, {
+    const response = await fetch(`/api/v1/animals/${animalId}/images`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -393,11 +403,21 @@ function openImageModal(imagePath, description) {
   const modal = document.createElement('div');
   modal.className =
     'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
-  modal.onclick = () => modal.remove();
+  modal.onclick = e => {
+    if (e.target === modal) modal.remove();
+  };
 
   modal.innerHTML = `
-    <div class="max-w-4xl max-h-full">
-      <img src="${imagePath}" alt="${description}" class="max-w-full max-h-screen object-contain">
+    <div class="max-w-4xl max-h-full relative">
+      <button onclick="this.closest('.fixed').remove()" class="absolute top-2 right-2 p-2 bg-white rounded-full hover:bg-gray-100 z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <img src="${imagePath}"
+           alt="${description}"
+           onerror="this.onerror=null; this.src='/static/images/default.svg';"
+           class="max-w-full max-h-screen object-contain rounded-lg">
       ${description ? `<p class="text-white text-center mt-2">${description}</p>` : ''}
     </div>
   `;

@@ -20,7 +20,7 @@ from app.schemas.animal_image import (
 )
 from app.services import image_service
 
-router = APIRouter(prefix="/images", tags=["images"])
+router = APIRouter(tags=["images"])
 logger = logging.getLogger(__name__)
 
 
