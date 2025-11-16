@@ -43,6 +43,12 @@ def seed_users(db: Session) -> dict[str, User]:
 
     users_data = [
         {
+            "email": "admin@example.com",
+            "password": "admin123",
+            "name": "管理者",
+            "role": "admin",
+        },
+        {
             "email": "admin@necokeeper.local",
             "password": "admin123",
             "name": "管理者 太郎",
@@ -64,10 +70,11 @@ def seed_users(db: Session) -> dict[str, User]:
             password_hash=hash_password(password),
         )
         db.add(user)
-        users[user_data["role"]] = user
+        if user_data["role"] not in users:
+            users[user_data["role"]] = user
 
     db.commit()
-    print(f"✅ {len(users)}人のユーザーを作成しました")
+    print(f"✅ {len(users_data)}人のユーザーを作成しました")
     return users
 
 
@@ -346,13 +353,14 @@ def main() -> None:
         print("✅ サンプルデータの投入が完了しました！")
         print("=" * 60)
         print("\n📊 投入されたデータ:")
-        print(f"  - ユーザー: {len(users)}人")
+        print("  - ユーザー: 3人")
         print(f"  - ボランティア: {len(volunteers)}人")
         print(f"  - 猫: {len(animals)}匹")
         print(f"  - 世話記録: {db.query(CareLog).count()}件")
         print(f"  - ステータス履歴: {db.query(StatusHistory).count()}件")
 
         print("\n🔑 ログイン情報:")
+        print("  - 開発用管理者: admin@example.com / admin123")
         print("  - 管理者: admin@necokeeper.local / admin123")
         print("  - 獣医師: vet@necokeeper.local / vet123")
 
