@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -15,7 +16,9 @@ class AnimalBase(BaseModel):
     """猫の基本情報スキーマ"""
 
     name: str | None = Field(None, max_length=100, description="猫の名前")
-    photo: str = Field(..., max_length=255, description="顔写真のファイルパス")
+    photo: str | None = Field(
+        None, max_length=255, description="プロフィール画像のファイルパス（任意）"
+    )
     pattern: str = Field(
         ..., max_length=100, description="柄・色（例: キジトラ、三毛、黒猫）"
     )
@@ -30,7 +33,9 @@ class AnimalBase(BaseModel):
     ear_cut: bool = Field(False, description="耳カットの有無（TNR済みの印）")
     features: str | None = Field(None, description="外傷・特徴・性格（自由記述）")
     status: str = Field("保護中", max_length=20, description="ステータス")
-    protected_at: date = Field(default_factory=date.today, description="保護日")
+    protected_at: date_type = Field(
+        default_factory=date_type.today, description="保護日"
+    )
 
     @field_validator("gender")
     @classmethod
@@ -63,7 +68,7 @@ class AnimalUpdate(BaseModel):
     ear_cut: bool | None = None
     features: str | None = None
     status: str | None = Field(None, max_length=20)
-    protected_at: date | None = None
+    protected_at: date_type | None = None
 
     @field_validator("gender")
     @classmethod

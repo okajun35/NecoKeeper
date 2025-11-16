@@ -71,14 +71,30 @@ function confirmAction(message) {
 
 /**
  * 日付を YYYY-MM-DD 形式にフォーマット
- * @param {Date} date - 日付オブジェクト
+ * @param {Date|string} dateInput - 日付オブジェクトまたはISO形式の日付文字列
  * @returns {string} - フォーマットされた日付文字列
  */
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+function formatDate(dateInput) {
+  if (!dateInput) return '-';
+
+  try {
+    // 文字列の場合はDateオブジェクトに変換
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+
+    // 無効な日付をチェック
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateInput);
+      return '-';
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Error formatting date:', error, 'input:', dateInput);
+    return '-';
+  }
 }
 
 /**

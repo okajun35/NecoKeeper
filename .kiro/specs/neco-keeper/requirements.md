@@ -120,11 +120,13 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 
 #### Acceptance Criteria
 
-1. WHEN 管理者が診療行為マスター画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 診療名称、適用開始日、適用終了日、原価、請求価格、投薬・処置料金、通貨単位（JPY/USD）の入力フォームを表示する
-2. WHEN 管理者がマスターデータを入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 当該マスターデータをデータベースに保存する
-3. THE NecoKeeper SHALL 適用終了日を未設定（NULL）にすることで、現在も有効な価格として扱う
-4. THE NecoKeeper SHALL 料金計算を「請求価格×投薬量＋投薬・処置料金」で実施する
-5. THE NecoKeeper SHALL 原価、請求価格、投薬・処置料金を小数点2桁までのDECIMAL型で管理する
+1. WHEN 管理者が診療行為マスター画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 診療名称、適用開始日、適用終了日、原価、請求価格、投薬・処置料金、通貨単位（JPY/USD）、投薬単位の入力フォームを表示する
+2. THE NecoKeeper SHALL 投薬単位として「錠」「本」「回」「mL」の選択肢を提供する
+3. WHEN 管理者がマスターデータを入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 当該マスターデータをデータベースに保存する
+4. THE NecoKeeper SHALL 適用終了日を未設定（NULL）にすることで、現在も有効な価格として扱う
+5. THE NecoKeeper SHALL 料金計算を「請求価格×投薬量＋投薬・処置料金」で実施する
+6. THE NecoKeeper SHALL 原価、請求価格、投薬・処置料金を小数点2桁までのDECIMAL型で管理する
+7. WHEN 診療記録登録画面で診療行為を選択したとき、THE NecoKeeper SHALL 対応する投薬単位を投薬回数ラベルに表示する
 
 ### Requirement 7: 診療明細出力
 
@@ -220,9 +222,10 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 
 1. WHEN 管理者が里親希望者管理画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 希望者情報（氏名、連絡先、住所、家族構成、飼育環境、希望条件）の入力フォームを表示する
 2. WHEN 管理者が里親希望者情報を入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 希望者情報をApplicantマスターに保存する
-3. WHEN 管理者が猫の詳細画面で譲渡候補者を選択して面談記録を入力したとき、THE NecoKeeper SHALL 面談日、面談内容、判定結果を記録する
-4. WHEN 管理者が譲渡決定ボタンをクリックして譲渡日と譲渡先を入力したとき、THE NecoKeeper SHALL 猫のStatusを「譲渡済み」に更新し、譲渡記録を保存する
-5. THE NecoKeeper SHALL 譲渡後フォロー記録（譲渡後の連絡日、状況確認内容）を登録可能にする
+3. WHEN 管理者が面談記録登録画面で猫を選択するとき、THE NecoKeeper SHALL Statusが「譲渡可能」の猫のみを選択肢として表示する
+4. WHEN 管理者が猫の詳細画面で譲渡候補者を選択して面談記録を入力したとき、THE NecoKeeper SHALL 面談日、面談内容、判定結果を記録する
+5. WHEN 管理者が譲渡決定ボタンをクリックして譲渡日と譲渡先を入力したとき、THE NecoKeeper SHALL 猫のStatusを「譲渡済み」に更新し、譲渡記録を保存する
+6. THE NecoKeeper SHALL 譲渡後フォロー記録（譲渡後の連絡日、状況確認内容）を登録可能にする
 
 ### Requirement 15: 猫のステータス管理と論理削除
 

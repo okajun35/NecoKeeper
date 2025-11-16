@@ -1,0 +1,458 @@
+{% extends "admin/base.html" %}
+
+{% block title %}診療行為マスター管理{% endblock %}
+{% block page_title %}診療行為マスター管理{% endblock %}
+{% block page_description %}診療行為（薬剤・ワクチン・検査）のマスターデータ管理{% endblock %}
+
+{% block header_actions %}
+<button id="btnNewAction" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+    <span class="hidden sm:inline">+</span> 新規登録
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-4 lg:space-y-6">
+    <!-- 検索・フィルター -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <!-- 検索 -->
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">検索</label>
+                <input type="text" id="searchName" placeholder="診療名称で検索..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <!-- 有効日フィルター -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">有効日</label>
+                <input type="date" id="filterValidOn" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <!-- 通貨 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">通貨</label>
+                <select id="filterCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <option value="">すべて</option>
+                    <option value="JPY">JPY</option>
+                    <option value="USD">USD</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+            <button id="btnSearch" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                検索
+            </button>
+            <button id="btnClear" class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                クリア
+            </button>
+        </div>
+    </div>
+
+    <!-- 診療行為一覧 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- ローディング -->
+        <div id="loading" class="p-8 text-center hidden">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p class="mt-2 text-gray-600">読み込み中...</p>
+        </div>
+
+        <!-- エラー -->
+        <div id="error" class="p-8 text-center text-red-600 hidden"></div>
+
+        <!-- モバイル: カード表示 -->
+        <div id="mobileList" class="lg:hidden divide-y divide-gray-200"></div>
+
+        <!-- デスクトップ: テーブル表示 -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">診療名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">適用期間</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">原価</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">請求価格</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">処置料金</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">通貨</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="desktopList" class="bg-white divide-y divide-gray-200">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ページネーション -->
+        <div id="pagination" class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div id="paginationInfo" class="text-sm text-gray-700"></div>
+                <div class="flex gap-2">
+                    <button id="btnPrev" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
+                        前へ
+                    </button>
+                    <button id="btnNext" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
+                        次へ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新規登録/編集モーダル -->
+<div id="modalForm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <h2 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4">診療行為マスター登録</h2>
+
+            <form id="actionForm" class="space-y-4">
+                <input type="hidden" id="actionId">
+
+                <!-- 診療名称 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">診療名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required maxlength="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+
+                <!-- 適用期間 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">適用開始日 <span class="text-red-500">*</span></label>
+                        <input type="date" id="validFrom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">適用終了日</label>
+                        <input type="date" id="validTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <p class="mt-1 text-xs text-gray-500">未設定の場合は無期限</p>
+                    </div>
+                </div>
+
+                <!-- 料金 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">原価</label>
+                        <input type="number" id="costPrice" step="0.01" min="0" value="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">請求価格 <span class="text-red-500">*</span></label>
+                        <input type="number" id="sellingPrice" step="0.01" min="0" value="0.00" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">処置料金</label>
+                        <input type="number" id="procedureFee" step="0.01" min="0" value="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <!-- 通貨と投薬単位 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">通貨単位 <span class="text-red-500">*</span></label>
+                        <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="JPY">JPY (日本円)</option>
+                            <option value="USD">USD (米ドル)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">投薬単位</label>
+                        <select id="unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">選択してください</option>
+                            <option value="錠">錠</option>
+                            <option value="本">本</option>
+                            <option value="回">回</option>
+                            <option value="mL">mL</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">投薬量の単位（錠、本、回、mL）</p>
+                    </div>
+                </div>
+
+                <!-- 料金計算式の説明 -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>料金計算式:</strong> (請求価格 × 投薬量) + 処置料金
+                    </p>
+                </div>
+
+                <!-- ボタン -->
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        保存
+                    </button>
+                    <button type="button" id="btnCancel" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        キャンセル
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 状態管理
+let currentPage = 1;
+const pageSize = 20;
+let totalPages = 0;
+
+// 初期化
+document.addEventListener('DOMContentLoaded', () => {
+    loadMedicalActions();
+
+    // イベントリスナー
+    document.getElementById('btnNewAction').addEventListener('click', () => openModal());
+    document.getElementById('btnSearch').addEventListener('click', () => {
+        currentPage = 1;
+        loadMedicalActions();
+    });
+    document.getElementById('btnClear').addEventListener('click', clearFilters);
+    document.getElementById('btnPrev').addEventListener('click', () => changePage(-1));
+    document.getElementById('btnNext').addEventListener('click', () => changePage(1));
+    document.getElementById('btnCancel').addEventListener('click', closeModal);
+    document.getElementById('actionForm').addEventListener('submit', handleSubmit);
+});
+
+// 診療行為一覧を読み込み
+async function loadMedicalActions() {
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const mobileList = document.getElementById('mobileList');
+    const desktopList = document.getElementById('desktopList');
+
+    loading.classList.remove('hidden');
+    error.classList.add('hidden');
+    mobileList.innerHTML = '';
+    desktopList.innerHTML = '';
+
+    try {
+        const params = new URLSearchParams({
+            page: currentPage,
+            page_size: pageSize
+        });
+
+        const searchName = document.getElementById('searchName').value;
+        if (searchName) params.append('name_filter', searchName);
+
+        const validOn = document.getElementById('filterValidOn').value;
+        if (validOn) params.append('valid_on', validOn);
+
+        const response = await fetch(`/api/v1/medical-actions?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'データの取得に失敗しました');
+        }
+
+        const data = await response.json();
+        totalPages = data.total_pages;
+
+        // データが0件でもエラーではない
+        renderMobileList(data.items);
+        renderDesktopList(data.items);
+        updatePagination(data);
+
+    } catch (err) {
+        console.error('Error loading medical actions:', err);
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    } finally {
+        loading.classList.add('hidden');
+    }
+}
+
+// モバイルリスト描画
+function renderMobileList(items) {
+    const container = document.getElementById('mobileList');
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'p-4 hover:bg-gray-50';
+        card.innerHTML = `
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <h3 class="font-medium text-gray-900">${item.name}</h3>
+                    <p class="text-sm text-gray-500">${formatDateRange(item.valid_from, item.valid_to)}</p>
+                </div>
+                <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${item.currency}</span>
+            </div>
+            <div class="space-y-1 text-sm text-gray-600">
+                <p>原価: ${formatPrice(item.cost_price, item.currency)}</p>
+                <p>請求価格: ${formatPrice(item.selling_price, item.currency)}</p>
+                <p>処置料金: ${formatPrice(item.procedure_fee, item.currency)}</p>
+            </div>
+            <div class="mt-3 flex gap-2">
+                <button onclick="editAction(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    編集
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// デスクトップリスト描画
+function renderDesktopList(items) {
+    const tbody = document.getElementById('desktopList');
+
+    items.forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatDateRange(item.valid_from, item.valid_to)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">${formatPrice(item.cost_price, item.currency)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">${formatPrice(item.selling_price, item.currency)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">${formatPrice(item.procedure_fee, item.currency)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">${item.currency}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="editAction(${item.id})" class="text-indigo-600 hover:text-indigo-900">編集</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// ページネーション更新
+function updatePagination(data) {
+    const info = document.getElementById('paginationInfo');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    const start = (data.page - 1) * data.page_size + 1;
+    const end = Math.min(data.page * data.page_size, data.total);
+    info.textContent = `${start} - ${end} / ${data.total} 件`;
+
+    btnPrev.disabled = data.page === 1;
+    btnNext.disabled = data.page >= data.total_pages;
+}
+
+// ページ変更
+function changePage(delta) {
+    currentPage += delta;
+    loadMedicalActions();
+}
+
+// フィルタークリア
+function clearFilters() {
+    document.getElementById('searchName').value = '';
+    document.getElementById('filterValidOn').value = '';
+    document.getElementById('filterCurrency').value = '';
+    currentPage = 1;
+    loadMedicalActions();
+}
+
+// モーダルを開く
+function openModal(actionId = null) {
+    const modal = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
+    const form = document.getElementById('actionForm');
+
+    form.reset();
+    document.getElementById('actionId').value = actionId || '';
+
+    if (actionId) {
+        title.textContent = '診療行為マスター編集';
+        loadActionData(actionId);
+    } else {
+        title.textContent = '診療行為マスター登録';
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+// モーダルを閉じる
+function closeModal() {
+    const modal = document.getElementById('modalForm');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// 診療行為データを読み込み
+async function loadActionData(actionId) {
+    try {
+        const response = await fetch(`/api/v1/medical-actions/${actionId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
+
+        if (!response.ok) throw new Error('データの取得に失敗しました');
+
+        const data = await response.json();
+        document.getElementById('name').value = data.name;
+        document.getElementById('validFrom').value = data.valid_from;
+        document.getElementById('validTo').value = data.valid_to || '';
+        document.getElementById('costPrice').value = data.cost_price;
+        document.getElementById('sellingPrice').value = data.selling_price;
+        document.getElementById('procedureFee').value = data.procedure_fee;
+        document.getElementById('currency').value = data.currency;
+        document.getElementById('unit').value = data.unit || '';
+
+    } catch (err) {
+        alert(err.message);
+        closeModal();
+    }
+}
+
+// フォーム送信
+async function handleSubmit(e) {
+    e.preventDefault();
+
+    const actionId = document.getElementById('actionId').value;
+    const data = {
+        name: document.getElementById('name').value,
+        valid_from: document.getElementById('validFrom').value,
+        valid_to: document.getElementById('validTo').value || null,
+        cost_price: parseFloat(document.getElementById('costPrice').value),
+        selling_price: parseFloat(document.getElementById('sellingPrice').value),
+        procedure_fee: parseFloat(document.getElementById('procedureFee').value),
+        currency: document.getElementById('currency').value,
+        unit: document.getElementById('unit').value || null
+    };
+
+    try {
+        const url = actionId
+            ? `/api/v1/medical-actions/${actionId}`
+            : '/api/v1/medical-actions';
+        const method = actionId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || '保存に失敗しました');
+        }
+
+        closeModal();
+        loadMedicalActions();
+
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+// 編集
+function editAction(actionId) {
+    openModal(actionId);
+}
+
+// ユーティリティ関数
+function formatDateRange(from, to) {
+    if (!to) return `${from} 〜`;
+    return `${from} 〜 ${to}`;
+}
+
+function formatPrice(price, currency) {
+    const symbol = currency === 'JPY' ? '¥' : '$';
+    return `${symbol}${parseFloat(price).toLocaleString()}`;
+}
+</script>
+{% endblock %}

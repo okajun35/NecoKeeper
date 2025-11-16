@@ -92,6 +92,49 @@ async def create_care_log(
     return care_log_service.create_care_log(db=db, care_log_data=care_log_data)
 
 
+@router.get("/daily-view", response_model=dict)
+async def get_daily_view(
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    animal_id: int | None = Query(None, description="猫IDフィルター"),
+    start_date: date | None = Query(None, description="開始日（デフォルト: 7日前）"),
+    end_date: date | None = Query(None, description="終了日（デフォルト: 今日）"),
+    page: int = Query(1, ge=1, description="ページ番号"),
+    page_size: int = Query(20, ge=1, le=100, description="1ページあたりの件数"),
+) -> dict[str, object]:
+    """
+    日次ビュー形式で世話記録を取得
+
+    1日×1匹を1行で表示する形式で世話記録を取得します。
+    朝・昼・夕の記録を横に並べて表示します。
+
+    Args:
+        db: データベースセッション
+        current_user: 現在のユーザー
+        animal_id: 猫IDフィルター（Noneの場合は全猫）
+        start_date: 開始日（デフォルト: 7日前）
+        end_date: 終了日（デフォルト: 今日）
+        page: ページ番号
+        page_size: 1ページあたりの件数
+
+    Returns:
+        dict: 日次ビュー形式のデータ
+            - items: list[DailyViewRecord]
+            - total: int
+            - page: int
+            - page_size: int
+            - total_pages: int
+    """
+    return care_log_service.get_daily_view(
+        db=db,
+        animal_id=animal_id,
+        start_date=start_date,
+        end_date=end_date,
+        page=page,
+        page_size=page_size,
+    )
+
+
 @router.get("/latest/{animal_id}", response_model=CareLogResponse | None)
 async def get_latest_care_log(
     animal_id: int,

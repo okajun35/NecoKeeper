@@ -13,10 +13,6 @@ inclusion: always
   - 常にデプロイ可能な状態を維持
   - 直接コミット禁止（Pull Requestのみ）
 
-- **develop**: 開発用のメインブランチ
-  - 次のリリースに向けた開発を統合
-  - フィーチャーブランチのマージ先
-
 ### 作業ブランチ
 
 #### フィーチャーブランチ（機能開発）
@@ -230,6 +226,70 @@ git branch -d hotfix/critical-bug
 - ❌ 複数の無関係な変更を含む
 - ❌ デバッグ用のコードが残っている
 
+## コミット前のチェック（必須）
+
+**すべてのコミット前に必ず実行してください**
+
+### Makeコマンドで一括チェック（推奨）
+
+```bash
+# pre-commitと同じ順番で全チェック
+make all
+```
+
+このコマンドは以下を順番に実行します：
+1. **Lint**: Ruffでコード品質チェック
+2. **Format**: Ruffでコードフォーマット
+3. **Mypy**: 型チェック
+4. **Pytest**: 全テスト実行（345テスト）
+5. **Prettier**: JavaScript/JSON/YAMLフォーマット
+
+### 個別チェック
+
+```bash
+# 基本チェックのみ（format + lint + test）
+make check
+
+# 個別実行
+make lint      # Lintチェック
+make format    # コードフォーマット
+make mypy      # 型チェック
+make test      # テスト実行
+make coverage  # カバレッジ付きテスト
+```
+
+### 推奨ワークフロー
+
+```bash
+# 1. コード変更後、コミット前に全チェック
+make all
+
+# 2. 全てパスしたらコミット
+git add .
+git commit -m "feat(scope): 機能を追加"
+
+# 3. プッシュ
+git push origin feature/your-feature
+```
+
+### チェックが失敗した場合
+
+- **Lint/Formatエラー**: 自動修正されるので再度`make all`を実行
+- **Mypyエラー**: 型ヒントを修正
+- **Testエラー**: テストを修正してから再実行
+
+### pre-commitフック
+
+コミット時に自動的にチェックが実行されます：
+
+```bash
+# pre-commitフックをインストール（初回のみ）
+pre-commit install
+
+# 手動で全ファイルをチェック
+pre-commit run --all-files
+```
+
 ## プッシュのタイミング
 
 ### 定期的にプッシュ
@@ -239,6 +299,7 @@ git branch -d hotfix/critical-bug
 - バックアップとして保存したい時
 
 ### プッシュ前のチェックリスト
+- [ ] **`make all`を実行して全てパス**（最重要）
 - [ ] すべてのテストがパス
 - [ ] Lintエラーがない
 - [ ] 型チェックがパス

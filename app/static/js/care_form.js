@@ -26,7 +26,16 @@ async function loadAnimalInfo() {
 
     const animal = await response.json();
     document.getElementById('animalName').textContent = animal.name || '名前未設定';
-    document.getElementById('animalPhoto').src = animal.photo || '/static/images/default.svg';
+
+    // 画像のフォールバック処理
+    const photoElement = document.getElementById('animalPhoto');
+    const photoUrl =
+      animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+    photoElement.src = photoUrl;
+    photoElement.onerror = function () {
+      this.onerror = null; // 無限ループ防止
+      this.src = '/static/images/default.svg';
+    };
   } catch (error) {
     showError(error.message);
   }

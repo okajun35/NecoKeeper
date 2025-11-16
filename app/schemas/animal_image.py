@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type
+from datetime import datetime
 
 from pydantic import BaseModel, Field
 
@@ -14,7 +15,7 @@ from pydantic import BaseModel, Field
 class AnimalImageBase(BaseModel):
     """画像ギャラリーの基本スキーマ"""
 
-    taken_at: date | None = Field(None, description="撮影日")
+    taken_at: date_type | None = Field(None, description="撮影日")
     description: str | None = Field(None, max_length=500, description="説明")
 
 
@@ -27,7 +28,7 @@ class AnimalImageCreate(AnimalImageBase):
 class AnimalImageUpdate(BaseModel):
     """画像ギャラリー更新スキーマ"""
 
-    taken_at: date | None = Field(None, description="撮影日")
+    taken_at: date_type | None = Field(None, description="撮影日")
     description: str | None = Field(None, max_length=500, description="説明")
 
 

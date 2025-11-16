@@ -117,9 +117,30 @@ python3 -m app.main
 uvicorn app.main:app --reload
 ```
 
-6. ブラウザでアクセス
+6. サンプルデータを投入（オプション）
+
+開発・テスト用のサンプルデータを投入できます：
+
+```bash
+python scripts/seed_sample_data.py
+```
+
+投入されるデータ：
+- **ユーザー**: 3人（管理者2名、獣医師1名）
+- **ボランティア**: 4人
+- **猫**: 10匹（様々なステータス：保護中、譲渡可能、譲渡済み、治療中）
+- **世話記録**: 約140件（過去7日分）
+- **ステータス履歴**: 10件
+
+ログイン情報：
+- 開発用管理者: `admin@example.com` / `admin123`
+- 管理者: `admin@necokeeper.local` / `admin123`
+- 獣医師: `vet@necokeeper.local` / `vet123`
+
+7. ブラウザでアクセス
 
 - アプリケーション: http://localhost:8000
+- 管理画面: http://localhost:8000/admin
 - API ドキュメント: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
@@ -150,7 +171,75 @@ NecoKeeper/
 └── requirements.txt       # Python依存関係
 ```
 
+### サンプルデータ
+
+開発・テスト環境でサンプルデータを使用する場合：
+
+```bash
+# サンプルデータを投入
+python scripts/seed_sample_data.py
+```
+
+このスクリプトは以下を実行します：
+1. 既存データをすべて削除
+2. サンプルユーザー、ボランティア、猫、世話記録を投入
+3. ログイン情報を表示
+
+**注意**: 本番環境では実行しないでください。既存データがすべて削除されます。
+
 ### 開発ツール
+
+#### Makeコマンド（推奨）
+
+コミット前のチェックを簡単に実行できるMakefileを用意しています：
+
+```bash
+# ヘルプを表示
+make help
+
+# pre-commitと同じ順番で全チェック（推奨）
+# lint → format → mypy → test → prettier
+make all
+
+# 基本チェック（format + lint + test）
+make check
+
+# 個別実行
+make lint      # Lintチェック（Ruff）
+make format    # コードフォーマット（Ruff Format）
+make mypy      # 型チェック（Mypy）
+make test      # テスト実行（Pytest）
+make prettier  # JavaScript/JSON/YAMLフォーマット
+make coverage  # カバレッジ付きテスト
+make clean     # キャッシュファイル削除
+```
+
+**推奨ワークフロー（必須）**:
+```bash
+# コード変更後、コミット前に必ず実行
+make all
+
+# 全てパスしたらコミット
+git add .
+git commit -m "your message"
+git push
+```
+
+**重要**: `make all`は**コミット前に必ず実行**してください。これにより以下が保証されます：
+- コード品質（Lint）
+- フォーマット統一（Ruff Format）
+- 型安全性（Mypy）
+- 全テストパス（Pytest 345テスト）
+- JavaScript/JSON/YAMLフォーマット（Prettier）
+
+**`make all` と `make check` の違い**:
+- `make all`: pre-commitと同じ順番・設定で全チェック（lint → format → mypy → test → prettier）
+- `make check`: 基本チェックのみ（format → lint → test）
+
+**チェックが失敗した場合**:
+- Lint/Formatエラー: 自動修正されるので再度`make all`を実行
+- Mypyエラー: 型ヒントを修正
+- Testエラー: テストを修正してから再実行
 
 #### テスト実行
 
@@ -162,7 +251,7 @@ python -m pytest
 python -m pytest -v
 
 # カバレッジ付き
-python -m pytest --cov=app
+python -m pytest --cov=app --cov-report=html --cov-report=term-missing
 ```
 
 #### コード品質チェック

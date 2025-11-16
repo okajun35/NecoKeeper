@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -24,7 +25,9 @@ class VolunteerBase(BaseModel):
     status: str = Field(
         "active", max_length=20, description="活動状態（active/inactive）"
     )
-    started_at: date = Field(default_factory=date.today, description="活動開始日")
+    started_at: date_type = Field(
+        default_factory=date_type.today, description="活動開始日"
+    )
 
     @field_validator("status")
     @classmethod
@@ -83,7 +86,7 @@ class VolunteerUpdate(BaseModel):
     contact: str | None = Field(None, max_length=255)
     affiliation: str | None = Field(None, max_length=100)
     status: str | None = Field(None, max_length=20)
-    started_at: date | None = None
+    started_at: date_type | None = None
 
     @field_validator("status")
     @classmethod
@@ -160,7 +163,11 @@ class VolunteerListResponse(BaseModel):
 
     Example:
         >>> response = VolunteerListResponse(
-        ...     items=[volunteer1, volunteer2], total=2, page=1, page_size=10, total_pages=1
+        ...     items=[volunteer1, volunteer2],
+        ...     total=2,
+        ...     page=1,
+        ...     page_size=10,
+        ...     total_pages=1,
         ... )
     """
 

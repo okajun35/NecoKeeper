@@ -13,13 +13,9 @@ import base64
 from datetime import date
 from pathlib import Path
 
-from jinja2 import (  # type: ignore[import-not-found]
-    Environment,
-    FileSystemLoader,
-    select_autoescape,
-)
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy.orm import Session
-from weasyprint import HTML  # type: ignore[import-not-found]
+from weasyprint import HTML
 
 from app.config import get_settings
 from app.models.animal import Animal
@@ -294,9 +290,9 @@ def generate_report_pdf(
 
     # 統計情報を計算
     total_records = len(records)
-    total_animals = len(set(record.animal_id for record in records))
+    total_animals = len({record.animal_id for record in records})
     total_recorders = len(
-        set(record.recorder_name for record in records if record.recorder_name)
+        {record.recorder_name for record in records if record.recorder_name}
     )
 
     # 時点の表示名マッピング

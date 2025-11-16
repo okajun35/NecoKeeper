@@ -24,7 +24,18 @@ async function loadCareLogList() {
 
     // 猫情報を表示
     document.getElementById('animalName').textContent = data.animal_name || '名前未設定';
-    document.getElementById('animalPhoto').src = data.animal_photo || '/static/images/default.svg';
+
+    // 画像のフォールバック処理
+    const photoElement = document.getElementById('animalPhoto');
+    const photoUrl =
+      data.animal_photo && data.animal_photo.trim() !== ''
+        ? data.animal_photo
+        : '/static/images/default.svg';
+    photoElement.src = photoUrl;
+    photoElement.onerror = function () {
+      this.onerror = null; // 無限ループ防止
+      this.src = '/static/images/default.svg';
+    };
 
     // 今日の記録状況を表示
     updateTodayStatus(data.today_status);

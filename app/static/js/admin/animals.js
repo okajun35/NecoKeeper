@@ -47,13 +47,17 @@ function renderAnimalsList(animals) {
   }
 
   container.innerHTML = animals
-    .map(
-      animal => `
+    .map(animal => {
+      const photoUrl =
+        animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+
+      return `
         <div class="p-6 hover:bg-gray-50 transition-colors">
             <div class="flex items-center gap-6">
                 <!-- 写真 -->
-                <img src="${animal.photo || '/static/images/default.svg'}"
+                <img src="${photoUrl}"
                      alt="${animal.name}"
+                     onerror="this.onerror=null; this.src='/static/images/default.svg';"
                      class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200">
 
                 <!-- 基本情報 -->
@@ -92,15 +96,15 @@ function renderAnimalsList(animals) {
                        class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                         編集
                     </a>
-                    <button onclick="generateQRCard(${animal.id})"
+                    <button onclick="showQRCode(${animal.id})"
                             class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
                         QR
                     </button>
                 </div>
             </div>
         </div>
-    `
-    )
+    `;
+    })
     .join('');
 }
 
@@ -164,38 +168,39 @@ function changePage(page) {
   loadAnimals();
 }
 
-// QRカード生成
-async function generateQRCard(animalId) {
-  try {
-    const response = await fetch(`${API_BASE}/pdf/qr-card`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        animal_id: animalId,
-      }),
-    });
+// QRコードを表示
+function showQRCode(animalId) {
+  const qrUrl = `${API_BASE}/animals/${animalId}/qr`;
 
-    if (!response.ok) {
-      throw new Error('QRカードの生成に失敗しました');
+  // モーダルを作成
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">QRコード</h3>
+        <button onclick="this.closest('.fixed').remove()"
+                class="text-gray-500 hover:text-gray-700">
+          ✕
+        </button>
+      </div>
+      <div class="flex justify-center">
+        <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
+      </div>
+      <p class="mt-4 text-sm text-gray-600 text-center">
+        このQRコードをスキャンすると、世話記録入力画面が開きます
+      </p>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 背景クリックで閉じる
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.remove();
     }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `qr_card_${animalId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-
-    showToast('QRカードをダウンロードしました', 'success');
-  } catch (error) {
-    console.error('QR card generation error:', error);
-    showToast('QRカードの生成に失敗しました', 'error');
-  }
+  });
 }
 
 // イベントリスナー
@@ -232,4 +237,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // グローバルエクスポート
 window.changePage = changePage;
-window.generateQRCard = generateQRCard;
+window.showQRCode = showQRCode;

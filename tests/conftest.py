@@ -26,8 +26,10 @@ warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
+from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
+from app.models.applicant import Applicant
 from app.models.care_log import CareLog
 from app.models.setting import Setting
 from app.models.status_history import StatusHistory
@@ -78,6 +80,8 @@ def test_db() -> Generator[Session, None, None]:
 
     # 既存のデータをクリア
     try:
+        db.query(AdoptionRecord).delete()
+        db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
@@ -90,12 +94,12 @@ def test_db() -> Generator[Session, None, None]:
         db.rollback()
 
     # APIテスト用のデータを作成
-    # テスト用ユーザーを作成
+    # テスト用ユーザーを作成（staff role for comprehensive permissions）
     test_user = User(
         email="test@example.com",
         password_hash=hash_password("TestPassword123"),
         name="Test User",
-        role="staff",
+        role="staff",  # staff role has csv:export and volunteer:write permissions
         is_active=True,
     )
     db.add(test_user)
@@ -118,6 +122,8 @@ def test_db() -> Generator[Session, None, None]:
 
     # テスト後のクリーンアップ
     try:
+        db.query(AdoptionRecord).delete()
+        db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
@@ -150,12 +156,51 @@ def auth_token(test_client: TestClient, test_db: Session) -> str:
 
 
 @pytest.fixture(scope="function")
+def auth_headers(auth_token: str) -> dict[str, str]:
+    """認証ヘッダーを取得"""
+    return {"Authorization": f"Bearer {auth_token}"}
+
+
+@pytest.fixture(scope="function")
 def test_user(test_db: Session) -> User:
-    """テスト用ユーザーを取得"""
+    """テスト用ユーザーを取得（staff role）"""
     user = test_db.query(User).filter(User.email == "test@example.com").first()
     if not user:
         raise Exception("Test user not found in database")
     return user
+
+
+@pytest.fixture(scope="function")
+def test_vet_user(test_db: Session) -> User:
+    """テスト用獣医師ユーザーを作成（vet role for medical:write）"""
+    vet_user = User(
+        email="vet@example.com",
+        password_hash=hash_password("VetPassword123"),
+        name="Test Vet",
+        role="vet",
+        is_active=True,
+    )
+    test_db.add(vet_user)
+    test_db.commit()
+    test_db.refresh(vet_user)
+    return vet_user
+
+
+@pytest.fixture(scope="function")
+def vet_auth_token(test_client: TestClient, test_vet_user: User) -> str:
+    """獣医師用認証トークンを取得"""
+    response = test_client.post(
+        "/api/v1/auth/token",
+        data={
+            "username": "vet@example.com",
+            "password": "VetPassword123",
+        },
+    )
+    if response.status_code != 200:
+        raise Exception(
+            f"Failed to get vet auth token: {response.status_code} - {response.text}"
+        )
+    return response.json()["access_token"]
 
 
 @pytest.fixture(scope="function")

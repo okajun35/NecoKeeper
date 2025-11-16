@@ -12,7 +12,9 @@ from datetime import date
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
+from app.auth.dependencies import get_current_active_user
 from app.database import get_db
+from app.models.user import User
 from app.schemas.animal_image import (
     AnimalImageResponse,
     AnimalImageUpdate,
@@ -20,7 +22,7 @@ from app.schemas.animal_image import (
 )
 from app.services import image_service
 
-router = APIRouter(prefix="/images", tags=["images"])
+router = APIRouter(tags=["images"])
 logger = logging.getLogger(__name__)
 
 
@@ -37,6 +39,7 @@ async def upload_animal_image(
     taken_at: date | None = Form(None, description="撮影日"),
     description: str | None = Form(None, description="説明"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> AnimalImageResponse:
     """
     猫の画像をアップロード
@@ -80,6 +83,7 @@ def get_animal_images(
     sort_by: str = "created_at",
     ascending: bool = False,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> list[AnimalImageResponse]:
     """
     猫の画像一覧を取得
@@ -143,7 +147,7 @@ def get_image_limits(
 
 
 @router.get(
-    "/{image_id}",
+    "/images/{image_id}",
     response_model=AnimalImageResponse,
     summary="画像を取得",
     description="画像IDを指定して画像情報を取得します。",
@@ -172,7 +176,7 @@ def get_image(
 
 
 @router.patch(
-    "/{image_id}",
+    "/images/{image_id}",
     response_model=AnimalImageResponse,
     summary="画像情報を更新",
     description="画像の撮影日や説明を更新します。",
@@ -222,7 +226,7 @@ def update_image(
 
 
 @router.delete(
-    "/{image_id}",
+    "/images/{image_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="画像を削除",
     description="画像を削除します。ファイルとデータベースレコードの両方が削除されます。",
@@ -231,6 +235,7 @@ def update_image(
 def delete_image(
     image_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> None:
     """
     画像を削除
@@ -249,7 +254,7 @@ def delete_image(
 
 # 設定管理エンドポイント
 @router.put(
-    "/settings/limits",
+    "/images/settings/limits",
     response_model=ImageLimitsResponse,
     summary="画像制限設定を更新",
     description="画像制限設定（最大枚数、最大ファイルサイズ）を更新します。",

@@ -331,3 +331,175 @@ def get_latest_care_log(db: Session, animal_id: int) -> CareLog | None:
         .order_by(CareLog.created_at.desc(), CareLog.id.desc())
         .first()
     )
+
+
+def get_daily_view(
+    db: Session,
+    animal_id: int | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    page: int = 1,
+    page_size: int = 20,
+) -> dict[str, object]:
+    """
+    日次ビュー形式のデータを取得
+
+    Args:
+        db: データベースセッション
+        animal_id: 猫ID（Noneの場合は全猫）
+        start_date: 開始日（デフォルト: 7日前）
+        end_date: 終了日（デフォルト: 今日）
+        page: ページ番号
+        page_size: ページサイズ
+
+    Returns:
+        dict: 日次ビュー形式のデータ
+            - items: list[dict]
+            - total: int
+            - page: int
+            - page_size: int
+            - total_pages: int
+    """
+    from datetime import timedelta
+
+    from sqlalchemy import and_
+
+    from app.models.animal import Animal
+
+    # デフォルト日付範囲を設定（過去7日間）
+    if end_date is None:
+        end_date = date.today()
+    if start_date is None:
+        start_date = end_date - timedelta(days=6)
+
+    # 日付範囲のバリデーション
+    if start_date > end_date:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="開始日は終了日以前である必要があります",
+        )
+
+    # 対象猫を取得
+    animal_query = db.query(Animal)
+    if animal_id is not None:
+        animal_query = animal_query.filter(Animal.id == animal_id)
+    animals = animal_query.all()
+
+    if not animals:
+        return {
+            "items": [],
+            "total": 0,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": 0,
+        }
+
+    # 日付×猫の組み合わせを生成
+    daily_records = []
+    current_date = start_date
+    while current_date <= end_date:
+        for animal in animals:
+            # 各時点の記録を取得
+            morning_log = (
+                db.query(CareLog)
+                .filter(
+                    and_(
+                        CareLog.animal_id == animal.id,
+                        CareLog.log_date == current_date,
+                        CareLog.time_slot == "morning",
+                    )
+                )
+                .first()
+            )
+
+            noon_log = (
+                db.query(CareLog)
+                .filter(
+                    and_(
+                        CareLog.animal_id == animal.id,
+                        CareLog.log_date == current_date,
+                        CareLog.time_slot == "noon",
+                    )
+                )
+                .first()
+            )
+
+            evening_log = (
+                db.query(CareLog)
+                .filter(
+                    and_(
+                        CareLog.animal_id == animal.id,
+                        CareLog.log_date == current_date,
+                        CareLog.time_slot == "evening",
+                    )
+                )
+                .first()
+            )
+
+            # 辞書形式で作成
+            morning_record = {
+                "exists": morning_log is not None,
+                "log_id": morning_log.id if morning_log else None,
+                "appetite": morning_log.appetite if morning_log else None,
+                "energy": morning_log.energy if morning_log else None,
+                "urination": morning_log.urination if morning_log else None,
+                "cleaning": morning_log.cleaning if morning_log else None,
+            }
+
+            noon_record = {
+                "exists": noon_log is not None,
+                "log_id": noon_log.id if noon_log else None,
+                "appetite": noon_log.appetite if noon_log else None,
+                "energy": noon_log.energy if noon_log else None,
+                "urination": noon_log.urination if noon_log else None,
+                "cleaning": noon_log.cleaning if noon_log else None,
+            }
+
+            evening_record = {
+                "exists": evening_log is not None,
+                "log_id": evening_log.id if evening_log else None,
+                "appetite": evening_log.appetite if evening_log else None,
+                "energy": evening_log.energy if evening_log else None,
+                "urination": evening_log.urination if evening_log else None,
+                "cleaning": evening_log.cleaning if evening_log else None,
+            }
+
+            # 辞書形式で作成
+            daily_record = {
+                "date": current_date.isoformat(),
+                "animal_id": animal.id,
+                "animal_name": animal.name if animal.name else f"猫 {animal.id}",
+                "morning": morning_record,
+                "noon": noon_record,
+                "evening": evening_record,
+            }
+
+            daily_records.append(daily_record)
+
+        current_date += timedelta(days=1)
+
+    # 日付降順でソート（新しい日付が上）
+    daily_records.sort(key=lambda x: str(x["date"]), reverse=True)
+
+    # ページネーション
+    total = len(daily_records)
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+
+    # ページ番号のバリデーション
+    if page < 1:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="ページ番号は1以上である必要があります",
+        )
+
+    start_idx = (page - 1) * page_size
+    end_idx = start_idx + page_size
+    paginated_records = daily_records[start_idx:end_idx]
+
+    return {
+        "items": paginated_records,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+    }

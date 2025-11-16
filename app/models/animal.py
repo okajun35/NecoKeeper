@@ -56,8 +56,8 @@ class Animal(Base):
         String(100), nullable=True, comment="猫の名前"
     )
 
-    photo: Mapped[str] = mapped_column(
-        String(255), nullable=False, comment="顔写真のファイルパス"
+    photo: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, comment="プロフィール画像のファイルパス（任意）"
     )
 
     # 物理的特徴（識別情報）

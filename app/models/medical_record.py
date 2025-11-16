@@ -70,8 +70,8 @@ class MedicalRecord(Base):
         String(20), nullable=True, comment="時間帯"
     )
 
-    weight: Mapped[Decimal] = mapped_column(
-        Numeric(5, 2), nullable=False, comment="体重（kg、小数点2桁）"
+    weight: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 2), nullable=True, comment="体重（kg、小数点2桁）"
     )
 
     temperature: Mapped[Decimal | None] = mapped_column(

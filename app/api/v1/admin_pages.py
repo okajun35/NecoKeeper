@@ -117,9 +117,28 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
     Example:
         GET /admin/animals/123
     """
-    return templates.TemplateResponse(
-        "admin/animals/detail.html", {"request": request, "animal_id": animal_id}
-    )
+    from app.database import SessionLocal
+    from app.models.animal import Animal
+    from app.services import animal_service
+
+    db = SessionLocal()
+    try:
+        animal = db.query(Animal).filter(Animal.id == animal_id).first()
+        if not animal:
+            # 猫が見つからない場合は一覧ページにリダイレクト
+            from fastapi.responses import RedirectResponse
+
+            return RedirectResponse(url="/admin/animals", status_code=302)
+
+        # 表示用の画像パスを取得
+        display_image = animal_service.get_display_image(db, animal_id)
+
+        return templates.TemplateResponse(
+            "admin/animals/detail.html",
+            {"request": request, "animal": animal, "display_image": display_image},
+        )
+    finally:
+        db.close()
 
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
@@ -164,25 +183,26 @@ async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
     return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
 
 
-@router.get("/medical-records", response_class=HTMLResponse)
-async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
+@router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
+async def care_log_detail_page(request: Request, care_log_id: int):  # type: ignore[no-untyped-def]
     """
-    診療記録一覧ページを表示
+    世話記録詳細ページを表示
 
-    診療記録の一覧を表示。
-    フィルター、検索、PDF/CSV/Excel出力機能付き。
+    指定されたIDの世話記録の詳細を表示。
 
     Args:
         request: FastAPIリクエストオブジェクト
+        care_log_id: 世話記録ID
 
     Returns:
-        HTMLResponse: 診療記録一覧ページのHTML
+        HTMLResponse: 世話記録詳細ページのHTML
 
     Example:
-        GET /admin/medical-records
+        GET /admin/care-logs/1
     """
     return templates.TemplateResponse(
-        "admin/medical_records/list.html", {"request": request}
+        "admin/care_logs/detail.html",
+        {"request": request, "care_log_id": care_log_id},
     )
 
 
@@ -205,6 +225,161 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
     """
     return templates.TemplateResponse(
         "admin/volunteers/list.html", {"request": request}
+    )
+
+
+@router.get("/medical-records", response_class=HTMLResponse)
+async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療記録一覧ページを表示
+
+    診療記録の一覧を表示。
+    フィルター、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療記録一覧ページのHTML
+
+    Example:
+        GET /admin/medical-records
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/list.html", {"request": request}
+    )
+
+
+@router.get("/medical-records/new", response_class=HTMLResponse)
+async def medical_record_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療記録新規登録ページを表示
+
+    新しい診療記録を登録するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療記録新規登録ページのHTML
+
+    Example:
+        GET /admin/medical-records/new
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/new.html", {"request": request}
+    )
+
+
+@router.get("/medical-records/{record_id}", response_class=HTMLResponse)
+async def medical_record_detail_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+    """
+    診療記録詳細ページを表示
+
+    指定された診療記録の詳細情報を表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        record_id: 診療記録のID
+
+    Returns:
+        HTMLResponse: 診療記録詳細ページのHTML
+
+    Example:
+        GET /admin/medical-records/123
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/detail.html",
+        {"request": request, "record_id": record_id},
+    )
+
+
+@router.get("/medical-records/{record_id}/edit", response_class=HTMLResponse)
+async def medical_record_edit_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+    """
+    診療記録修正ページを表示
+
+    指定された診療記録を修正するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        record_id: 診療記録のID
+
+    Returns:
+        HTMLResponse: 診療記録修正ページのHTML
+
+    Example:
+        GET /admin/medical-records/123/edit
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/edit.html",
+        {"request": request, "record_id": record_id},
+    )
+
+
+@router.get("/medical-actions", response_class=HTMLResponse)
+async def medical_actions_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療行為マスター一覧ページを表示
+
+    診療行為（薬剤、ワクチン、検査等）のマスターデータ一覧を表示。
+    期間別価格管理、通貨単位設定機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療行為マスター一覧ページのHTML
+
+    Example:
+        GET /admin/medical-actions
+    """
+    return templates.TemplateResponse(
+        "admin/medical_actions/list.html", {"request": request}
+    )
+
+
+@router.get("/adoptions/applicants", response_class=HTMLResponse)
+async def adoptions_applicants_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    里親希望者一覧ページを表示
+
+    里親希望者の一覧を表示。
+    登録、編集、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 里親希望者一覧ページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants
+    """
+    return templates.TemplateResponse(
+        "admin/adoptions/applicants.html", {"request": request}
+    )
+
+
+@router.get("/adoptions/records", response_class=HTMLResponse)
+async def adoptions_records_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    譲渡記録一覧ページを表示
+
+    面談記録と譲渡記録の一覧を表示。
+    フィルター、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 譲渡記録一覧ページのHTML
+
+    Example:
+        GET /admin/adoptions/records
+    """
+    return templates.TemplateResponse(
+        "admin/adoptions/records.html", {"request": request}
     )
 
 

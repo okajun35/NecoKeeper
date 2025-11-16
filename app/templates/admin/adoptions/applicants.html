@@ -1,0 +1,141 @@
+{% extends "admin/base.html" %}
+
+{% block title %}里親希望者管理{% endblock %}
+{% block page_title %}里親希望者管理{% endblock %}
+{% block page_description %}里親希望者の登録と管理{% endblock %}
+
+{% block header_actions %}
+<button id="newApplicantBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+    <span class="hidden sm:inline">+</span> 新規登録
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-4 lg:space-y-6">
+    <!-- 検索・フィルター -->
+    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+            <!-- 検索 -->
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">検索</label>
+                <input id="searchInput" type="text" placeholder="名前、連絡先で検索..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+            <button id="searchBtn" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                検索
+            </button>
+            <button id="clearBtn" class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                クリア
+            </button>
+        </div>
+    </div>
+
+    <!-- ローディング表示 -->
+    <div id="loading" class="hidden text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p class="mt-2 text-gray-600">読み込み中...</p>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"></div>
+
+    <!-- 里親希望者一覧 -->
+    <div id="applicantsList" class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- モバイル: カード表示 -->
+        <div id="mobileList" class="lg:hidden divide-y divide-gray-200"></div>
+
+        <!-- デスクトップ: テーブル表示 -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名前</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">連絡先</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">住所</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">家族構成</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">登録日</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="desktopList" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+        </div>
+
+        <!-- ページネーション -->
+        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div id="paginationInfo" class="text-sm text-gray-700"></div>
+                <div class="flex gap-2">
+                    <button id="prevBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
+                        前へ
+                    </button>
+                    <button id="nextBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50">
+                        次へ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新規登録・編集モーダル -->
+<div id="applicantModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-lg font-medium text-gray-900">里親希望者登録</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form id="applicantForm" class="space-y-4">
+            <input type="hidden" id="applicantId">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">氏名 <span class="text-red-500">*</span></label>
+                <input type="text" id="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">連絡先 <span class="text-red-500">*</span></label>
+                <input type="text" id="contact" required placeholder="電話番号、メールアドレス等" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">住所</label>
+                <textarea id="address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">家族構成</label>
+                <textarea id="family" rows="2" placeholder="例: 夫婦2人、子供1人" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">飼育環境</label>
+                <textarea id="environment" rows="2" placeholder="例: マンション、ペット可" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">希望条件</label>
+                <textarea id="conditions" rows="2" placeholder="例: 成猫希望、オス希望" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    保存
+                </button>
+                <button type="button" id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    キャンセル
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/static/js/admin/applicants.js?v=3"></script>
+{% endblock %}

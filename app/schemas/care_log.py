@@ -6,7 +6,8 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date as date_type
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -16,7 +17,7 @@ class CareLogBase(BaseModel):
 
     animal_id: int = Field(..., description="猫ID")
     recorder_name: str = Field(..., max_length=100, description="記録者名")
-    log_date: date = Field(..., description="記録日（年月日）")
+    log_date: date_type = Field(..., description="記録日（年月日）")
     time_slot: str = Field(..., description="時点（morning/noon/evening）")
     appetite: int = Field(3, ge=1, le=5, description="食欲（1〜5段階、5が最良）")
     energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
@@ -54,7 +55,7 @@ class CareLogUpdate(BaseModel):
     """世話記録更新リクエストスキーマ（全フィールド任意）"""
 
     recorder_name: str | None = Field(None, max_length=100)
-    log_date: date | None = None
+    log_date: date_type | None = None
     time_slot: str | None = None
     appetite: int | None = Field(None, ge=1, le=5)
     energy: int | None = Field(None, ge=1, le=5)
@@ -108,7 +109,7 @@ class CareLogSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    log_date: date
+    log_date: date_type
     time_slot: str
     recorder_name: str
     has_record: bool = Field(True, description="記録済みフラグ（常にTrue）")
@@ -140,5 +141,37 @@ class AnimalStatusSummary(BaseModel):
 class AllAnimalsStatusResponse(BaseModel):
     """全猫の記録状況一覧レスポンススキーマ"""
 
-    target_date: date = Field(..., description="対象日（当日）")
+    target_date: date_type = Field(..., description="対象日（当日）")
     animals: list[AnimalStatusSummary] = Field(..., description="全猫の記録状況")
+
+
+class TimeSlotRecord(BaseModel):
+    """時点ごとの記録情報"""
+
+    exists: bool = Field(..., description="記録の有無")
+    log_id: int | None = Field(None, description="記録ID（記録がある場合）")
+    appetite: int | None = Field(None, ge=1, le=5, description="食欲")
+    energy: int | None = Field(None, ge=1, le=5, description="元気")
+    urination: bool | None = Field(None, description="排尿有無")
+    cleaning: bool | None = Field(None, description="清掃済み")
+
+
+class DailyViewRecord(BaseModel):
+    """日次ビューの1レコード"""
+
+    date: date_type = Field(..., description="日付")
+    animal_id: int = Field(..., description="猫ID")
+    animal_name: str = Field(..., description="猫の名前")
+    morning: TimeSlotRecord = Field(..., description="朝の記録")
+    noon: TimeSlotRecord = Field(..., description="昼の記録")
+    evening: TimeSlotRecord = Field(..., description="夕の記録")
+
+
+class DailyViewResponse(BaseModel):
+    """日次ビュー一覧レスポンススキーマ"""
+
+    items: list[DailyViewRecord] = Field(..., description="日次ビューレコードのリスト")
+    total: int = Field(..., description="総レコード数")
+    page: int = Field(..., description="現在のページ番号")
+    page_size: int = Field(..., description="ページサイズ")
+    total_pages: int = Field(..., description="総ページ数")
