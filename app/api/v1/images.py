@@ -20,7 +20,7 @@ from app.schemas.animal_image import (
 )
 from app.services import image_service
 
-router = APIRouter(prefix="/images", tags=["images"])
+router = APIRouter(tags=["images"])
 logger = logging.getLogger(__name__)
 
 
@@ -143,7 +143,7 @@ def get_image_limits(
 
 
 @router.get(
-    "/{image_id}",
+    "/images/{image_id}",
     response_model=AnimalImageResponse,
     summary="画像を取得",
     description="画像IDを指定して画像情報を取得します。",
@@ -172,7 +172,7 @@ def get_image(
 
 
 @router.patch(
-    "/{image_id}",
+    "/images/{image_id}",
     response_model=AnimalImageResponse,
     summary="画像情報を更新",
     description="画像の撮影日や説明を更新します。",
@@ -222,7 +222,7 @@ def update_image(
 
 
 @router.delete(
-    "/{image_id}",
+    "/images/{image_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="画像を削除",
     description="画像を削除します。ファイルとデータベースレコードの両方が削除されます。",
@@ -249,7 +249,7 @@ def delete_image(
 
 # 設定管理エンドポイント
 @router.put(
-    "/settings/limits",
+    "/images/settings/limits",
     response_model=ImageLimitsResponse,
     summary="画像制限設定を更新",
     description="画像制限設定（最大枚数、最大ファイルサイズ）を更新します。",
