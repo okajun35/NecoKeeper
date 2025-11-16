@@ -73,6 +73,7 @@ def generate_qr_card_pdf(
     html_content = template.render(
         animal=animal,
         qr_code_base64=qr_code_base64,
+        font_family=settings.pdf_font_family,
         base_url=base_url,
     )
 
@@ -137,6 +138,7 @@ def generate_qr_card_grid_pdf(
     html_content = template.render(
         animals_with_qr=animals_with_qr,
         base_url=base_url,
+        font_family=settings.pdf_font_family,
     )
 
     # PDFを生成
@@ -192,6 +194,7 @@ def generate_paper_form_pdf(
     html_content = template.render(
         animal=animal,
         year=year,
+        font_family=settings.pdf_font_family,
         month=month,
         dates=dates,
     )
@@ -316,6 +319,7 @@ def generate_report_pdf(
     html_content = template.render(
         report_type=report_type,
         start_date=start_date.strftime("%Y年%m月%d日"),
+        font_family=settings.pdf_font_family,
         end_date=end_date.strftime("%Y年%m月%d日"),
         generated_at=datetime.now().strftime("%Y年%m月%d日 %H:%M"),
         total_records=total_records,
