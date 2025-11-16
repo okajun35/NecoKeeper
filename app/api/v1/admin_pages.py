@@ -119,6 +119,7 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
     """
     from app.database import SessionLocal
     from app.models.animal import Animal
+    from app.services import animal_service
 
     db = SessionLocal()
     try:
@@ -129,8 +130,12 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
 
             return RedirectResponse(url="/admin/animals", status_code=302)
 
+        # 表示用の画像パスを取得
+        display_image = animal_service.get_display_image(db, animal_id)
+
         return templates.TemplateResponse(
-            "admin/animals/detail.html", {"request": request, "animal": animal}
+            "admin/animals/detail.html",
+            {"request": request, "animal": animal, "display_image": display_image},
         )
     finally:
         db.close()
