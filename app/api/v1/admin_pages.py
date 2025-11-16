@@ -164,6 +164,28 @@ async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
     return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
 
 
+@router.get("/medical-records", response_class=HTMLResponse)
+async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    診療記録一覧ページを表示
+
+    診療記録の一覧を表示。
+    フィルター、検索、PDF/CSV/Excel出力機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 診療記録一覧ページのHTML
+
+    Example:
+        GET /admin/medical-records
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/list.html", {"request": request}
+    )
+
+
 @router.get("/volunteers", response_class=HTMLResponse)
 async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def]
     """
@@ -184,6 +206,26 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
     return templates.TemplateResponse(
         "admin/volunteers/list.html", {"request": request}
     )
+
+
+@router.get("/reports", response_class=HTMLResponse)
+async def reports_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    帳票出力ページを表示
+
+    日報、週報、月次集計、個別帳票の生成画面。
+    期間指定、形式選択（PDF/CSV/Excel）機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 帳票出力ページのHTML
+
+    Example:
+        GET /admin/reports
+    """
+    return templates.TemplateResponse("admin/reports/index.html", {"request": request})
 
 
 @router.get("/settings", response_class=HTMLResponse)

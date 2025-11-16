@@ -7,12 +7,16 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Date, DateTime, Index, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.care_log import CareLog
 
 
 class Animal(Base):
@@ -119,6 +123,11 @@ class Animal(Base):
         server_default=func.now(),
         onupdate=func.now(),
         comment="更新日時",
+    )
+
+    # リレーションシップ
+    care_logs: Mapped[list[CareLog]] = relationship(
+        "CareLog", back_populates="animal", cascade="all, delete-orphan"
     )
 
     # インデックス定義

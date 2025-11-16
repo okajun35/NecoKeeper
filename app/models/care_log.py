@@ -7,12 +7,16 @@
 from __future__ import annotations
 
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.animal import Animal
 
 
 class CareLog(Base):
@@ -158,6 +162,9 @@ class CareLog(Base):
         nullable=True,
         comment="最終更新者ID（管理者による修正時）",
     )
+
+    # リレーションシップ
+    animal: Mapped[Animal] = relationship("Animal", back_populates="care_logs")
 
     # インデックス定義
     __table_args__ = (

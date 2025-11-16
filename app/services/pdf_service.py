@@ -239,22 +239,23 @@ def generate_report_pdf(
     report_type: str,
     start_date: date,
     end_date: date,
+    animal_id: int | None = None,
 ) -> bytes:
     """
-    帳票PDFを生成（日報・週報・月次集計）
+    帳票PDFを生成（日報・週報・月次集計・個別帳票）
 
     Args:
         db: データベースセッション
-        report_type: 帳票種別（daily/weekly/monthly）
+        report_type: 帳票種別（daily/weekly/monthly/individual）
         start_date: 開始日
         end_date: 終了日
+        animal_id: 猫のID（個別帳票の場合のみ必須）
 
     Returns:
         bytes: 生成されたPDFのバイト列
 
     Raises:
-        ValueError: 不正な帳票種別の場合
-        NotImplementedError: 帳票機能が未実装の場合
+        ValueError: 不正な帳票種別の場合、または個別帳票で猫IDが未指定の場合
 
     Example:
         >>> from datetime import date
@@ -264,5 +265,71 @@ def generate_report_pdf(
         >>> with open("report.pdf", "wb") as f:
         ...     f.write(pdf_bytes)
     """
-    # TODO: Phase 6で帳票機能を実装後に実装
-    raise NotImplementedError("帳票機能は未実装です")
+    from datetime import datetime
+
+    from app.models.care_log import CareLog
+
+    # 帳票種別のバリデーション
+    valid_types = ["daily", "weekly", "monthly", "individual"]
+    if report_type not in valid_types:
+        raise ValueError(
+            f"不正な帳票種別です: {report_type}。有効な値: {', '.join(valid_types)}"
+        )
+
+    # 個別帳票の場合は猫IDが必須
+    if report_type == "individual" and not animal_id:
+        raise ValueError("個別帳票の生成には猫IDが必要です")
+
+    # 世話記録を取得
+    query = db.query(CareLog).filter(
+        CareLog.created_at >= start_date,
+        CareLog.created_at <= end_date,
+    )
+
+    # 個別帳票の場合は猫でフィルター
+    if animal_id:
+        query = query.filter(CareLog.animal_id == animal_id)
+
+    records = query.order_by(CareLog.created_at.desc()).all()
+
+    # 統計情報を計算
+    total_records = len(records)
+    total_animals = len(set(record.animal_id for record in records))
+    total_recorders = len(
+        set(record.recorder_name for record in records if record.recorder_name)
+    )
+
+    # 時点の表示名マッピング
+    time_slot_map = {
+        "morning": "朝",
+        "noon": "昼",
+        "evening": "夕",
+    }
+
+    # レコードに表示用データを追加
+    for record in records:
+        record.time_slot_display = time_slot_map.get(record.time_slot, record.time_slot)  # type: ignore[attr-defined]
+        # 猫名を取得
+        if record.animal:
+            record.animal_name = record.animal.name or f"ID:{record.animal_id}"  # type: ignore[attr-defined]
+        else:
+            record.animal_name = f"ID:{record.animal_id}"  # type: ignore[attr-defined]
+
+    # テンプレートをレンダリング
+    template = jinja_env.get_template("report_daily.html")
+    html_content = template.render(
+        report_type=report_type,
+        start_date=start_date.strftime("%Y年%m月%d日"),
+        end_date=end_date.strftime("%Y年%m月%d日"),
+        generated_at=datetime.now().strftime("%Y年%m月%d日 %H:%M"),
+        total_records=total_records,
+        total_animals=total_animals,
+        total_recorders=total_recorders,
+        records=records,
+    )
+
+    # PDFを生成
+    html_doc = HTML(string=html_content, base_url=str(template_dir))
+    pdf_bytes = html_doc.write_pdf()
+
+    return pdf_bytes  # type: ignore[no-any-return]

@@ -60,7 +60,24 @@ source .venv/bin/activate
 .venv\Scripts\Activate.ps1
 ```
 
-3. 依存関係をインストール
+3. 日本語フォントをインストール（PDF生成用）
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install fonts-ipafont fonts-noto-cjk
+```
+
+**macOS:**
+```bash
+# Homebrewを使用
+brew install font-noto-sans-cjk-jp
+```
+
+**Windows:**
+- システムに日本語フォント（Yu Gothic、Meiryoなど）が既にインストールされています
+
+4. 依存関係をインストール
 
 **方法1: pip を使用**
 ```bash
@@ -80,7 +97,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv pip install -r requirements.txt
 ```
 
-4. 環境変数を設定
+5. 環境変数を設定
 
 ```bash
 # .env.example を .env にコピー
@@ -90,7 +107,7 @@ cp .env.example .env
 # 特に SECRET_KEY は本番環境では必ず変更してください
 ```
 
-5. アプリケーションを起動
+6. アプリケーションを起動
 
 ```bash
 # 開発サーバーを起動

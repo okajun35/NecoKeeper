@@ -19,10 +19,12 @@ from app.api.v1 import (
     animals,
     auth,
     care_logs,
+    dashboard,
     images,
     pdf,
     public,
     public_pages,
+    reports,
     volunteers,
 )
 from app.config import get_settings
@@ -178,8 +180,10 @@ async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")
+app.include_router(dashboard.router, prefix="/api/v1")  # ダッシュボードAPI
 app.include_router(images.router, prefix="/api/v1")
 app.include_router(pdf.router, prefix="/api/v1")
+app.include_router(reports.router, prefix="/api/v1")  # 帳票出力API
 app.include_router(public.router, prefix="/api/v1")  # Public API（認証不要）
 app.include_router(public_pages.router)  # Public Pages（HTMLテンプレート）
 app.include_router(admin_pages.router)  # Admin Pages（管理画面）

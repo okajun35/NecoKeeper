@@ -87,6 +87,10 @@ class Settings(BaseSettings):
     # PDF生成設定
     pdf_dpi: int = Field(default=300, description="PDF生成時のDPI", ge=72, le=600)
     qr_code_size: int = Field(default=10, description="QRコードのサイズ", ge=1, le=40)
+    pdf_font_family: str = Field(
+        default="IPAGothic",
+        description="PDF生成時に使用するフォントファミリー（カンマ区切りで複数指定可能）",
+    )
 
     # バックアップ設定
     backup_enabled: bool = Field(default=True, description="自動バックアップの有効化")

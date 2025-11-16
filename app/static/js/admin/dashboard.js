@@ -17,32 +17,20 @@ async function loadDashboardData() {
 // 統計情報を読み込み
 async function loadStatistics() {
   try {
-    // 猫の統計
-    const animalsResponse = await apiRequest(`${API_BASE}/animals?page=1&page_size=1000`);
-    const animals = animalsResponse.items || [];
+    // ダッシュボード統計APIを使用
+    const stats = await apiRequest(`${API_BASE}/dashboard/stats`);
 
-    const protectedCount = animals.filter(a => a.status === '保護中').length;
-    const adoptableCount = animals.filter(a => a.status === '譲渡可能').length;
-
-    document.getElementById('stat-protected').textContent = protectedCount;
-    document.getElementById('stat-adoptable').textContent = adoptableCount;
-
-    // 今日の記録数
-    const today = formatDate(new Date());
-    const logsResponse = await apiRequest(
-      `${API_BASE}/care-logs?start_date=${today}&end_date=${today}&page_size=1000`
-    );
-    const todayLogs = logsResponse.items || [];
-    document.getElementById('stat-today-logs').textContent = todayLogs.length;
-
-    // ボランティア数
-    const volunteersResponse = await apiRequest(
-      `${API_BASE}/volunteers?status=active&page_size=1000`
-    );
-    const volunteers = volunteersResponse.items || [];
-    document.getElementById('stat-volunteers').textContent = volunteers.length;
+    document.getElementById('stat-protected').textContent = stats.protected_count || 0;
+    document.getElementById('stat-adoptable').textContent = stats.adoptable_count || 0;
+    document.getElementById('stat-today-logs').textContent = stats.today_logs_count || 0;
+    document.getElementById('stat-volunteers').textContent = stats.active_volunteers_count || 0;
   } catch (error) {
     console.error('Statistics load error:', error);
+    // エラー時はデフォルト値を表示
+    document.getElementById('stat-protected').textContent = '0';
+    document.getElementById('stat-adoptable').textContent = '0';
+    document.getElementById('stat-today-logs').textContent = '0';
+    document.getElementById('stat-volunteers').textContent = '0';
   }
 }
 
