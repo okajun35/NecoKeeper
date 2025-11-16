@@ -180,35 +180,37 @@ python scripts/seed_sample_data.py
 # ヘルプを表示
 make help
 
-# コミット前の全チェック（format + lint + test）
+# pre-commitと同じ順番で全チェック（推奨）
+# lint → format → mypy → test → prettier
+make all
+
+# 基本チェック（format + lint + test）
 make check
 
-# コードフォーマット
-make format
-
-# Lintチェック
-make lint
-
-# テスト実行
-make test
-
-# カバレッジ付きテスト
-make coverage
-
-# キャッシュファイル削除
-make clean
+# 個別実行
+make lint      # Lintチェック（Ruff）
+make format    # コードフォーマット（Ruff Format）
+make mypy      # 型チェック（Mypy）
+make test      # テスト実行（Pytest）
+make prettier  # JavaScript/JSON/YAMLフォーマット
+make coverage  # カバレッジ付きテスト
+make clean     # キャッシュファイル削除
 ```
 
 **推奨ワークフロー**:
 ```bash
 # コード変更後、コミット前に実行
-make check
+make all
 
 # 問題がなければコミット
 git add .
 git commit -m "your message"
 git push
 ```
+
+**`make all` と `make check` の違い**:
+- `make all`: pre-commitと同じ順番・設定で全チェック（lint → format → mypy → test → prettier）
+- `make check`: 基本チェックのみ（format → lint → test）
 
 #### テスト実行
 

@@ -1,4 +1,4 @@
-.PHONY: help check format lint test coverage clean install pre-commit
+.PHONY: help all check format lint mypy test coverage prettier clean install pre-commit
 
 # デフォルトターゲット
 .DEFAULT_GOAL := help
@@ -12,38 +12,66 @@ help:
 	@echo ""
 	@echo "ターゲット:"
 	@echo "  help        - このヘルプメッセージを表示"
-	@echo "  check       - コミット前の全チェック（format + lint + test）"
+	@echo "  all         - pre-commitと同じ順番で全チェック（推奨）"
+	@echo "  check       - 基本チェック（format + lint + test）"
 	@echo "  format      - コードフォーマット（Ruff）"
 	@echo "  lint        - Lintチェック（Ruff）"
+	@echo "  mypy        - 型チェック（Mypy）"
 	@echo "  test        - テスト実行（Pytest）"
 	@echo "  coverage    - カバレッジ付きテスト実行"
+	@echo "  prettier    - JavaScript/JSON/YAMLフォーマット"
 	@echo "  clean       - キャッシュファイルを削除"
 	@echo "  install     - 依存パッケージをインストール"
 	@echo "  pre-commit  - pre-commitフックをインストール"
 
-# コミット前の全チェック
-check: format lint test
+# pre-commitと同じ順番で全チェック
+all: lint format mypy test prettier
 	@echo ""
 	@echo "✅ 全てのチェックが完了しました！"
 	@echo "コミット可能です: git add . && git commit -m 'your message'"
 
-# コードフォーマット
-format:
-	@echo "🎨 コードフォーマット中..."
-	@ruff format .
-	@echo "✅ フォーマット完了"
+# コミット前の基本チェック
+check: format lint test
+	@echo ""
+	@echo "✅ 基本チェックが完了しました！"
+	@echo "コミット可能です: git add . && git commit -m 'your message'"
 
-# Lintチェック
+# Lintチェック（Ruff - 最初に実行）
 lint:
-	@echo "🔍 Lintチェック中..."
+	@echo "🔍 [1/5] Lintチェック中（Ruff）..."
 	@ruff check . --fix
 	@echo "✅ Lintチェック完了"
 
-# テスト実行
+# コードフォーマット（Ruff Format）
+format:
+	@echo "🎨 [2/5] コードフォーマット中（Ruff Format）..."
+	@ruff format .
+	@echo "✅ フォーマット完了"
+
+# 型チェック（Mypy）
+# pre-commitと同じ設定: app/配下のPythonファイルのみチェック
+mypy:
+	@echo "🔎 [3/5] 型チェック中（Mypy）..."
+	@mypy --config-file=mypy.ini app/ || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
+	@echo "✅ 型チェック完了"
+
+# テスト実行（Pytest）
 test:
-	@echo "🧪 テスト実行中..."
-	@python -m pytest
+	@echo "🧪 [4/5] テスト実行中（Pytest）..."
+	@python -m pytest -v --tb=short
 	@echo "✅ テスト完了"
+
+# Prettier（JavaScript/JSON/YAML）
+prettier:
+	@echo "💅 [5/5] JavaScript/JSON/YAMLフォーマット中（Prettier）..."
+	@if command -v npx >/dev/null 2>&1; then \
+		npx -y prettier --write "app/static/js/**/*.js" "*.json" "*.yaml" "*.yml" 2>/dev/null || echo "⚠️  Prettierでフォーマット可能なファイルがありません"; \
+	elif command -v prettier >/dev/null 2>&1; then \
+		prettier --write "app/static/js/**/*.js" "*.json" "*.yaml" "*.yml" 2>/dev/null || echo "⚠️  Prettierでフォーマット可能なファイルがありません"; \
+	else \
+		echo "ℹ️  Prettierがインストールされていません。スキップします（pre-commitで自動実行されます）"; \
+	fi
+	@echo "✅ Prettierチェック完了"
 
 # カバレッジ付きテスト
 coverage:
