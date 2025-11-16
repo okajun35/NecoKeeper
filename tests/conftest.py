@@ -26,8 +26,10 @@ warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
+from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
+from app.models.applicant import Applicant
 from app.models.care_log import CareLog
 from app.models.setting import Setting
 from app.models.status_history import StatusHistory
@@ -78,6 +80,8 @@ def test_db() -> Generator[Session, None, None]:
 
     # 既存のデータをクリア
     try:
+        db.query(AdoptionRecord).delete()
+        db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
@@ -118,6 +122,8 @@ def test_db() -> Generator[Session, None, None]:
 
     # テスト後のクリーンアップ
     try:
+        db.query(AdoptionRecord).delete()
+        db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
         db.query(StatusHistory).delete()
