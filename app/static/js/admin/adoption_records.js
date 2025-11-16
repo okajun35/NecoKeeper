@@ -63,10 +63,10 @@ async function loadData() {
     const animalsData = await animalsRes.json();
     const applicantsData = await applicantsRes.json();
 
-    // APIレスポンスが配列かオブジェクトかを確認
-    allRecords = Array.isArray(recordsData) ? recordsData : [];
-    animals = Array.isArray(animalsData) ? animalsData : [];
-    applicants = Array.isArray(applicantsData) ? applicantsData : [];
+    // APIレスポンスが配列かオブジェクト（{items: [...]}）かを確認
+    allRecords = Array.isArray(recordsData) ? recordsData : recordsData.items || [];
+    animals = Array.isArray(animalsData) ? animalsData : animalsData.items || [];
+    applicants = Array.isArray(applicantsData) ? applicantsData : applicantsData.items || [];
 
     filteredRecords = [...allRecords];
     populateFilters();
@@ -92,11 +92,11 @@ function populateFilters() {
     '<option value="">すべて</option>' +
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
-  // モーダル用の選択肢も設定
+  // モーダル用の選択肢も設定（譲渡可能な猫のみ）
   document.getElementById('animalId').innerHTML =
     '<option value="">選択してください</option>' +
     animals
-      .filter(a => a.status !== '譲渡済み')
+      .filter(a => a.status === '譲渡可能')
       .map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`)
       .join('');
 
