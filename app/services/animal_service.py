@@ -277,3 +277,51 @@ def search_animals(
         page_size=page_size,
         total_pages=total_pages,
     )
+
+
+def get_display_image(db: Session, animal_id: int) -> str:
+    """
+    表示用の画像パスを取得
+
+    優先順位:
+    1. プロフィール画像（animal.photo）
+    2. 画像ギャラリーの1枚目（作成日時降順）
+    3. デフォルト画像
+
+    Args:
+        db: データベースセッション
+        animal_id: 猫ID
+
+    Returns:
+        str: 画像パス
+
+    Example:
+        >>> image_path = get_display_image(db, 1)
+        >>> print(image_path)
+        '/media/animals/1/profile.jpg'
+    """
+    try:
+        animal = get_animal(db, animal_id)
+
+        # 1. プロフィール画像が設定されている場合
+        if animal.photo:
+            return animal.photo
+
+        # 2. 画像ギャラリーの1枚目を取得
+        from app.services import image_service
+
+        images = image_service.list_images(
+            db, animal_id, sort_by="created_at", ascending=False
+        )
+        if images:
+            return f"/media/{images[0].image_path}"
+
+        # 3. デフォルト画像
+        return "/static/images/default-cat.svg"
+
+    except HTTPException:
+        # 猫が見つからない場合もデフォルト画像を返す
+        return "/static/images/default-cat.svg"
+    except Exception as e:
+        logger.error(f"画像パスの取得に失敗しました: animal_id={animal_id}, エラー={e}")
+        return "/static/images/default-cat.svg"

@@ -245,3 +245,29 @@ async def get_animal_qr_code(
     img_io.seek(0)
 
     return Response(content=img_io.getvalue(), media_type="image/png")
+
+
+@router.get("/{animal_id}/display-image")
+async def get_animal_display_image(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, str]:
+    """
+    猫の表示用画像パスを取得
+
+    優先順位:
+    1. プロフィール画像（animal.photo）
+    2. 画像ギャラリーの1枚目
+    3. デフォルト画像
+
+    Args:
+        animal_id: 猫ID
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        dict: 画像パス {"image_path": "/path/to/image.jpg"}
+    """
+    image_path = animal_service.get_display_image(db=db, animal_id=animal_id)
+    return {"image_path": image_path}
