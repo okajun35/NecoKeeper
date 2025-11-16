@@ -117,9 +117,23 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
     Example:
         GET /admin/animals/123
     """
-    return templates.TemplateResponse(
-        "admin/animals/detail.html", {"request": request, "animal_id": animal_id}
-    )
+    from app.database import SessionLocal
+    from app.models.animal import Animal
+
+    db = SessionLocal()
+    try:
+        animal = db.query(Animal).filter(Animal.id == animal_id).first()
+        if not animal:
+            # 猫が見つからない場合は一覧ページにリダイレクト
+            from fastapi.responses import RedirectResponse
+
+            return RedirectResponse(url="/admin/animals", status_code=302)
+
+        return templates.TemplateResponse(
+            "admin/animals/detail.html", {"request": request, "animal": animal}
+        )
+    finally:
+        db.close()
 
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)

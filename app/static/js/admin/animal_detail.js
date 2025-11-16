@@ -2,444 +2,540 @@
  * 猫詳細ページのJavaScript
  */
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const animalId = getAnimalIdFromUrl();
-
-  if (!animalId) {
-    showError('猫IDが指定されていません');
-    return;
-  }
-
-  await loadAnimalDetail(animalId);
-  await loadCareLogs(animalId);
+// ページ読み込み時の初期化
+document.addEventListener('DOMContentLoaded', () => {
+  setupTabs();
+  setupBasicInfoForm();
+  setupStatusUpdate();
 });
 
-/**
- * URLから猫IDを取得
- */
-function getAnimalIdFromUrl() {
-  const pathParts = window.location.pathname.split('/');
-  return pathParts[pathParts.length - 1];
+// タブ切り替え機能
+function setupTabs() {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabId = button.id.replace('tab-', '');
+
+      // すべてのタブを非アクティブ化
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+
+      // すべてのコンテンツを非表示
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
+
+      // 選択されたタブをアクティブ化
+      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.remove('border-transparent', 'text-gray-500');
+
+      // 選択されたコンテンツを表示
+      const content = document.getElementById(`content-${tabId}`);
+      content.classList.remove('hidden');
+
+      // タブごとのデータ読み込み
+      loadTabContent(tabId);
+    });
+  });
 }
 
-/**
- * 猫の詳細情報を読み込み
- */
-async function loadAnimalDetail(animalId) {
-  try {
-    const animal = await apiRequest(`${API_BASE}/animals/${animalId}`);
-    displayAnimalDetail(animal);
-  } catch (error) {
-    console.error('Error loading animal detail:', error);
-    showError('猫情報の読み込みに失敗しました');
+// タブコンテンツの読み込み
+function loadTabContent(tabId) {
+  switch (tabId) {
+    case 'care':
+      loadCareRecords();
+      break;
+    case 'medical':
+      loadMedicalRecords();
+      break;
+    case 'gallery':
+      loadGallery();
+      break;
+    case 'weight':
+      loadWeightChart();
+      break;
   }
 }
 
-/**
- * 猫の詳細情報を表示
- */
-function displayAnimalDetail(animal) {
-  const container = document.getElementById('animal-detail');
+// 基本情報フォームのセットアップ
+function setupBasicInfoForm() {
+  const form = document.getElementById('basicInfoForm');
+  const cancelBtn = document.getElementById('cancelBtn');
 
-  const statusColors = {
-    保護中: 'bg-yellow-100 text-yellow-800',
-    治療中: 'bg-red-100 text-red-800',
-    譲渡可能: 'bg-green-100 text-green-800',
-    譲渡済み: 'bg-gray-100 text-gray-800',
-  };
-
-  const genderLabels = {
-    male: 'オス',
-    female: 'メス',
-    unknown: '不明',
-  };
-
-  container.innerHTML = `
-    <div class="flex flex-col md:flex-row gap-6">
-      <!-- 画像 -->
-      <div class="md:w-1/3">
-        <img src="${animal.photo || '/static/images/default.svg'}"
-             alt="${animal.name}"
-             class="w-full h-64 object-cover rounded-lg">
-
-        <!-- QRコード表示ボタン -->
-        <button onclick="showQRCode(${animal.id})"
-                class="mt-4 w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-          QRコード表示
-        </button>
-      </div>
-
-      <!-- 詳細情報 -->
-      <div class="md:w-2/3 space-y-4">
-        <div class="flex items-center gap-3">
-          <h3 class="text-2xl font-bold text-gray-900">${animal.name}</h3>
-          <span class="px-3 py-1 rounded-full text-sm font-medium ${statusColors[animal.status] || 'bg-gray-100 text-gray-800'}">
-            ${animal.status}
-          </span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <p class="text-sm text-gray-500">柄</p>
-            <p class="text-base font-medium text-gray-900">${animal.pattern}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">性別</p>
-            <p class="text-base font-medium text-gray-900">${genderLabels[animal.gender] || animal.gender}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">年齢</p>
-            <p class="text-base font-medium text-gray-900">${animal.age}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">保護日</p>
-            <p class="text-base font-medium text-gray-900">${animal.protected_at ? formatDate(animal.protected_at) : '-'}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">尻尾の長さ</p>
-            <p class="text-base font-medium text-gray-900">${animal.tail_length || '-'}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">首輪</p>
-            <p class="text-base font-medium text-gray-900">${animal.collar || '-'}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">耳カット</p>
-            <p class="text-base font-medium text-gray-900">${animal.ear_cut ? 'あり' : 'なし'}</p>
-          </div>
-        </div>
-
-        ${
-          animal.features
-            ? `
-          <div>
-            <p class="text-sm text-gray-500">特徴・性格</p>
-            <p class="text-base text-gray-900 whitespace-pre-wrap">${animal.features}</p>
-          </div>
-        `
-            : ''
-        }
-
-        <div class="grid grid-cols-2 gap-4 text-sm text-gray-500">
-          <div>
-            <p>登録日: ${formatDate(animal.created_at)}</p>
-          </div>
-          <div>
-            <p>更新日: ${formatDate(animal.updated_at)}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-/**
- * 世話記録を読み込み
- */
-async function loadCareLogs(animalId) {
-  try {
-    // 過去30日分の記録を取得
-    const data = await apiRequest(`${API_BASE}/care-logs?animal_id=${animalId}&page_size=100`);
-    displayCareLogs(data.items || [], animalId);
-  } catch (error) {
-    console.error('Error loading care logs:', error);
-    document.getElementById('care-logs-list').innerHTML = `
-      <p class="text-gray-500">世話記録の読み込みに失敗しました</p>
-    `;
-  }
-}
-
-/**
- * 世話記録を日付ごとにグループ化
- */
-function groupCareLogsByDate(careLogs) {
-  const grouped = {};
-
-  careLogs.forEach(log => {
-    if (!grouped[log.log_date]) {
-      grouped[log.log_date] = {
-        morning: null,
-        noon: null,
-        evening: null,
-      };
-    }
-    grouped[log.log_date][log.time_slot] = log;
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    await updateBasicInfo();
   });
 
-  return grouped;
+  cancelBtn.addEventListener('click', () => {
+    window.location.href = '/admin/animals';
+  });
 }
 
-/**
- * 世話記録を表示
- */
-function displayCareLogs(careLogs, animalId) {
-  const container = document.getElementById('care-logs-list');
+// 基本情報の更新
+async function updateBasicInfo() {
+  try {
+    const formData = {
+      name: document.getElementById('name').value,
+      pattern: document.getElementById('pattern').value,
+      tail_length: document.getElementById('tailLength').value,
+      collar: document.getElementById('collar').value,
+      age: document.getElementById('age').value || null,
+      gender: document.getElementById('gender').value,
+      ear_cut: document.getElementById('earCut').checked,
+      features: document.getElementById('features').value || null,
+    };
 
-  if (careLogs.length === 0) {
-    container.innerHTML = '<p class="text-gray-500">世話記録がありません</p>';
+    const response = await fetch(`/api/v1/animals/${animalId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error('基本情報の更新に失敗しました');
+    }
+
+    showAlert('基本情報を更新しました', 'success');
+  } catch (error) {
+    console.error('Error updating basic info:', error);
+    showAlert(error.message, 'error');
+  }
+}
+
+// ステータス更新のセットアップ
+function setupStatusUpdate() {
+  const updateBtn = document.getElementById('updateStatusBtn');
+
+  updateBtn.addEventListener('click', async () => {
+    await updateStatus();
+  });
+}
+
+// ステータスの更新
+async function updateStatus() {
+  try {
+    const newStatus = document.getElementById('statusSelect').value;
+
+    const response = await fetch(`/api/v1/animals/${animalId}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (!response.ok) {
+      throw new Error('ステータスの更新に失敗しました');
+    }
+
+    showAlert('ステータスを更新しました', 'success');
+  } catch (error) {
+    console.error('Error updating status:', error);
+    showAlert(error.message, 'error');
+  }
+}
+
+// 世話記録の読み込み
+async function loadCareRecords() {
+  const content = document.getElementById('content-care');
+
+  try {
+    const response = await fetch(`/api/v1/care-logs?animal_id=${animalId}&page=1&page_size=10`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('世話記録の取得に失敗しました');
+    }
+
+    const data = await response.json();
+
+    if (data.items.length === 0) {
+      content.innerHTML = '<div class="text-center py-8 text-gray-500">世話記録がありません</div>';
+      return;
+    }
+
+    // 世話記録の表示
+    let html = '<div class="space-y-4">';
+    data.items.forEach(record => {
+      html += `
+        <div class="border border-gray-200 rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-medium">${record.created_at.split('T')[0]} - ${record.time_slot || '未設定'}</p>
+              <p class="text-sm text-gray-600">記録者: ${record.recorder_name || '不明'}</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div><span class="text-gray-500">食欲:</span> ${record.appetite}/5</div>
+            <div><span class="text-gray-500">元気:</span> ${record.energy}/5</div>
+            <div><span class="text-gray-500">排尿:</span> ${record.urination ? '○' : '×'}</div>
+            <div><span class="text-gray-500">清掃:</span> ${record.cleaning ? '済' : '未'}</div>
+          </div>
+          ${record.memo ? `<p class="mt-2 text-sm text-gray-600">${record.memo}</p>` : ''}
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    content.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading care records:', error);
+    content.innerHTML =
+      '<div class="text-center py-8 text-red-500">世話記録の読み込みに失敗しました</div>';
+  }
+}
+
+// 診療記録の読み込み
+async function loadMedicalRecords() {
+  const content = document.getElementById('content-medical');
+
+  try {
+    const response = await fetch(
+      `/api/v1/medical-records?animal_id=${animalId}&page=1&page_size=10`,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('診療記録の取得に失敗しました');
+    }
+
+    const data = await response.json();
+
+    if (data.items.length === 0) {
+      content.innerHTML = '<div class="text-center py-8 text-gray-500">診療記録がありません</div>';
+      return;
+    }
+
+    // 診療記録の表示
+    let html = '<div class="space-y-4">';
+    data.items.forEach(record => {
+      html += `
+        <div class="border border-gray-200 rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-medium">${record.date}</p>
+              <p class="text-sm text-gray-600">獣医師: ${record.vet_name || '不明'}</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-sm mb-2">
+            <div><span class="text-gray-500">体重:</span> ${record.weight}kg</div>
+            <div><span class="text-gray-500">体温:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
+          </div>
+          <p class="text-sm"><span class="text-gray-500">症状:</span> ${record.symptoms}</p>
+          ${record.medical_action_name ? `<p class="text-sm"><span class="text-gray-500">診療行為:</span> ${record.medical_action_name} ${record.dosage ? '(' + record.dosage + record.dosage_unit + ')' : ''}</p>` : ''}
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    content.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading medical records:', error);
+    content.innerHTML =
+      '<div class="text-center py-8 text-red-500">診療記録の読み込みに失敗しました</div>';
+  }
+}
+
+// 画像ギャラリーの読み込み
+async function loadGallery() {
+  const content = document.getElementById('content-gallery');
+
+  try {
+    const response = await fetch(
+      `/api/v1/images/animals/${animalId}/images?sort_by=created_at&ascending=false`,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('画像の取得に失敗しました');
+    }
+
+    const images = await response.json();
+
+    if (images.length === 0) {
+      content.innerHTML = `
+        <div class="text-center py-8">
+          <p class="text-gray-500 mb-4">画像がありません</p>
+          <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+            画像をアップロード
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    // 画像ギャラリーの表示
+    let html = `
+      <div class="mb-4 flex justify-between items-center">
+        <p class="text-sm text-gray-600">${images.length}枚の画像</p>
+        <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          画像を追加
+        </button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    `;
+
+    images.forEach(image => {
+      html += `
+        <div class="relative group">
+          <img src="${image.image_path}" alt="${image.description || ''}" class="w-full h-48 object-cover rounded-lg cursor-pointer" onclick="openImageModal('${image.image_path}', '${image.description || ''}')">
+          <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="deleteImage(${image.id})" class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${image.taken_at}</p>` : ''}
+          ${image.description ? `<p class="text-xs text-gray-600 mt-1">${image.description}</p>` : ''}
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    content.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading gallery:', error);
+    content.innerHTML =
+      '<div class="text-center py-8 text-red-500">画像の読み込みに失敗しました</div>';
+  }
+}
+
+// 画像アップロードダイアログを開く
+function openUploadDialog() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (file) {
+      await uploadImage(file);
+    }
+  };
+  input.click();
+}
+
+// 画像をアップロード
+async function uploadImage(file) {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`/api/v1/images/animals/${animalId}/images`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || '画像のアップロードに失敗しました');
+    }
+
+    showAlert('画像をアップロードしました', 'success');
+    loadGallery();
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    showAlert(error.message, 'error');
+  }
+}
+
+// 画像を削除
+async function deleteImage(imageId) {
+  if (!confirm('この画像を削除しますか？')) {
     return;
   }
 
-  // 日付ごとにグループ化
-  const groupedLogs = groupCareLogsByDate(careLogs);
-
-  // 日付でソート（新しい順）
-  const sortedDates = Object.keys(groupedLogs).sort((a, b) => new Date(b) - new Date(a));
-
-  // 最新10日分のみ表示
-  const displayDates = sortedDates.slice(0, 10);
-
-  const timeSlotLabels = {
-    morning: '朝',
-    noon: '昼',
-    evening: '夜',
-  };
-
-  container.innerHTML = `
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              日付
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              朝
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              昼
-            </th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              夜
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          ${displayDates
-            .map(date => {
-              const logs = groupedLogs[date];
-              return `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  ${formatDate(date)}
-                </td>
-                ${['morning', 'noon', 'evening']
-                  .map(timeSlot => {
-                    const log = logs[timeSlot];
-                    if (log) {
-                      return `
-                      <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a href="#" onclick="showCareLogDetail(${log.id}); return false;"
-                           class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                           title="記録済み - クリックして詳細を表示">
-                          ○
-                        </a>
-                      </td>
-                    `;
-                    } else {
-                      return `
-                      <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <a href="/admin/care-logs/new?animal_id=${animalId}&date=${date}&time_slot=${timeSlot}"
-                           class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                           title="未記録 - クリックして登録">
-                          ×
-                        </a>
-                      </td>
-                    `;
-                    }
-                  })
-                  .join('')}
-              </tr>
-            `;
-            })
-            .join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-/**
- * 世話記録の詳細を表示
- */
-async function showCareLogDetail(logId) {
   try {
-    const log = await apiRequest(`${API_BASE}/care-logs/${logId}`);
-
-    const timeSlotLabels = {
-      morning: '🌅 朝',
-      noon: '☀️ 昼',
-      evening: '🌙 夜',
-    };
-
-    // モーダルを作成
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    modal.innerHTML = `
-      <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">世話記録詳細</h3>
-          <button onclick="this.closest('.fixed').remove()"
-                  class="text-gray-500 hover:text-gray-700">
-            ✕
-          </button>
-        </div>
-
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">日付</p>
-              <p class="text-base font-medium text-gray-900">${formatDate(log.log_date)}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">時間帯</p>
-              <p class="text-base font-medium text-gray-900">${timeSlotLabels[log.time_slot] || log.time_slot}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">記録者</p>
-              <p class="text-base font-medium text-gray-900">${log.recorder_name || '不明'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">記録日時</p>
-              <p class="text-base font-medium text-gray-900">${formatDateTime(log.created_at)}</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">食欲</p>
-              <p class="text-base font-medium text-gray-900">${log.appetite}/5</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">元気</p>
-              <p class="text-base font-medium text-gray-900">${log.energy}/5</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">排尿</p>
-              <p class="text-base font-medium text-gray-900">${log.urination ? 'あり' : 'なし'}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">掃除</p>
-              <p class="text-base font-medium text-gray-900">${log.cleaning ? '済' : '未'}</p>
-            </div>
-          </div>
-
-          ${
-            log.memo
-              ? `
-            <div>
-              <p class="text-sm text-gray-500">メモ</p>
-              <p class="text-base text-gray-900 whitespace-pre-wrap">${log.memo}</p>
-            </div>
-          `
-              : ''
-          }
-
-          <div class="flex justify-end gap-2 pt-4 border-t">
-            <button onclick="this.closest('.fixed').remove()"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-              閉じる
-            </button>
-            <a href="/admin/care-logs/${logId}/edit"
-               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              編集
-            </a>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // 背景クリックで閉じる
-    modal.addEventListener('click', e => {
-      if (e.target === modal) {
-        modal.remove();
-      }
+    const response = await fetch(`/api/v1/images/${imageId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
     });
+
+    if (!response.ok) {
+      throw new Error('画像の削除に失敗しました');
+    }
+
+    showAlert('画像を削除しました', 'success');
+    loadGallery();
   } catch (error) {
-    console.error('Error loading care log detail:', error);
-    showToast('世話記録の読み込みに失敗しました', 'error');
+    console.error('Error deleting image:', error);
+    showAlert(error.message, 'error');
   }
 }
 
-/**
- * 日時をフォーマット
- */
-function formatDateTime(dateTimeString) {
-  const date = new Date(dateTimeString);
-  return date.toLocaleString('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-/**
- * QRコードを表示
- */
-function showQRCode(animalId) {
-  const qrUrl = `${API_BASE}/animals/${animalId}/qr`;
-
-  // モーダルを作成
+// 画像モーダルを開く
+function openImageModal(imagePath, description) {
   const modal = document.createElement('div');
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.className =
+    'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+  modal.onclick = () => modal.remove();
+
   modal.innerHTML = `
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">QRコード</h3>
-        <button onclick="this.closest('.fixed').remove()"
-                class="text-gray-500 hover:text-gray-700">
-          ✕
-        </button>
-      </div>
-      <div class="flex justify-center">
-        <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
-      </div>
-      <p class="mt-4 text-sm text-gray-600 text-center">
-        このQRコードをスキャンすると、世話記録入力画面が開きます
-      </p>
+    <div class="max-w-4xl max-h-full">
+      <img src="${imagePath}" alt="${description}" class="max-w-full max-h-screen object-contain">
+      ${description ? `<p class="text-white text-center mt-2">${description}</p>` : ''}
     </div>
   `;
 
   document.body.appendChild(modal);
+}
 
-  // 背景クリックで閉じる
-  modal.addEventListener('click', e => {
-    if (e.target === modal) {
-      modal.remove();
+// 体重推移グラフの読み込み
+async function loadWeightChart() {
+  const content = document.getElementById('content-weight');
+
+  try {
+    // 診療記録から体重データを取得
+    const response = await fetch(
+      `/api/v1/medical-records?animal_id=${animalId}&page=1&page_size=100`,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('体重データの取得に失敗しました');
     }
-  });
+
+    const data = await response.json();
+
+    // 体重データを抽出
+    const weightData = data.items
+      .filter(record => record.weight)
+      .map(record => ({
+        date: record.date,
+        weight: parseFloat(record.weight),
+      }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (weightData.length === 0) {
+      content.innerHTML =
+        '<div class="text-center py-8 text-gray-500">体重データがありません</div>';
+      return;
+    }
+
+    // グラフを描画
+    renderWeightChart(content, weightData);
+  } catch (error) {
+    console.error('Error loading weight chart:', error);
+    content.innerHTML =
+      '<div class="text-center py-8 text-red-500">体重データの読み込みに失敗しました</div>';
+  }
 }
 
-/**
- * 日付をフォーマット
- */
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-}
+// 体重推移グラフを描画
+function renderWeightChart(container, weightData) {
+  // 簡易的なテーブル表示（Chart.jsは後で実装）
+  let html = `
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
+            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
+            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+  `;
 
-/**
- * エラーメッセージを表示
- */
-function showError(message) {
-  const container = document.getElementById('animal-detail');
-  container.innerHTML = `
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-      <p class="text-red-800">${message}</p>
-      <a href="/admin/animals" class="text-red-600 hover:text-red-800 underline mt-2 inline-block">
-        一覧に戻る
-      </a>
+  weightData.forEach((data, index) => {
+    let change = '';
+    let changeClass = '';
+
+    if (index > 0) {
+      const diff = data.weight - weightData[index - 1].weight;
+      const percent = (diff / weightData[index - 1].weight) * 100;
+
+      if (diff > 0) {
+        change = `+${diff.toFixed(2)}kg (${percent.toFixed(1)}%)`;
+        changeClass = 'text-green-600';
+      } else if (diff < 0) {
+        change = `${diff.toFixed(2)}kg (${percent.toFixed(1)}%)`;
+        changeClass = 'text-red-600';
+      } else {
+        change = '変化なし';
+        changeClass = 'text-gray-500';
+      }
+
+      // 10%以上の変化は警告
+      if (Math.abs(percent) >= 10) {
+        changeClass = 'text-red-600 font-bold';
+        change += ' ⚠️';
+      }
+    }
+
+    html += `
+      <tr>
+        <td class="px-4 py-2 text-sm text-gray-900">${data.date}</td>
+        <td class="px-4 py-2 text-sm text-gray-900 text-right">${data.weight.toFixed(2)}</td>
+        <td class="px-4 py-2 text-sm ${changeClass} text-right">${change}</td>
+      </tr>
+    `;
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-4 text-sm text-gray-600">
+      <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
     </div>
   `;
+
+  container.innerHTML = html;
 }
 
-// グローバルエクスポート
-window.showCareLogDetail = showCareLogDetail;
+// アラート表示
+function showAlert(message, type = 'info') {
+  const container = document.getElementById('alertContainer');
+  const alert = document.createElement('div');
+
+  const bgColor =
+    type === 'success'
+      ? 'bg-green-50 border-green-200 text-green-800'
+      : type === 'error'
+        ? 'bg-red-50 border-red-200 text-red-800'
+        : 'bg-blue-50 border-blue-200 text-blue-800';
+
+  alert.className = `${bgColor} border rounded-lg p-4 shadow-lg`;
+  alert.textContent = message;
+
+  container.appendChild(alert);
+
+  setTimeout(() => {
+    alert.remove();
+  }, 3000);
+}
+
+// トークン取得
+function getToken() {
+  return localStorage.getItem('access_token');
+}

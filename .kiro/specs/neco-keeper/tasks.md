@@ -676,7 +676,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - モバイル・PC両対応
   - _Requirements: Requirement 12.4, Requirement 15.3, Requirement 15.6-15.7_
 
-- [ ] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）
+- [x] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）
   - タブ構成（基本情報、世話記録、診療記録、画像ギャラリー、体重グラフ）
   - 基本情報編集フォーム
   - ステータス変更機能
