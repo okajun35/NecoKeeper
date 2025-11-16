@@ -100,9 +100,30 @@ python3 -m app.main
 uvicorn app.main:app --reload
 ```
 
-6. ブラウザでアクセス
+6. サンプルデータを投入（オプション）
+
+開発・テスト用のサンプルデータを投入できます：
+
+```bash
+python scripts/seed_sample_data.py
+```
+
+投入されるデータ：
+- **ユーザー**: 3人（管理者2名、獣医師1名）
+- **ボランティア**: 4人
+- **猫**: 10匹（様々なステータス：保護中、譲渡可能、譲渡済み、治療中）
+- **世話記録**: 約140件（過去7日分）
+- **ステータス履歴**: 10件
+
+ログイン情報：
+- 開発用管理者: `admin@example.com` / `admin123`
+- 管理者: `admin@necokeeper.local` / `admin123`
+- 獣医師: `vet@necokeeper.local` / `vet123`
+
+7. ブラウザでアクセス
 
 - アプリケーション: http://localhost:8000
+- 管理画面: http://localhost:8000/admin
 - API ドキュメント: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
@@ -132,6 +153,22 @@ NecoKeeper/
 ├── .env.example           # 環境変数の例
 └── requirements.txt       # Python依存関係
 ```
+
+### サンプルデータ
+
+開発・テスト環境でサンプルデータを使用する場合：
+
+```bash
+# サンプルデータを投入
+python scripts/seed_sample_data.py
+```
+
+このスクリプトは以下を実行します：
+1. 既存データをすべて削除
+2. サンプルユーザー、ボランティア、猫、世話記録を投入
+3. ログイン情報を表示
+
+**注意**: 本番環境では実行しないでください。既存データがすべて削除されます。
 
 ### 開発ツール
 
