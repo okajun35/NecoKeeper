@@ -65,9 +65,9 @@ test:
 prettier:
 	@echo "💅 [5/5] JavaScript/JSON/YAMLフォーマット中（Prettier）..."
 	@if command -v npx >/dev/null 2>&1; then \
-		npx -y prettier --write "app/static/js/**/*.js" "*.json" "*.yaml" "*.yml" 2>/dev/null || echo "⚠️  Prettierでフォーマット可能なファイルがありません"; \
+		npx -y prettier --write 'app/static/js/**/*.js' '*.json' '*.yaml' '.pre-commit-config.yaml' 2>&1 | grep -v "No files matching" || true; \
 	elif command -v prettier >/dev/null 2>&1; then \
-		prettier --write "app/static/js/**/*.js" "*.json" "*.yaml" "*.yml" 2>/dev/null || echo "⚠️  Prettierでフォーマット可能なファイルがありません"; \
+		prettier --write 'app/static/js/**/*.js' '*.json' '*.yaml' '.pre-commit-config.yaml' 2>&1 | grep -v "No files matching" || true; \
 	else \
 		echo "ℹ️  Prettierがインストールされていません。スキップします（pre-commitで自動実行されます）"; \
 	fi
