@@ -5,18 +5,18 @@
     <title>QRカード - {{ animal.name or '名前未設定' }}</title>
     <style>
         @page {
-            size: A6 landscape;
+            size: A6 portrait;
             margin: 5mm;
         }
 
         body {
             font-family: {{ font_family }}, 'Noto Sans CJK JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
             margin: 0;
-            padding: 10mm;
+            padding: 5mm;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100%;
         }
 
@@ -26,37 +26,38 @@
         }
 
         .animal-photo {
-            width: 40mm;
-            height: 40mm;
+            width: 50mm;
+            height: 50mm;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 5mm;
+            margin-bottom: 4mm;
             border: 2px solid #333;
         }
 
         .animal-name {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
             color: #333;
         }
 
         .animal-id {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #666;
-            margin-bottom: 5mm;
+            margin-bottom: 4mm;
         }
 
         .qr-code {
-            width: 35mm;
-            height: 35mm;
+            width: 40mm;
+            height: 40mm;
             margin: 0 auto;
         }
 
         .instructions {
-            font-size: 8pt;
+            font-size: 7pt;
             color: #666;
             margin-top: 3mm;
+            line-height: 1.4;
         }
     </style>
 </head>
