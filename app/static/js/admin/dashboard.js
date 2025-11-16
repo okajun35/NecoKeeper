@@ -113,10 +113,16 @@ async function loadNeedsCare() {
         if (!animal.noon_recorded) missing.push('昼');
         if (!animal.evening_recorded) missing.push('夜');
 
+        const photoUrl =
+          animal.animal_photo && animal.animal_photo.trim() !== ''
+            ? animal.animal_photo
+            : '/static/images/default.svg';
+
         return `
                 <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <img src="${animal.animal_photo || '/static/images/default.svg'}"
+                    <img src="${photoUrl}"
                          alt="${animal.animal_name}"
+                         onerror="this.onerror=null; this.src='/static/images/default.svg';"
                          class="w-12 h-12 rounded-full object-cover">
                     <div class="flex-1">
                         <div class="font-medium text-gray-900">${animal.animal_name}</div>

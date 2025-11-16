@@ -42,10 +42,17 @@ function displayAnimalsList(animals) {
     const animalCard = document.createElement('div');
     animalCard.className = 'bg-white rounded-lg shadow-md p-6';
 
+    // 画像URLのフォールバック処理
+    const photoUrl =
+      animal.animal_photo && animal.animal_photo.trim() !== ''
+        ? animal.animal_photo
+        : '/static/images/default.svg';
+
     animalCard.innerHTML = `
             <div class="flex items-center gap-4 mb-4">
-                <img src="${animal.animal_photo || '/static/images/default.svg'}"
+                <img src="${photoUrl}"
                      alt="${animal.animal_name}"
+                     onerror="this.onerror=null; this.src='/static/images/default.svg';"
                      class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200">
                 <div class="flex-1">
                     <h3 class="text-lg font-bold text-gray-800">${animal.animal_name}</h3>

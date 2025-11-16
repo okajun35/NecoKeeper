@@ -47,13 +47,17 @@ function renderAnimalsList(animals) {
   }
 
   container.innerHTML = animals
-    .map(
-      animal => `
+    .map(animal => {
+      const photoUrl =
+        animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+
+      return `
         <div class="p-6 hover:bg-gray-50 transition-colors">
             <div class="flex items-center gap-6">
                 <!-- 写真 -->
-                <img src="${animal.photo || '/static/images/default.svg'}"
+                <img src="${photoUrl}"
                      alt="${animal.name}"
+                     onerror="this.onerror=null; this.src='/static/images/default.svg';"
                      class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200">
 
                 <!-- 基本情報 -->
@@ -99,8 +103,8 @@ function renderAnimalsList(animals) {
                 </div>
             </div>
         </div>
-    `
-    )
+    `;
+    })
     .join('');
 }
 
