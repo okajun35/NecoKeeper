@@ -192,9 +192,9 @@ class TestDailyViewEndpoint:
         # 日付が降順であることを確認
         if len(data["items"]) >= 2:
             dates = [item["date"] for item in data["items"]]
-            assert dates == sorted(dates, reverse=True), (
-                "日付が降順でソートされていません"
-            )
+            assert dates == sorted(
+                dates, reverse=True
+            ), "日付が降順でソートされていません"
 
 
 class TestAdminPagesRouting:
@@ -233,9 +233,9 @@ class TestAdminPagesRouting:
         response = test_client.get(f"/admin/care-logs/{care_log.id}")
 
         # 404ではないことを確認
-        assert response.status_code != 404, (
-            f"/admin/care-logs/{care_log.id}のルートが定義されていません"
-        )
+        assert (
+            response.status_code != 404
+        ), f"/admin/care-logs/{care_log.id}のルートが定義されていません"
 
         # 認証が必要な場合は302（リダイレクト）または200
         assert response.status_code in [200, 302]
