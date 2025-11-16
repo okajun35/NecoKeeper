@@ -665,7 +665,7 @@ function setupProfileImageChange() {
       const response = await fetch(`${API_BASE}/animals/${animalId}/profile-image`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${getToken()}`,
         },
         body: formData,
       });
@@ -702,7 +702,7 @@ async function loadGalleryImages() {
       `${API_BASE}/animals/${animalId}/images?sort_by=created_at&ascending=false`,
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       }
     );
@@ -751,7 +751,7 @@ async function selectGalleryImage(imageId, imagePath) {
       {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${getToken()}`,
           'Content-Type': 'application/json',
         },
       }

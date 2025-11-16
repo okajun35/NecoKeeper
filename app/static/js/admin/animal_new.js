@@ -126,7 +126,7 @@ async function uploadProfileImage(animalId, file) {
   const response = await fetch(`${API_BASE}/animals/${animalId}/profile-image`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Authorization: `Bearer ${getAccessToken()}`,
     },
     body: formData,
   });

@@ -12,7 +12,9 @@ from datetime import date
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
+from app.auth.dependencies import get_current_active_user
 from app.database import get_db
+from app.models.user import User
 from app.schemas.animal_image import (
     AnimalImageResponse,
     AnimalImageUpdate,
@@ -37,6 +39,7 @@ async def upload_animal_image(
     taken_at: date | None = Form(None, description="撮影日"),
     description: str | None = Form(None, description="説明"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> AnimalImageResponse:
     """
     猫の画像をアップロード
@@ -80,6 +83,7 @@ def get_animal_images(
     sort_by: str = "created_at",
     ascending: bool = False,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> list[AnimalImageResponse]:
     """
     猫の画像一覧を取得
@@ -231,6 +235,7 @@ def update_image(
 def delete_image(
     image_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ) -> None:
     """
     画像を削除

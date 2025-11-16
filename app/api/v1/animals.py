@@ -278,7 +278,7 @@ async def upload_profile_image(
     animal_id: int,
     file: UploadFile,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(require_permission("animal:write"))],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict[str, str]:
     """
     プロフィール画像をアップロード
@@ -320,7 +320,7 @@ async def update_profile_image(
     animal_id: int,
     file: UploadFile,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(require_permission("animal:write"))],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict[str, str]:
     """
     プロフィール画像を変更
@@ -362,7 +362,7 @@ async def set_profile_image_from_gallery(
     animal_id: int,
     image_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[User, Depends(require_permission("animal:write"))],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict[str, str]:
     """
     画像ギャラリーからプロフィール画像を選択
