@@ -704,9 +704,14 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - ローディング状態とエラーハンドリング
   - _Requirements: Requirement 25.1_
 
-- [ ] 13.6 診療記録一覧画面を実装（app/templates/admin/medical_records/list.html）
-  - DataTables（時系列表示）
-  - PDF/CSV/Excelエクスポートボタン
+- [x] 13.6 診療記録一覧画面を実装（app/templates/admin/medical_records/list.html）✅
+  - HTMLテンプレート実装（モバイル・デスクトップ対応）
+  - JavaScript実装（app/static/js/admin/medical_records_list.js）
+  - フィルター機能（猫、獣医師、日付範囲）
+  - ページネーション処理
+  - 時系列表示（降順）
+  - 診療行為・投薬情報表示
+  - ルーティング実装（/admin/medical-records）
   - _Requirements: Requirement 5.5, Requirement 7.1_
 
 - [ ] 13.7 里親管理画面を実装（app/templates/admin/adoptions/）
@@ -1335,7 +1340,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 5: 診療マスターデータ管理 (5/5 完了) ✅
 - [x] Phase 6: PDF生成機能 (5/5 完了) ✅
 - [ ] Phase 7: 里親管理機能 (0/4 完了)
-- [ ] Phase 8: 管理画面UI (7/15 完了) 🚧
+- [ ] Phase 8: 管理画面UI (8/15 完了) 🚧
 - [x] Phase 9: Publicフォーム（PWA） (7/7 完了) ✅
 - [x] Phase 9: 記録一覧機能 (6/6 完了) ✅
 - [ ] Phase 10: 多言語対応 (0/5 完了)
@@ -1348,9 +1353,9 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [ ] Phase 17: 最終調整とリリース (0/12 完了)
 
 ### 全体進捗
-**完了タスク数**: 61 / 141 タスク (43.3%)
+**完了タスク数**: 62 / 141 タスク (44.0%)
 **MVP Core完了**: Phase 1-6, 9（バックエンド + PWA + 記録一覧）完全完了 ✅
-**推定残り時間**: 約80-120時間（1タスク平均1-1.5時間）
+**推定残り時間**: 約79-118時間（1タスク平均1-1.5時間）
 
 ### 実装済み機能
 - ✅ データベース（全12モデル）
