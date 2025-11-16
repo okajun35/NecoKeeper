@@ -49,15 +49,9 @@ def seed_users(db: Session) -> dict[str, User]:
             "role": "admin",
         },
         {
-            "email": "staff@necokeeper.local",
-            "password": "staff123",
-            "name": "スタッフ 花子",
-            "role": "staff",
-        },
-        {
             "email": "vet@necokeeper.local",
             "password": "vet123",
-            "name": "獣医師 次郎",
+            "name": "獣医師 花子",
             "role": "vet",
         },
     ]
@@ -360,7 +354,6 @@ def main() -> None:
 
         print("\n🔑 ログイン情報:")
         print("  - 管理者: admin@necokeeper.local / admin123")
-        print("  - スタッフ: staff@necokeeper.local / staff123")
         print("  - 獣医師: vet@necokeeper.local / vet123")
 
     except Exception as e:
