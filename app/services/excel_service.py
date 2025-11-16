@@ -40,9 +40,7 @@ def generate_care_log_excel(
 
     Example:
         >>> from datetime import date
-        >>> excel_data = generate_care_log_excel(
-        ...     db, date(2024, 11, 1), date(2024, 11, 30)
-        ... )
+        >>> excel_data = generate_care_log_excel(db, date(2024, 11, 1), date(2024, 11, 30))
         >>> with open("care_logs.xlsx", "wb") as f:
         ...     f.write(excel_data)
     """
