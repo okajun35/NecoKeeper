@@ -197,20 +197,32 @@ make coverage  # カバレッジ付きテスト
 make clean     # キャッシュファイル削除
 ```
 
-**推奨ワークフロー**:
+**推奨ワークフロー（必須）**:
 ```bash
-# コード変更後、コミット前に実行
+# コード変更後、コミット前に必ず実行
 make all
 
-# 問題がなければコミット
+# 全てパスしたらコミット
 git add .
 git commit -m "your message"
 git push
 ```
 
+**重要**: `make all`は**コミット前に必ず実行**してください。これにより以下が保証されます：
+- コード品質（Lint）
+- フォーマット統一（Ruff Format）
+- 型安全性（Mypy）
+- 全テストパス（Pytest 345テスト）
+- JavaScript/JSON/YAMLフォーマット（Prettier）
+
 **`make all` と `make check` の違い**:
 - `make all`: pre-commitと同じ順番・設定で全チェック（lint → format → mypy → test → prettier）
 - `make check`: 基本チェックのみ（format → lint → test）
+
+**チェックが失敗した場合**:
+- Lint/Formatエラー: 自動修正されるので再度`make all`を実行
+- Mypyエラー: 型ヒントを修正
+- Testエラー: テストを修正してから再実行
 
 #### テスト実行
 
