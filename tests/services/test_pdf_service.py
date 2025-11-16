@@ -191,16 +191,49 @@ class TestGenerateMedicalDetailPDF:
 class TestGenerateReportPDF:
     """帳票PDF生成のテスト"""
 
-    def test_generate_report_pdf_not_implemented(self, test_db: Session):
-        """異常系: 帳票機能が未実装"""
+    def test_generate_report_pdf_daily_success(self, test_db: Session):
+        """正常系: 日報PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="daily",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_report_pdf_invalid_type(self, test_db: Session):
+        """異常系: 不正な帳票種別でエラー"""
         # Given
         from datetime import date
 
         # When/Then
-        with pytest.raises(NotImplementedError, match="帳票機能は未実装です"):
+        with pytest.raises(ValueError, match="不正な帳票種別です"):
             pdf_service.generate_report_pdf(
                 db=test_db,
-                report_type="daily",
+                report_type="invalid",
+                start_date=date(2024, 11, 1),
+                end_date=date(2024, 11, 30),
+            )
+
+    def test_generate_report_pdf_individual_without_animal_id(self, test_db: Session):
+        """異常系: 個別帳票で猫ID未指定でエラー"""
+        # Given
+        from datetime import date
+
+        # When/Then
+        with pytest.raises(ValueError, match="個別帳票の生成には猫IDが必要です"):
+            pdf_service.generate_report_pdf(
+                db=test_db,
+                report_type="individual",
                 start_date=date(2024, 11, 1),
                 end_date=date(2024, 11, 30),
             )

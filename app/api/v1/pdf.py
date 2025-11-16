@@ -59,9 +59,12 @@ class MedicalDetailRequest(BaseModel):
 class ReportRequest(BaseModel):
     """帳票生成リクエスト"""
 
-    report_type: str = Field(..., description="帳票種別（daily/weekly/monthly）")
+    report_type: str = Field(
+        ..., description="帳票種別（daily/weekly/monthly/individual）"
+    )
     start_date: date = Field(..., description="開始日")
     end_date: date = Field(..., description="終了日")
+    animal_id: int | None = Field(None, description="猫のID（個別帳票の場合のみ）")
 
 
 @router.post("/qr-card")
@@ -263,6 +266,7 @@ async def generate_report(
             report_type=request.report_type,
             start_date=request.start_date,
             end_date=request.end_date,
+            animal_id=request.animal_id,
         )
 
         return Response(
@@ -272,10 +276,6 @@ async def generate_report(
                 "Content-Disposition": f"attachment; filename=report_{request.report_type}_{request.start_date}_{request.end_date}.pdf"
             },
         )
-    except NotImplementedError as e:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e)
-        ) from e
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)

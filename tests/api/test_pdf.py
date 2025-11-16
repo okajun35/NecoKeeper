@@ -188,10 +188,8 @@ class TestMedicalDetailEndpoint:
 class TestReportEndpoint:
     """帳票PDF生成エンドポイントのテスト"""
 
-    def test_generate_report_not_implemented(
-        self, test_client: TestClient, auth_token: str
-    ):
-        """異常系: 帳票機能が未実装で501エラー"""
+    def test_generate_report_success(self, test_client: TestClient, auth_token: str):
+        """正常系: 帳票PDF生成が成功"""
         # Given
         request_data = {
             "report_type": "daily",
@@ -207,4 +205,5 @@ class TestReportEndpoint:
         )
 
         # Then
-        assert response.status_code == 501
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"

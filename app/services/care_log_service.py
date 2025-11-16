@@ -15,7 +15,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.care_log import CareLog
-from app.schemas.care_log import CareLogCreate, CareLogListResponse, CareLogUpdate
+from app.schemas.care_log import (
+    CareLogCreate,
+    CareLogListResponse,
+    CareLogResponse,
+    CareLogUpdate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -190,8 +195,40 @@ def list_care_logs(
     # 総ページ数を計算
     total_pages = (total + page_size - 1) // page_size
 
+    # レスポンスアイテムを作成（animal_nameを追加）
+    items: list[CareLogResponse] = []
+    for log in care_logs:
+        # 猫名を取得
+        animal_name = None
+        if log.animal:
+            animal_name = log.animal.name or f"ID:{log.animal_id}"
+
+        # CareLogResponseを作成
+        log_response = CareLogResponse(
+            id=log.id,
+            animal_id=log.animal_id,
+            animal_name=animal_name,
+            recorder_id=log.recorder_id,
+            recorder_name=log.recorder_name,
+            log_date=log.log_date,
+            time_slot=log.time_slot,
+            appetite=log.appetite,
+            energy=log.energy,
+            urination=log.urination,
+            cleaning=log.cleaning,
+            memo=log.memo,
+            from_paper=log.from_paper,
+            ip_address=log.ip_address,
+            user_agent=log.user_agent,
+            device_tag=log.device_tag,
+            created_at=log.created_at,
+            last_updated_at=log.last_updated_at,
+            last_updated_by=log.last_updated_by,
+        )
+        items.append(log_response)
+
     return CareLogListResponse(
-        items=care_logs,
+        items=items,
         total=total,
         page=page,
         page_size=page_size,

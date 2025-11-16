@@ -84,6 +84,7 @@ class CareLogResponse(CareLogBase):
 
     id: int
     recorder_id: int | None
+    animal_name: str | None = Field(None, description="猫の名前")
     ip_address: str | None
     user_agent: str | None
     device_tag: str | None

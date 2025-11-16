@@ -383,6 +383,26 @@ async def adoptions_records_page(request: Request):  # type: ignore[no-untyped-d
     )
 
 
+@router.get("/reports", response_class=HTMLResponse)
+async def reports_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    帳票出力ページを表示
+
+    日報、週報、月次集計、個別帳票の生成画面。
+    期間指定、形式選択（PDF/CSV/Excel）機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 帳票出力ページのHTML
+
+    Example:
+        GET /admin/reports
+    """
+    return templates.TemplateResponse("admin/reports/index.html", {"request": request})
+
+
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):  # type: ignore[no-untyped-def]
     """
