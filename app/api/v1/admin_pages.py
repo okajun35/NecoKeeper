@@ -339,6 +339,50 @@ async def medical_actions_list_page(request: Request):  # type: ignore[no-untype
     )
 
 
+@router.get("/adoptions/applicants", response_class=HTMLResponse)
+async def adoptions_applicants_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    里親希望者一覧ページを表示
+
+    里親希望者の一覧を表示。
+    登録、編集、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 里親希望者一覧ページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants
+    """
+    return templates.TemplateResponse(
+        "admin/adoptions/applicants.html", {"request": request}
+    )
+
+
+@router.get("/adoptions/records", response_class=HTMLResponse)
+async def adoptions_records_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    譲渡記録一覧ページを表示
+
+    面談記録と譲渡記録の一覧を表示。
+    フィルター、検索機能付き。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 譲渡記録一覧ページのHTML
+
+    Example:
+        GET /admin/adoptions/records
+    """
+    return templates.TemplateResponse(
+        "admin/adoptions/records.html", {"request": request}
+    )
+
+
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):  # type: ignore[no-untyped-def]
     """

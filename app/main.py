@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.v1 import (
     admin_pages,
+    adoptions,
     animals,
     auth,
     care_logs,
@@ -190,10 +191,7 @@ app.include_router(public_pages.router)  # Public Pages（HTMLテンプレート
 app.include_router(admin_pages.router)  # Admin Pages（管理画面）
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(volunteers.router, prefix="/api/v1")
-
-# TODO: 以下のルーターを追加予定
-# from app.api.v1 import adopters
-# app.include_router(adopters.router, prefix="/api/v1", tags=["Adopters"])
+app.include_router(adoptions.router, prefix="/api/v1")  # 里親管理API
 
 
 if __name__ == "__main__":
