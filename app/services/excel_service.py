@@ -46,17 +46,17 @@ def generate_care_log_excel(
         >>> with open("care_logs.xlsx", "wb") as f:
         ...     f.write(excel_data)
     """
-    # 世話記録を取得
+    # 世話記録を取得（実際の記録日でフィルタリング）
     query = db.query(CareLog).filter(
-        CareLog.created_at >= start_date,
-        CareLog.created_at <= end_date,
+        CareLog.log_date >= start_date,
+        CareLog.log_date <= end_date,
     )
 
     # 個別猫の場合はフィルター
     if animal_id:
         query = query.filter(CareLog.animal_id == animal_id)
 
-    records = query.order_by(CareLog.created_at.desc()).all()
+    records = query.order_by(CareLog.log_date.desc(), CareLog.created_at.desc()).all()
 
     # 時点の表示名マッピング
     time_slot_map = {
