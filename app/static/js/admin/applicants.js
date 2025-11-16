@@ -42,12 +42,25 @@ async function loadApplicants() {
       throw new Error('データの取得に失敗しました');
     }
 
-    allApplicants = await response.json();
+    const data = await response.json();
+
+    // レスポンスが配列であることを確認
+    if (!Array.isArray(data)) {
+      console.error('Invalid response format:', data);
+      throw new Error('データ形式が不正です');
+    }
+
+    allApplicants = data;
     filteredApplicants = [...allApplicants];
     currentPage = 0;
     renderApplicants();
   } catch (error) {
+    console.error('Error loading applicants:', error);
     showError(error.message);
+    // エラー時は空の配列を設定
+    allApplicants = [];
+    filteredApplicants = [];
+    renderApplicants();
   } finally {
     showLoading(false);
   }
@@ -242,9 +255,22 @@ function viewAdoptionRecords(applicantId) {
 // ユーティリティ関数
 function formatDate(dateString) {
   if (!dateString) return '-';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '-';
-  return date.toLocaleDateString('ja-JP');
+
+  try {
+    // 文字列、数値、Dateオブジェクトのいずれかを処理
+    const date = new Date(dateString);
+
+    // 無効な日付をチェック
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString, 'type:', typeof dateString);
+      return '-';
+    }
+
+    return date.toLocaleDateString('ja-JP');
+  } catch (error) {
+    console.error('Error formatting date:', error, 'input:', dateString);
+    return '-';
+  }
 }
 
 function escapeHtml(text) {
