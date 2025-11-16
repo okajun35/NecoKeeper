@@ -172,6 +172,44 @@ python scripts/seed_sample_data.py
 
 ### 開発ツール
 
+#### Makeコマンド（推奨）
+
+コミット前のチェックを簡単に実行できるMakefileを用意しています：
+
+```bash
+# ヘルプを表示
+make help
+
+# コミット前の全チェック（format + lint + test）
+make check
+
+# コードフォーマット
+make format
+
+# Lintチェック
+make lint
+
+# テスト実行
+make test
+
+# カバレッジ付きテスト
+make coverage
+
+# キャッシュファイル削除
+make clean
+```
+
+**推奨ワークフロー**:
+```bash
+# コード変更後、コミット前に実行
+make check
+
+# 問題がなければコミット
+git add .
+git commit -m "your message"
+git push
+```
+
 #### テスト実行
 
 ```bash
@@ -182,7 +220,7 @@ python -m pytest
 python -m pytest -v
 
 # カバレッジ付き
-python -m pytest --cov=app
+python -m pytest --cov=app --cov-report=html --cov-report=term-missing
 ```
 
 #### コード品質チェック
