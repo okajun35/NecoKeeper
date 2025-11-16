@@ -16,7 +16,9 @@ class AnimalBase(BaseModel):
     """猫の基本情報スキーマ"""
 
     name: str | None = Field(None, max_length=100, description="猫の名前")
-    photo: str = Field(..., max_length=255, description="顔写真のファイルパス")
+    photo: str | None = Field(
+        None, max_length=255, description="プロフィール画像のファイルパス（任意）"
+    )
     pattern: str = Field(
         ..., max_length=100, description="柄・色（例: キジトラ、三毛、黒猫）"
     )

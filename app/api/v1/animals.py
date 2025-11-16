@@ -10,7 +10,7 @@ from io import BytesIO
 from typing import Annotated
 
 import qrcode  # type: ignore[import-untyped]
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, UploadFile, status
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
@@ -245,3 +245,158 @@ async def get_animal_qr_code(
     img_io.seek(0)
 
     return Response(content=img_io.getvalue(), media_type="image/png")
+
+
+@router.get("/{animal_id}/display-image")
+async def get_animal_display_image(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, str]:
+    """
+    猫の表示用画像パスを取得
+
+    優先順位:
+    1. プロフィール画像（animal.photo）
+    2. 画像ギャラリーの1枚目
+    3. デフォルト画像
+
+    Args:
+        animal_id: 猫ID
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        dict: 画像パス {"image_path": "/path/to/image.jpg"}
+    """
+    image_path = animal_service.get_display_image(db=db, animal_id=animal_id)
+    return {"image_path": image_path}
+
+
+@router.post("/{animal_id}/profile-image")
+async def upload_profile_image(
+    animal_id: int,
+    file: UploadFile,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, str]:
+    """
+    プロフィール画像をアップロード
+
+    Args:
+        animal_id: 猫ID
+        file: 画像ファイル
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        dict: アップロード結果 {"image_path": "/path/to/image.jpg"}
+
+    Raises:
+        HTTPException: 猫が見つからない、またはアップロードに失敗した場合
+    """
+    from app.services import image_service
+
+    # 画像をアップロード（画像ギャラリーに追加）
+    image = await image_service.upload_image(
+        db=db,
+        animal_id=animal_id,
+        file=file,
+        taken_at=None,
+        description="プロフィール画像",
+    )
+
+    # プロフィール画像として設定
+    animal = animal_service.get_animal(db, animal_id)
+    animal.photo = f"/media/{image.image_path}"
+    db.commit()
+    db.refresh(animal)
+
+    return {"image_path": animal.photo}
+
+
+@router.put("/{animal_id}/profile-image")
+async def update_profile_image(
+    animal_id: int,
+    file: UploadFile,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, str]:
+    """
+    プロフィール画像を変更
+
+    Args:
+        animal_id: 猫ID
+        file: 画像ファイル
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        dict: 更新結果 {"image_path": "/path/to/image.jpg"}
+
+    Raises:
+        HTTPException: 猫が見つからない、またはアップロードに失敗した場合
+    """
+    from app.services import image_service
+
+    # 画像をアップロード（画像ギャラリーに追加）
+    image = await image_service.upload_image(
+        db=db,
+        animal_id=animal_id,
+        file=file,
+        taken_at=None,
+        description="プロフィール画像",
+    )
+
+    # プロフィール画像として設定
+    animal = animal_service.get_animal(db, animal_id)
+    animal.photo = f"/media/{image.image_path}"
+    db.commit()
+    db.refresh(animal)
+
+    return {"image_path": animal.photo}
+
+
+@router.put("/{animal_id}/profile-image/from-gallery/{image_id}")
+async def set_profile_image_from_gallery(
+    animal_id: int,
+    image_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> dict[str, str]:
+    """
+    画像ギャラリーからプロフィール画像を選択
+
+    Args:
+        animal_id: 猫ID
+        image_id: 画像ID
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        dict: 更新結果 {"image_path": "/path/to/image.jpg"}
+
+    Raises:
+        HTTPException: 猫または画像が見つからない場合
+    """
+    from app.services import image_service
+
+    # 画像の存在確認
+    image = image_service.get_image(db, image_id)
+
+    # 画像が指定された猫のものか確認
+    if image.animal_id != animal_id:
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="指定された画像は別の猫のものです",
+        )
+
+    # プロフィール画像として設定
+    animal = animal_service.get_animal(db, animal_id)
+    animal.photo = f"/media/{image.image_path}"
+    db.commit()
+    db.refresh(animal)
+
+    return {"image_path": animal.photo}

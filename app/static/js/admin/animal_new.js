@@ -3,8 +3,46 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  setupDefaultValues();
+  setupImagePreview();
   setupFormSubmit();
 });
+
+/**
+ * デフォルト値を設定
+ */
+function setupDefaultValues() {
+  // 保護日のデフォルト値を今日に設定
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('protected_at').value = today;
+}
+
+/**
+ * 画像プレビューを設定
+ */
+function setupImagePreview() {
+  const fileInput = document.getElementById('profile-image');
+  const preview = document.getElementById('profile-preview');
+
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      // ファイルサイズチェック（5MB）
+      if (file.size > 5 * 1024 * 1024) {
+        showError('ファイルサイズは5MB以下にしてください');
+        fileInput.value = '';
+        return;
+      }
+
+      // プレビュー表示
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
 
 /**
  * フォーム送信を設定
@@ -21,23 +59,39 @@ function setupFormSubmit() {
     submitButton.textContent = '登録中...';
 
     try {
+      // バリデーション
+      const protectedAt = document.getElementById('protected_at').value;
+      if (!protectedAt) {
+        showError('保護日を入力してください');
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+        return;
+      }
+
+      // 1. 猫の基本情報を登録
       const formData = {
         name: document.getElementById('name').value,
         pattern: document.getElementById('pattern').value,
         gender: document.getElementById('gender').value,
         age: document.getElementById('age').value,
         tail_length: document.getElementById('tail_length').value,
-        collar: document.getElementById('collar').value || null,
+        collar: document.getElementById('collar').value || undefined,
         ear_cut: document.getElementById('ear_cut').checked,
         status: document.getElementById('status').value,
-        protected_at: document.getElementById('protected_at').value || null,
-        features: document.getElementById('features').value || null,
+        protected_at: protectedAt,
+        features: document.getElementById('features').value || undefined,
       };
 
       const animal = await apiRequest(`${API_BASE}/animals`, {
         method: 'POST',
         body: JSON.stringify(formData),
       });
+
+      // 2. プロフィール画像がある場合はアップロード
+      const fileInput = document.getElementById('profile-image');
+      if (fileInput.files.length > 0) {
+        await uploadProfileImage(animal.id, fileInput.files[0]);
+      }
 
       // 成功メッセージを表示
       showSuccess('猫を登録しました');
@@ -48,11 +102,41 @@ function setupFormSubmit() {
       }, 1000);
     } catch (error) {
       console.error('Error creating animal:', error);
-      showError(error.message);
+      // エラーメッセージを適切に表示
+      let errorMessage = '猫の登録に失敗しました';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      showError(errorMessage);
       submitButton.disabled = false;
       submitButton.textContent = originalText;
     }
   });
+}
+
+/**
+ * プロフィール画像をアップロード
+ */
+async function uploadProfileImage(animalId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE}/animals/${animalId}/profile-image`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${getAccessToken()}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'プロフィール画像のアップロードに失敗しました');
+  }
+
+  return response.json();
 }
 
 /**

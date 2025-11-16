@@ -559,3 +559,241 @@ function showAlert(message, type = 'info') {
 function getToken() {
   return localStorage.getItem('access_token');
 }
+
+// プロフィール画像変更機能
+document.addEventListener('DOMContentLoaded', () => {
+  setupProfileImageChange();
+});
+
+function setupProfileImageChange() {
+  const modal = document.getElementById('profileImageModal');
+  const changeBtn = document.getElementById('changeProfileImageBtn');
+  const closeBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelUploadBtn');
+  const fileInput = document.getElementById('modal-file-input');
+  const preview = document.getElementById('modal-preview');
+  const previewContainer = document.getElementById('modal-preview-container');
+  const uploadBtn = document.getElementById('uploadBtn');
+
+  // モーダルを開く
+  changeBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+    loadGalleryImages();
+  });
+
+  // モーダルを閉じる
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    fileInput.value = '';
+    previewContainer.classList.add('hidden');
+    uploadBtn.disabled = true;
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+
+  // モーダル外クリックで閉じる
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // タブ切り替え
+  const tabButtons = document.querySelectorAll('.modal-tab');
+  const tabContents = document.querySelectorAll('.modal-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabId = button.id.replace('tab-', '');
+
+      // タブの切り替え
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.remove('border-transparent', 'text-gray-500');
+
+      // コンテンツの切り替え
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+      // ギャラリータブの場合は画像を読み込む
+      if (tabId === 'gallery') {
+        loadGalleryImages();
+      }
+    });
+  });
+
+  // ファイル選択時のプレビュー
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      // ファイルサイズチェック（5MB）
+      if (file.size > 5 * 1024 * 1024) {
+        showAlert('error', 'ファイルサイズは5MB以下にしてください');
+        fileInput.value = '';
+        return;
+      }
+
+      // プレビュー表示
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        previewContainer.classList.remove('hidden');
+        uploadBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // アップロードボタン
+  uploadBtn.addEventListener('click', async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'アップロード中...';
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${API_BASE}/animals/${animalId}/profile-image`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'アップロードに失敗しました');
+      }
+
+      const result = await response.json();
+
+      // プロフィール画像を更新
+      document.getElementById('animalPhoto').src = result.image_path;
+
+      showAlert('success', 'プロフィール画像を更新しました');
+      closeModal();
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      showAlert('error', error.message);
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'アップロード';
+    }
+  });
+}
+
+// ギャラリー画像を読み込む
+async function loadGalleryImages() {
+  const grid = document.getElementById('gallery-grid');
+  const empty = document.getElementById('gallery-empty');
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/animals/${animalId}/images?sort_by=created_at&ascending=false`,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('画像の読み込みに失敗しました');
+    }
+
+    const images = await response.json();
+
+    if (images.length === 0) {
+      grid.classList.add('hidden');
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    grid.classList.remove('hidden');
+    empty.classList.add('hidden');
+
+    // 画像グリッドを生成
+    grid.innerHTML = images
+      .map(
+        image => `
+        <div class="relative group cursor-pointer" onclick="selectGalleryImage(${image.id}, '/media/${image.image_path}')">
+          <img src="/media/${image.image_path}"
+               alt="${image.description || ''}"
+               class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-indigo-600 transition-colors">
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
+            <span class="text-white opacity-0 group-hover:opacity-100 font-medium">選択</span>
+          </div>
+        </div>
+      `
+      )
+      .join('');
+  } catch (error) {
+    console.error('Error loading gallery images:', error);
+    showAlert('error', error.message);
+  }
+}
+
+// ギャラリーから画像を選択
+async function selectGalleryImage(imageId, imagePath) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/animals/${animalId}/profile-image/from-gallery/${imageId}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'プロフィール画像の設定に失敗しました');
+    }
+
+    const result = await response.json();
+
+    // プロフィール画像を更新
+    document.getElementById('animalPhoto').src = result.image_path;
+
+    showAlert('success', 'プロフィール画像を更新しました');
+
+    // モーダルを閉じる
+    document.getElementById('profileImageModal').classList.add('hidden');
+  } catch (error) {
+    console.error('Error selecting gallery image:', error);
+    showAlert('error', error.message);
+  }
+}
+
+// アラート表示
+function showAlert(type, message) {
+  const container = document.getElementById('alertContainer');
+  const alert = document.createElement('div');
+
+  const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+  const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+
+  alert.className = `${bgColor} border rounded-lg p-4 shadow-lg`;
+  alert.innerHTML = `
+    <div class="flex items-center gap-2">
+      <span class="${textColor}">${message}</span>
+      <button onclick="this.parentElement.parentElement.remove()" class="${textColor} hover:opacity-70">✕</button>
+    </div>
+  `;
+
+  container.appendChild(alert);
+
+  setTimeout(() => alert.remove(), 5000);
+}

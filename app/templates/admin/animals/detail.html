@@ -41,8 +41,14 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- 左カラム: 画像 -->
                     <div class="lg:col-span-1">
-                        <div class="bg-gray-100 rounded-lg overflow-hidden aspect-square">
-                            <img id="animalPhoto" src="{{ animal.photo }}" alt="{{ animal.name }}" class="w-full h-full object-cover">
+                        <div class="bg-gray-100 rounded-lg overflow-hidden aspect-square relative group">
+                            <img id="animalPhoto" src="{{ display_image }}" alt="{{ animal.name }}" class="w-full h-full object-cover">
+                            <!-- 画像変更ボタン（ホバー時に表示） -->
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <button id="changeProfileImageBtn" type="button" class="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                                    画像を変更
+                                </button>
+                            </div>
                         </div>
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">ステータス</label>
@@ -164,6 +170,71 @@
 
 <!-- アラート表示エリア -->
 <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<!-- プロフィール画像変更モーダル -->
+<div id="profileImageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">プロフィール画像を変更</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- タブ -->
+            <div class="border-b border-gray-200 mb-4">
+                <nav class="flex space-x-4">
+                    <button id="tab-upload" class="modal-tab active px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 font-medium">
+                        新しい画像をアップロード
+                    </button>
+                    <button id="tab-gallery" class="modal-tab px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        ギャラリーから選択
+                    </button>
+                </nav>
+            </div>
+
+            <!-- アップロードタブ -->
+            <div id="content-upload" class="modal-content">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">画像ファイル</label>
+                        <input type="file" id="modal-file-input" accept="image/*" class="block w-full text-sm text-gray-500
+                               file:mr-4 file:py-2 file:px-4
+                               file:rounded-lg file:border-0
+                               file:text-sm file:font-semibold
+                               file:bg-indigo-50 file:text-indigo-700
+                               hover:file:bg-indigo-100">
+                    </div>
+                    <div id="modal-preview-container" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">プレビュー</label>
+                        <img id="modal-preview" class="w-64 h-64 object-cover rounded-lg border-2 border-gray-300">
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button id="cancelUploadBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            キャンセル
+                        </button>
+                        <button id="uploadBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" disabled>
+                            アップロード
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ギャラリータブ -->
+            <div id="content-gallery" class="modal-content hidden">
+                <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+                <div id="gallery-empty" class="hidden text-center py-8 text-gray-500">
+                    画像ギャラリーに画像がありません
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}

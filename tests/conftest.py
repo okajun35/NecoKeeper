@@ -150,6 +150,12 @@ def auth_token(test_client: TestClient, test_db: Session) -> str:
 
 
 @pytest.fixture(scope="function")
+def auth_headers(auth_token: str) -> dict[str, str]:
+    """認証ヘッダーを取得"""
+    return {"Authorization": f"Bearer {auth_token}"}
+
+
+@pytest.fixture(scope="function")
 def test_user(test_db: Session) -> User:
     """テスト用ユーザーを取得（staff role）"""
     user = test_db.query(User).filter(User.email == "test@example.com").first()
