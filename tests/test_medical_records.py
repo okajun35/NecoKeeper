@@ -45,6 +45,30 @@ class TestMedicalRecordService:
         assert result.temperature == Decimal("38.5")
         assert result.symptoms == "食欲不振、元気がない"
 
+    def test_create_medical_record_without_weight(
+        self, test_db: Session, test_animal, test_vet_user
+    ):
+        """体重なしで診療記録を登録できる"""
+        # Given
+        record_data = MedicalRecordCreate(
+            animal_id=test_animal.id,
+            vet_id=test_vet_user.id,
+            date=date(2025, 11, 15),
+            weight=None,  # 体重なし
+            temperature=Decimal("38.5"),
+            symptoms="定期健診",
+            comment="体重測定なし",
+        )
+
+        # When
+        result = medical_record_service.create_medical_record(test_db, record_data)
+
+        # Then
+        assert result.id is not None
+        assert result.animal_id == test_animal.id
+        assert result.weight is None
+        assert result.temperature == Decimal("38.5")
+
     def test_get_medical_record(self, test_db: Session, test_animal, test_vet_user):
         """診療記録を取得できる"""
         # Given
@@ -271,6 +295,20 @@ class TestMedicalRecordValidation:
                 symptoms="定期健診",
             )
         assert "体重は正の数でなければなりません" in str(exc_info.value)
+
+    def test_weight_can_be_none(self, test_animal, test_vet_user):
+        """体重はNoneでも良い（任意項目）"""
+        # Given/When
+        record_data = MedicalRecordCreate(
+            animal_id=test_animal.id,
+            vet_id=test_vet_user.id,
+            date=date(2025, 11, 15),
+            weight=None,  # Noneは許可
+            symptoms="定期健診",
+        )
+
+        # Then
+        assert record_data.weight is None
 
     def test_temperature_range_validation(self, test_animal, test_vet_user):
         """体温は35.0〜42.0の範囲でなければならない"""

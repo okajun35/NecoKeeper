@@ -139,7 +139,7 @@ function renderMedicalRecords(data) {
   if (data.items.length === 0) {
     const emptyMessage = '<div class="p-8 text-center text-gray-500">診療記録がありません</div>';
     mobileList.innerHTML = emptyMessage;
-    desktopTableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">診療記録がありません</td></tr>`;
+    desktopTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-center text-gray-500">診療記録がありません</td></tr>`;
     return;
   }
 
@@ -166,6 +166,14 @@ function createMobileCard(record) {
     </div>`;
   }
 
+  // 請求価格情報
+  let billingInfo = '';
+  if (record.billing_amount) {
+    billingInfo = `<div class="text-sm text-gray-600 mb-2">
+      <span class="text-gray-500">請求価格:</span> <span class="font-medium">¥${Number(record.billing_amount).toLocaleString()}</span>
+    </div>`;
+  }
+
   card.innerHTML = `
         <div class="flex justify-between items-start mb-2">
             <div>
@@ -175,10 +183,11 @@ function createMobileCard(record) {
             <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_name || '獣医ID: ' + record.vet_id}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-            <div><span class="text-gray-500">体重:</span> ${record.weight}kg</div>
+            <div><span class="text-gray-500">体重:</span> ${record.weight ? record.weight + 'kg' : '-'}</div>
             <div><span class="text-gray-500">体温:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
         </div>
         ${medicalActionInfo}
+        ${billingInfo}
         <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
         <div class="flex gap-2">
             <a href="/admin/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
@@ -203,14 +212,20 @@ function createDesktopRow(record) {
     }
   }
 
+  // 請求価格
+  const billingText = record.billing_amount
+    ? `¥${Number(record.billing_amount).toLocaleString()}`
+    : '-';
+
   row.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || '猫ID: ' + record.animal_id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_name || '獣医ID: ' + record.vet_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight}kg</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight ? record.weight + 'kg' : '-'}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">${billingText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <a href="/admin/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">詳細</a>
         </td>

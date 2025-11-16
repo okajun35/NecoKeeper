@@ -73,7 +73,7 @@ def create_medical_record(
         ) from e
 
 
-def get_medical_record(db: Session, medical_record_id: int) -> MedicalRecord:
+def get_medical_record(db: Session, medical_record_id: int) -> MedicalRecordResponse:
     """
     診療記録の詳細を取得
 
@@ -82,7 +82,7 @@ def get_medical_record(db: Session, medical_record_id: int) -> MedicalRecord:
         medical_record_id: 診療記録ID
 
     Returns:
-        MedicalRecord: 診療記録
+        MedicalRecordResponse: 診療記録（リレーション情報含む）
 
     Raises:
         HTTPException: 診療記録が見つからない場合
@@ -104,7 +104,55 @@ def get_medical_record(db: Session, medical_record_id: int) -> MedicalRecord:
                 detail=f"ID {medical_record_id} の診療記録が見つかりません",
             )
 
-        return medical_record
+        # 猫名を取得
+        animal = db.query(Animal).filter(Animal.id == medical_record.animal_id).first()
+        animal_name = animal.name if animal else None
+
+        # 獣医師名を取得
+        vet = db.query(User).filter(User.id == medical_record.vet_id).first()
+        vet_name = vet.name if vet else None
+
+        # 診療行為名と投薬単位、請求価格を取得
+        medical_action_name = None
+        dosage_unit = None
+        billing_amount = None
+        if medical_record.medical_action_id:
+            medical_action = (
+                db.query(MedicalAction)
+                .filter(MedicalAction.id == medical_record.medical_action_id)
+                .first()
+            )
+            if medical_action:
+                medical_action_name = medical_action.name
+                dosage_unit = medical_action.unit
+                # 請求価格を計算
+                dosage = medical_record.dosage if medical_record.dosage else 1
+                billing_amount = medical_action.calculate_total_price(dosage)
+
+        # レスポンスオブジェクトを作成
+        return MedicalRecordResponse(
+            id=medical_record.id,
+            animal_id=medical_record.animal_id,
+            vet_id=medical_record.vet_id,
+            date=medical_record.date,
+            time_slot=medical_record.time_slot,
+            weight=medical_record.weight,
+            temperature=medical_record.temperature,
+            symptoms=medical_record.symptoms,
+            medical_action_id=medical_record.medical_action_id,
+            dosage=medical_record.dosage,
+            other=medical_record.other,
+            comment=medical_record.comment,
+            created_at=medical_record.created_at,
+            updated_at=medical_record.updated_at,
+            last_updated_at=medical_record.last_updated_at,
+            last_updated_by=medical_record.last_updated_by,
+            animal_name=animal_name,
+            vet_name=vet_name,
+            medical_action_name=medical_action_name,
+            dosage_unit=dosage_unit,
+            billing_amount=billing_amount,
+        )
 
     except HTTPException:
         raise
@@ -184,9 +232,10 @@ def list_medical_records(
         vet = db.query(User).filter(User.id == record.vet_id).first()
         vet_name = vet.name if vet else None
 
-        # 診療行為名と投薬単位を取得
+        # 診療行為名と投薬単位、請求価格を取得
         medical_action_name = None
         dosage_unit = None
+        billing_amount = None
         if record.medical_action_id:
             medical_action = (
                 db.query(MedicalAction)
@@ -196,6 +245,9 @@ def list_medical_records(
             if medical_action:
                 medical_action_name = medical_action.name
                 dosage_unit = medical_action.unit
+                # 請求価格を計算（投薬量がある場合は考慮）
+                dosage = record.dosage if record.dosage else 1
+                billing_amount = medical_action.calculate_total_price(dosage)
 
         # レスポンスオブジェクトを作成
         response = MedicalRecordResponse(
@@ -219,6 +271,7 @@ def list_medical_records(
             vet_name=vet_name,
             medical_action_name=medical_action_name,
             dosage_unit=dosage_unit,
+            billing_amount=billing_amount,
         )
         items.append(response)
 
@@ -239,7 +292,7 @@ def update_medical_record(
     medical_record_id: int,
     medical_record_data: MedicalRecordUpdate,
     user_id: int,
-) -> MedicalRecord:
+) -> MedicalRecordResponse:
     """
     診療記録を更新
 
@@ -250,7 +303,7 @@ def update_medical_record(
         user_id: 更新者のユーザーID
 
     Returns:
-        MedicalRecord: 更新された診療記録
+        MedicalRecordResponse: 更新された診療記録（リレーション情報含む）
 
     Raises:
         HTTPException: 診療記録が見つからない場合、またはデータベースエラーが発生した場合
@@ -260,7 +313,19 @@ def update_medical_record(
         >>> record = update_medical_record(db, 1, update_data, user_id=2)
     """
     try:
-        medical_record = get_medical_record(db, medical_record_id)
+        # データベースから診療記録を取得
+        medical_record = (
+            db.query(MedicalRecord)
+            .filter(MedicalRecord.id == medical_record_id)
+            .first()
+        )
+
+        if not medical_record:
+            logger.warning(f"診療記録が見つかりません: ID={medical_record_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {medical_record_id} の診療記録が見つかりません",
+            )
 
         # 診療記録を更新
         update_dict = medical_record_data.model_dump(exclude_unset=True)
@@ -274,7 +339,9 @@ def update_medical_record(
         db.refresh(medical_record)
 
         logger.info(f"診療記録を更新しました: ID={medical_record_id}")
-        return medical_record
+
+        # 更新後のデータをレスポンス形式で返す
+        return get_medical_record(db, medical_record_id)
 
     except HTTPException:
         raise

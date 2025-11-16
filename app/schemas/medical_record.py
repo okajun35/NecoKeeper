@@ -19,7 +19,7 @@ class MedicalRecordBase(BaseModel):
     animal_id: int
     date: date_type
     time_slot: str | None = None
-    weight: Decimal
+    weight: Decimal | None = None
     temperature: Decimal | None = None
     symptoms: str
     medical_action_id: int | None = None
@@ -29,9 +29,9 @@ class MedicalRecordBase(BaseModel):
 
     @field_validator("weight")
     @classmethod
-    def validate_weight(cls, v: Decimal) -> Decimal:
-        """体重は正の数でなければならない"""
-        if v <= 0:
+    def validate_weight(cls, v: Decimal | None) -> Decimal | None:
+        """体重は正の数でなければならない（入力された場合）"""
+        if v is not None and v <= 0:
             raise ValueError("体重は正の数でなければなりません")
         return v
 
@@ -80,6 +80,8 @@ class MedicalRecordResponse(MedicalRecordBase):
     vet_name: str | None = None
     medical_action_name: str | None = None
     dosage_unit: str | None = None
+    # 請求価格情報
+    billing_amount: Decimal | None = None
 
 
 class MedicalRecordListResponse(BaseModel):

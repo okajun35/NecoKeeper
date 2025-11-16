@@ -99,7 +99,7 @@ async def get_medical_record(
     medical_record_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> MedicalRecord:
+) -> MedicalRecordResponse:
     """
     診療記録の詳細を取得
 
@@ -109,7 +109,7 @@ async def get_medical_record(
         current_user: 現在のユーザー
 
     Returns:
-        MedicalRecordResponse: 診療記録
+        MedicalRecordResponse: 診療記録（リレーション情報含む）
 
     Raises:
         HTTPException: 診療記録が見つからない場合（404）
@@ -125,7 +125,7 @@ async def update_medical_record(
     medical_record_data: MedicalRecordUpdate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("medical:write"))],
-) -> MedicalRecord:
+) -> MedicalRecordResponse:
     """
     診療記録を更新
 
@@ -136,7 +136,7 @@ async def update_medical_record(
         current_user: 現在のユーザー（medical:write権限が必要）
 
     Returns:
-        MedicalRecordResponse: 更新された診療記録
+        MedicalRecordResponse: 更新された診療記録（リレーション情報含む）
 
     Raises:
         HTTPException: 診療記録が見つからない場合（404）

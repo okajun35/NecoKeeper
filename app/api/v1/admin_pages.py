@@ -289,6 +289,29 @@ async def medical_record_detail_page(request: Request, record_id: int):  # type:
     )
 
 
+@router.get("/medical-records/{record_id}/edit", response_class=HTMLResponse)
+async def medical_record_edit_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+    """
+    診療記録修正ページを表示
+
+    指定された診療記録を修正するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        record_id: 診療記録のID
+
+    Returns:
+        HTMLResponse: 診療記録修正ページのHTML
+
+    Example:
+        GET /admin/medical-records/123/edit
+    """
+    return templates.TemplateResponse(
+        "admin/medical_records/edit.html",
+        {"request": request, "record_id": record_id},
+    )
+
+
 @router.get("/medical-actions", response_class=HTMLResponse)
 async def medical_actions_list_page(request: Request):  # type: ignore[no-untyped-def]
     """

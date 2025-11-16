@@ -1,37 +1,35 @@
 {% extends "admin/base.html" %}
 
-{% block title %}診療記録登録{% endblock %}
-{% block page_title %}診療記録登録{% endblock %}
-{% block page_description %}新しい診療記録を登録{% endblock %}
+{% block title %}診療記録修正{% endblock %}
+{% block page_title %}診療記録修正{% endblock %}
+{% block page_description %}診療記録を修正{% endblock %}
+
+{% block header_actions %}
+<a href="/admin/medical-records/{{ record_id }}" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+    キャンセル
+</a>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6">
+    <!-- ローディング表示 -->
+    <div id="loadingIndicator" class="bg-white rounded-lg shadow-sm p-8 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p class="mt-2 text-gray-600">読み込み中...</p>
+    </div>
+
+    <!-- エラー表示 -->
+    <div id="errorMessage" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+        <p class="text-red-800"></p>
+    </div>
+
+    <!-- フォーム -->
+    <div id="editForm" class="hidden bg-white rounded-lg shadow-sm p-4 lg:p-6">
         <form id="medicalRecordForm" class="space-y-6">
             <!-- 基本情報 -->
             <div class="border-b border-gray-200 pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">基本情報</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- 猫選択 -->
-                    <div>
-                        <label for="animalId" class="block text-sm font-medium text-gray-700 mb-2">
-                            猫 <span class="text-red-500">*</span>
-                        </label>
-                        <select id="animalId" name="animal_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
-                        </select>
-                    </div>
-
-                    <!-- 獣医師選択 -->
-                    <div>
-                        <label for="vetId" class="block text-sm font-medium text-gray-700 mb-2">
-                            獣医師 <span class="text-red-500">*</span>
-                        </label>
-                        <select id="vetId" name="vet_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
-                        </select>
-                    </div>
-
                     <!-- 診療日 -->
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
@@ -47,9 +45,9 @@
                         </label>
                         <select id="timeSlot" name="time_slot" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                             <option value="">選択してください</option>
-                            <option value="morning">午前</option>
-                            <option value="afternoon">午後</option>
-                            <option value="evening">夕方</option>
+                            <option value="午前">午前</option>
+                            <option value="午後">午後</option>
+                            <option value="夕方">夕方</option>
                         </select>
                     </div>
                 </div>
@@ -64,7 +62,7 @@
                         <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">
                             体重 (kg)
                         </label>
-                        <input type="number" id="weight" name="weight" step="0.01" min="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 4.5">
+                        <input type="number" id="weight" name="weight" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     </div>
 
                     <!-- 体温 -->
@@ -72,8 +70,8 @@
                         <label for="temperature" class="block text-sm font-medium text-gray-700 mb-2">
                             体温 (℃)
                         </label>
-                        <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 38.5">
-                        <p class="mt-1 text-xs text-gray-500">正常範囲: 35.0〜42.0℃</p>
+                        <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <p class="mt-1 text-sm text-gray-500">正常範囲: 35.0〜42.0℃</p>
                     </div>
                 </div>
             </div>
@@ -87,7 +85,7 @@
                         <label for="symptoms" class="block text-sm font-medium text-gray-700 mb-2">
                             症状 <span class="text-red-500">*</span>
                         </label>
-                        <textarea id="symptoms" name="symptoms" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="観察された症状を記入してください"></textarea>
+                        <textarea id="symptoms" name="symptoms" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
                     </div>
 
                     <!-- コメント -->
@@ -95,7 +93,7 @@
                         <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">
                             コメント
                         </label>
-                        <textarea id="comment" name="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="追加のコメントや注意事項"></textarea>
+                        <textarea id="comment" name="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
                     </div>
                 </div>
             </div>
@@ -103,7 +101,7 @@
             <!-- 処置（オプション） -->
             <div class="pb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">処置（オプション）</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-4">
                     <!-- 処置内容 -->
                     <div>
                         <label for="medicalActionId" class="block text-sm font-medium text-gray-700 mb-2">
@@ -119,25 +117,25 @@
                         <label for="dosage" class="block text-sm font-medium text-gray-700 mb-2">
                             投薬回数
                         </label>
-                        <input type="number" id="dosage" name="dosage" step="1" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 2">
+                        <input type="number" id="dosage" name="dosage" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     </div>
 
                     <!-- その他処置 -->
-                    <div class="md:col-span-2">
+                    <div>
                         <label for="other" class="block text-sm font-medium text-gray-700 mb-2">
                             その他処置
                         </label>
-                        <textarea id="other" name="other" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="その他の処置内容"></textarea>
+                        <textarea id="other" name="other" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- ボタン -->
             <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                <button type="submit" id="submitBtn" class="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                    登録する
+                <button type="submit" class="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                    更新する
                 </button>
-                <a href="/admin/medical-records" class="flex-1 sm:flex-none px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-center">
+                <a href="/admin/medical-records/{{ record_id }}" class="flex-1 sm:flex-none px-6 py-3 text-center bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
                     キャンセル
                 </a>
             </div>
@@ -147,5 +145,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/admin/medical_record_new.js"></script>
+<script src="/static/js/admin/medical_record_edit.js"></script>
 {% endblock %}

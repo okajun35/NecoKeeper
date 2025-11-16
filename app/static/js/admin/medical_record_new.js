@@ -152,14 +152,16 @@ function setupFormValidation() {
 async function handleSubmit(e) {
   e.preventDefault();
 
+  // 体重の値を取得（空文字列の場合はnull）
+  const weightValue = document.getElementById('weight').value.trim();
+  const weight = weightValue !== '' ? parseFloat(weightValue) : null;
+
   const formData = {
     animal_id: parseInt(document.getElementById('animalId').value),
     vet_id: parseInt(document.getElementById('vetId').value),
     date: document.getElementById('date').value,
     time_slot: document.getElementById('timeSlot').value || null,
-    weight: document.getElementById('weight').value
-      ? parseFloat(document.getElementById('weight').value)
-      : 0.0, // 体重を任意項目に（デフォルト0.0）
+    weight: weight,
     temperature: document.getElementById('temperature').value
       ? parseFloat(document.getElementById('temperature').value)
       : null,
@@ -185,15 +187,29 @@ async function handleSubmit(e) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || '登録に失敗しました');
+      const errorData = await response.json();
+      // エラーメッセージを適切に抽出
+      let errorMessage = '登録に失敗しました';
+
+      if (errorData.detail) {
+        if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (Array.isArray(errorData.detail)) {
+          // FastAPIのバリデーションエラーの場合
+          errorMessage = errorData.detail.map(err => err.msg).join('\n');
+        } else if (typeof errorData.detail === 'object') {
+          errorMessage = JSON.stringify(errorData.detail);
+        }
+      }
+
+      throw new Error(errorMessage);
     }
 
     // 成功したら一覧画面に遷移
     window.location.href = '/admin/medical-records';
   } catch (error) {
     console.error('Error submitting form:', error);
-    showError(error.message);
+    showError(error.message || '登録に失敗しました');
   }
 }
 
