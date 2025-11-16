@@ -49,13 +49,13 @@ def seed_users(db: Session) -> dict[str, User]:
             "role": "admin",
         },
         {
-            "email": "admin@necokeeper.local",
+            "email": "admin2@example.com",
             "password": "admin123",
             "name": "管理者 太郎",
             "role": "admin",
         },
         {
-            "email": "vet@necokeeper.local",
+            "email": "vet@example.com",
             "password": "vet123",
             "name": "獣医師 花子",
             "role": "vet",
@@ -361,8 +361,8 @@ def main() -> None:
 
         print("\n🔑 ログイン情報:")
         print("  - 開発用管理者: admin@example.com / admin123")
-        print("  - 管理者: admin@necokeeper.local / admin123")
-        print("  - 獣医師: vet@necokeeper.local / vet123")
+        print("  - 管理者: admin2@example.com / admin123")
+        print("  - 獣医師: vet@example.com / vet123")
 
     except Exception as e:
         print(f"\n❌ エラーが発生しました: {e}")
