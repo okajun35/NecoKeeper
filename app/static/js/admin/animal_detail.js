@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   setupBasicInfoForm();
   setupStatusUpdate();
+  setupQRCardGeneration();
+  setupPaperFormGeneration();
 });
 
 // タブ切り替え機能
@@ -117,6 +119,184 @@ function setupStatusUpdate() {
   updateBtn.addEventListener('click', async () => {
     await updateStatus();
   });
+}
+
+// QRカード生成のセットアップ
+function setupQRCardGeneration() {
+  const generateBtn = document.getElementById('generateQRCardBtn');
+
+  if (generateBtn) {
+    generateBtn.addEventListener('click', async () => {
+      await generateQRCard();
+    });
+  }
+}
+
+// QRカードPDFを生成してダウンロード
+async function generateQRCard() {
+  const generateBtn = document.getElementById('generateQRCardBtn');
+  const originalText = generateBtn.innerHTML;
+
+  try {
+    // ボタンをローディング状態に
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>生成中...</span>
+    `;
+
+    // API呼び出し
+    const response = await fetch('/api/v1/pdf/qr-card', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        animal_id: animalId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'QRカードの生成に失敗しました');
+    }
+
+    // PDFをダウンロード
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qr_card_${animalId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    showAlert('QRカードを生成しました', 'success');
+  } catch (error) {
+    console.error('Error generating QR card:', error);
+    showAlert(error.message, 'error');
+  } finally {
+    // ボタンを元に戻す
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = originalText;
+  }
+}
+
+// 紙記録フォーム生成のセットアップ
+function setupPaperFormGeneration() {
+  const generateBtn = document.getElementById('generatePaperFormBtn');
+  const modal = document.getElementById('paperFormModal');
+  const confirmBtn = document.getElementById('confirmPaperFormBtn');
+  const cancelBtn = document.getElementById('cancelPaperFormBtn');
+  const yearSelect = document.getElementById('paperFormYear');
+  const monthSelect = document.getElementById('paperFormMonth');
+
+  if (!generateBtn) return;
+
+  // 年のオプションを生成（現在年の前後2年）
+  const currentYear = new Date().getFullYear();
+  for (let year = currentYear - 2; year <= currentYear + 2; year++) {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = `${year}年`;
+    if (year === currentYear) {
+      option.selected = true;
+    }
+    yearSelect.appendChild(option);
+  }
+
+  // 現在の月を選択
+  const currentMonth = new Date().getMonth() + 1;
+  monthSelect.value = currentMonth;
+
+  // モーダルを開く
+  generateBtn.addEventListener('click', () => {
+    modal.classList.remove('hidden');
+  });
+
+  // モーダルを閉じる
+  const closeModal = () => {
+    modal.classList.add('hidden');
+  };
+
+  cancelBtn.addEventListener('click', closeModal);
+
+  // モーダル外クリックで閉じる
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // 出力ボタン
+  confirmBtn.addEventListener('click', async () => {
+    const year = parseInt(yearSelect.value);
+    const month = parseInt(monthSelect.value);
+    closeModal();
+    await generatePaperForm(year, month);
+  });
+}
+
+// 紙記録フォームPDFを生成してダウンロード
+async function generatePaperForm(year, month) {
+  const generateBtn = document.getElementById('generatePaperFormBtn');
+  const originalText = generateBtn.innerHTML;
+
+  try {
+    // ボタンをローディング状態に
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = `
+      <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>生成中...</span>
+    `;
+
+    // API呼び出し
+    const response = await fetch('/api/v1/pdf/paper-form', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        animal_id: animalId,
+        year: year,
+        month: month,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || '紙記録フォームの生成に失敗しました');
+    }
+
+    // PDFをダウンロード
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `paper_form_${animalId}_${year}${month.toString().padStart(2, '0')}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    showAlert(`${year}年${month}月の紙記録フォームを生成しました`, 'success');
+  } catch (error) {
+    console.error('Error generating paper form:', error);
+    showAlert(error.message, 'error');
+  } finally {
+    // ボタンを元に戻す
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = originalText;
+  }
 }
 
 // ステータスの更新

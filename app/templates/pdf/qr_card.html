@@ -5,18 +5,18 @@
     <title>QRカード - {{ animal.name or '名前未設定' }}</title>
     <style>
         @page {
-            size: A6 landscape;
+            size: A6 portrait;
             margin: 5mm;
         }
 
         body {
             font-family: {{ font_family }}, 'Noto Sans CJK JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
             margin: 0;
-            padding: 10mm;
+            padding: 5mm;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100%;
         }
 
@@ -26,44 +26,47 @@
         }
 
         .animal-photo {
-            width: 40mm;
-            height: 40mm;
+            width: 30mm;
+            height: 30mm;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 5mm;
+            margin: 0 auto 3mm auto;
             border: 2px solid #333;
+            display: block;
         }
 
         .animal-name {
-            font-size: 18pt;
+            font-size: 14pt;
             font-weight: bold;
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
             color: #333;
         }
 
         .animal-id {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #666;
             margin-bottom: 5mm;
         }
 
         .qr-code {
-            width: 35mm;
-            height: 35mm;
+            width: 60mm;
+            height: 60mm;
             margin: 0 auto;
+            display: block;
         }
 
         .instructions {
-            font-size: 8pt;
+            font-size: 7pt;
             color: #666;
             margin-top: 3mm;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        {% if animal.photo %}
-        <img src="{{ animal.photo }}" alt="{{ animal.name }}" class="animal-photo">
+        {% if photo_base64 %}
+        <img src="data:image/jpeg;base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
         {% else %}
         <div class="animal-photo" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
             <span style="color: #999;">写真なし</span>

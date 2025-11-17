@@ -68,10 +68,23 @@ def generate_qr_card_pdf(
     qr_code_bytes = generate_animal_qr_code_bytes(base_url, animal_id, box_size=8)
     qr_code_base64 = base64.b64encode(qr_code_bytes).decode("utf-8")
 
+    # 写真をbase64エンコード
+    photo_base64 = None
+    if animal.photo:
+        try:
+            # photoパスから実際のファイルパスを構築
+            photo_path = Path(animal.photo.lstrip("/"))
+            if photo_path.exists():
+                photo_bytes = photo_path.read_bytes()
+                photo_base64 = base64.b64encode(photo_bytes).decode("utf-8")
+        except Exception as e:
+            print(f"写真の読み込みに失敗: {e}")
+
     # テンプレートをレンダリング
     template = jinja_env.get_template("qr_card.html")
     html_content = template.render(
         animal=animal,
+        photo_base64=photo_base64,
         qr_code_base64=qr_code_base64,
         font_family=settings.pdf_font_family,
         base_url=base_url,
