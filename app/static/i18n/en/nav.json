@@ -1,0 +1,15 @@
+{
+  "dashboard": "Dashboard",
+  "animals": "Animals",
+  "care_logs": "Care Logs",
+  "medical_records": "Medical Records",
+  "medical_actions": "Medical Actions",
+  "volunteers": "Volunteers",
+  "adoptions_applicants": "Adoption Applicants",
+  "adoptions_records": "Adoption Records",
+  "reports": "Reports",
+  "settings": "Settings",
+  "admin_panel": "Admin Panel",
+  "administrator": "Administrator",
+  "logout": "Logout"
+}
