@@ -652,18 +652,28 @@ async function loadWeightChart() {
 
 // 体重推移グラフを描画
 function renderWeightChart(container, weightData) {
-  // 簡易的なテーブル表示（Chart.jsは後で実装）
+  // グラフとテーブルの両方を表示
   let html = `
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
-            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
-            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
+    <div class="space-y-6">
+      <!-- グラフ -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">体重推移グラフ</h3>
+        <canvas id="weightChart" class="w-full" style="max-height: 400px;"></canvas>
+      </div>
+
+      <!-- テーブル -->
+      <div class="bg-white p-4 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">体重データ</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
   `;
 
   weightData.forEach((data, index) => {
@@ -702,15 +712,107 @@ function renderWeightChart(container, weightData) {
   });
 
   html += `
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-4 text-sm text-gray-600">
-      <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+          <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
+        </div>
+      </div>
     </div>
   `;
 
   container.innerHTML = html;
+
+  // DOMが更新された後にChart.jsでグラフを描画
+  setTimeout(() => {
+    drawWeightChart(weightData);
+  }, 100);
+}
+
+// Chart.jsで体重グラフを描画
+function drawWeightChart(weightData) {
+  const canvas = document.getElementById('weightChart');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+
+  // 既存のチャートがあれば破棄
+  if (window.weightChartInstance) {
+    window.weightChartInstance.destroy();
+  }
+
+  // データの準備
+  const labels = weightData.map(d => d.date);
+  const weights = weightData.map(d => d.weight);
+
+  // 最小値と最大値を計算（グラフの範囲を適切に設定）
+  const minWeight = Math.min(...weights);
+  const maxWeight = Math.max(...weights);
+  const range = maxWeight - minWeight;
+  const yMin = Math.max(0, minWeight - range * 0.2);
+  const yMax = maxWeight + range * 0.2;
+
+  // Chart.jsの設定
+  window.weightChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: '体重 (kg)',
+          data: weights,
+          borderColor: 'rgb(79, 70, 229)',
+          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.1,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return `体重: ${context.parsed.y.toFixed(2)}kg`;
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          min: yMin,
+          max: yMax,
+          ticks: {
+            callback: function (value) {
+              return value.toFixed(1) + 'kg';
+            },
+          },
+          title: {
+            display: true,
+            text: '体重 (kg)',
+          },
+        },
+        x: {
+          title: {
+            display: true,
+            text: '日付',
+          },
+        },
+      },
+    },
+  });
 }
 
 // アラート表示

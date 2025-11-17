@@ -7,6 +7,15 @@ let currentPage = 1;
 let currentPageSize = 20;
 let currentStatus = '';
 let currentSearch = '';
+let advancedFilters = {
+  gender: '',
+  ageMin: null,
+  ageMax: null,
+  rescueDateFrom: '',
+  rescueDateTo: '',
+  earCut: '',
+  collar: '',
+};
 
 // 猫一覧を読み込み
 async function loadAnimals() {
@@ -18,6 +27,29 @@ async function loadAnimals() {
 
     if (currentStatus) {
       params.append('status', currentStatus);
+    }
+
+    // 詳細検索フィルター
+    if (advancedFilters.gender) {
+      params.append('gender', advancedFilters.gender);
+    }
+    if (advancedFilters.ageMin !== null && advancedFilters.ageMin !== '') {
+      params.append('age_min', advancedFilters.ageMin);
+    }
+    if (advancedFilters.ageMax !== null && advancedFilters.ageMax !== '') {
+      params.append('age_max', advancedFilters.ageMax);
+    }
+    if (advancedFilters.rescueDateFrom) {
+      params.append('rescue_date_from', advancedFilters.rescueDateFrom);
+    }
+    if (advancedFilters.rescueDateTo) {
+      params.append('rescue_date_to', advancedFilters.rescueDateTo);
+    }
+    if (advancedFilters.earCut) {
+      params.append('ear_cut', advancedFilters.earCut);
+    }
+    if (advancedFilters.collar) {
+      params.append('collar', advancedFilters.collar);
     }
 
     const url = currentSearch
