@@ -65,8 +65,8 @@
 </head>
 <body>
     <div class="card">
-        {% if animal.photo %}
-        <img src="{{ animal.photo }}" alt="{{ animal.name }}" class="animal-photo">
+        {% if photo_base64 %}
+        <img src="data:image/jpeg;base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
         {% else %}
         <div class="animal-photo" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
             <span style="color: #999;">写真なし</span>
