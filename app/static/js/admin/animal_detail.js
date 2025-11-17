@@ -652,19 +652,45 @@ async function loadWeightChart() {
 
 // 体重推移グラフを描画
 function renderWeightChart(container, weightData) {
-  // 簡易的なテーブル表示（Chart.jsは後で実装）
-  let html = `
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
-            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
-            <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
+  // グラフとテーブルを表示
+  const html = `
+    <div class="space-y-6">
+      <!-- グラフ -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="text-lg font-medium text-gray-900 mb-4">体重推移グラフ</h4>
+        <div class="relative" style="height: 300px;">
+          <canvas id="weightChart"></canvas>
+        </div>
+      </div>
+
+      <!-- データテーブル -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="text-lg font-medium text-gray-900 mb-4">体重データ</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200" id="weightTableBody">
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+          <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
+        </div>
+      </div>
+    </div>
   `;
+
+  container.innerHTML = html;
+
+  // テーブルデータを生成
+  const tableBody = document.getElementById('weightTableBody');
+  let tableHtml = '';
 
   weightData.forEach((data, index) => {
     let change = '';
@@ -692,7 +718,7 @@ function renderWeightChart(container, weightData) {
       }
     }
 
-    html += `
+    tableHtml += `
       <tr>
         <td class="px-4 py-2 text-sm text-gray-900">${data.date}</td>
         <td class="px-4 py-2 text-sm text-gray-900 text-right">${data.weight.toFixed(2)}</td>
@@ -701,16 +727,95 @@ function renderWeightChart(container, weightData) {
     `;
   });
 
-  html += `
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-4 text-sm text-gray-600">
-      <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
-    </div>
-  `;
+  tableBody.innerHTML = tableHtml;
 
-  container.innerHTML = html;
+  // Chart.jsでグラフを描画
+  const ctx = document.getElementById('weightChart').getContext('2d');
+
+  // 日付と体重のデータを抽出
+  const labels = weightData.map(d => d.date);
+  const weights = weightData.map(d => d.weight);
+
+  // 平均体重を計算
+  const avgWeight = weights.reduce((a, b) => a + b, 0) / weights.length;
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: '体重 (kg)',
+          data: weights,
+          borderColor: 'rgb(79, 70, 229)',
+          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: '平均体重',
+          data: Array(weights.length).fill(avgWeight),
+          borderColor: 'rgb(239, 68, 68)',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          fill: false,
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function (context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              label += context.parsed.y.toFixed(2) + ' kg';
+              return label;
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          title: {
+            display: true,
+            text: '体重 (kg)',
+          },
+          ticks: {
+            callback: function (value) {
+              return value.toFixed(1) + ' kg';
+            },
+          },
+        },
+        x: {
+          title: {
+            display: true,
+            text: '日付',
+          },
+        },
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false,
+      },
+    },
+  });
 }
 
 // アラート表示
