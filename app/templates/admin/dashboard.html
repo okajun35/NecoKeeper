@@ -1,9 +1,11 @@
 {% extends "admin/base.html" %}
 
+{% block title_key %}title{% endblock %}
+{% block title_ns %}dashboard{% endblock %}
 {% block title %}ダッシュボード{% endblock %}
 
-{% block page_title %}ダッシュボード{% endblock %}
-{% block page_description %}保護猫管理システムの概要{% endblock %}
+{% block page_title %}<span data-i18n="title" data-i18n-ns="dashboard">ダッシュボード</span>{% endblock %}
+{% block page_description %}<span data-i18n="description" data-i18n-ns="dashboard">保護猫管理システムの概要</span>{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -43,7 +45,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600">今日の記録</p>
+                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.today_logs" data-i18n-ns="dashboard">今日の記録</p>
                     <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-today-logs">-</p>
                 </div>
                 <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -58,7 +60,7 @@
         <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600">ボランティア</p>
+                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.volunteers" data-i18n-ns="dashboard">ボランティア</p>
                     <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-volunteers">-</p>
                 </div>
                 <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -75,7 +77,7 @@
         <!-- 最近の世話記録 -->
         <div class="bg-white rounded-lg shadow-md">
             <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">最近の世話記録</h3>
+                <h3 class="text-lg font-semibold text-gray-900" data-i18n="recent_logs" data-i18n-ns="dashboard">最近の世話記録</h3>
             </div>
             <div class="p-6">
                 <div id="recent-logs" class="space-y-4">
@@ -87,7 +89,7 @@
         <!-- 記録が必要な猫 -->
         <div class="bg-white rounded-lg shadow-md">
             <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">記録が必要な猫</h3>
+                <h3 class="text-lg font-semibold text-gray-900" data-i18n="needs_care" data-i18n-ns="dashboard">記録が必要な猫</h3>
             </div>
             <div class="p-6">
                 <div id="needs-care" class="space-y-4">

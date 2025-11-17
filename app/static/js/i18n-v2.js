@@ -108,7 +108,8 @@ function translatePage() {
   const titleElement = document.querySelector('title[data-i18n-title]');
   if (titleElement) {
     const key = titleElement.getAttribute('data-i18n-title');
-    const translation = i18next.t(key);
+    const ns = titleElement.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     const appName = i18next.t('app_name', { ns: 'common' });
     titleElement.textContent = `${translation} - ${appName}`;
   }
