@@ -689,6 +689,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - QRカード出力ボタン（A6縦向きPDF、写真30mm、QRコード60mm）
   - 紙記録フォーム出力ボタン（年月選択モーダル、A4サイズ）
   - 写真base64エンコード埋め込み対応
+  - 体重推移グラフ（Chart.js、折れ線グラフ、平均体重基準線、データテーブル）
   - _Requirements: Requirement 1.3, Requirement 15.2, Requirement 2.1-2.7_
 
 - [x] 13.5 世話記録一覧画面を実装（app/templates/admin/care_logs/list.html）✅
