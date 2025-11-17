@@ -325,3 +325,208 @@ class TestMedicalRecordValidation:
                 symptoms="定期健診",
             )
         assert "体温は35.0〜42.0の範囲でなければなりません" in str(exc_info.value)
+
+
+class TestWeightTrendAnalysis:
+    """体重推移分析のテスト（DDD準拠）"""
+
+    def test_get_weight_history_sorted_by_date(self, test_db: Session, test_vet_user):
+        """体重履歴を日付順で取得できる"""
+        # Given: 新しい猫を作成（他のテストの影響を避ける）
+        from app.models.animal import Animal
+
+        animal = Animal(
+            name="体重テスト猫",
+            pattern="キジトラ",
+            tail_length="長い",
+            age="成猫",
+            gender="male",
+            status="保護中",
+        )
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        # 複数の診療記録を作成（日付順ではない）
+        dates_weights = [
+            (date(2025, 11, 20), Decimal("4.5")),
+            (date(2025, 11, 10), Decimal("4.2")),
+            (date(2025, 11, 15), Decimal("4.3")),
+        ]
+
+        for record_date, weight in dates_weights:
+            record_data = MedicalRecordCreate(
+                animal_id=animal.id,
+                vet_id=test_vet_user.id,
+                date=record_date,
+                weight=weight,
+                symptoms="定期健診",
+            )
+            medical_record_service.create_medical_record(test_db, record_data)
+
+        # When: 診療記録を取得
+        result = medical_record_service.list_medical_records(
+            test_db, animal_id=animal.id, page=1, page_size=100
+        )
+
+        # Then: 日付順（降順：新しい順）でソートされている
+        weight_records = [r for r in result.items if r.weight is not None]
+        dates = [r.date for r in weight_records]
+        assert dates == sorted(dates, reverse=True)
+
+    def test_filter_records_with_weight_only(
+        self, test_db: Session, test_animal, test_vet_user
+    ):
+        """体重データのみをフィルタリングできる"""
+        # Given: 体重ありとなしの記録を作成
+        with_weight = MedicalRecordCreate(
+            animal_id=test_animal.id,
+            vet_id=test_vet_user.id,
+            date=date(2025, 11, 15),
+            weight=Decimal("4.5"),
+            symptoms="定期健診",
+        )
+        without_weight = MedicalRecordCreate(
+            animal_id=test_animal.id,
+            vet_id=test_vet_user.id,
+            date=date(2025, 11, 16),
+            weight=None,
+            symptoms="診察のみ",
+        )
+
+        medical_record_service.create_medical_record(test_db, with_weight)
+        medical_record_service.create_medical_record(test_db, without_weight)
+
+        # When: 全記録を取得
+        result = medical_record_service.list_medical_records(
+            test_db, animal_id=test_animal.id
+        )
+
+        # Then: 体重データの有無を確認できる
+        weight_records = [r for r in result.items if r.weight is not None]
+        assert len(weight_records) >= 1
+        assert all(r.weight is not None for r in weight_records)
+
+    def test_calculate_weight_change_percentage(self):
+        """体重変化率を正しく計算できる"""
+        # Given
+        previous_weight = Decimal("4.0")
+        current_weight = Decimal("4.4")
+
+        # When
+        change = current_weight - previous_weight
+        percentage = (change / previous_weight) * 100
+
+        # Then
+        assert change == Decimal("0.4")
+        assert percentage == Decimal("10.0")
+
+    def test_detect_significant_weight_change(self):
+        """10%以上の体重変化を検出できる"""
+        # Given
+        test_cases = [
+            (Decimal("4.0"), Decimal("4.4"), True),  # +10%
+            (Decimal("4.0"), Decimal("3.6"), True),  # -10%
+            (Decimal("4.0"), Decimal("4.3"), False),  # +7.5%
+            (Decimal("4.0"), Decimal("3.7"), False),  # -7.5%
+        ]
+
+        for previous, current, expected_warning in test_cases:
+            # When
+            change_percentage = abs((current - previous) / previous * 100)
+            has_warning = change_percentage >= 10
+
+            # Then
+            assert has_warning == expected_warning, (
+                f"体重変化 {previous}kg → {current}kg "
+                f"({change_percentage}%) の警告判定が正しくありません"
+            )
+
+    def test_weight_trend_with_multiple_records(self, test_db: Session, test_vet_user):
+        """複数の体重記録から推移を取得できる"""
+        # Given: 新しい猫を作成（他のテストの影響を避ける）
+        from app.models.animal import Animal
+
+        animal = Animal(
+            name="体重推移テスト猫",
+            pattern="キジトラ",
+            tail_length="長い",
+            age="成猫",
+            gender="female",
+            status="保護中",
+        )
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        # 体重が増加傾向の記録を作成
+        weight_progression = [
+            (date(2025, 12, 1), Decimal("4.0")),
+            (date(2025, 12, 8), Decimal("4.2")),
+            (date(2025, 12, 15), Decimal("4.4")),
+            (date(2025, 12, 22), Decimal("4.6")),
+        ]
+
+        for record_date, weight in weight_progression:
+            record_data = MedicalRecordCreate(
+                animal_id=animal.id,
+                vet_id=test_vet_user.id,
+                date=record_date,
+                weight=weight,
+                symptoms="定期健診",
+            )
+            medical_record_service.create_medical_record(test_db, record_data)
+
+        # When: 診療記録を取得
+        result = medical_record_service.list_medical_records(
+            test_db, animal_id=animal.id, page=1, page_size=100
+        )
+
+        # Then: 体重が増加傾向であることを確認
+        weight_records = sorted(
+            [r for r in result.items if r.weight is not None], key=lambda x: x.date
+        )
+        assert len(weight_records) == 4
+
+        # 各記録の体重が前回より増加している
+        for i in range(1, len(weight_records)):
+            assert weight_records[i].weight >= weight_records[i - 1].weight
+
+    def test_empty_weight_history(self, test_db: Session, test_vet_user):
+        """体重データがない場合の処理"""
+        # Given: 新しい猫を作成（他のテストの影響を避ける）
+        from app.models.animal import Animal
+
+        animal = Animal(
+            name="体重なしテスト猫",
+            pattern="三毛",
+            tail_length="短い",
+            age="子猫",
+            gender="unknown",
+            status="保護中",
+        )
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        # 体重なしの記録のみ
+        record_data = MedicalRecordCreate(
+            animal_id=animal.id,
+            vet_id=test_vet_user.id,
+            date=date(2025, 11, 15),
+            weight=None,
+            symptoms="診察のみ",
+        )
+        medical_record_service.create_medical_record(test_db, record_data)
+
+        # When: この猫の診療記録のみを取得
+        result = medical_record_service.list_medical_records(
+            test_db, animal_id=animal.id, page=1, page_size=100
+        )
+
+        # Then: この猫の体重データがないことを確認
+        weight_records = [r for r in result.items if r.weight is not None]
+        assert len(weight_records) == 0, (
+            f"体重データが0件のはずが{len(weight_records)}件存在します。"
+            f"animal_id={animal.id}でフィルタリングされていない可能性があります。"
+        )

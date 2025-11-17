@@ -78,12 +78,18 @@ def test_db() -> Generator[Session, None, None]:
     """各テスト関数ごとにデータベースセッションを提供（自動使用）"""
     db = TestingSessionLocal()
 
-    # 既存のデータをクリア
+    # 既存のデータをクリア（外部キー制約の順序に注意）
     try:
+        # 医療記録関連のインポート
+        from app.models.medical_action import MedicalAction
+        from app.models.medical_record import MedicalRecord
+
         db.query(AdoptionRecord).delete()
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
+        db.query(MedicalRecord).delete()  # 診療記録を追加
+        db.query(MedicalAction).delete()  # 診療行為を追加
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
         db.query(Setting).delete()
@@ -122,10 +128,16 @@ def test_db() -> Generator[Session, None, None]:
 
     # テスト後のクリーンアップ
     try:
+        # 医療記録関連のインポート
+        from app.models.medical_action import MedicalAction
+        from app.models.medical_record import MedicalRecord
+
         db.query(AdoptionRecord).delete()
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
+        db.query(MedicalRecord).delete()  # 診療記録を追加
+        db.query(MedicalAction).delete()  # 診療行為を追加
         db.query(StatusHistory).delete()
         db.query(Animal).delete()
         db.query(Setting).delete()
