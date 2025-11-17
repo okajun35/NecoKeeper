@@ -1,0 +1,570 @@
+{
+  "common": {
+    "app_name": "NecoKeeper",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "no_data": "No data available",
+    "required": "Required",
+    "optional": "Optional",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "none": "None",
+    "select": "Select",
+    "clear": "Clear",
+    "refresh": "Refresh",
+    "download": "Download",
+    "upload": "Upload",
+    "view": "View",
+    "details": "Details",
+    "list": "List",
+    "new": "New",
+    "update": "Update",
+    "create": "Create",
+    "submit": "Submit",
+    "reset": "Reset",
+    "apply": "Apply",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "time": "Time",
+    "name": "Name",
+    "description": "Description",
+    "notes": "Notes",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "profile": "Profile",
+    "help": "Help",
+    "about": "About",
+    "version": "Version",
+    "language": "Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "dashboard": "Dashboard",
+    "home": "Home",
+    "menu": "Menu",
+    "more": "More",
+    "less": "Less",
+    "show": "Show",
+    "hide": "Hide",
+    "enable": "Enable",
+    "disable": "Disable",
+    "active": "Active",
+    "inactive": "Inactive",
+    "total": "Total",
+    "count": "Count",
+    "page": "Page",
+    "per_page": "per page",
+    "of": "of",
+    "to": "to",
+    "from": "from",
+    "items": "items",
+    "records": "records"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "animals": "Animals",
+    "care_logs": "Care Logs",
+    "medical_records": "Medical Records",
+    "adoptions": "Adoptions",
+    "volunteers": "Volunteers",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Overview of the cat rescue management system",
+    "stats": {
+      "protected": "Protected",
+      "adoptable": "Adoptable",
+      "today_logs": "Today's Logs",
+      "volunteers": "Volunteers"
+    },
+    "recent_logs": "Recent Care Logs",
+    "needs_care": "Cats Needing Care",
+    "no_logs": "No care logs available",
+    "no_animals": "No cats need care",
+    "view_all": "View All"
+  },
+  "animals": {
+    "title": "Animals",
+    "list_title": "Animal List",
+    "detail_title": "Animal Details",
+    "add_new": "Add New Cat",
+    "edit": "Edit Cat Information",
+    "delete_confirm": "Are you sure you want to delete this cat?",
+    "search_placeholder": "Search by cat name...",
+    "filter_by_status": "Filter by status",
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "photo": "Photo",
+      "pattern": "Pattern",
+      "tail_length": "Tail Length",
+      "collar": "Collar",
+      "age": "Age",
+      "gender": "Gender",
+      "ear_cut": "Ear Cut",
+      "features": "Features",
+      "status": "Status",
+      "protected_at": "Protected Date",
+      "created_at": "Created At",
+      "updated_at": "Updated At"
+    },
+    "status": {
+      "protected": "Protected",
+      "treatment": "Under Treatment",
+      "adoptable": "Adoptable",
+      "adopted": "Adopted",
+      "deceased": "Deceased"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "unknown": "Unknown"
+    },
+    "tabs": {
+      "basic_info": "Basic Info",
+      "care_logs": "Care Logs",
+      "medical_records": "Medical Records",
+      "gallery": "Photo Gallery",
+      "weight_chart": "Weight Chart"
+    },
+    "actions": {
+      "view_details": "View Details",
+      "edit_info": "Edit Information",
+      "change_status": "Change Status",
+      "generate_qr": "Generate QR Card",
+      "generate_form": "Generate Paper Form",
+      "upload_photo": "Upload Photo",
+      "delete_photo": "Delete Photo"
+    },
+    "messages": {
+      "created": "Cat registered successfully",
+      "updated": "Cat information updated successfully",
+      "deleted": "Cat deleted successfully",
+      "status_changed": "Status changed successfully",
+      "photo_uploaded": "Photo uploaded successfully",
+      "photo_deleted": "Photo deleted successfully"
+    }
+  },
+  "care_logs": {
+    "title": "Care Logs",
+    "list_title": "Care Log List",
+    "add_new": "Add New Log",
+    "edit": "Edit Log",
+    "delete_confirm": "Are you sure you want to delete this log?",
+    "export_csv": "Export CSV",
+    "fields": {
+      "id": "ID",
+      "animal": "Cat",
+      "recorder": "Recorder",
+      "time_slot": "Time Slot",
+      "appetite": "Appetite",
+      "energy": "Energy",
+      "urination": "Urination",
+      "cleaning": "Cleaning",
+      "memo": "Memo",
+      "log_date": "Log Date",
+      "created_at": "Created At"
+    },
+    "time_slots": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "appetite_levels": {
+      "1": "1 (Not eating)",
+      "2": "2 (Little)",
+      "3": "3 (Normal)",
+      "4": "4 (Good)",
+      "5": "5 (Excellent)"
+    },
+    "energy_levels": {
+      "1": "1 (Lethargic)",
+      "2": "2 (Low energy)",
+      "3": "3 (Normal)",
+      "4": "4 (Energetic)",
+      "5": "5 (Very energetic)"
+    },
+    "urination_status": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "cleaning_status": {
+      "done": "Done",
+      "not_done": "Not done"
+    },
+    "filter": {
+      "by_animal": "Filter by cat",
+      "by_date": "Filter by date",
+      "by_time_slot": "Filter by time slot",
+      "start_date": "Start Date",
+      "end_date": "End Date"
+    },
+    "messages": {
+      "created": "Care log created successfully",
+      "updated": "Care log updated successfully",
+      "deleted": "Care log deleted successfully",
+      "exported": "CSV exported successfully"
+    }
+  },
+  "medical_records": {
+    "title": "Medical Records",
+    "list_title": "Medical Record List",
+    "add_new": "Add New Medical Record",
+    "edit": "Edit Medical Record",
+    "delete_confirm": "Are you sure you want to delete this medical record?",
+    "fields": {
+      "id": "ID",
+      "animal": "Cat",
+      "vet": "Veterinarian",
+      "date": "Date",
+      "time_slot": "Time Slot",
+      "weight": "Weight",
+      "temperature": "Temperature",
+      "symptoms": "Symptoms",
+      "medical_action": "Medical Action",
+      "dosage": "Dosage",
+      "dosage_unit": "Unit",
+      "other": "Other",
+      "comment": "Comment",
+      "created_at": "Created At"
+    },
+    "dosage_units": {
+      "tablet": "Tablet(s)",
+      "injection": "Injection(s)",
+      "times": "Time(s)",
+      "ml": "mL"
+    },
+    "filter": {
+      "by_animal": "Filter by cat",
+      "by_vet": "Filter by veterinarian",
+      "by_date": "Filter by date",
+      "start_date": "Start Date",
+      "end_date": "End Date"
+    },
+    "messages": {
+      "created": "Medical record created successfully",
+      "updated": "Medical record updated successfully",
+      "deleted": "Medical record deleted successfully"
+    }
+  },
+  "medical_actions": {
+    "title": "Medical Actions Master",
+    "list_title": "Medical Action List",
+    "add_new": "Add New Medical Action",
+    "edit": "Edit Medical Action",
+    "delete_confirm": "Are you sure you want to delete this medical action?",
+    "fields": {
+      "id": "ID",
+      "name": "Action Name",
+      "valid_from": "Valid From",
+      "valid_to": "Valid To",
+      "cost_price": "Cost Price",
+      "selling_price": "Selling Price",
+      "procedure_fee": "Procedure Fee",
+      "currency": "Currency",
+      "dosage_unit": "Dosage Unit",
+      "created_at": "Created At"
+    },
+    "messages": {
+      "created": "Medical action created successfully",
+      "updated": "Medical action updated successfully",
+      "deleted": "Medical action deleted successfully"
+    }
+  },
+  "adoptions": {
+    "title": "Adoptions",
+    "applicants_title": "Applicant List",
+    "records_title": "Adoption Record List",
+    "add_applicant": "Add New Applicant",
+    "add_record": "Add New Adoption Record",
+    "edit_applicant": "Edit Applicant Information",
+    "edit_record": "Edit Adoption Record",
+    "delete_confirm": "Are you sure you want to delete?",
+    "fields": {
+      "applicant": {
+        "id": "ID",
+        "name": "Name",
+        "contact": "Contact",
+        "address": "Address",
+        "family_structure": "Family Structure",
+        "housing": "Housing Type",
+        "experience": "Pet Experience",
+        "motivation": "Motivation",
+        "status": "Status",
+        "created_at": "Created At"
+      },
+      "record": {
+        "id": "ID",
+        "animal": "Cat",
+        "applicant": "Applicant",
+        "interview_date": "Interview Date",
+        "interview_notes": "Interview Notes",
+        "decision": "Decision",
+        "adoption_date": "Adoption Date",
+        "follow_up_date": "Follow-up Date",
+        "follow_up_notes": "Follow-up Notes",
+        "created_at": "Created At"
+      }
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "adopted": "Adopted"
+    },
+    "decision": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "messages": {
+      "applicant_created": "Applicant created successfully",
+      "applicant_updated": "Applicant information updated successfully",
+      "applicant_deleted": "Applicant deleted successfully",
+      "record_created": "Adoption record created successfully",
+      "record_updated": "Adoption record updated successfully",
+      "record_deleted": "Adoption record deleted successfully"
+    }
+  },
+  "volunteers": {
+    "title": "Volunteers",
+    "list_title": "Volunteer List",
+    "add_new": "Add New Volunteer",
+    "edit": "Edit Volunteer Information",
+    "delete_confirm": "Are you sure you want to delete this volunteer?",
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "contact": "Contact",
+      "affiliation": "Affiliation",
+      "status": "Status",
+      "started_at": "Start Date",
+      "created_at": "Created At"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "messages": {
+      "created": "Volunteer created successfully",
+      "updated": "Volunteer information updated successfully",
+      "deleted": "Volunteer deleted successfully"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Generate reports in PDF/CSV/Excel format",
+    "types": {
+      "daily": "Daily Report",
+      "weekly": "Weekly Report",
+      "monthly": "Monthly Report",
+      "individual": "Individual Report"
+    },
+    "fields": {
+      "report_type": "Report Type",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "animal": "Cat (for individual report)",
+      "format": "Format"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "actions": {
+      "generate": "Generate Report",
+      "download": "Download"
+    },
+    "messages": {
+      "generated": "Report generated successfully",
+      "error": "Failed to generate report"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "organization": {
+      "title": "Organization Information",
+      "name": "Organization Name",
+      "address": "Address",
+      "phone": "Phone Number",
+      "email": "Email Address"
+    },
+    "image": {
+      "title": "Image Settings",
+      "max_count": "Maximum Count",
+      "max_size": "Maximum File Size (MB)"
+    },
+    "language": {
+      "title": "Language Settings",
+      "current": "Current Language",
+      "japanese": "日本語",
+      "english": "English"
+    },
+    "security": {
+      "title": "Security Settings",
+      "session_timeout": "Session Timeout (hours)",
+      "max_login_attempts": "Maximum Login Attempts"
+    },
+    "backup": {
+      "title": "Backup Settings",
+      "auto_backup": "Auto Backup",
+      "retention_days": "Retention Days"
+    },
+    "messages": {
+      "saved": "Settings saved successfully",
+      "error": "Failed to save settings"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email Address",
+      "password": "Password",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "submit": "Login"
+    },
+    "logout": {
+      "confirm": "Are you sure you want to logout?",
+      "success": "Logged out successfully"
+    },
+    "messages": {
+      "login_success": "Logged in successfully",
+      "login_failed": "Login failed",
+      "invalid_credentials": "Invalid email or password",
+      "account_locked": "Account is locked",
+      "session_expired": "Session expired. Please login again",
+      "unauthorized": "You don't have permission to perform this action"
+    }
+  },
+  "public": {
+    "care_form": {
+      "title": "Care Log Entry",
+      "description": "Scan QR code to enter care log",
+      "select_animal": "Select Cat",
+      "select_volunteer": "Select Recorder",
+      "time_slot": "Time Slot",
+      "appetite": "Appetite",
+      "energy": "Energy",
+      "urination": "Urination",
+      "cleaning": "Cleaning",
+      "memo": "Memo",
+      "copy_last": "Copy Last Entry",
+      "submit": "Save Log",
+      "messages": {
+        "saved": "Log saved successfully",
+        "offline_saved": "Saved offline. Will sync when online",
+        "sync_pending": "Sync pending",
+        "syncing": "Syncing...",
+        "synced": "Synced",
+        "error": "Failed to save log"
+      }
+    },
+    "care_log_list": {
+      "title": "Care Log List",
+      "today_status": "Today's Status",
+      "recent_logs": "Recent 7 Days",
+      "no_logs": "No logs available",
+      "view_details": "View Details",
+      "back_to_form": "Back to Form"
+    },
+    "all_animals_status": {
+      "title": "All Cats Status",
+      "today": "Today",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "recorded": "Recorded",
+      "not_recorded": "Not Recorded",
+      "add_record": "Add Record",
+      "view_logs": "View Logs"
+    }
+  },
+  "errors": {
+    "400": "Bad Request",
+    "401": "Authentication Required",
+    "403": "Access Denied",
+    "404": "Page Not Found",
+    "500": "Server Error",
+    "network_error": "Network Error",
+    "validation_error": "Validation Error",
+    "required_field": "This field is required",
+    "invalid_email": "Invalid email format",
+    "invalid_date": "Invalid date format",
+    "invalid_number": "Please enter a number",
+    "file_too_large": "File size is too large",
+    "invalid_file_type": "File type is not supported",
+    "upload_failed": "Upload failed",
+    "delete_failed": "Delete failed",
+    "update_failed": "Update failed",
+    "create_failed": "Create failed",
+    "unknown_error": "Unknown error occurred"
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "min_length": "{{field}} must be at least {{min}} characters",
+    "max_length": "{{field}} must be at most {{max}} characters",
+    "min_value": "{{field}} must be at least {{min}}",
+    "max_value": "{{field}} must be at most {{max}}",
+    "invalid_format": "{{field}} format is invalid",
+    "email": "Please enter a valid email address",
+    "url": "Please enter a valid URL",
+    "date": "Please enter a valid date",
+    "number": "Please enter a number",
+    "integer": "Please enter an integer",
+    "positive": "Please enter a positive number"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "first": "First",
+    "last": "Last",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "from": "from",
+    "items": "items",
+    "per_page": "per page",
+    "no_results": "No results found"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "this_week": "This Week",
+    "last_week": "Last Week",
+    "this_month": "This Month",
+    "last_month": "Last Month",
+    "this_year": "This Year",
+    "last_year": "Last Year",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds",
+    "ago": "ago",
+    "from_now": "from now"
+  }
+}

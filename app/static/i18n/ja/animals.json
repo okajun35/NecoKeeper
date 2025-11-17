@@ -1,0 +1,62 @@
+{
+  "title": "猫台帳",
+  "list_title": "猫一覧",
+  "detail_title": "猫詳細",
+  "add_new": "新しい猫を登録",
+  "edit": "猫情報を編集",
+  "delete_confirm": "この猫を削除してもよろしいですか？",
+  "search_placeholder": "猫の名前で検索...",
+  "filter_by_status": "ステータスで絞り込み",
+  "fields": {
+    "id": "ID",
+    "name": "名前",
+    "photo": "写真",
+    "pattern": "柄",
+    "tail_length": "しっぽの長さ",
+    "collar": "首輪",
+    "age": "年齢",
+    "gender": "性別",
+    "ear_cut": "耳カット",
+    "features": "特徴",
+    "status": "ステータス",
+    "protected_at": "保護日",
+    "created_at": "登録日",
+    "updated_at": "更新日"
+  },
+  "status": {
+    "protected": "保護中",
+    "treatment": "治療中",
+    "adoptable": "譲渡可能",
+    "adopted": "譲渡済み",
+    "deceased": "死亡"
+  },
+  "gender": {
+    "male": "オス",
+    "female": "メス",
+    "unknown": "不明"
+  },
+  "tabs": {
+    "basic_info": "基本情報",
+    "care_logs": "世話記録",
+    "medical_records": "診療記録",
+    "gallery": "画像ギャラリー",
+    "weight_chart": "体重推移"
+  },
+  "actions": {
+    "view_details": "詳細を見る",
+    "edit_info": "情報を編集",
+    "change_status": "ステータス変更",
+    "generate_qr": "QRカード生成",
+    "generate_form": "紙記録フォーム生成",
+    "upload_photo": "写真をアップロード",
+    "delete_photo": "写真を削除"
+  },
+  "messages": {
+    "created": "猫を登録しました",
+    "updated": "猫情報を更新しました",
+    "deleted": "猫を削除しました",
+    "status_changed": "ステータスを変更しました",
+    "photo_uploaded": "写真をアップロードしました",
+    "photo_deleted": "写真を削除しました"
+  }
+}
