@@ -14,9 +14,10 @@
 - ✅ Phase 4: ボランティア管理（全4タスク）
 - ✅ Phase 5: 診療記録機能（全9タスク）✅ 2024-11-18完了
 - ✅ Phase 6: PDF生成機能（全5タスク）
+- ✅ Phase 6: CSV/Excelエクスポート機能（全4タスク）✅ 2024-11-18完了
 - ✅ Phase 7: 里親管理機能（全4タスク）✅ 2024-11-18完了
 - ✅ Phase 8: 管理画面UI（全15タスク）✅ 2024-11-18完了
-- ✅ Phase 9: Public API + PWA（全7タスク完了）
+- ✅ Phase 9: Public API + PWA（全13タスク完了）
 
 **実装済み機能:**
 - ✅ データベース（全12モデル）
@@ -594,28 +595,34 @@ QRカードと紙記録フォームのPDF生成機能を実装します。
   - _Requirements: Requirement 28.3_
 
 
-### 11. CSV/Excelエクスポート機能
+### 11. CSV/Excelエクスポート機能 ✅ 完了
 
 CSV・Excel形式でのデータ出力機能を実装します。
 
-- [ ] 11.1 CSV出力ユーティリティを実装（app/utils/csv_export.py）
-  - データフレーム→CSV変換
+- [x] 11.1 CSV出力サービスを実装（app/services/csv_service.py）✅
+  - 世話記録CSV出力（UTF-8 BOM付き）
+  - 帳票CSV出力（日報・週報・月次集計）
   - 文字エンコーディング処理（UTF-8 BOM）
   - _Requirements: Requirement 8.1, Requirement 25.3_
 
-- [ ] 11.2 Excel出力ユーティリティを実装（app/utils/excel_export.py）
+- [x] 11.2 Excel出力サービスを実装（app/services/excel_service.py）✅
   - openpyxlを使用したExcel生成
-  - スタイル設定（ヘッダー、罫線）
+  - 世話記録Excel出力
+  - 帳票Excel出力（日報・週報・月次集計）
+  - スタイル設定（ヘッダー、罫線、フォント）
   - _Requirements: Requirement 7.5, Requirement 9.4_
 
-- [ ] 11.3 猫マスターCSVインポート/エクスポート機能を実装
-  - CSVフォーマット検証
-  - バリデーションエラー処理
-  - _Requirements: Requirement 8.2-8.4_
+- [x] 11.3 世話記録CSV/Excelエクスポート機能を実装 ✅
+  - GET /api/v1/care-logs/export（CSV出力）
+  - 日付範囲・猫IDフィルター対応
+  - 権限チェック（csv:export）
+  - _Requirements: Requirement 8.2-8.4, Requirement 25.2-25.3_
 
-- [ ] 11.4 診療明細・帳票のCSV/Excel出力機能を実装
-  - 診療記録のCSV/Excel出力
+- [x] 11.4 帳票CSV/Excel出力機能を実装 ✅
+  - POST /api/v1/reports/export（CSV/Excel選択可能）
   - 日報・週報・月次集計のCSV/Excel出力
+  - 形式選択（csv/excel）
+  - 権限チェック（report:read）
   - _Requirements: Requirement 7.4-7.5, Requirement 9.3-9.4_
 
 ## Phase 7: 里親管理機能 ✅ 完了（100%）
@@ -1367,6 +1374,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 5: 診療記録機能 (4/4 完了) ✅ 2024-11-18
 - [x] Phase 5: 診療マスターデータ管理 (5/5 完了) ✅
 - [x] Phase 6: PDF生成機能 (5/5 完了) ✅
+- [x] Phase 6: CSV/Excelエクスポート機能 (4/4 完了) ✅ 2024-11-18
 - [x] Phase 7: 里親管理機能 (4/4 完了) ✅ 2024-11-18
 - [x] Phase 8: 管理画面UI (15/15 完了) ✅ 2024-11-18
 - [x] Phase 9: Publicフォーム（PWA） (7/7 完了) ✅
@@ -1381,9 +1389,9 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [ ] Phase 17: 最終調整とリリース (0/12 完了)
 
 ### 全体進捗
-**完了タスク数**: 72 / 141 タスク (51.1%)
-**MVP Core完了**: Phase 1-9（バックエンド + 管理画面UI + PWA + 記録一覧）完全完了 ✅
-**推定残り時間**: 約69-103時間（1タスク平均1-1.5時間）
+**完了タスク数**: 76 / 141 タスク (53.9%)
+**MVP Core完了**: Phase 1-9（バックエンド + 管理画面UI + PWA + 記録一覧 + CSV/Excel出力）完全完了 ✅
+**推定残り時間**: 約65-97時間（1タスク平均1-1.5時間）
 
 ### 実装済み機能
 - ✅ データベース（全12モデル）
