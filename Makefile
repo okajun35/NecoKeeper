@@ -3,6 +3,9 @@
 # デフォルトターゲット
 .DEFAULT_GOAL := help
 
+# mypyで解析するパス（pre-commitと同一設定）
+MYPY_TARGETS = app/
+
 # ヘルプメッセージ
 help:
 	@echo "NecoKeeper - 開発用Makeコマンド"
@@ -52,7 +55,7 @@ format:
 # pre-commitと同じ設定: app/配下のPythonファイルのみチェック
 mypy:
 	@echo "🔎 [3/5] 型チェック中（Mypy）..."
-	@mypy --config-file=mypy.ini app/ || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
+	@mypy --config-file=mypy.ini $(MYPY_TARGETS) || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
 	@echo "✅ 型チェック完了"
 
 # テスト実行（Pytest）

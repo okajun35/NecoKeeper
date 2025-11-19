@@ -1,0 +1,13 @@
+{
+  "list_title": "Volunteer Management",
+  "description": "Register and manage volunteers",
+  "add_new": "New Registration",
+  "name": "Name",
+  "contact": "Contact",
+  "affiliation": "Affiliation",
+  "start_date": "Start Date",
+  "status_active": "Active",
+  "status_inactive": "Inactive",
+  "search_placeholder": "Search by name, contact...",
+  "affiliation_placeholder": "Search by affiliation..."
+}

@@ -42,7 +42,7 @@ def load_translations(language: str) -> dict[str, Any]:
         translation_file = i18n_dir / "ja.json"
 
     with translation_file.open(encoding="utf-8") as f:
-        translations = json.load(f)
+        translations: dict[str, Any] = json.load(f)
 
     _translations_cache[language] = translations
     return translations
@@ -126,10 +126,11 @@ def translate(key: str, language: str = "ja", **kwargs: Any) -> str:
         return key
 
     # 補間処理 ({{variable}} を置換)
+    result: str = value
     for param_key, param_value in kwargs.items():
-        value = value.replace(f"{{{{{param_key}}}}}", str(param_value))
+        result = result.replace(f"{{{{{param_key}}}}}", str(param_value))
 
-    return value
+    return result
 
 
 def create_jinja2_i18n_functions(request: Request) -> dict[str, Any]:

@@ -183,6 +183,25 @@ async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
     return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
 
 
+@router.get("/care-logs/new", response_class=HTMLResponse)
+async def care_log_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    世話記録新規登録ページを表示
+
+    新しい世話記録を登録するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 世話記録新規登録ページのHTML
+
+    Example:
+        GET /admin/care-logs/new
+    """
+    return templates.TemplateResponse("admin/care_logs/new.html", {"request": request})
+
+
 @router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
 async def care_log_detail_page(request: Request, care_log_id: int):  # type: ignore[no-untyped-def]
     """

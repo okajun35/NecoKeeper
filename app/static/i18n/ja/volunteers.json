@@ -1,0 +1,13 @@
+{
+  "list_title": "ボランティア管理",
+  "description": "ボランティアの登録と管理",
+  "add_new": "新規登録",
+  "name": "名前",
+  "contact": "連絡先",
+  "affiliation": "所属",
+  "start_date": "開始日",
+  "status_active": "アクティブ",
+  "status_inactive": "非アクティブ",
+  "search_placeholder": "名前、連絡先で検索...",
+  "affiliation_placeholder": "所属で検索..."
+}

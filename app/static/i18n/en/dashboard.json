@@ -11,5 +11,15 @@
   "needs_care": "Cats Needing Care",
   "no_logs": "No care logs available",
   "no_animals": "No cats need care records",
-  "view_all": "View All"
+  "view_all": "View All",
+  "dynamic": {
+    "appetite": "Appetite",
+    "energy": "Energy",
+    "morning": "Morning",
+    "noon": "Noon",
+    "evening": "Evening",
+    "not_recorded": "Not recorded",
+    "record": "Record",
+    "all_recorded": "✓ All cats have been recorded today"
+  }
 }

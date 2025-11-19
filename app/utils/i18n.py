@@ -14,11 +14,10 @@ Context7ベストプラクティスに基づいた実装:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from babel.support import LazyProxy, Translations
 from fastapi import Depends, Header, Request
-from typing_extensions import Annotated
 
 # 翻訳カタログのキャッシュ
 _translations_cache: dict[str, Translations] = {}
@@ -89,9 +88,10 @@ def get_translations(
         >>>     return {"message": _("Items list")}
     """
     if locale in _translations_cache:
-        return _translations_cache[locale]
+        cached: Translations = _translations_cache[locale]
+        return cached
 
-    translations = Translations.load(str(LOCALES_DIR), [locale])
+    translations: Translations = Translations.load(str(LOCALES_DIR), [locale])
     _translations_cache[locale] = translations
     return translations
 
@@ -168,11 +168,12 @@ def translate(key: str, language: str = "ja", **kwargs: Any) -> str:
 
     新しいコードでは Translations.gettext を使用してください。
     """
-    translations = Translations.load(str(LOCALES_DIR), [language])
-    text = translations.gettext(key)
+    translations: Translations = Translations.load(str(LOCALES_DIR), [language])
+    text: str = translations.gettext(key)
 
     # 補間処理
+    result: str = text
     for param_key, param_value in kwargs.items():
-        text = text.replace(f"{{{{{param_key}}}}}", str(param_value))
+        result = result.replace(f"{{{{{param_key}}}}}", str(param_value))
 
-    return text
+    return result

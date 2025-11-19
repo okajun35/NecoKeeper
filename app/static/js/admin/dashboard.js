@@ -43,9 +43,12 @@ async function loadRecentLogs() {
     const container = document.getElementById('recent-logs');
 
     if (logs.length === 0) {
-      container.innerHTML = '<div class="text-center text-gray-500 py-8">記録がありません</div>';
+      const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
+      container.innerHTML = `<div class="text-center text-gray-500 py-8">${t('no_logs')}</div>`;
       return;
     }
+
+    const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
 
     container.innerHTML = logs
       .map(
@@ -61,8 +64,8 @@ async function loadRecentLogs() {
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">食欲: ${log.appetite}</span>
-                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">元気: ${log.energy}</span>
+                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${t('dynamic.appetite')}: ${log.appetite}</span>
+                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">${t('dynamic.energy')}: ${log.energy}</span>
                 </div>
             </div>
         `
@@ -70,8 +73,9 @@ async function loadRecentLogs() {
       .join('');
   } catch (error) {
     console.error('Recent logs load error:', error);
+    const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
     document.getElementById('recent-logs').innerHTML =
-      '<div class="text-center text-red-500 py-8">読み込みに失敗しました</div>';
+      `<div class="text-center text-red-500 py-8">${t('no_logs')}</div>`;
   }
 }
 
@@ -88,18 +92,19 @@ async function loadNeedsCare() {
 
     const container = document.getElementById('needs-care');
 
+    const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
+
     if (needsCare.length === 0) {
-      container.innerHTML =
-        '<div class="text-center text-green-600 py-8">✓ すべての猫の記録が完了しています</div>';
+      container.innerHTML = `<div class="text-center text-green-600 py-8">${t('dynamic.all_recorded')}</div>`;
       return;
     }
 
     container.innerHTML = needsCare
       .map(animal => {
         const missing = [];
-        if (!animal.morning_recorded) missing.push('朝');
-        if (!animal.noon_recorded) missing.push('昼');
-        if (!animal.evening_recorded) missing.push('夜');
+        if (!animal.morning_recorded) missing.push(t('dynamic.morning'));
+        if (!animal.noon_recorded) missing.push(t('dynamic.noon'));
+        if (!animal.evening_recorded) missing.push(t('dynamic.evening'));
 
         const photoUrl =
           animal.animal_photo && animal.animal_photo.trim() !== ''
@@ -114,12 +119,12 @@ async function loadNeedsCare() {
                          class="w-12 h-12 rounded-full object-cover">
                     <div class="flex-1">
                         <div class="font-medium text-gray-900">${animal.animal_name}</div>
-                        <div class="text-sm text-gray-600">未記録: ${missing.join(', ')}</div>
+                        <div class="text-sm text-gray-600">${t('dynamic.not_recorded')}: ${missing.join(', ')}</div>
                     </div>
                     <a href="/public/care?animal_id=${animal.animal_id}"
                        target="_blank"
                        class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-                        記録する
+                        ${t('dynamic.record')}
                     </a>
                 </div>
             `;
@@ -134,8 +139,29 @@ async function loadNeedsCare() {
 
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', () => {
-  loadDashboardData();
+  // 言語変更イベントをリッスン（i18n初期化前に設定）
+  window.addEventListener('languageChanged', () => {
+    console.log('[dashboard] Language changed, reloading data');
+    loadDashboardData();
+  });
 
-  // 5分ごとに自動更新
-  setInterval(loadDashboardData, 5 * 60 * 1000);
+  // i18nが初期化されるまで待機
+  const waitForI18n = setInterval(() => {
+    if (window.i18n && window.i18n.getCurrentLanguage) {
+      clearInterval(waitForI18n);
+      loadDashboardData();
+
+      // 5分ごとに自動更新
+      setInterval(loadDashboardData, 5 * 60 * 1000);
+    }
+  }, 100);
+
+  // タイムアウト（5秒）
+  setTimeout(() => {
+    clearInterval(waitForI18n);
+    if (!window.i18n || !window.i18n.getCurrentLanguage) {
+      console.warn('[dashboard] i18n initialization timeout');
+      loadDashboardData();
+    }
+  }, 5000);
 });

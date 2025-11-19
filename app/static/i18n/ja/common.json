@@ -23,7 +23,9 @@
   "all": "すべて",
   "none": "なし",
   "select": "選択",
+  "please_select": "選択してください",
   "clear": "クリア",
+  "preview": "プレビュー",
   "refresh": "更新",
   "download": "ダウンロード",
   "upload": "アップロード",
@@ -72,5 +74,17 @@
   "to": "から",
   "from": "まで",
   "items": "件",
-  "records": "レコード"
+  "records": "レコード",
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "first": "最初",
+    "last": "最後"
+  },
+  "buttons": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "submit": "送信",
+    "register": "登録"
+  }
 }

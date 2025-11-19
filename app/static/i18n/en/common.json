@@ -23,7 +23,9 @@
   "all": "All",
   "none": "None",
   "select": "Select",
+  "please_select": "Please select",
   "clear": "Clear",
+  "preview": "Preview",
   "refresh": "Refresh",
   "download": "Download",
   "upload": "Upload",
@@ -72,5 +74,17 @@
   "to": "to",
   "from": "from",
   "items": "items",
-  "records": "records"
+  "records": "records",
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "first": "First",
+    "last": "Last"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "register": "Register"
+  }
 }

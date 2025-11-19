@@ -150,14 +150,14 @@ class TestI18nNamespaces:
 
     def test_all_namespaces_exist_for_japanese(self) -> None:
         """日本語の全名前空間ファイルが存在する"""
-        namespaces = ["common", "dashboard", "animals", "care_logs"]
+        namespaces = ["common", "dashboard", "animals", "care_logs", "medical_records"]
         for ns in namespaces:
             file_path = Path(f"app/static/i18n/ja/{ns}.json")
             assert file_path.exists(), f"Missing: {file_path}"
 
     def test_all_namespaces_exist_for_english(self) -> None:
         """英語の全名前空間ファイルが存在する"""
-        namespaces = ["common", "dashboard", "animals", "care_logs"]
+        namespaces = ["common", "dashboard", "animals", "care_logs", "medical_records"]
         for ns in namespaces:
             file_path = Path(f"app/static/i18n/en/{ns}.json")
             assert file_path.exists(), f"Missing: {file_path}"
@@ -173,6 +173,79 @@ class TestI18nNamespaces:
         assert "stats" in translations
         assert "protected" in translations["stats"]
         assert "adoptable" in translations["stats"]
+
+    def test_medical_records_namespace_structure_japanese(self) -> None:
+        """日本語の医療記録名前空間の構造が正しい"""
+        file_path = Path("app/static/i18n/ja/medical_records.json")
+        with file_path.open(encoding="utf-8") as f:
+            translations = json.load(f)
+
+        # 基本的なキーの確認
+        assert "title" in translations
+        assert "list_title" in translations
+        assert "description" in translations
+        assert "add_new" in translations
+        assert "edit" in translations
+
+        # フィールドの確認
+        assert "fields" in translations
+        assert "animal" in translations["fields"]
+        assert "vet" in translations["fields"]
+        assert "date" in translations["fields"]
+        assert "weight" in translations["fields"]
+        assert "temperature" in translations["fields"]
+        assert "symptoms" in translations["fields"]
+
+        # ラベルの確認
+        assert "labels" in translations
+        assert "animal" in translations["labels"]
+        assert "vet" in translations["labels"]
+        assert "weight" in translations["labels"]
+
+        # プレースホルダーの確認
+        assert "placeholders" in translations
+        assert "select" in translations["placeholders"]
+        assert "weight" in translations["placeholders"]
+
+        # 時間帯の確認
+        assert "time_slots" in translations
+        assert "morning" in translations["time_slots"]
+        assert "afternoon" in translations["time_slots"]
+        assert "evening" in translations["time_slots"]
+
+        # ボタンの確認
+        assert "buttons" in translations
+        assert "submit" in translations["buttons"]
+        assert "cancel" in translations["buttons"]
+
+    def test_medical_records_namespace_structure_english(self) -> None:
+        """英語の医療記録名前空間の構造が正しい"""
+        file_path = Path("app/static/i18n/en/medical_records.json")
+        with file_path.open(encoding="utf-8") as f:
+            translations = json.load(f)
+
+        # 基本的なキーの確認
+        assert "title" in translations
+        assert translations["title"] == "Medical Records"
+        assert "list_title" in translations
+        assert "description" in translations
+        assert "add_new" in translations
+
+        # フィールドの確認
+        assert "fields" in translations
+        assert "animal" in translations["fields"]
+        assert translations["fields"]["animal"] == "Cat"
+
+        # ラベルの確認
+        assert "labels" in translations
+        assert "animal" in translations["labels"]
+        assert translations["labels"]["animal"] == "Cat"
+
+        # 時間帯の確認
+        assert "time_slots" in translations
+        assert translations["time_slots"]["morning"] == "Morning"
+        assert translations["time_slots"]["afternoon"] == "Afternoon"
+        assert translations["time_slots"]["evening"] == "Evening"
 
 
 class TestI18nBabelIntegration:

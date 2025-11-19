@@ -42,7 +42,7 @@ async function initI18n() {
       debug: false,
 
       // 名前空間の設定
-      ns: ['common', 'nav', 'dashboard', 'animals', 'care_logs'],
+      ns: ['common', 'nav', 'dashboard', 'animals', 'care_logs', 'medical_records'],
       defaultNS: 'common',
 
       // HTTP Backend設定

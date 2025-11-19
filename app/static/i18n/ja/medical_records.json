@@ -1,0 +1,110 @@
+{
+  "title": "診療記録",
+  "list_title": "診療記録一覧",
+  "description": "全ての診療記録を管理",
+  "detail_title": "診療記録詳細",
+  "detail_description": "診療記録の詳細情報",
+  "add_new": "新しい診療記録を追加",
+  "edit": "診療記録を編集",
+  "delete_confirm": "この診療記録を削除してもよろしいですか？",
+  "basic_info": "基本情報",
+  "measurements": "測定値",
+  "symptoms_findings": "症状・所見",
+  "treatment_optional": "処置（オプション）",
+  "fields": {
+    "id": "ID",
+    "animal": "猫",
+    "animal_id": "猫",
+    "vet": "獣医師",
+    "vet_id": "獣医師",
+    "date": "診療日",
+    "time_slot": "時間帯",
+    "weight": "体重",
+    "temperature": "体温",
+    "symptoms": "症状",
+    "medical_action": "処置内容",
+    "medical_action_id": "処置内容",
+    "dosage": "投薬回数",
+    "dosage_unit": "単位",
+    "other": "その他処置",
+    "comment": "コメント",
+    "created_at": "作成日時",
+    "updated_at": "最終更新日時",
+    "selling_price": "請求価格"
+  },
+  "labels": {
+    "animal": "猫",
+    "vet": "獣医師",
+    "date": "診療日",
+    "time_slot": "時間帯",
+    "weight": "体重 (kg)",
+    "temperature": "体温 (℃)",
+    "symptoms": "症状",
+    "medical_action": "処置内容",
+    "dosage": "投薬回数",
+    "other": "その他処置",
+    "comment": "コメント"
+  },
+  "placeholders": {
+    "select": "選択してください",
+    "weight": "例: 4.5",
+    "temperature": "例: 38.5",
+    "symptoms": "観察された症状を記入してください",
+    "comment": "追加のコメントや注意事項",
+    "dosage": "例: 2",
+    "other": "その他の処置内容"
+  },
+  "time_slots": {
+    "morning": "午前",
+    "afternoon": "午後",
+    "evening": "夕方"
+  },
+  "dosage_units": {
+    "tablet": "錠",
+    "injection": "本",
+    "times": "回",
+    "ml": "mL"
+  },
+  "filter": {
+    "by_animal": "猫で絞り込み",
+    "by_vet": "獣医師で絞り込み",
+    "by_date": "日付で絞り込み",
+    "start_date": "開始日",
+    "end_date": "終了日"
+  },
+  "messages": {
+    "created": "診療記録を登録しました",
+    "updated": "診療記録を更新しました",
+    "deleted": "診療記録を削除しました",
+    "load_error": "読み込みに失敗しました",
+    "save_error": "保存に失敗しました"
+  },
+  "validation": {
+    "animal_required": "猫を選択してください",
+    "vet_required": "獣医師を選択してください",
+    "date_required": "診療日を入力してください",
+    "symptoms_required": "症状を入力してください",
+    "temperature_range": "体温は35.0〜42.0℃の範囲で入力してください",
+    "weight_positive": "体重は0より大きい値を入力してください"
+  },
+  "hints": {
+    "temperature_range": "正常範囲: 35.0〜42.0℃"
+  },
+  "buttons": {
+    "submit": "登録する",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "back": "戻る",
+    "edit": "編集",
+    "delete": "削除",
+    "view": "詳細"
+  },
+  "dynamic": {
+    "cat_id": "猫ID",
+    "vet_id": "獣医ID",
+    "kg": "kg",
+    "celsius": "℃",
+    "yen": "¥",
+    "not_available": "-"
+  }
+}

@@ -100,10 +100,10 @@
           <select id="status" name="status" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">選択してください</option>
-            <option value="保護中">保護中</option>
-            <option value="治療中">治療中</option>
-            <option value="譲渡可能">譲渡可能</option>
-            <option value="譲渡済み">譲渡済み</option>
+            <option value="保護中" data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
+            <option value="治療中" data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
+            <option value="譲渡可能" data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
+            <option value="譲渡済み" data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
           </select>
         </div>
 
@@ -128,11 +128,11 @@
 
       <!-- 保存ボタン -->
       <div class="flex justify-end gap-3">
-        <a href="/admin/animals/{{ animal_id }}"
+        <a href="/admin/animals/{{ animal_id }}" data-i18n="buttons.cancel" data-i18n-ns="common"
            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
           キャンセル
         </a>
-        <button type="submit"
+        <button type="submit" data-i18n="buttons.save" data-i18n-ns="common"
                 class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           保存
         </button>

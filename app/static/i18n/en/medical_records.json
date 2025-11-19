@@ -1,0 +1,110 @@
+{
+  "title": "Medical Records",
+  "list_title": "Medical Record List",
+  "description": "Manage all medical records",
+  "detail_title": "Medical Record Details",
+  "detail_description": "Detailed information of medical record",
+  "add_new": "Add New Medical Record",
+  "edit": "Edit Medical Record",
+  "delete_confirm": "Are you sure you want to delete this medical record?",
+  "basic_info": "Basic Information",
+  "measurements": "Measurements",
+  "symptoms_findings": "Symptoms & Findings",
+  "treatment_optional": "Treatment (Optional)",
+  "fields": {
+    "id": "ID",
+    "animal": "Cat",
+    "animal_id": "Cat",
+    "vet": "Veterinarian",
+    "vet_id": "Veterinarian",
+    "date": "Date",
+    "time_slot": "Time Slot",
+    "weight": "Weight",
+    "temperature": "Temperature",
+    "symptoms": "Symptoms",
+    "medical_action": "Medical Action",
+    "medical_action_id": "Medical Action",
+    "dosage": "Dosage",
+    "dosage_unit": "Unit",
+    "other": "Other",
+    "comment": "Comment",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "selling_price": "Billing Price"
+  },
+  "labels": {
+    "animal": "Cat",
+    "vet": "Veterinarian",
+    "date": "Date",
+    "time_slot": "Time Slot",
+    "weight": "Weight (kg)",
+    "temperature": "Temperature (℃)",
+    "symptoms": "Symptoms",
+    "medical_action": "Medical Action",
+    "dosage": "Dosage",
+    "other": "Other Treatment",
+    "comment": "Comment"
+  },
+  "placeholders": {
+    "select": "Please select",
+    "weight": "e.g. 4.5",
+    "temperature": "e.g. 38.5",
+    "symptoms": "Enter observed symptoms",
+    "comment": "Additional comments or notes",
+    "dosage": "e.g. 2",
+    "other": "Other treatment details"
+  },
+  "time_slots": {
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening"
+  },
+  "dosage_units": {
+    "tablet": "Tablet(s)",
+    "injection": "Injection(s)",
+    "times": "Time(s)",
+    "ml": "mL"
+  },
+  "filter": {
+    "by_animal": "Filter by cat",
+    "by_vet": "Filter by veterinarian",
+    "by_date": "Filter by date",
+    "start_date": "Start Date",
+    "end_date": "End Date"
+  },
+  "messages": {
+    "created": "Medical record created successfully",
+    "updated": "Medical record updated successfully",
+    "deleted": "Medical record deleted successfully",
+    "load_error": "Failed to load data",
+    "save_error": "Failed to save data"
+  },
+  "validation": {
+    "animal_required": "Please select a cat",
+    "vet_required": "Please select a veterinarian",
+    "date_required": "Please enter a date",
+    "symptoms_required": "Please enter symptoms",
+    "temperature_range": "Temperature must be between 35.0 and 42.0℃",
+    "weight_positive": "Weight must be greater than 0"
+  },
+  "hints": {
+    "temperature_range": "Normal range: 35.0 - 42.0℃"
+  },
+  "buttons": {
+    "submit": "Register",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "Details"
+  },
+  "dynamic": {
+    "cat_id": "Cat ID",
+    "vet_id": "Vet ID",
+    "kg": "kg",
+    "celsius": "℃",
+    "yen": "¥",
+    "not_available": "-"
+  }
+}

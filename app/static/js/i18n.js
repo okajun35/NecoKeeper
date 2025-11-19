@@ -32,20 +32,49 @@ async function initI18n() {
       savedLanguage ||
       (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
-    // 翻訳ファイルを読み込み
-    const [jaTranslations, enTranslations] = await Promise.all([
-      fetch('/static/i18n/ja.json').then(r => r.json()),
-      fetch('/static/i18n/en.json').then(r => r.json()),
-    ]);
+    // 翻訳ファイルを読み込み（名前空間ごと）
+    const namespaces = [
+      'common',
+      'nav',
+      'dashboard',
+      'animals',
+      'care_logs',
+      'medical_records',
+      'volunteers',
+    ];
+    const jaTranslations = {};
+    const enTranslations = {};
+
+    // 各名前空間の翻訳ファイルを読み込み
+    await Promise.all(
+      namespaces.map(async ns => {
+        try {
+          const jaRes = await fetch(`/static/i18n/ja/${ns}.json`);
+          const enRes = await fetch(`/static/i18n/en/${ns}.json`);
+
+          if (jaRes.ok) {
+            jaTranslations[ns] = await jaRes.json();
+          }
+          if (enRes.ok) {
+            enTranslations[ns] = await enRes.json();
+          }
+        } catch (err) {
+          console.warn(`[i18n] Failed to load namespace: ${ns}`, err);
+        }
+      })
+    );
 
     // i18nextを初期化
     await i18next.init({
       lng: defaultLanguage,
       fallbackLng: 'ja',
       debug: false,
+      ns: namespaces,
+      defaultNS: 'common',
+      fallbackNS: 'common',
       resources: {
-        ja: { translation: jaTranslations },
-        en: { translation: enTranslations },
+        ja: jaTranslations,
+        en: enTranslations,
       },
       interpolation: {
         escapeValue: false, // HTMLエスケープを無効化（XSS対策は別途実施）
@@ -56,6 +85,7 @@ async function initI18n() {
     i18nextInitialized = true;
 
     console.log(`[i18n] Initialized with language: ${currentLanguage}`);
+    console.log(`[i18n] Loaded namespaces:`, namespaces);
 
     // 初回翻訳を適用
     translatePage();
@@ -81,7 +111,10 @@ function translatePage() {
   // data-i18n属性を持つ要素を翻訳
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+
+    // 名前空間付きで翻訳を取得（ネストされたキーをサポート）
+    const translation = i18next.t(key, { ns, defaultValue: key });
 
     // テキストコンテンツを更新
     if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
@@ -99,29 +132,41 @@ function translatePage() {
   // data-i18n-html属性を持つ要素を翻訳（HTML含む）
   document.querySelectorAll('[data-i18n-html]').forEach(element => {
     const key = element.getAttribute('data-i18n-html');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     element.innerHTML = translation;
   });
 
   // data-i18n-placeholder属性を持つ要素のplaceholderを翻訳
   document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
     const key = element.getAttribute('data-i18n-placeholder');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     element.placeholder = translation;
   });
 
   // data-i18n-title属性を持つ要素のtitleを翻訳
   document.querySelectorAll('[data-i18n-title]').forEach(element => {
     const key = element.getAttribute('data-i18n-title');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     element.title = translation;
   });
 
   // data-i18n-aria-label属性を持つ要素のaria-labelを翻訳
   document.querySelectorAll('[data-i18n-aria-label]').forEach(element => {
     const key = element.getAttribute('data-i18n-aria-label');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     element.setAttribute('aria-label', translation);
+  });
+
+  // data-i18n-alt属性を持つ要素のaltを翻訳
+  document.querySelectorAll('[data-i18n-alt]').forEach(element => {
+    const key = element.getAttribute('data-i18n-alt');
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
+    element.alt = translation;
   });
 
   console.log(`[i18n] Page translated to: ${currentLanguage}`);
@@ -247,7 +292,8 @@ function translateElement(element) {
   // data-i18n属性を持つ子要素を翻訳
   element.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    const translation = i18next.t(key);
+    const ns = el.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
 
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
       if (el.hasAttribute('placeholder')) {
@@ -263,7 +309,8 @@ function translateElement(element) {
   // 要素自体も翻訳
   if (element.hasAttribute('data-i18n')) {
     const key = element.getAttribute('data-i18n');
-    const translation = i18next.t(key);
+    const ns = element.getAttribute('data-i18n-ns') || 'common';
+    const translation = i18next.t(key, { ns });
     element.textContent = translation;
   }
 }

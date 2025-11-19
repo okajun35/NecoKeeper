@@ -2,11 +2,19 @@
   "title": "Animals",
   "list_title": "Animal List",
   "detail_title": "Animal Details",
+  "new_title": "Register New Cat",
+  "new_description": "Register a new cat",
   "add_new": "Add New Cat",
   "edit": "Edit Cat Information",
   "delete_confirm": "Are you sure you want to delete this cat?",
   "search_placeholder": "Search by cat name...",
   "filter_by_status": "Filter by status",
+  "profile_image_optional": "Profile Image (Optional)",
+  "image_format_note": "PNG, JPG, GIF (Max 5MB)",
+  "image_gallery_note": "※You can add/change images from the gallery after registration",
+  "collar_placeholder": "e.g., Red collar",
+  "features_placeholder": "Enter injuries, characteristics, personality, etc.",
+  "register": "Register",
   "fields": {
     "id": "ID",
     "name": "Name",
@@ -35,6 +43,16 @@
     "female": "Female",
     "unknown": "Unknown"
   },
+  "age": {
+    "kitten": "Kitten",
+    "adult": "Adult",
+    "senior": "Senior"
+  },
+  "tail": {
+    "long": "Long",
+    "short": "Short",
+    "none": "None"
+  },
   "tabs": {
     "basic_info": "Basic Info",
     "care_logs": "Care Logs",
@@ -58,5 +76,10 @@
     "status_changed": "Status changed successfully",
     "photo_uploaded": "Photo uploaded successfully",
     "photo_deleted": "Photo deleted successfully"
+  },
+  "buttons": {
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

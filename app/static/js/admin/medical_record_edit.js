@@ -7,13 +7,42 @@ let medicalActionsData = [];
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
-  recordId = getRecordIdFromUrl();
-  if (recordId) {
-    loadMedicalRecord(recordId);
-    loadMedicalActions();
-  } else {
-    showError('診療記録IDが指定されていません');
-  }
+  // i18nが初期化されるまで待機
+  const waitForI18n = setInterval(() => {
+    if (window.i18n && window.i18n.getCurrentLanguage) {
+      clearInterval(waitForI18n);
+
+      recordId = getRecordIdFromUrl();
+      if (recordId) {
+        loadMedicalRecord(recordId);
+        loadMedicalActions();
+      } else {
+        const errorMsg = window.i18n.t('load_error', { ns: 'medical_records' });
+        showError(errorMsg);
+      }
+
+      // 言語変更イベントをリッスン（ページの再読み込みは不要）
+      window.addEventListener('languageChanged', () => {
+        // 言語切り替え時は、ページの再読み込みは不要
+        // テンプレートの data-i18n 属性が自動的に翻訳される
+      });
+    }
+  }, 100);
+
+  // タイムアウト（5秒）
+  setTimeout(() => {
+    clearInterval(waitForI18n);
+    if (!window.i18n || !window.i18n.getCurrentLanguage) {
+      console.warn('[medical_record_edit] i18n initialization timeout');
+      recordId = getRecordIdFromUrl();
+      if (recordId) {
+        loadMedicalRecord(recordId);
+        loadMedicalActions();
+      } else {
+        showError('診療記録IDが指定されていません');
+      }
+    }
+  }, 5000);
 });
 
 // URLから診療記録IDを取得
@@ -36,16 +65,33 @@ async function loadMedicalRecord(id) {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error('診療記録が見つかりません');
+        const notFoundMsg =
+          window.i18n && window.i18n.t
+            ? window.i18n.t('no_data', { ns: 'common' })
+            : '診療記録が見つかりません';
+        throw new Error(notFoundMsg);
       }
-      throw new Error('診療記録の取得に失敗しました');
+      const errorMsg =
+        window.i18n && window.i18n.t
+          ? window.i18n.t('load_error', { ns: 'medical_records' })
+          : '診療記録の取得に失敗しました';
+      throw new Error(errorMsg);
     }
 
     const record = await response.json();
     populateForm(record);
   } catch (error) {
     console.error('Error loading medical record:', error);
-    showError(error.message);
+    // エラーメッセージを翻訳
+    let displayMessage = error.message;
+    if (window.i18n && window.i18n.t) {
+      if (error.message.includes('見つかりません') || error.message.includes('not found')) {
+        displayMessage = window.i18n.t('no_data', { ns: 'common' });
+      } else {
+        displayMessage = window.i18n.t('load_error', { ns: 'medical_records' });
+      }
+    }
+    showError(displayMessage);
   } finally {
     hideLoading();
   }
@@ -185,7 +231,19 @@ function hideLoading() {
 // エラー表示
 function showError(message) {
   const errorDiv = document.getElementById('errorMessage');
-  errorDiv.querySelector('p').textContent = message;
+  let displayMessage = message;
+
+  // メッセージが翻訳キーの場合は翻訳
+  if (window.i18n && window.i18n.t) {
+    // メッセージが翻訳キーかどうかを判定
+    if (message === 'load_error' || message.includes('読み込みに失敗')) {
+      displayMessage = window.i18n.t('load_error', { ns: 'medical_records' });
+    } else if (message === 'no_data' || message.includes('データがありません')) {
+      displayMessage = window.i18n.t('no_data', { ns: 'common' });
+    }
+  }
+
+  errorDiv.querySelector('p').textContent = displayMessage;
   errorDiv.classList.remove('hidden');
   document.getElementById('editForm').classList.add('hidden');
 }

@@ -114,7 +114,7 @@ class TestMedicalRecordPages:
         # Then
         assert response.status_code == 200
         assert b"text/html" in response.headers["content-type"].encode()
-        assert "診療記録登録".encode() in response.content
+        assert "新しい診療記録を追加".encode() in response.content
 
 
 class TestVolunteerPages:

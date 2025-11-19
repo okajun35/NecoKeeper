@@ -14,11 +14,73 @@ let filters = {
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
-  loadAnimals();
-  loadVets();
-  loadMedicalRecords();
-  setupEventListeners();
+  // i18nが初期化されるまで待機
+  const waitForI18n = setInterval(() => {
+    if (window.i18n && window.i18n.getCurrentLanguage) {
+      clearInterval(waitForI18n);
+
+      // i18nが初期化されたら翻訳を適用
+      translateButtonTexts();
+      loadAnimals();
+      loadVets();
+      loadMedicalRecords();
+      setupEventListeners();
+
+      // 言語変更イベントをリッスン
+      window.addEventListener('languageChanged', () => {
+        translateButtonTexts();
+        // ページネーション情報の再表示（データは保持）
+        const info = document.getElementById('paginationInfo');
+        if (info && info.textContent) {
+          // 既存のページネーション情報を保持
+          const itemsText =
+            window.i18n && window.i18n.t ? window.i18n.t('items', { ns: 'common' }) : '件';
+          // テキストの最後の「件」を新しい翻訳に置き換え
+          const text = info.innerHTML.replace(/件$/, itemsText);
+          info.innerHTML = text;
+        }
+      });
+    }
+  }, 100);
+
+  // タイムアウト（5秒）
+  setTimeout(() => {
+    clearInterval(waitForI18n);
+    if (!window.i18n || !window.i18n.getCurrentLanguage) {
+      console.warn('[medical_records_list] i18n initialization timeout');
+      loadAnimals();
+      loadVets();
+      loadMedicalRecords();
+      setupEventListeners();
+    }
+  }, 5000);
 });
+
+// ボタンのテキストを翻訳
+function translateButtonTexts() {
+  if (!window.i18n || !window.i18n.t) {
+    console.warn('[medical_records_list] i18n not available');
+    return;
+  }
+
+  const searchBtn = document.getElementById('searchBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const prevBtn = document.getElementById('prevPageBtn');
+  const nextBtn = document.getElementById('nextPageBtn');
+
+  if (searchBtn) {
+    searchBtn.textContent = window.i18n.t('search', { ns: 'common' });
+  }
+  if (clearBtn) {
+    clearBtn.textContent = window.i18n.t('clear', { ns: 'common' });
+  }
+  if (prevBtn) {
+    prevBtn.textContent = window.i18n.t('pagination.previous', { ns: 'common' });
+  }
+  if (nextBtn) {
+    nextBtn.textContent = window.i18n.t('pagination.next', { ns: 'common' });
+  }
+}
 
 // イベントリスナーの設定
 function setupEventListeners() {
@@ -41,7 +103,13 @@ async function loadAnimals() {
       },
     });
 
-    if (!response.ok) throw new Error('猫一覧の取得に失敗しました');
+    if (!response.ok) {
+      const errorMsg =
+        window.i18n && window.i18n.t
+          ? window.i18n.t('load_error', { ns: 'medical_records' })
+          : '猫一覧の取得に失敗しました';
+      throw new Error(errorMsg);
+    }
 
     const data = await response.json();
     const select = document.getElementById('filterAnimal');
@@ -115,7 +183,9 @@ async function loadMedicalRecords() {
       },
     });
 
-    if (!response.ok) throw new Error('診療記録の取得に失敗しました');
+    if (!response.ok) {
+      throw new Error('load_error');
+    }
 
     const data = await response.json();
     renderMedicalRecords(data);
@@ -137,9 +207,13 @@ function renderMedicalRecords(data) {
   desktopTableBody.innerHTML = '';
 
   if (data.items.length === 0) {
-    const emptyMessage = '<div class="p-8 text-center text-gray-500">診療記録がありません</div>';
+    const noDataText =
+      window.i18n && window.i18n.t
+        ? window.i18n.t('no_data', { ns: 'common' })
+        : 'データがありません';
+    const emptyMessage = `<div class="p-8 text-center text-gray-500">${noDataText}</div>`;
     mobileList.innerHTML = emptyMessage;
-    desktopTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-center text-gray-500">診療記録がありません</td></tr>`;
+    desktopTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-8 text-center text-gray-500">${noDataText}</td></tr>`;
     return;
   }
 
@@ -156,6 +230,14 @@ function renderMedicalRecords(data) {
 function createMobileCard(record) {
   const card = document.createElement('div');
   card.className = 'p-4 hover:bg-gray-50';
+
+  // 翻訳テキストを取得
+  const weightLabel =
+    window.i18n && window.i18n.t ? window.i18n.t('weight', { ns: 'medical_records' }) : '体重';
+  const tempLabel =
+    window.i18n && window.i18n.t ? window.i18n.t('temperature', { ns: 'medical_records' }) : '体温';
+  const viewText =
+    window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
 
   // 診療行為と投薬情報
   let medicalActionInfo = '';
@@ -178,20 +260,20 @@ function createMobileCard(record) {
         <div class="flex justify-between items-start mb-2">
             <div>
                 <p class="font-medium text-gray-900">${record.date}</p>
-                <p class="text-sm text-gray-600">${record.animal_name || '猫ID: ' + record.animal_id}</p>
+                <p class="text-sm text-gray-600">${record.animal_name || 'ID: ' + record.animal_id}</p>
             </div>
-            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_name || '獣医ID: ' + record.vet_id}</span>
+            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_name || 'ID: ' + record.vet_id}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-            <div><span class="text-gray-500">体重:</span> ${record.weight ? record.weight + 'kg' : '-'}</div>
-            <div><span class="text-gray-500">体温:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
+            <div><span class="text-gray-500">${weightLabel}:</span> ${record.weight ? record.weight + 'kg' : '-'}</div>
+            <div><span class="text-gray-500">${tempLabel}:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
         </div>
         ${medicalActionInfo}
         ${billingInfo}
         <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
         <div class="flex gap-2">
             <a href="/admin/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                詳細
+                ${viewText}
             </a>
         </div>
     `;
@@ -202,6 +284,10 @@ function createMobileCard(record) {
 function createDesktopRow(record) {
   const row = document.createElement('tr');
   row.className = 'hover:bg-gray-50';
+
+  // 翻訳テキストを取得
+  const viewText =
+    window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
 
   // 診療行為と投薬情報
   let medicalActionText = '-';
@@ -219,15 +305,15 @@ function createDesktopRow(record) {
 
   row.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || '猫ID: ' + record.animal_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_name || '獣医ID: ' + record.vet_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || 'ID: ' + record.animal_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_name || 'ID: ' + record.vet_id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight ? record.weight + 'kg' : '-'}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">${billingText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="/admin/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">詳細</a>
+            <a href="/admin/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">${viewText}</a>
         </td>
     `;
   return row;
@@ -241,11 +327,18 @@ function updatePagination(data) {
 
   const start = (data.page - 1) * data.page_size + 1;
   const end = Math.min(data.page * data.page_size, data.total);
+  const itemsText = window.i18n && window.i18n.t ? window.i18n.t('items', { ns: 'common' }) : '件';
 
-  info.innerHTML = `<span class="font-medium">${start}</span> - <span class="font-medium">${end}</span> / <span class="font-medium">${data.total}</span> 件`;
+  info.innerHTML = `<span class="font-medium">${start}</span> - <span class="font-medium">${end}</span> / <span class="font-medium">${data.total}</span> ${itemsText}`;
 
   prevBtn.disabled = data.page <= 1;
   nextBtn.disabled = data.page >= data.total_pages;
+
+  // ボタンのテキストを翻訳
+  if (window.i18n && window.i18n.t) {
+    prevBtn.textContent = window.i18n.t('pagination.previous', { ns: 'common' });
+    nextBtn.textContent = window.i18n.t('pagination.next', { ns: 'common' });
+  }
 }
 
 // 検索処理
@@ -297,7 +390,16 @@ function hideLoading() {
 // エラー表示
 function showError(message) {
   const errorDiv = document.getElementById('errorMessage');
-  errorDiv.querySelector('p').textContent = message;
+  let translatedMessage = message;
+
+  if (window.i18n && window.i18n.t) {
+    // メッセージが翻訳キーの場合は翻訳
+    if (message === 'load_error') {
+      translatedMessage = window.i18n.t('load_error', { ns: 'medical_records' });
+    }
+  }
+
+  errorDiv.querySelector('p').textContent = translatedMessage;
   errorDiv.classList.remove('hidden');
 }
 

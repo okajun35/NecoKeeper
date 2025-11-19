@@ -102,24 +102,48 @@
     "view_all": "すべて表示"
   },
   "animals": {
-    "title": "猫台帳",
+    "title": "猫管理",
     "list_title": "猫一覧",
     "detail_title": "猫詳細",
-    "add_new": "新しい猫を登録",
+    "add_new": "新規登録",
     "edit": "猫情報を編集",
     "delete_confirm": "この猫を削除してもよろしいですか？",
-    "search_placeholder": "猫の名前で検索...",
+    "search_placeholder": "名前、柄、特徴で検索...",
     "filter_by_status": "ステータスで絞り込み",
+    "description": "保護猫の情報を管理します",
+    "back_to_list": "一覧に戻る",
+    "loading": "読み込み中...",
+    "no_data": "データがありません",
+    "search": {
+      "label": "検索",
+      "placeholder": "名前、柄、特徴で検索...",
+      "advanced": "詳細検索",
+      "clear": "クリア"
+    },
+    "filter": {
+      "status": "ステータス",
+      "gender": "性別",
+      "age_min": "年齢（最小）",
+      "age_max": "年齢（最大）",
+      "rescue_date_from": "保護日（開始）",
+      "rescue_date_to": "保護日（終了）",
+      "ear_cut": "耳カット",
+      "collar": "首輪",
+      "page_size": "表示件数",
+      "all": "すべて",
+      "with": "あり",
+      "without": "なし"
+    },
     "fields": {
       "id": "ID",
       "name": "名前",
       "photo": "写真",
       "pattern": "柄",
-      "tail_length": "しっぽの長さ",
+      "tail_length": "尻尾の長さ",
       "collar": "首輪",
       "age": "年齢",
       "gender": "性別",
-      "ear_cut": "耳カット",
+      "ear_cut": "耳カット済み",
       "features": "特徴",
       "status": "ステータス",
       "protected_at": "保護日",
@@ -138,6 +162,17 @@
       "female": "メス",
       "unknown": "不明"
     },
+    "tail_length": {
+      "long": "長い",
+      "short": "短い",
+      "hooked": "かぎしっぽ",
+      "none": "なし"
+    },
+    "age_category": {
+      "kitten": "子猫",
+      "adult": "成猫",
+      "senior": "老猫"
+    },
     "tabs": {
       "basic_info": "基本情報",
       "care_logs": "世話記録",
@@ -149,10 +184,33 @@
       "view_details": "詳細を見る",
       "edit_info": "情報を編集",
       "change_status": "ステータス変更",
-      "generate_qr": "QRカード生成",
-      "generate_form": "紙記録フォーム生成",
+      "update_status": "ステータス更新",
+      "generate_qr": "QRカード出力",
+      "generate_form": "紙記録フォーム出力",
       "upload_photo": "写真をアップロード",
-      "delete_photo": "写真を削除"
+      "delete_photo": "写真を削除",
+      "change_image": "画像を変更",
+      "upload_new": "新しい画像をアップロード",
+      "select_from_gallery": "ギャラリーから選択"
+    },
+    "modal": {
+      "profile_image": "プロフィール画像を変更",
+      "paper_form": "紙記録フォーム出力",
+      "select_year": "年",
+      "select_month": "月",
+      "confirm": "出力",
+      "upload_tab": "新しい画像をアップロード",
+      "gallery_tab": "ギャラリーから選択",
+      "preview": "プレビュー",
+      "no_images": "画像ギャラリーに画像がありません"
+    },
+    "form": {
+      "required": "必須",
+      "optional": "任意",
+      "select_placeholder": "選択してください",
+      "file_input_hint": "PNG, JPG, GIF（最大5MB）",
+      "profile_image": "プロフィール画像（任意）",
+      "profile_image_note": "※登録後、画像ギャラリーから追加・変更できます"
     },
     "messages": {
       "created": "猫を登録しました",
@@ -160,16 +218,26 @@
       "deleted": "猫を削除しました",
       "status_changed": "ステータスを変更しました",
       "photo_uploaded": "写真をアップロードしました",
-      "photo_deleted": "写真を削除しました"
+      "photo_deleted": "写真を削除しました",
+      "load_error": "読み込みに失敗しました"
+    },
+    "page_size": {
+      "20": "20件",
+      "50": "50件",
+      "100": "100件"
     }
   },
   "care_logs": {
     "title": "世話記録",
     "list_title": "世話記録一覧",
+    "description": "全ての世話記録を管理",
+    "detail_title": "世話記録詳細",
+    "detail_description": "世話記録の詳細情報",
     "add_new": "新しい記録を追加",
     "edit": "記録を編集",
     "delete_confirm": "この記録を削除してもよろしいですか？",
     "export_csv": "CSVエクスポート",
+    "new_title": "世話記録新規登録",
     "fields": {
       "id": "ID",
       "animal": "猫",
@@ -227,6 +295,9 @@
   "medical_records": {
     "title": "診療記録",
     "list_title": "診療記録一覧",
+    "description": "全ての診療記録を管理",
+    "detail_title": "診療記録詳細",
+    "detail_description": "診療記録の詳細情報",
     "add_new": "新しい診療記録を追加",
     "edit": "診療記録を編集",
     "delete_confirm": "この診療記録を削除してもよろしいですか？",
@@ -244,7 +315,8 @@
       "dosage_unit": "単位",
       "other": "その他",
       "comment": "コメント",
-      "created_at": "登録日時"
+      "created_at": "登録日時",
+      "selling_price": "請求価格"
     },
     "dosage_units": {
       "tablet": "錠",

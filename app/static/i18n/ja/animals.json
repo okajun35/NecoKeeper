@@ -2,11 +2,19 @@
   "title": "猫台帳",
   "list_title": "猫一覧",
   "detail_title": "猫詳細",
+  "new_title": "猫新規登録",
+  "new_description": "新しい猫を登録します",
   "add_new": "新しい猫を登録",
   "edit": "猫情報を編集",
   "delete_confirm": "この猫を削除してもよろしいですか？",
   "search_placeholder": "猫の名前で検索...",
   "filter_by_status": "ステータスで絞り込み",
+  "profile_image_optional": "プロフィール画像（任意）",
+  "image_format_note": "PNG, JPG, GIF（最大5MB）",
+  "image_gallery_note": "※登録後、画像ギャラリーから追加・変更できます",
+  "collar_placeholder": "例: 赤い首輪",
+  "features_placeholder": "外傷、特徴、性格などを記入",
+  "register": "登録",
   "fields": {
     "id": "ID",
     "name": "名前",
@@ -35,6 +43,16 @@
     "female": "メス",
     "unknown": "不明"
   },
+  "age": {
+    "kitten": "子猫",
+    "adult": "成猫",
+    "senior": "老猫"
+  },
+  "tail": {
+    "long": "長い",
+    "short": "短い",
+    "none": "なし"
+  },
   "tabs": {
     "basic_info": "基本情報",
     "care_logs": "世話記録",
@@ -58,5 +76,10 @@
     "status_changed": "ステータスを変更しました",
     "photo_uploaded": "写真をアップロードしました",
     "photo_deleted": "写真を削除しました"
+  },
+  "buttons": {
+    "register": "登録",
+    "save": "保存",
+    "cancel": "キャンセル"
   }
 }
