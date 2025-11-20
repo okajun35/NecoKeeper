@@ -23,23 +23,70 @@ function setupDefaultValues() {
 function setupImagePreview() {
   const fileInput = document.getElementById('profile-image');
   const preview = document.getElementById('profile-preview');
+  const fileNameText = document.getElementById('profile-image-filename');
+
+  if (!fileInput || !preview) {
+    return;
+  }
+
+  const applyPlaceholderText = () => {
+    if (!fileNameText) {
+      return;
+    }
+
+    fileNameText.setAttribute('data-i18n', 'file_input.empty');
+    fileNameText.setAttribute('data-i18n-ns', 'common');
+
+    if (window.i18n && typeof window.i18n.translateElement === 'function') {
+      window.i18n.translateElement(fileNameText);
+    } else {
+      fileNameText.textContent = '選択されていません';
+    }
+
+    fileNameText.classList.add('text-gray-500');
+  };
+
+  const showSelectedFileName = fileName => {
+    if (!fileNameText) {
+      return;
+    }
+
+    fileNameText.removeAttribute('data-i18n');
+    fileNameText.removeAttribute('data-i18n-ns');
+    fileNameText.textContent = fileName;
+    fileNameText.classList.remove('text-gray-500');
+  };
+
+  applyPlaceholderText();
 
   fileInput.addEventListener('change', e => {
     const file = e.target.files[0];
-    if (file) {
-      // ファイルサイズチェック（5MB）
-      if (file.size > 5 * 1024 * 1024) {
-        showError('ファイルサイズは5MB以下にしてください');
-        fileInput.value = '';
-        return;
-      }
+    if (!file) {
+      applyPlaceholderText();
+      return;
+    }
 
-      // プレビュー表示
-      const reader = new FileReader();
-      reader.onload = e => {
-        preview.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    // ファイルサイズチェック（5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      showError('ファイルサイズは5MB以下にしてください');
+      fileInput.value = '';
+      applyPlaceholderText();
+      return;
+    }
+
+    showSelectedFileName(file.name);
+
+    // プレビュー表示
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window.addEventListener('languageChanged', () => {
+    if (fileInput.files.length === 0) {
+      applyPlaceholderText();
     }
   });
 }

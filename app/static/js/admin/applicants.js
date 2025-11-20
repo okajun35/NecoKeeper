@@ -252,26 +252,7 @@ function viewAdoptionRecords(applicantId) {
   window.location.href = `/admin/adoptions/records?applicant_id=${applicantId}`;
 }
 
-// ユーティリティ関数
-function formatDate(dateString) {
-  if (!dateString) return '-';
-
-  try {
-    // 文字列、数値、Dateオブジェクトのいずれかを処理
-    const date = new Date(dateString);
-
-    // 無効な日付をチェック
-    if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString, 'type:', typeof dateString);
-      return '-';
-    }
-
-    return date.toLocaleDateString('ja-JP');
-  } catch (error) {
-    console.error('Error formatting date:', error, 'input:', dateString);
-    return '-';
-  }
-}
+// 注: formatDate等はcommon.jsで定義済み
 
 function escapeHtml(text) {
   const div = document.createElement('div');

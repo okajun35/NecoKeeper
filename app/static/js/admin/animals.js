@@ -3,6 +3,9 @@
  * Context7参照: /bigskysoftware/htmx (Trust Score: 90.7)
  */
 
+const I18N_NAMESPACE = 'animals';
+const COMMON_NAMESPACE = 'common';
+
 let currentPage = 1;
 let currentPageSize = 20;
 let currentStatus = '';
@@ -16,10 +19,76 @@ let advancedFilters = {
   earCut: '',
   collar: '',
 };
+let lastAnimals = [];
+let lastPagination = { total: 0, page: 1, pageSize: currentPageSize };
+let hasLoadedAnimals = false;
+
+function translate(key, options = {}) {
+  const { ns = I18N_NAMESPACE, defaultValue = '', ...rest } = options;
+  const namespacedKey = `${ns}:${key}`;
+
+  if (window.i18n?.t) {
+    return window.i18n.t(namespacedKey, { defaultValue, ...rest }) || defaultValue || key;
+  }
+
+  if (window.i18next?.t) {
+    return window.i18next.t(namespacedKey, { defaultValue, ...rest }) || defaultValue || key;
+  }
+
+  return defaultValue || key;
+}
+
+function applyDynamicTranslations(element) {
+  if (window.i18n?.translateElement && element) {
+    window.i18n.translateElement(element);
+  }
+}
+
+// DBの値を翻訳キーにマッピング
+const DB_VALUE_MAPS = {
+  gender: {
+    male: 'gender.male',
+    female: 'gender.female',
+    unknown: 'gender.unknown',
+    オス: 'gender.male',
+    メス: 'gender.female',
+    不明: 'gender.unknown',
+  },
+  age: {
+    子猫: 'age.kitten',
+    成猫: 'age.adult',
+    老猫: 'age.senior',
+    kitten: 'age.kitten',
+    adult: 'age.adult',
+    senior: 'age.senior',
+  },
+};
+
+function translateDBValue(category, value) {
+  if (!value) return '-';
+  const map = DB_VALUE_MAPS[category];
+  if (map && map[value]) {
+    return translate(map[value], { defaultValue: value });
+  }
+  return value;
+}
 
 // 猫一覧を読み込み
 async function loadAnimals() {
   try {
+    const listContainer = document.getElementById('animals-list');
+    if (listContainer) {
+      const loadingMessage = translate('loading', {
+        ns: COMMON_NAMESPACE,
+        defaultValue: '読み込み中...',
+      });
+      listContainer.innerHTML = `
+        <div class="p-8 text-center text-gray-500" data-i18n="loading" data-i18n-ns="common">
+          ${loadingMessage}
+        </div>`;
+      applyDynamicTranslations(listContainer);
+    }
+
     const params = new URLSearchParams({
       page: currentPage,
       page_size: currentPageSize,
@@ -58,23 +127,48 @@ async function loadAnimals() {
 
     const response = await apiRequest(url);
 
+    if (!response) {
+      return;
+    }
+
     renderAnimalsList(response.items || []);
     renderPagination(response.total || 0, response.page || 1, response.page_size || 20);
   } catch (error) {
     console.error('Animals load error:', error);
-    showToast('猫一覧の読み込みに失敗しました', 'error');
-    document.getElementById('animals-list').innerHTML =
-      '<div class="p-8 text-center text-red-500">読み込みに失敗しました</div>';
+    const errorMessage = translate('list.load_error', {
+      defaultValue: '猫一覧の読み込みに失敗しました',
+    });
+    showToast(errorMessage, 'error');
+
+    const listContainer = document.getElementById('animals-list');
+    if (listContainer) {
+      listContainer.innerHTML = `
+        <div class="p-8 text-center text-red-500" data-i18n="list.load_error" data-i18n-ns="animals">
+          ${errorMessage}
+        </div>`;
+      applyDynamicTranslations(listContainer);
+    }
   }
 }
 
 // 猫一覧を描画
-function renderAnimalsList(animals) {
+function renderAnimalsList(animals = []) {
   const container = document.getElementById('animals-list');
+  if (!container) {
+    return;
+  }
+  lastAnimals = animals;
 
   if (animals.length === 0) {
-    container.innerHTML =
-      '<div class="p-8 text-center text-gray-500">猫が見つかりませんでした</div>';
+    const emptyMessage = translate('list.empty', {
+      defaultValue: '猫が見つかりませんでした',
+    });
+    container.innerHTML = `
+      <div class="p-8 text-center text-gray-500" data-i18n="list.empty" data-i18n-ns="animals">
+        ${emptyMessage}
+      </div>`;
+    applyDynamicTranslations(container);
+    hasLoadedAnimals = true;
     return;
   }
 
@@ -82,37 +176,41 @@ function renderAnimalsList(animals) {
     .map(animal => {
       const photoUrl =
         animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+      const displayName =
+        animal.name && animal.name.trim() !== ''
+          ? animal.name
+          : translate('fallbacks.no_name', { defaultValue: '名前なし' });
 
       return `
         <div class="p-6 hover:bg-gray-50 transition-colors">
             <div class="flex items-center gap-6">
                 <!-- 写真 -->
                 <img src="${photoUrl}"
-                     alt="${animal.name}"
+                     alt="${displayName}"
                      onerror="this.onerror=null; this.src='/static/images/default.svg';"
                      class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200">
 
                 <!-- 基本情報 -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-3 mb-2">
-                        <h3 class="text-lg font-semibold text-gray-900">${animal.name || '名前なし'}</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">${displayName}</h3>
                         ${getStatusBadge(animal.status)}
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                         <div>
-                            <span class="text-gray-500">柄:</span>
+                            <span class="text-gray-500"><span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span>:</span>
                             <span class="ml-1">${animal.pattern || '-'}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500">性別:</span>
-                            <span class="ml-1">${animal.gender || '-'}</span>
+                            <span class="text-gray-500"><span data-i18n="fields.gender" data-i18n-ns="animals">性別</span>:</span>
+                            <span class="ml-1">${translateDBValue('gender', animal.gender)}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500">年齢:</span>
-                            <span class="ml-1">${animal.age || '-'}</span>
+                            <span class="text-gray-500"><span data-i18n="fields.age" data-i18n-ns="animals">年齢</span>:</span>
+                            <span class="ml-1">${translateDBValue('age', animal.age)}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500">保護日:</span>
+                            <span class="text-gray-500"><span data-i18n="fields.protected_at" data-i18n-ns="animals">保護日</span>:</span>
                             <span class="ml-1">${animal.rescue_date ? formatDate(new Date(animal.rescue_date)) : '-'}</span>
                         </div>
                     </div>
@@ -121,15 +219,18 @@ function renderAnimalsList(animals) {
                 <!-- アクション -->
                 <div class="flex gap-2">
                     <a href="/admin/animals/${animal.id}"
-                       class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                       class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                       data-i18n="actions.view_details" data-i18n-ns="animals">
                         詳細
                     </a>
                     <a href="/admin/animals/${animal.id}/edit"
-                       class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                       class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                       data-i18n="actions.edit_info" data-i18n-ns="animals">
                         編集
                     </a>
                     <button onclick="showQRCode(${animal.id})"
-                            class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                            class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                            data-i18n="actions.qr_code" data-i18n-ns="animals">
                         QR
                     </button>
                 </div>
@@ -138,12 +239,19 @@ function renderAnimalsList(animals) {
     `;
     })
     .join('');
+
+  applyDynamicTranslations(container);
+  hasLoadedAnimals = true;
 }
 
 // ページネーションを描画
 function renderPagination(total, page, pageSize) {
   const totalPages = Math.ceil(total / pageSize);
   const container = document.getElementById('pagination');
+  if (!container) {
+    return;
+  }
+  lastPagination = { total, page, pageSize };
 
   if (totalPages <= 1) {
     container.innerHTML = '';
@@ -166,13 +274,24 @@ function renderPagination(total, page, pageSize) {
   container.innerHTML = `
         <div class="flex items-center justify-between">
             <div class="text-sm text-gray-600">
-                全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, total)} 件を表示
+                ${translate('pagination.summary', {
+                  defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
+                    page * pageSize,
+                    total
+                  )} 件を表示`,
+                  total,
+                  from: (page - 1) * pageSize + 1,
+                  to: Math.min(page * pageSize, total),
+                })}
             </div>
             <div class="flex gap-2">
                 <button onclick="changePage(${page - 1})"
                         ${page === 1 ? 'disabled' : ''}
                         class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    前へ
+                    ${translate('pagination.previous', {
+                      ns: COMMON_NAMESPACE,
+                      defaultValue: '前へ',
+                    })}
                 </button>
                 ${pages
                   .map(
@@ -186,8 +305,11 @@ function renderPagination(total, page, pageSize) {
                   .join('')}
                 <button onclick="changePage(${page + 1})"
                         ${page === totalPages ? 'disabled' : ''}
-                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    次へ
+                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                  ${translate('pagination.next', {
+                    ns: COMMON_NAMESPACE,
+                    defaultValue: '次へ',
+                  })}
                 </button>
             </div>
         </div>
@@ -203,6 +325,12 @@ function changePage(page) {
 // QRコードを表示
 function showQRCode(animalId) {
   const qrUrl = `${API_BASE}/animals/${animalId}/qr`;
+  const modalTitle = translate('modals.qr_code.title', {
+    defaultValue: 'QRコード',
+  });
+  const modalDescription = translate('modals.qr_code.description', {
+    defaultValue: 'このQRコードをスキャンすると、世話記録入力画面が開きます',
+  });
 
   // モーダルを作成
   const modal = document.createElement('div');
@@ -210,7 +338,7 @@ function showQRCode(animalId) {
   modal.innerHTML = `
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">QRコード</h3>
+        <h3 class="text-lg font-semibold">${modalTitle}</h3>
         <button onclick="this.closest('.fixed').remove()"
                 class="text-gray-500 hover:text-gray-700">
           ✕
@@ -220,7 +348,7 @@ function showQRCode(animalId) {
         <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
       </div>
       <p class="mt-4 text-sm text-gray-600 text-center">
-        このQRコードをスキャンすると、世話記録入力画面が開きます
+        ${modalDescription}
       </p>
     </div>
   `;
@@ -237,8 +365,26 @@ function showQRCode(animalId) {
 
 // イベントリスナー
 document.addEventListener('DOMContentLoaded', () => {
-  // 初期読み込み
-  loadAnimals();
+  // i18nextの初期化を待ってから読み込み
+  if (window.i18next && window.i18next.isInitialized) {
+    loadAnimals();
+  } else {
+    // i18nextの初期化を待つ
+    const checkI18next = setInterval(() => {
+      if (window.i18next && window.i18next.isInitialized) {
+        clearInterval(checkI18next);
+        loadAnimals();
+      }
+    }, 100);
+
+    // タイムアウト（5秒）
+    setTimeout(() => {
+      clearInterval(checkI18next);
+      if (!hasLoadedAnimals) {
+        loadAnimals();
+      }
+    }, 5000);
+  }
 
   // 検索
   const searchInput = document.getElementById('search');
@@ -265,6 +411,14 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPage = 1;
     loadAnimals();
   });
+});
+
+window.addEventListener('languageChanged', () => {
+  if (!hasLoadedAnimals) {
+    return;
+  }
+  renderAnimalsList(lastAnimals);
+  renderPagination(lastPagination.total, lastPagination.page, lastPagination.pageSize);
 });
 
 // グローバルエクスポート

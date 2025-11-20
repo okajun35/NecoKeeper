@@ -6,14 +6,46 @@
   "new_description": "Register a new cat",
   "add_new": "Add New Cat",
   "edit": "Edit Cat Information",
+  "edit_description": "Update cat information",
   "delete_confirm": "Are you sure you want to delete this cat?",
   "search_placeholder": "Search by cat name...",
   "filter_by_status": "Filter by status",
+  "description": "Manage rescued cat information",
+  "search": {
+    "label": "Search",
+    "placeholder": "Search by name, pattern, features...",
+    "advanced": "Advanced Search",
+    "clear": "Clear"
+  },
+  "filter": {
+    "status": "Status",
+    "all": "All",
+    "page_size": "Items per page",
+    "gender": "Gender",
+    "age_min": "Age (Min)",
+    "age_max": "Age (Max)",
+    "rescue_date_from": "Rescue Date (From)",
+    "rescue_date_to": "Rescue Date (To)",
+    "ear_cut": "Ear Cut",
+    "collar": "Collar",
+    "with": "With",
+    "without": "Without"
+  },
+  "page_size": {
+    "20": "20 items",
+    "50": "50 items",
+    "100": "100 items"
+  },
+  "list": {
+    "empty": "No cats found",
+    "load_error": "Failed to load the cat list"
+  },
   "profile_image_optional": "Profile Image (Optional)",
   "image_format_note": "PNG, JPG, GIF (Max 5MB)",
-  "image_gallery_note": "※You can add/change images from the gallery after registration",
+  "image_gallery_note": "You can add or change images from the gallery after registration",
   "collar_placeholder": "e.g., Red collar",
   "features_placeholder": "Enter injuries, characteristics, personality, etc.",
+  "back_to_list": "Back to list",
   "register": "Register",
   "fields": {
     "id": "ID",
@@ -51,7 +83,12 @@
   "tail": {
     "long": "Long",
     "short": "Short",
-    "none": "None"
+    "none": "None",
+    "bobtail": "Bobtail"
+  },
+  "collar_options": {
+    "has": "Has collar",
+    "none": "No collar"
   },
   "tabs": {
     "basic_info": "Basic Info",
@@ -60,14 +97,97 @@
     "gallery": "Photo Gallery",
     "weight_chart": "Weight Chart"
   },
+  "care_log": {
+    "empty": "No care logs available",
+    "load_error": "Failed to load care logs",
+    "recorder": "Recorder",
+    "appetite": "Appetite",
+    "energy": "Energy",
+    "urination": "Urination",
+    "cleaning": "Cleaning",
+    "yes": "Yes",
+    "no": "No",
+    "done": "Done",
+    "not_done": "Not done",
+    "unset": "Unset",
+    "unknown": "Unknown"
+  },
+  "medical_record": {
+    "empty": "No medical records available",
+    "load_error": "Failed to load medical records",
+    "vet": "Veterinarian",
+    "weight": "Weight",
+    "temperature": "Temperature",
+    "symptoms": "Symptoms",
+    "actions": "Medical Actions",
+    "unknown": "Unknown"
+  },
+  "gallery": {
+    "empty": "No images available",
+    "upload": "Upload Image",
+    "add": "Add Image",
+    "count": "{{count}} image(s)",
+    "cat_image": "Cat image",
+    "profile_image": "Profile image",
+    "load_error": "Failed to load images",
+    "fetch_error": "Failed to fetch images"
+  },
+  "weight_chart": {
+    "empty": "No weight data available",
+    "error": "Failed to load weight data",
+    "graph_title": "Weight Trend Chart",
+    "data_title": "Weight Data",
+    "date": "Date",
+    "weight_kg": "Weight (kg)",
+    "change": "Change",
+    "no_change": "No change",
+    "warning_message": "⚠️ Warnings are displayed for weight changes of 10% or more",
+    "tooltip_weight": "Weight",
+    "axis_weight": "Weight (kg)",
+    "axis_date": "Date",
+    "fetch_error": "Failed to fetch weight data"
+  },
   "actions": {
-    "view_details": "View Details",
-    "edit_info": "Edit Information",
+    "view_details": "Details",
+    "edit_info": "Edit",
+    "qr_code": "QR",
     "change_status": "Change Status",
     "generate_qr": "Generate QR Card",
     "generate_form": "Generate Paper Form",
+    "change_photo": "Change Photo",
+    "update_status": "Update Status",
     "upload_photo": "Upload Photo",
     "delete_photo": "Delete Photo"
+  },
+  "pagination": {
+    "summary": "Showing {{from}}-{{to}} of {{total}} cats"
+  },
+  "fallbacks": {
+    "no_name": "Unnamed"
+  },
+  "loading": {
+    "care_logs": "Loading care logs...",
+    "medical_records": "Loading medical records...",
+    "gallery": "Loading gallery...",
+    "weight_chart": "Loading weight chart..."
+  },
+  "modals": {
+    "profile_image": {
+      "title": "Change Profile Image",
+      "upload_tab": "Upload New Image",
+      "select_tab": "Choose from Gallery"
+    },
+    "qr_code": {
+      "title": "QR Code",
+      "description": "Scanning this QR code opens the care log input screen"
+    }
+  },
+  "paper_form": {
+    "title": "Generate Paper Form",
+    "description": "Select the year and month to export",
+    "year_label": "Year",
+    "month_label": "Month",
+    "generate": "Generate"
   },
   "messages": {
     "created": "Cat registered successfully",
@@ -75,7 +195,10 @@
     "deleted": "Cat deleted successfully",
     "status_changed": "Status changed successfully",
     "photo_uploaded": "Photo uploaded successfully",
-    "photo_deleted": "Photo deleted successfully"
+    "photo_deleted": "Photo deleted successfully",
+    "load_failed": "Failed to load the cat list",
+    "id_missing": "Cat ID is not specified",
+    "load_error": "Failed to load cat information"
   },
   "buttons": {
     "register": "Register",

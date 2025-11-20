@@ -41,13 +41,24 @@
                    id="profile-image"
                    name="profile_image"
                    accept="image/*"
-                   class="block w-full text-sm text-gray-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-lg file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-blue-50 file:text-blue-700
-                          hover:file:bg-blue-100">
-            <p class="mt-2 text-sm text-gray-500">
+                   aria-describedby="profile-image-hint"
+                   class="sr-only">
+            <div class="flex items-center gap-3">
+              <label for="profile-image"
+                     class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 cursor-pointer text-sm font-semibold hover:bg-blue-100 transition-colors"
+                     data-i18n="file_input.choose"
+                     data-i18n-ns="common">
+                ファイルを選択
+              </label>
+              <span id="profile-image-filename"
+                    class="text-sm text-gray-500"
+                    data-i18n="file_input.empty"
+                    data-i18n-ns="common"
+                    aria-live="polite">
+                選択されていません
+              </span>
+            </div>
+            <p id="profile-image-hint" class="mt-2 text-sm text-gray-500">
               <span data-i18n="image_format_note" data-i18n-ns="animals">PNG, JPG, GIF（最大5MB）</span><br>
               <span data-i18n="image_gallery_note" data-i18n-ns="animals">※登録後、画像ギャラリーから追加・変更できます</span>
             </p>

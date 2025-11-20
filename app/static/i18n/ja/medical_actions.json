@@ -1,0 +1,67 @@
+{
+  "title": "診療行為マスター管理",
+  "description": "診療行為（薬剤・ワクチン・検査）のマスターデータ管理",
+  "new_button": "新規登録",
+  "search": {
+    "label": "検索",
+    "placeholder": "診療名称で検索...",
+    "valid_on": "有効日",
+    "currency": "通貨",
+    "all": "すべて",
+    "button": "検索",
+    "clear": "クリア"
+  },
+  "table": {
+    "name": "診療名称",
+    "period": "適用期間",
+    "cost_price": "原価",
+    "selling_price": "請求価格",
+    "procedure_fee": "処置料金",
+    "currency": "通貨",
+    "actions": "操作"
+  },
+  "modal": {
+    "title_new": "診療行為マスター登録",
+    "title_edit": "診療行為マスター編集",
+    "name": "診療名称",
+    "valid_from": "適用開始日",
+    "valid_to": "適用終了日",
+    "valid_to_note": "未設定の場合は無期限",
+    "cost_price": "原価",
+    "selling_price": "請求価格",
+    "procedure_fee": "処置料金",
+    "currency_unit": "通貨単位",
+    "unit": "投薬単位",
+    "unit_note": "投薬量の単位（錠、本、回、mL）",
+    "unit_placeholder": "選択してください",
+    "unit_pill": "錠",
+    "unit_bottle": "本",
+    "unit_time": "回",
+    "unit_ml": "mL",
+    "currency_jpy": "JPY (日本円)",
+    "currency_usd": "USD (米ドル)",
+    "calculation_formula": "料金計算式:",
+    "calculation_note": "(請求価格 × 投薬量) + 処置料金",
+    "save": "保存",
+    "cancel": "キャンセル"
+  },
+  "messages": {
+    "loading": "読み込み中...",
+    "created": "診療行為を登録しました",
+    "updated": "診療行為を更新しました",
+    "deleted": "診療行為を削除しました",
+    "load_error": "診療行為の読み込みに失敗しました",
+    "save_error": "診療行為の保存に失敗しました",
+    "delete_error": "診療行為の削除に失敗しました",
+    "delete_confirm": "この診療行為を削除してもよろしいですか？"
+  },
+  "pagination": {
+    "info": "{{start}} - {{end}} / {{total}} 件",
+    "prev": "前へ",
+    "next": "次へ"
+  },
+  "buttons": {
+    "edit": "編集",
+    "delete": "削除"
+  }
+}

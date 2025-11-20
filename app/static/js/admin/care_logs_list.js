@@ -393,8 +393,5 @@ function hideError() {
 }
 
 /**
- * JWTトークンを取得
+ * 注: getToken等はcommon.jsで定義済み
  */
-function getToken() {
-  return localStorage.getItem('access_token');
-}

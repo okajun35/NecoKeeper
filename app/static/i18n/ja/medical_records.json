@@ -7,10 +7,26 @@
   "add_new": "新しい診療記録を追加",
   "edit": "診療記録を編集",
   "delete_confirm": "この診療記録を削除してもよろしいですか？",
-  "basic_info": "基本情報",
-  "measurements": "測定値",
-  "symptoms_findings": "症状・所見",
-  "treatment_optional": "処置（オプション）",
+  "form": {
+    "basic_info": "基本情報",
+    "date": "診療日",
+    "time_slot": "時間帯",
+    "select": "選択してください",
+    "morning": "午前",
+    "afternoon": "午後",
+    "evening": "夕方",
+    "measurements": "測定値",
+    "weight": "体重",
+    "temperature": "体温",
+    "temperature_note": "正常範囲: 35.0〜42.0℃",
+    "symptoms_findings": "症状・所見",
+    "symptoms": "症状",
+    "comment": "コメント",
+    "treatment_optional": "処置（オプション）",
+    "treatment": "処置内容",
+    "dosage": "投薬回数",
+    "other_treatment": "その他処置"
+  },
   "fields": {
     "id": "ID",
     "animal": "猫",
@@ -46,13 +62,13 @@
     "comment": "コメント"
   },
   "placeholders": {
-    "select": "選択してください",
     "weight": "例: 4.5",
     "temperature": "例: 38.5",
     "symptoms": "観察された症状を記入してください",
     "comment": "追加のコメントや注意事項",
     "dosage": "例: 2",
-    "other": "その他の処置内容"
+    "other": "その他の処置内容",
+    "select": "選択してください"
   },
   "time_slots": {
     "morning": "午前",

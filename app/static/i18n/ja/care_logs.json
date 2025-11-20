@@ -56,6 +56,12 @@
     "created": "世話記録を登録しました",
     "updated": "世話記録を更新しました",
     "deleted": "世話記録を削除しました",
-    "exported": "CSVをエクスポートしました"
+    "exported": "CSVをエクスポートしました",
+    "create_failed": "世話記録の登録に失敗しました",
+    "update_failed": "世話記録の更新に失敗しました",
+    "delete_failed": "世話記録の削除に失敗しました",
+    "load_failed": "世話記録の読み込みに失敗しました",
+    "load_animals_failed": "猫一覧の読み込みに失敗しました",
+    "required_fields": "必須項目を入力してください"
   }
 }

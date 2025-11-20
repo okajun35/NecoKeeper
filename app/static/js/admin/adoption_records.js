@@ -341,13 +341,7 @@ async function completeAdoption(e) {
   }
 }
 
-// ユーティリティ関数
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '-';
-  return date.toLocaleDateString('ja-JP');
-}
+// 注: formatDateはcommon.jsで定義済み
 
 function escapeHtml(text) {
   const div = document.createElement('div');

@@ -1,0 +1,67 @@
+{
+  "title": "Medical Actions Management",
+  "description": "Master data management for medical actions (medications, vaccines, tests)",
+  "new_button": "New Registration",
+  "search": {
+    "label": "Search",
+    "placeholder": "Search by medical action name...",
+    "valid_on": "Valid Date",
+    "currency": "Currency",
+    "all": "All",
+    "button": "Search",
+    "clear": "Clear"
+  },
+  "table": {
+    "name": "Action Name",
+    "period": "Valid Period",
+    "cost_price": "Cost Price",
+    "selling_price": "Selling Price",
+    "procedure_fee": "Procedure Fee",
+    "currency": "Currency",
+    "actions": "Actions"
+  },
+  "modal": {
+    "title_new": "Register Medical Action",
+    "title_edit": "Edit Medical Action",
+    "name": "Action Name",
+    "valid_from": "Valid From",
+    "valid_to": "Valid To",
+    "valid_to_note": "Unlimited if not set",
+    "cost_price": "Cost Price",
+    "selling_price": "Selling Price",
+    "procedure_fee": "Procedure Fee",
+    "currency_unit": "Currency Unit",
+    "unit": "Dosage Unit",
+    "unit_note": "Unit for dosage (pill, bottle, time, mL)",
+    "unit_placeholder": "Please select",
+    "unit_pill": "Pill",
+    "unit_bottle": "Bottle",
+    "unit_time": "Time",
+    "unit_ml": "mL",
+    "currency_jpy": "JPY (Japanese Yen)",
+    "currency_usd": "USD (US Dollar)",
+    "calculation_formula": "Calculation Formula:",
+    "calculation_note": "(Selling Price × Dosage) + Procedure Fee",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "created": "Medical action registered successfully",
+    "updated": "Medical action updated successfully",
+    "deleted": "Medical action deleted successfully",
+    "load_error": "Failed to load medical actions",
+    "save_error": "Failed to save medical action",
+    "delete_error": "Failed to delete medical action",
+    "delete_confirm": "Are you sure you want to delete this medical action?"
+  },
+  "pagination": {
+    "info": "Showing {{start}}-{{end}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "buttons": {
+    "edit": "Edit",
+    "delete": "Delete"
+  }
+}

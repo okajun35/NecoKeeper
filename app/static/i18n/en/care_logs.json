@@ -56,6 +56,12 @@
     "created": "Care log created successfully",
     "updated": "Care log updated successfully",
     "deleted": "Care log deleted successfully",
-    "exported": "CSV exported successfully"
+    "exported": "CSV exported successfully",
+    "create_failed": "Failed to create care log",
+    "update_failed": "Failed to update care log",
+    "delete_failed": "Failed to delete care log",
+    "load_failed": "Failed to load care logs",
+    "load_animals_failed": "Failed to load animals list",
+    "required_fields": "Please fill in all required fields"
   }
 }

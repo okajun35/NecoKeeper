@@ -161,20 +161,8 @@ function renderMedicalRecord(record) {
   }
 }
 
-// 日時フォーマット
-function formatDateTime(dateTimeStr) {
-  const date = new Date(dateTimeStr);
-  const currentLanguage = window.i18n ? window.i18n.getCurrentLanguage() : 'ja';
-  const locale = currentLanguage === 'en' ? 'en-US' : 'ja-JP';
-
-  return date.toLocaleString(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+// 注: formatDateTime, getToken等はcommon.jsで定義済み
+// (common.jsのformatDateTimeが自動的に言語を検出)
 
 // ローディング表示
 function showLoading() {
@@ -198,9 +186,4 @@ function showError(message) {
 
 function hideError() {
   document.getElementById('errorMessage').classList.add('hidden');
-}
-
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
 }

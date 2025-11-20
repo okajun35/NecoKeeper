@@ -219,7 +219,4 @@ function showError(message) {
   alert(message);
 }
 
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
-}
+// 注: getToken等はcommon.jsで定義済み

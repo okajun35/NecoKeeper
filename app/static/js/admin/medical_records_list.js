@@ -407,7 +407,4 @@ function hideError() {
   document.getElementById('errorMessage').classList.add('hidden');
 }
 
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
-}
+// 注: getToken等はcommon.jsで定義済み

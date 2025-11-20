@@ -13,6 +13,7 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
+const I18N_VERSION = '20241120v5';
 
 /**
  * i18nextを初期化
@@ -40,6 +41,7 @@ async function initI18n() {
       'animals',
       'care_logs',
       'medical_records',
+      'medical_actions',
       'volunteers',
     ];
     const jaTranslations = {};
@@ -49,8 +51,9 @@ async function initI18n() {
     await Promise.all(
       namespaces.map(async ns => {
         try {
-          const jaRes = await fetch(`/static/i18n/ja/${ns}.json`);
-          const enRes = await fetch(`/static/i18n/en/${ns}.json`);
+          const cacheBuster = `?v=${I18N_VERSION}`;
+          const jaRes = await fetch(`/static/i18n/ja/${ns}.json${cacheBuster}`);
+          const enRes = await fetch(`/static/i18n/en/${ns}.json${cacheBuster}`);
 
           if (jaRes.ok) {
             jaTranslations[ns] = await jaRes.json();
@@ -89,6 +92,9 @@ async function initI18n() {
 
     // 初回翻訳を適用
     translatePage();
+
+    // i18nextInitializedイベントを発火
+    document.dispatchEvent(new Event('i18nextInitialized'));
 
     // 言語切り替えボタンのイベントリスナーを設定
     setupLanguageSwitcher();
@@ -150,7 +156,12 @@ function translatePage() {
     const key = element.getAttribute('data-i18n-title');
     const ns = element.getAttribute('data-i18n-ns') || 'common';
     const translation = i18next.t(key, { ns });
-    element.title = translation;
+    if (element.tagName === 'TITLE') {
+      const suffix = element.getAttribute('data-i18n-title-suffix') || '';
+      document.title = `${translation}${suffix}`;
+    } else {
+      element.title = translation;
+    }
   });
 
   // data-i18n-aria-label属性を持つ要素のaria-labelを翻訳
@@ -200,6 +211,9 @@ async function changeLanguage(language) {
 
     // 言語切り替えボタンの表示を更新
     updateLanguageSwitcherUI();
+
+    // languageChangedイベントを発火
+    document.dispatchEvent(new Event('languageChanged'));
 
     console.log(`[i18n] Language changed to: ${language}`);
 

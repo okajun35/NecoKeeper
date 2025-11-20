@@ -3,7 +3,7 @@
  * Context7参照: /bigskysoftware/htmx (Trust Score: 90.7)
  */
 
-const API_BASE = '/api/v1';
+// API_BASEはcommon.jsで定義されています
 
 // ページ読み込み時の処理
 document.addEventListener('DOMContentLoaded', async () => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadAnimals() {
   try {
-    const response = await apiRequest(`${API_BASE}/animals?page=1&page_size=1000`);
+    const response = await apiRequest(`${API_BASE}/animals?page=1&page_size=100`);
     const animals = response.items || [];
 
     const select = document.getElementById('animal_id');
@@ -47,7 +47,7 @@ async function loadAnimals() {
     });
   } catch (error) {
     console.error('Failed to load animals:', error);
-    showAlert('猫一覧の読み込みに失敗しました', 'error');
+    showToast(translate('messages.load_animals_failed', { ns: 'care_logs' }), 'error');
   }
 }
 
@@ -58,8 +58,22 @@ async function handleFormSubmit(e) {
   e.preventDefault();
 
   try {
+    // ログインユーザー情報を取得（JWTトークンからメールアドレスを取得）
+    const token = getToken();
+    let recorderName = '管理者'; // デフォルト値
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // JWTペイロードにemailやnameがあれば使用、なければデフォルト
+        recorderName = payload.email || payload.name || '管理者';
+      } catch (error) {
+        console.warn('Failed to decode token, using default recorder name');
+      }
+    }
+
     const formData = {
       animal_id: parseInt(document.getElementById('animal_id').value),
+      recorder_name: recorderName,
       log_date: document.getElementById('log_date').value,
       time_slot: document.getElementById('time_slot').value,
       appetite: parseInt(document.getElementById('appetite').value),
@@ -69,7 +83,7 @@ async function handleFormSubmit(e) {
       memo: document.getElementById('memo').value || null,
     };
 
-    // バリデーション
+    // バリデーション（HTML5のrequired属性が優先されるため、ここでは追加チェックのみ）
     if (
       !formData.animal_id ||
       !formData.log_date ||
@@ -77,7 +91,7 @@ async function handleFormSubmit(e) {
       !formData.appetite ||
       !formData.energy
     ) {
-      showAlert('必須項目を入力してください', 'error');
+      showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
       return;
     }
 
@@ -87,7 +101,7 @@ async function handleFormSubmit(e) {
       body: JSON.stringify(formData),
     });
 
-    showAlert('世話記録を登録しました', 'success');
+    showToast(translate('messages.created', { ns: 'care_logs' }), 'success');
 
     // 一覧ページにリダイレクト
     setTimeout(() => {
@@ -95,49 +109,11 @@ async function handleFormSubmit(e) {
     }, 1500);
   } catch (error) {
     console.error('Failed to create care log:', error);
-    showAlert('世話記録の登録に失敗しました', 'error');
+    showToast(translate('messages.create_failed', { ns: 'care_logs' }), 'error');
   }
 }
 
-/**
- * API呼び出し
- */
-async function apiRequest(url, options = {}) {
-  const token = localStorage.getItem('access_token');
-
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || 'API request failed');
-  }
-
-  return await response.json();
-}
-
-/**
- * アラート表示
- */
-function showAlert(message, type = 'info') {
-  const container = document.getElementById('alertContainer');
-
-  const alert = document.createElement('div');
-  alert.className = `px-4 py-3 rounded-lg text-white ${
-    type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-  }`;
-  alert.textContent = message;
-
-  container.appendChild(alert);
-
-  // 3秒後に削除
-  setTimeout(() => {
-    alert.remove();
-  }, 3000);
-}
+// ========================================
+// 注: apiRequest, showAlert, showToast などは
+// common.jsで定義されているグローバル関数を使用
+// ========================================
