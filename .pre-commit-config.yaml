@@ -41,7 +41,7 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        args: [-v, --tb=short, -x]
+        args: [-q, --tb=short, -x]
         stages: [pre-commit]
 
   # Prettier - JavaScript/JSON/YAML formatter

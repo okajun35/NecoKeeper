@@ -238,17 +238,37 @@ function checkAuth() {
  * APIリクエストを送信
  * @param {string} url - リクエストURL
  * @param {object} options - fetchオプション
- * @returns {Promise} - レスポンス
+ * @returns {Promise} - レスポンス（JSONパース済み）
+ *
+ * Example:
+ *   // GET request
+ *   const data = await apiRequest('/api/v1/animals');
+ *
+ *   // POST request
+ *   const result = await apiRequest('/api/v1/animals', {
+ *     method: 'POST',
+ *     body: JSON.stringify({ name: 'たま' })
+ *   });
+ *
+ *   // Custom headers
+ *   const data = await apiRequest('/api/v1/animals', {
+ *     headers: { 'X-Custom': 'value' }
+ *   });
  */
 async function apiRequest(url, options = {}) {
   try {
     const token = getAccessToken();
 
+    // デフォルトヘッダーの設定
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
+        ...defaultHeaders,
         ...options.headers,
       },
     });
@@ -256,15 +276,21 @@ async function apiRequest(url, options = {}) {
     // 401エラーの場合はログイン画面にリダイレクト
     if (response.status === 401) {
       logout();
-      return;
+      return null;
     }
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'リクエストに失敗しました');
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || `リクエストに失敗しました (${response.status})`);
     }
 
-    return await response.json();
+    // レスポンスボディが空の場合は null を返す
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+
+    return null;
   } catch (error) {
     console.error('API Error:', error);
     throw error;

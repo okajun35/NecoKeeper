@@ -29,17 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 async function loadAnimals() {
   try {
-    const response = await fetch('/api/v1/animals?limit=1000', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-      },
-    });
+    const data = await apiRequest('/api/v1/animals?limit=1000');
+    if (!data) return; // 401エラーでログアウト済み
 
-    if (!response.ok) {
-      throw new Error('猫一覧の取得に失敗しました');
-    }
-
-    const data = await response.json();
     animalsData = data.items || [];
 
     // セレクトボックスに追加
@@ -216,7 +208,7 @@ async function handleFormSubmit(event) {
  * 帳票を生成・ダウンロード
  */
 async function generateReport(reportType, startDate, endDate, format, animalId) {
-  const token = localStorage.getItem('access_token');
+  const token = getAccessToken();
 
   if (!token) {
     throw new Error('認証トークンが見つかりません。再ログインしてください。');

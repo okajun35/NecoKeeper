@@ -94,3 +94,21 @@ class TestCurrentUserEndpoint:
         )
 
         assert response.status_code == 401
+
+    def test_unauthorized_returns_json_for_api(self, test_client):
+        """
+        境界値テスト: API 401エラーはJSONレスポンスを返す
+
+        認証リダイレクトミドルウェアの動作確認:
+        - APIエンドポイントへの401エラーはJSONで返す
+        - リダイレクトは行わない
+        """
+        # Given: 認証が必要なAPIエンドポイント
+        # When: トークンなしでアクセス
+        response = test_client.get("/api/v1/auth/me")
+
+        # Then: 401 JSONレスポンスが返される（リダイレクトなし）
+        assert response.status_code == 401
+        assert "application/json" in response.headers.get("content-type", "")
+        data = response.json()
+        assert "detail" in data

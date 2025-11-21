@@ -40,28 +40,12 @@ async function loadData() {
   hideError();
 
   try {
-    const token = localStorage.getItem('access_token');
-
     // 並列で全データを取得
-    const [recordsRes, animalsRes, applicantsRes] = await Promise.all([
-      fetch('/api/v1/adoptions/records?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-      fetch('/api/v1/animals?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-      fetch('/api/v1/adoptions/applicants?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+    const [recordsData, animalsData, applicantsData] = await Promise.all([
+      apiRequest('/api/v1/adoptions/records?limit=1000'),
+      apiRequest('/api/v1/animals?limit=1000'),
+      apiRequest('/api/v1/adoptions/applicants?limit=1000'),
     ]);
-
-    if (!recordsRes.ok || !animalsRes.ok || !applicantsRes.ok) {
-      throw new Error('データの取得に失敗しました');
-    }
-
-    const recordsData = await recordsRes.json();
-    const animalsData = await animalsRes.json();
-    const applicantsData = await applicantsRes.json();
 
     // APIレスポンスが配列かオブジェクト（{items: [...]}）かを確認
     allRecords = Array.isArray(recordsData) ? recordsData : recordsData.items || [];

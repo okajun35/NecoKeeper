@@ -9,5 +9,8 @@
   "status_active": "アクティブ",
   "status_inactive": "非アクティブ",
   "search_placeholder": "名前、連絡先で検索...",
-  "affiliation_placeholder": "所属で検索..."
+  "affiliation_placeholder": "所属で検索...",
+  "new_volunteer": "ボランティア新規登録",
+  "edit_volunteer": "ボランティア編集",
+  "volunteer_detail": "ボランティア詳細"
 }

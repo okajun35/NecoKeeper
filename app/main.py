@@ -33,6 +33,7 @@ from app.api.v1 import (
     volunteers,
 )
 from app.config import get_settings
+from app.middleware.auth_redirect import AuthRedirectMiddleware
 
 # 設定を取得
 settings = get_settings()
@@ -105,6 +106,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 認証リダイレクトミドルウェア（401エラーを共通処理）
+app.add_middleware(AuthRedirectMiddleware)
 
 
 # 静的ファイルのマウント

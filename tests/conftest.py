@@ -216,6 +216,12 @@ def vet_auth_token(test_client: TestClient, test_vet_user: User) -> str:
 
 
 @pytest.fixture(scope="function")
+def vet_auth_headers(vet_auth_token: str) -> dict[str, str]:
+    """獣医師用認証ヘッダーを生成"""
+    return {"Authorization": f"Bearer {vet_auth_token}"}
+
+
+@pytest.fixture(scope="function")
 def test_animal(test_db: Session) -> Animal:
     """テスト用の猫を取得"""
     animal = test_db.query(Animal).filter(Animal.name == "テスト猫").first()

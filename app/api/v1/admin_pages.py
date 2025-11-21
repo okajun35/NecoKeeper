@@ -247,6 +247,33 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
     )
 
 
+@router.get("/volunteers/new", response_class=HTMLResponse)
+async def volunteer_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """ボランティア新規作成ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/new.html",
+        {"request": request},
+    )
+
+
+@router.get("/volunteers/{volunteer_id}/edit", response_class=HTMLResponse)
+async def volunteer_edit_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+    """ボランティア編集ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/edit.html",
+        {"request": request, "volunteer_id": volunteer_id},
+    )
+
+
+@router.get("/volunteers/{volunteer_id}", response_class=HTMLResponse)
+async def volunteer_detail_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+    """ボランティア詳細ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/detail.html",
+        {"request": request, "volunteer_id": volunteer_id},
+    )
+
+
 @router.get("/medical-records", response_class=HTMLResponse)
 async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
     """
