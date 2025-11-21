@@ -19,6 +19,7 @@ from weasyprint import HTML
 
 from app.config import get_settings
 from app.models.animal import Animal
+from app.utils.i18n import tj
 from app.utils.qr_code import generate_animal_qr_code_bytes
 
 settings = get_settings()
@@ -252,6 +253,7 @@ def generate_report_pdf(
     start_date: date,
     end_date: date,
     animal_id: int | None = None,
+    locale: str = "ja",
 ) -> bytes:
     """
     帳票PDFを生成（日報・週報・月次集計・個別帳票）
@@ -311,34 +313,39 @@ def generate_report_pdf(
         {record.recorder_name for record in records if record.recorder_name}
     )
 
-    # 時点の表示名マッピング
-    time_slot_map = {
-        "morning": "朝",
-        "noon": "昼",
-        "evening": "夕",
-    }
-
     # レコードに表示用データを追加
     for record in records:
-        record.time_slot_display = time_slot_map.get(record.time_slot, record.time_slot)  # type: ignore[attr-defined]
+        record.time_slot_display = tj(  # type: ignore[attr-defined]
+            f"time_slots.{record.time_slot}", locale=locale
+        )
         # 猫名を取得
         if record.animal:
-            record.animal_name = record.animal.name or f"ID:{record.animal_id}"  # type: ignore[attr-defined]
+            record.animal_name = record.animal.name or tj(  # type: ignore[attr-defined]
+                "animal.no_name", locale=locale, id=record.animal_id
+            )
         else:
-            record.animal_name = f"ID:{record.animal_id}"  # type: ignore[attr-defined]
+            record.animal_name = tj(  # type: ignore[attr-defined]
+                "animal.no_name", locale=locale, id=record.animal_id
+            )
 
     # テンプレートをレンダリング
     template = jinja_env.get_template("report_daily.html")
+
+    # 日付フォーマット（多言語化）
+    date_fmt = tj("date_format.date_full", locale=locale)
+    datetime_fmt = tj("date_format.datetime_full", locale=locale)
+
     html_content = template.render(
         report_type=report_type,
-        start_date=start_date.strftime("%Y年%m月%d日"),
+        start_date=start_date.strftime(date_fmt),
         font_family=settings.pdf_font_family,
-        end_date=end_date.strftime("%Y年%m月%d日"),
-        generated_at=datetime.now().strftime("%Y年%m月%d日 %H:%M"),
+        end_date=end_date.strftime(date_fmt),
+        generated_at=datetime.now().strftime(datetime_fmt),
         total_records=total_records,
         total_animals=total_animals,
         total_recorders=total_recorders,
         records=records,
+        locale=locale,
     )
 
     # PDFを生成

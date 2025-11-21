@@ -13,7 +13,7 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
-const I18N_VERSION = '20241120v5';
+const I18N_VERSION = '20241121v4';
 
 /**
  * i18nextを初期化
@@ -33,7 +33,7 @@ async function initI18n() {
       savedLanguage ||
       (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
-    // 翻訳ファイルを読み込み（名前空間ごと）
+    // 翻訳ファイルを読み込み(名前空間ごと)
     const namespaces = [
       'common',
       'nav',
@@ -43,6 +43,9 @@ async function initI18n() {
       'medical_records',
       'medical_actions',
       'volunteers',
+      'adoptions',
+      'reports', // Added reports namespace
+      'settings', // Added settings namespace
     ];
     const jaTranslations = {};
     const enTranslations = {};

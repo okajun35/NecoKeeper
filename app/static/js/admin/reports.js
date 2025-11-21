@@ -1,6 +1,5 @@
 /**
- * 帳票出力画面のJavaScript
- *
+ * 帳票出力画面のJavaScript (多言語対応版)
  * 期間指定、形式選択、帳票生成・ダウンロード機能を提供します。
  */
 
@@ -10,18 +9,51 @@ let currentReportType = null;
 // 猫一覧データ
 let animalsData = [];
 
+// 現在のフォームタイトルを言語変更時に再適用
+function updateDynamicFormTitle() {
+  if (!currentReportType) return;
+  const titles = {
+    daily: t('reports:form.daily', { ns: 'reports' }),
+    weekly: t('reports:form.weekly', { ns: 'reports' }),
+    monthly: t('reports:form.monthly', { ns: 'reports' }),
+    individual: t('reports:form.individual', { ns: 'reports' }),
+  };
+  const el = document.getElementById('form-title');
+  if (el) {
+    el.textContent = titles[currentReportType] || t('reports:form.base_title', { ns: 'reports' });
+  }
+}
+
 /**
  * ページ読み込み時の初期化
  */
+// 簡易翻訳ヘルパー
+function t(key, options = {}) {
+  if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+    return i18next.t(key, options);
+  }
+  return key.split('.').pop();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-  // 猫一覧を取得
-  loadAnimals();
+  const init = () => {
+    loadAnimals();
+    document.getElementById('generate-form').addEventListener('submit', handleFormSubmit);
+    setDateRange('this_month');
+  };
+  if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+    init();
+  } else {
+    document.addEventListener('i18nextInitialized', init, { once: true });
+  }
 
-  // フォーム送信イベント
-  document.getElementById('generate-form').addEventListener('submit', handleFormSubmit);
-
-  // デフォルトの日付を設定（今月）
-  setDateRange('this_month');
+  // 言語変更イベントで動的タイトル更新
+  document.addEventListener('languageChanged', () => {
+    updateDynamicFormTitle();
+  });
+  window.addEventListener('languageChanged', () => {
+    updateDynamicFormTitle();
+  });
 });
 
 /**
@@ -36,17 +68,17 @@ async function loadAnimals() {
 
     // セレクトボックスに追加
     const select = document.getElementById('animal-id');
-    select.innerHTML = '<option value="">猫を選択してください</option>';
+    select.innerHTML = `<option value="">${t('reports:form.animal_select_label', { ns: 'reports' })}</option>`;
 
     animalsData.forEach(animal => {
       const option = document.createElement('option');
       option.value = animal.id;
-      option.textContent = `${animal.name || '名前なし'} (ID: ${animal.id})`;
+      option.textContent = `${animal.name || t('reports:animals.no_name', { ns: 'reports' })} (ID: ${animal.id})`;
       select.appendChild(option);
     });
   } catch (error) {
     console.error('猫一覧の取得エラー:', error);
-    showError('猫一覧の取得に失敗しました');
+    showError(t('reports:messages.error_fetch_animals', { ns: 'reports' }));
   }
 }
 
@@ -64,12 +96,15 @@ function selectReportType(type) {
 
   // タイトルを更新
   const titles = {
-    daily: '日報生成',
-    weekly: '週報生成',
-    monthly: '月次集計生成',
-    individual: '個別帳票生成',
+    daily: t('reports:form.daily', { ns: 'reports' }),
+    weekly: t('reports:form.weekly', { ns: 'reports' }),
+    monthly: t('reports:form.monthly', { ns: 'reports' }),
+    individual: t('reports:form.individual', { ns: 'reports' }),
   };
-  document.getElementById('form-title').textContent = titles[type] || '帳票生成';
+  document.getElementById('form-title').textContent =
+    titles[type] || t('reports:form.base_title', { ns: 'reports' });
+  // 動的タイトル状態保持
+  updateDynamicFormTitle();
 
   // 個別帳票の場合は猫選択を表示
   const animalSelectGroup = document.getElementById('animal-select-group');
@@ -169,17 +204,17 @@ async function handleFormSubmit(event) {
 
   // バリデーション
   if (!reportType || !startDate || !endDate || !format) {
-    showError('必須項目を入力してください');
+    showError(t('reports:messages.error_required', { ns: 'reports' }));
     return;
   }
 
   if (reportType === 'individual' && !animalId) {
-    showError('猫を選択してください');
+    showError(t('reports:messages.error_select_animal', { ns: 'reports' }));
     return;
   }
 
   if (new Date(startDate) > new Date(endDate)) {
-    showError('開始日は終了日より前の日付を指定してください');
+    showError(t('reports:messages.error_date_order', { ns: 'reports' }));
     return;
   }
 
@@ -190,7 +225,7 @@ async function handleFormSubmit(event) {
     // 帳票を生成・ダウンロード
     await generateReport(reportType, startDate, endDate, format, animalId);
 
-    showSuccess('帳票を生成しました');
+    showSuccess(t('reports:messages.success_generated', { ns: 'reports' }));
 
     // フォームをリセット
     setTimeout(() => {
@@ -198,7 +233,7 @@ async function handleFormSubmit(event) {
     }, 2000);
   } catch (error) {
     console.error('帳票生成エラー:', error);
-    showError(error.message || '帳票の生成に失敗しました');
+    showError(error.message || t('reports:messages.error_general', { ns: 'reports' }));
   } finally {
     hideLoading();
   }
@@ -211,7 +246,7 @@ async function generateReport(reportType, startDate, endDate, format, animalId) 
   const token = getAccessToken();
 
   if (!token) {
-    throw new Error('認証トークンが見つかりません。再ログインしてください。');
+    throw new Error(t('reports:messages.error_no_token', { ns: 'reports' }));
   }
 
   // フォーマット別の処理
@@ -239,12 +274,13 @@ async function generatePDFReport(reportType, startDate, endDate, animalId, token
       start_date: startDate,
       end_date: endDate,
       animal_id: animalId ? parseInt(animalId) : null,
+      locale: i18next.language || 'ja',
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || 'PDF生成に失敗しました');
+    throw new Error(error.detail || t('reports:messages.error_pdf', { ns: 'reports' }));
   }
 
   // PDFをダウンロード
@@ -275,12 +311,13 @@ async function generateCSVReport(reportType, startDate, endDate, animalId, token
       end_date: endDate,
       animal_id: animalId ? parseInt(animalId) : null,
       format: 'csv',
+      locale: i18next.language || 'ja',
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || 'CSV生成に失敗しました');
+    throw new Error(error.detail || t('reports:messages.error_csv', { ns: 'reports' }));
   }
 
   // CSVをダウンロード
@@ -311,12 +348,13 @@ async function generateExcelReport(reportType, startDate, endDate, animalId, tok
       end_date: endDate,
       animal_id: animalId ? parseInt(animalId) : null,
       format: 'excel',
+      locale: i18next.language || 'ja',
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || 'Excel生成に失敗しました');
+    throw new Error(error.detail || t('reports:messages.error_excel', { ns: 'reports' }));
   }
 
   // Excelをダウンロード

@@ -33,6 +33,7 @@ class ReportExportRequest(BaseModel):
     end_date: date = Field(..., description="終了日")
     animal_id: int | None = Field(None, description="猫のID（個別帳票の場合のみ）")
     format: str = Field(..., description="出力形式（csv/excel）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
 
 
 @router.post("/export")
@@ -66,6 +67,7 @@ async def export_report(
                 start_date=request.start_date,
                 end_date=request.end_date,
                 animal_id=request.animal_id,
+                locale=request.locale,
             )
 
             return Response(
@@ -83,6 +85,7 @@ async def export_report(
                 start_date=request.start_date,
                 end_date=request.end_date,
                 animal_id=request.animal_id,
+                locale=request.locale,
             )
 
             return Response(

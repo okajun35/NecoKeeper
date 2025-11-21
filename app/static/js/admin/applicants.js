@@ -7,10 +7,26 @@ const pageSize = 20;
 let allApplicants = [];
 let filteredApplicants = [];
 
+// i18next翻訳ヘルパー
+function t(key, options = {}) {
+  if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+    return i18next.t(key, options);
+  }
+  // フォールバック: キーの最後の部分を返す
+  const parts = key.split('.');
+  return parts[parts.length - 1];
+}
+
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
-  loadApplicants();
-  setupEventListeners();
+  // i18nextの初期化を待つ
+  const checkI18n = setInterval(() => {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      clearInterval(checkI18n);
+      loadApplicants();
+      setupEventListeners();
+    }
+  }, 50);
 });
 
 // イベントリスナー設定
@@ -85,16 +101,16 @@ function renderApplicants() {
                 </div>
             </div>
             <div class="space-y-1 text-sm text-gray-600">
-                ${applicant.address ? `<p>住所: ${escapeHtml(applicant.address)}</p>` : ''}
-                ${applicant.family ? `<p>家族: ${escapeHtml(applicant.family)}</p>` : ''}
-                <p>登録日: ${formatDate(applicant.created_at)}</p>
+                ${applicant.address ? `<p>${t('applicants.labels.address', { ns: 'adoptions' })}: ${escapeHtml(applicant.address)}</p>` : ''}
+                ${applicant.family ? `<p>${t('applicants.labels.family', { ns: 'adoptions' })}: ${escapeHtml(applicant.family)}</p>` : ''}
+                <p>${t('applicants.labels.registration_date', { ns: 'adoptions' })}: ${formatDate(applicant.created_at)}</p>
             </div>
             <div class="mt-3 flex gap-2">
                 <button onclick="editApplicant(${applicant.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                    編集
+                    ${t('buttons.edit', { ns: 'common' })}
                 </button>
                 <button onclick="viewAdoptionRecords(${applicant.id})" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                    譲渡記録
+                    ${t('buttons.adoption_records', { ns: 'common' })}
                 </button>
             </div>
         </div>
@@ -114,8 +130,8 @@ function renderApplicants() {
             <td class="px-6 py-4 text-sm text-gray-600">${applicant.family ? escapeHtml(applicant.family) : '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatDate(applicant.created_at)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="editApplicant(${applicant.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">編集</button>
-                <button onclick="viewAdoptionRecords(${applicant.id})" class="text-gray-600 hover:text-gray-900">譲渡記録</button>
+                <button onclick="editApplicant(${applicant.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">${t('buttons.edit', { ns: 'common' })}</button>
+                <button onclick="viewAdoptionRecords(${applicant.id})" class="text-gray-600 hover:text-gray-900">${t('buttons.adoption_records', { ns: 'common' })}</button>
             </td>
         </tr>
     `
@@ -176,7 +192,9 @@ function openModal(applicant = null) {
   form.reset();
 
   if (applicant) {
-    title.textContent = '里親希望者編集';
+    // 編集モード
+    title.textContent = t('applicants.modal.title_edit', { ns: 'adoptions' });
+    title.setAttribute('data-i18n', 'applicants.modal.title_edit');
     document.getElementById('applicantId').value = applicant.id;
     document.getElementById('name').value = applicant.name;
     document.getElementById('contact').value = applicant.contact;
@@ -185,7 +203,9 @@ function openModal(applicant = null) {
     document.getElementById('environment').value = applicant.environment || '';
     document.getElementById('conditions').value = applicant.conditions || '';
   } else {
-    title.textContent = '里親希望者登録';
+    // 新規登録モード
+    title.textContent = t('applicants.modal.title_new', { ns: 'adoptions' });
+    title.setAttribute('data-i18n', 'applicants.modal.title_new');
     document.getElementById('applicantId').value = '';
   }
 

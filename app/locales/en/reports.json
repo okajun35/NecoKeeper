@@ -1,0 +1,56 @@
+{
+  "headers": {
+    "created_at": "Created At",
+    "log_date": "Log Date",
+    "animal_id": "Animal ID",
+    "animal_name": "Animal Name",
+    "time_slot": "Time Slot",
+    "appetite": "Appetite",
+    "energy": "Energy",
+    "urination": "Urination",
+    "cleaning": "Cleaning",
+    "recorder_id": "Recorder ID",
+    "recorder_name": "Recorder Name",
+    "memo": "Memo",
+    "ip_address": "IP Address",
+    "device_tag": "Device Tag",
+    "from_paper": "From Paper Record",
+    "last_updated_at": "Last Updated At",
+    "last_updated_by": "Last Updated By"
+  },
+  "time_slots": {
+    "morning": "Morning",
+    "noon": "Noon",
+    "evening": "Evening"
+  },
+  "boolean": {
+    "yes": "✓",
+    "no": "✗"
+  },
+  "sheet_names": {
+    "care_logs": "Care Logs"
+  },
+  "report_titles": {
+    "daily": "Daily Report",
+    "weekly": "Weekly Report",
+    "monthly": "Monthly Summary",
+    "individual": "Individual Report"
+  },
+  "date_format": {
+    "year": "",
+    "month": "/",
+    "day": "/",
+    "date_full": "%Y-%m-%d",
+    "datetime_full": "%Y-%m-%d %H:%M",
+    "datetime_seconds": "%Y-%m-%d %H:%M:%S"
+  },
+  "animal": {
+    "no_name": "ID:{id}"
+  },
+  "statistics": {
+    "total_records": "Total Records",
+    "total_animals": "Total Animals",
+    "total_recorders": "Total Recorders",
+    "generated_at": "Generated At"
+  }
+}

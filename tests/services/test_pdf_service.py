@@ -210,6 +210,156 @@ class TestGenerateReportPDF:
         assert len(pdf_bytes) > 0
         assert pdf_bytes.startswith(b"%PDF")
 
+    def test_generate_report_pdf_daily_japanese(self, test_db: Session):
+        """正常系: 日本語で日報PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="daily",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_report_pdf_daily_english(self, test_db: Session):
+        """正常系: 英語で日報PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="daily",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_report_pdf_weekly_japanese(self, test_db: Session):
+        """正常系: 日本語で週報PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="weekly",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
+    def test_generate_report_pdf_weekly_english(self, test_db: Session):
+        """正常系: 英語で週報PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="weekly",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
+    def test_generate_report_pdf_monthly_japanese(self, test_db: Session):
+        """正常系: 日本語で月次集計PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="monthly",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
+    def test_generate_report_pdf_monthly_english(self, test_db: Session):
+        """正常系: 英語で月次集計PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="monthly",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
+    def test_generate_report_pdf_individual_with_animal_japanese(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 日本語で個別帳票PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="individual",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            animal_id=test_animal.id,
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
+    def test_generate_report_pdf_individual_with_animal_english(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 英語で個別帳票PDFを生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type="individual",
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            animal_id=test_animal.id,
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+
     def test_generate_report_pdf_invalid_type(self, test_db: Session):
         """異常系: 不正な帳票種別でエラー"""
         # Given
@@ -237,3 +387,35 @@ class TestGenerateReportPDF:
                 start_date=date(2024, 11, 1),
                 end_date=date(2024, 11, 30),
             )
+
+    @pytest.mark.parametrize(
+        "report_type,locale",
+        [
+            ("daily", "ja"),
+            ("daily", "en"),
+            ("weekly", "ja"),
+            ("weekly", "en"),
+            ("monthly", "ja"),
+            ("monthly", "en"),
+        ],
+    )
+    def test_generate_report_pdf_all_types_and_locales(
+        self, test_db: Session, report_type, locale
+    ):
+        """パラメータ化テスト: 全帳票種別×全ロケールで生成できる"""
+        # Given
+        from datetime import date
+
+        # When
+        pdf_bytes = pdf_service.generate_report_pdf(
+            db=test_db,
+            report_type=report_type,
+            start_date=date(2024, 11, 1),
+            end_date=date(2024, 11, 30),
+            locale=locale,
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")

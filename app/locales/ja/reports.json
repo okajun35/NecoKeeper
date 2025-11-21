@@ -1,0 +1,56 @@
+{
+  "headers": {
+    "created_at": "記録日時",
+    "log_date": "記録日",
+    "animal_id": "猫ID",
+    "animal_name": "猫名",
+    "time_slot": "時点",
+    "appetite": "食欲",
+    "energy": "元気",
+    "urination": "排尿",
+    "cleaning": "清掃",
+    "recorder_id": "記録者ID",
+    "recorder_name": "記録者名",
+    "memo": "メモ",
+    "ip_address": "IPアドレス",
+    "device_tag": "デバイスタグ",
+    "from_paper": "紙記録からの転記",
+    "last_updated_at": "最終更新日時",
+    "last_updated_by": "最終更新者ID"
+  },
+  "time_slots": {
+    "morning": "朝",
+    "noon": "昼",
+    "evening": "夕"
+  },
+  "boolean": {
+    "yes": "○",
+    "no": "×"
+  },
+  "sheet_names": {
+    "care_logs": "世話記録"
+  },
+  "report_titles": {
+    "daily": "日報",
+    "weekly": "週報",
+    "monthly": "月次集計",
+    "individual": "個別帳票"
+  },
+  "date_format": {
+    "year": "年",
+    "month": "月",
+    "day": "日",
+    "date_full": "%Y年%m月%d日",
+    "datetime_full": "%Y年%m月%d日 %H:%M",
+    "datetime_seconds": "%Y-%m-%d %H:%M:%S"
+  },
+  "animal": {
+    "no_name": "ID:{id}"
+  },
+  "statistics": {
+    "total_records": "総記録数",
+    "total_animals": "対象猫数",
+    "total_recorders": "記録者数",
+    "generated_at": "生成日時"
+  }
+}

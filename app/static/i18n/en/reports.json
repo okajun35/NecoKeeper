@@ -1,0 +1,47 @@
+{
+  "title": "Reports",
+  "description": "Generate summary reports of care and medical records for a selected period.",
+  "cards": {
+    "daily": { "title": "Daily", "desc": "Daily care record summary" },
+    "weekly": { "title": "Weekly", "desc": "Weekly care record summary" },
+    "monthly": { "title": "Monthly", "desc": "Monthly medical cost & record count" },
+    "individual": { "title": "Individual", "desc": "Per-cat consolidated records" }
+  },
+  "form": {
+    "base_title": "Report Generation",
+    "daily": "Generate Daily Report",
+    "weekly": "Generate Weekly Report",
+    "monthly": "Generate Monthly Summary",
+    "individual": "Generate Individual Report",
+    "animal_select_label": "Select Cat",
+    "animal_loading": "Loading...",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "presets": {
+      "today": "Today",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "last_month": "Last Month",
+      "last_3_months": "Last 3 Months",
+      "last_6_months": "Last 6 Months",
+      "this_year": "This Year"
+    },
+    "output_format": "Output Format",
+    "formats": { "pdf": "PDF", "csv": "CSV", "excel": "Excel" },
+    "buttons": { "generate_download": "Generate & Download" }
+  },
+  "messages": {
+    "loading_generate": "Generating report...",
+    "error_fetch_animals": "Failed to load cat list",
+    "error_required": "Please fill all required fields",
+    "error_select_animal": "Please select a cat",
+    "error_date_order": "Start date must be before end date",
+    "error_no_token": "Auth token missing. Please re-login.",
+    "success_generated": "Report generated successfully",
+    "error_pdf": "Failed to generate PDF",
+    "error_csv": "Failed to generate CSV",
+    "error_excel": "Failed to generate Excel",
+    "error_general": "Failed to generate report"
+  },
+  "animals": { "no_name": "No Name" }
+}

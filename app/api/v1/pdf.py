@@ -65,6 +65,7 @@ class ReportRequest(BaseModel):
     start_date: date = Field(..., description="開始日")
     end_date: date = Field(..., description="終了日")
     animal_id: int | None = Field(None, description="猫のID（個別帳票の場合のみ）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
 
 
 @router.post("/qr-card")
@@ -267,6 +268,7 @@ async def generate_report(
             start_date=request.start_date,
             end_date=request.end_date,
             animal_id=request.animal_id,
+            locale=request.locale,
         )
 
         return Response(

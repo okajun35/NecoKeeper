@@ -272,6 +272,58 @@ def test_volunteer(test_db: Session) -> Volunteer:
 
 
 @pytest.fixture(scope="function")
+def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
+    """テスト用のケアログを作成"""
+    from datetime import datetime
+
+    care_logs = [
+        CareLog(
+            animal_id=test_animal.id,
+            time_slot="morning",
+            recorder_name="テストユーザー",
+            appetite=4,
+            energy=4,
+            urination=True,
+            cleaning=True,
+            memo="朝の記録",
+            created_at=datetime(2024, 11, 15, 9, 0, 0),
+        ),
+        CareLog(
+            animal_id=test_animal.id,
+            time_slot="noon",
+            recorder_name="テストユーザー",
+            appetite=3,
+            energy=3,
+            urination=False,
+            cleaning=True,
+            memo="昼の記録",
+            created_at=datetime(2024, 11, 15, 12, 0, 0),
+        ),
+        CareLog(
+            animal_id=test_animal.id,
+            time_slot="evening",
+            recorder_name="テストユーザー",
+            appetite=5,
+            energy=4,
+            urination=True,
+            cleaning=True,
+            memo="夕方の記録",
+            created_at=datetime(2024, 11, 15, 18, 0, 0),
+        ),
+    ]
+
+    for care_log in care_logs:
+        test_db.add(care_log)
+
+    test_db.commit()
+
+    for care_log in care_logs:
+        test_db.refresh(care_log)
+
+    return care_logs
+
+
+@pytest.fixture(scope="function")
 def temp_media_dir(tmp_path, monkeypatch):
     """テスト用の一時メディアディレクトリを作成"""
     # 一時ディレクトリを作成

@@ -13,11 +13,16 @@ from datetime import date
 from io import BytesIO
 
 from openpyxl import Workbook  # type: ignore[import-untyped]
-from openpyxl.styles import Alignment, Font, PatternFill  # type: ignore[import-untyped]
+from openpyxl.styles import (  # type: ignore[import-untyped]
+    Alignment,
+    Font,
+    PatternFill,
+)
 from openpyxl.utils import get_column_letter  # type: ignore[import-untyped]
 from sqlalchemy.orm import Session
 
 from app.models.care_log import CareLog
+from app.utils.i18n import tj
 
 
 def generate_care_log_excel(
@@ -25,6 +30,7 @@ def generate_care_log_excel(
     start_date: date,
     end_date: date,
     animal_id: int | None = None,
+    locale: str = "ja",
 ) -> bytes:
     """
     世話記録のExcelファイルを生成
@@ -40,7 +46,9 @@ def generate_care_log_excel(
 
     Example:
         >>> from datetime import date
-        >>> excel_data = generate_care_log_excel(db, date(2024, 11, 1), date(2024, 11, 30))
+        >>> excel_data = generate_care_log_excel(
+        ...     db, date(2024, 11, 1), date(2024, 11, 30)
+        ... )
         >>> with open("care_logs.xlsx", "wb") as f:
         ...     f.write(excel_data)
     """
@@ -56,17 +64,10 @@ def generate_care_log_excel(
 
     records = query.order_by(CareLog.log_date.desc(), CareLog.created_at.desc()).all()
 
-    # 時点の表示名マッピング
-    time_slot_map = {
-        "morning": "朝",
-        "noon": "昼",
-        "evening": "夕",
-    }
-
     # Excelワークブックを作成
     wb = Workbook()
     ws = wb.active
-    ws.title = "世話記録"
+    ws.title = tj("sheet_names.care_logs", locale=locale)
 
     # ヘッダースタイル
     header_fill = PatternFill(
@@ -75,25 +76,25 @@ def generate_care_log_excel(
     header_font = Font(bold=True, color="FFFFFF")
     header_alignment = Alignment(horizontal="center", vertical="center")
 
-    # ヘッダー行
+    # ヘッダー行（多言語化）
     headers = [
-        "記録日時",
-        "記録日",
-        "猫ID",
-        "猫名",
-        "時点",
-        "食欲",
-        "元気",
-        "排尿",
-        "清掃",
-        "記録者ID",
-        "記録者名",
-        "メモ",
-        "IPアドレス",
-        "デバイスタグ",
-        "紙記録からの転記",
-        "最終更新日時",
-        "最終更新者ID",
+        tj("headers.created_at", locale=locale),
+        tj("headers.log_date", locale=locale),
+        tj("headers.animal_id", locale=locale),
+        tj("headers.animal_name", locale=locale),
+        tj("headers.time_slot", locale=locale),
+        tj("headers.appetite", locale=locale),
+        tj("headers.energy", locale=locale),
+        tj("headers.urination", locale=locale),
+        tj("headers.cleaning", locale=locale),
+        tj("headers.recorder_id", locale=locale),
+        tj("headers.recorder_name", locale=locale),
+        tj("headers.memo", locale=locale),
+        tj("headers.ip_address", locale=locale),
+        tj("headers.device_tag", locale=locale),
+        tj("headers.from_paper", locale=locale),
+        tj("headers.last_updated_at", locale=locale),
+        tj("headers.last_updated_by", locale=locale),
     ]
 
     for col_num, header in enumerate(headers, 1):
@@ -108,26 +109,37 @@ def generate_care_log_excel(
         # 猫名を取得
         animal_name = ""
         if record.animal:
-            animal_name = record.animal.name or f"ID:{record.animal_id}"
+            animal_name = record.animal.name or tj(
+                "animal.no_name", locale=locale, id=record.animal_id
+            )
         else:
-            animal_name = f"ID:{record.animal_id}"
+            animal_name = tj("animal.no_name", locale=locale, id=record.animal_id)
 
         row_data = [
             record.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             record.log_date.strftime("%Y-%m-%d"),
             record.animal_id,
             animal_name,
-            time_slot_map.get(record.time_slot, record.time_slot),
+            tj(f"time_slots.{record.time_slot}", locale=locale),
             record.appetite,
             record.energy,
-            "○" if record.urination else "×",
-            "○" if record.cleaning else "×",
+            tj(
+                "boolean.yes" if record.urination else "boolean.no",
+                locale=locale,
+            ),
+            tj(
+                "boolean.yes" if record.cleaning else "boolean.no",
+                locale=locale,
+            ),
             record.recorder_id or "",
             record.recorder_name,
             record.memo or "",
             record.ip_address or "",
             record.device_tag or "",
-            "○" if record.from_paper else "×",
+            tj(
+                "boolean.yes" if record.from_paper else "boolean.no",
+                locale=locale,
+            ),
             record.last_updated_at.strftime("%Y-%m-%d %H:%M:%S"),
             record.last_updated_by or "",
         ]
@@ -168,6 +180,7 @@ def generate_report_excel(
     start_date: date,
     end_date: date,
     animal_id: int | None = None,
+    locale: str = "ja",
 ) -> bytes:
     """
     帳票Excelファイルを生成（日報・週報・月次集計・個別帳票）
@@ -178,6 +191,7 @@ def generate_report_excel(
         start_date: 開始日
         end_date: 終了日
         animal_id: 猫のID（個別帳票の場合のみ必須）
+        locale: ロケール（ja/en）
 
     Returns:
         bytes: Excel形式のバイト列
@@ -205,4 +219,4 @@ def generate_report_excel(
         raise ValueError("個別帳票の生成には猫IDが必要です")
 
     # 世話記録Excelを生成（全帳票種別で共通）
-    return generate_care_log_excel(db, start_date, end_date, animal_id)
+    return generate_care_log_excel(db, start_date, end_date, animal_id, locale)

@@ -104,6 +104,24 @@
     "cancel": "Cancel",
     "submit": "Submit",
     "register": "Register",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "search": "Search",
+    "clear": "Clear",
+    "previous": "Previous",
+    "next": "Next",
+    "edit": "Edit",
+    "adoption_records": "Adoption Records",
+    "filter": "Filter"
+  },
+  "labels": {
+    "search": "Search",
+    "actions": "Actions"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "please_select": "Please select"
+  },
+  "filters": {
+    "all": "All"
   }
 }
