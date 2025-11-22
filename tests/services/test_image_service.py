@@ -92,7 +92,7 @@ class TestGetImageLimits:
         test_db.commit()
 
         # When
-        max_images, max_size = image_service.get_image_limits(test_db)
+        max_images, _ = image_service.get_image_limits(test_db)
 
         # Then
         assert max_images == 20  # デフォルト値にフォールバック
@@ -376,7 +376,7 @@ class TestUpdateImageLimits:
     def test_update_max_images(self, test_db: Session):
         """正常系: 最大画像枚数を更新できる"""
         # When
-        max_images, max_size = image_service.update_image_limits(
+        max_images, _ = image_service.update_image_limits(
             test_db, max_images_per_animal=30
         )
 
@@ -394,9 +394,7 @@ class TestUpdateImageLimits:
     def test_update_max_size(self, test_db: Session):
         """正常系: 最大ファイルサイズを更新できる"""
         # When
-        max_images, max_size = image_service.update_image_limits(
-            test_db, max_image_size_mb=10.0
-        )
+        _, max_size = image_service.update_image_limits(test_db, max_image_size_mb=10.0)
 
         # Then
         assert max_size == 10 * 1024 * 1024
