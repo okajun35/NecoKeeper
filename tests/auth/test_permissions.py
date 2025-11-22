@@ -140,9 +140,9 @@ class TestPermissionsMatrix:
                 name=role.capitalize(),
                 role=role,
             )
-            assert has_permission(
-                user, "volunteer:read"
-            ), f"{role} should have volunteer:read"
+            assert has_permission(user, "volunteer:read"), (
+                f"{role} should have volunteer:read"
+            )
 
     def test_staff_has_volunteer_write_permission(self):
         """スタッフはボランティア書き込み権限を持つ"""
@@ -354,9 +354,9 @@ class TestPermissionsMatrixCompleteness:
 
         # When/Then
         for permission in read_only_permissions:
-            assert (
-                ":read" in permission
-            ), f"read_only has non-read permission: {permission}"
+            assert ":read" in permission, (
+                f"read_only has non-read permission: {permission}"
+            )
 
     def test_staff_has_pdf_generate_permission(self):
         """スタッフはPDF生成権限を持つ"""

@@ -87,9 +87,7 @@ class Volunteer(Base):
 
     def __repr__(self) -> str:
         """文字列表現"""
-        return (
-            f"<Volunteer(id={self.id}, name={self.name!r}, " f"status={self.status!r})>"
-        )
+        return f"<Volunteer(id={self.id}, name={self.name!r}, status={self.status!r})>"
 
     def __str__(self) -> str:
         """人間が読みやすい文字列表現"""
