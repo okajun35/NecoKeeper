@@ -45,8 +45,15 @@ https://dashboard.render.com/ にアクセスしてログイン
 | **Name** | necokeeper（または任意の名前） | サービス名（URL: necokeeper.onrender.com） |
 | **Language** | Docker | Dockerfileを使用 |
 | **Branch** | main | デプロイするブランチ（推奨: main） |
-| **Dockerfile Path** | ./Dockerfile | Dockerfileの場所 |
+| **Root Directory** | （空欄） | ⚠️ 空欄のまま（入力しない） |
+| **Dockerfile Path** | `./Dockerfile` | ⚠️ 正確に入力（スペース不要） |
 | **Instance Type** | Free | 無料プラン |
+
+**⚠️ よくあるエラー**:
+- ❌ Dockerfile Path: `/ ./Dockerfile`（余計なスペース）
+- ❌ Root Directory: `/`（不要）
+- ✅ Dockerfile Path: `./Dockerfile`（正しい）
+- ✅ Root Directory: （空欄）
 
 **ブランチ戦略**:
 
@@ -354,6 +361,24 @@ uvicorn app.main:app --reload
 ---
 
 ## 🔧 トラブルシューティング
+
+### Dockerfileが見つからないエラー
+
+**エラー**:
+```
+Service Root Directory "/opt/render/project/src/ ./Dockerfile" is missing
+error: invalid local: resolve : lstat /opt/render/project/src/ .: no such file or directory
+```
+
+**原因**: Dockerfile Pathの設定が間違っている
+
+**解決方法**:
+1. Render Dashboard → NecoKeeperサービス
+2. **Settings** → **Build & Deploy**
+3. **Dockerfile Path**: `./Dockerfile` に修正（余計なスペースを削除）
+4. **Root Directory**: 空欄にする（何も入力しない）
+5. **Save Changes**
+6. **Manual Deploy** → **Deploy latest commit**
 
 ### スピンダウン対策（Free Plan）
 

@@ -9,10 +9,11 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1 import (
     admin_pages,
@@ -152,6 +153,43 @@ async def health_check() -> dict[str, str]:
         "app_name": settings.app_name,
         "version": settings.app_version,
     }
+
+
+# HTTPException用のカスタムハンドラー
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse | RedirectResponse:
+    """
+    HTTPException用のカスタムハンドラー
+
+    管理画面の401エラーはログインページにリダイレクト。
+    APIエンドポイントはJSONエラーを返す。
+
+    Context7参照: /fastapi/fastapi - Custom Exception Handlers
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        exc: HTTPException
+
+    Returns:
+        RedirectResponse | JSONResponse: リダイレクトまたはJSONエラー
+    """
+    # 管理画面の401エラーはログインページにリダイレクト
+    # ログインページ自体への401はリダイレクトしない（無限ループ防止）
+    if (
+        exc.status_code == 401
+        and request.url.path.startswith("/admin")
+        and not request.url.path.startswith("/admin/login")
+    ):
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    # APIエンドポイントはJSONエラーを返す
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=exc.headers if hasattr(exc, "headers") else None,
+    )
 
 
 # グローバル例外ハンドラー

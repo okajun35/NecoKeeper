@@ -3,15 +3,21 @@ Admin Pages API
 
 管理画面のHTMLページを提供するエンドポイント。
 認証が必要な管理画面。
+
+Context7参照: /fastapi/fastapi - Security Dependencies
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.responses import Response
+
+from app.auth.dependencies import get_current_user, get_current_user_optional
+from app.models.user import User
 
 router = APIRouter(prefix="/admin", tags=["admin-pages"])
 
@@ -21,35 +27,48 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):  # type: ignore[no-untyped-def]
+async def login_page(
+    request: Request, current_user: User | None = Depends(get_current_user_optional)
+) -> Response:
     """
     ログインページを表示
 
-    管理画面へのログインフォームを表示。
-    JWT認証を使用してアクセストークンを取得。
+    既にログイン済みの場合はダッシュボードにリダイレクト。
+
+    Context7参照: /fastapi/fastapi - RedirectResponse
 
     Args:
         request: FastAPIリクエストオブジェクト
+        current_user: 現在のユーザー（オプショナル）
 
     Returns:
-        HTMLResponse: ログインページのHTML
+        HTMLResponse | RedirectResponse: ログインページまたはリダイレクト
 
     Example:
         GET /admin/login
     """
+    # 既にログイン済みの場合はダッシュボードにリダイレクト
+    if current_user:
+        return RedirectResponse(url="/admin", status_code=302)
+
     return templates.TemplateResponse("admin/login.html", {"request": request})
 
 
 @router.get("", response_class=HTMLResponse)
-async def dashboard_page(request: Request):  # type: ignore[no-untyped-def]
+async def dashboard_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
-    ダッシュボードページを表示
+    ダッシュボードページを表示（認証必須）
 
     管理画面のトップページ。
     統計情報、最近の活動、記録が必要な猫などを表示。
 
+    Context7参照: /fastapi/fastapi - Security Dependencies
+
     Args:
         request: FastAPIリクエストオブジェクト
+        current_user: 認証済みユーザー
 
     Returns:
         HTMLResponse: ダッシュボードページのHTML
@@ -57,19 +76,24 @@ async def dashboard_page(request: Request):  # type: ignore[no-untyped-def]
     Example:
         GET /admin
     """
-    return templates.TemplateResponse("admin/dashboard.html", {"request": request})
+    return templates.TemplateResponse(
+        "admin/dashboard.html", {"request": request, "user": current_user}
+    )
 
 
 @router.get("/animals", response_class=HTMLResponse)
-async def animals_list_page(request: Request):  # type: ignore[no-untyped-def]
+async def animals_list_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
-    猫一覧ページを表示
+    猫一覧ページを表示（認証必須）
 
     保護猫の一覧を表示。
     検索、フィルター、ページネーション機能付き。
 
     Args:
         request: FastAPIリクエストオブジェクト
+        current_user: 認証済みユーザー
 
     Returns:
         HTMLResponse: 猫一覧ページのHTML
@@ -81,14 +105,17 @@ async def animals_list_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/animals/new", response_class=HTMLResponse)
-async def animal_new_page(request: Request):  # type: ignore[no-untyped-def]
+async def animal_new_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
-    猫新規登録ページを表示
+    猫新規登録ページを表示（認証必須）
 
     新しい猫を登録するフォームを表示。
 
     Args:
         request: FastAPIリクエストオブジェクト
+        current_user: 認証済みユーザー
 
     Returns:
         HTMLResponse: 猫新規登録ページのHTML
@@ -100,9 +127,11 @@ async def animal_new_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/animals/{animal_id}", response_class=HTMLResponse)
-async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+async def animal_detail_page(
+    request: Request, animal_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """
-    猫詳細ページを表示
+    猫詳細ページを表示（認証必須）
 
     指定された猫の詳細情報を表示。
     世話記録、画像ギャラリー、ステータス履歴などを含む。
@@ -110,6 +139,7 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
     Args:
         request: FastAPIリクエストオブジェクト
         animal_id: 猫のID
+        current_user: 認証済みユーザー
 
     Returns:
         HTMLResponse: 猫詳細ページのHTML
@@ -126,8 +156,6 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
         animal = db.query(Animal).filter(Animal.id == animal_id).first()
         if not animal:
             # 猫が見つからない場合は一覧ページにリダイレクト
-            from fastapi.responses import RedirectResponse
-
             return RedirectResponse(url="/admin/animals", status_code=302)
 
         # 表示用の画像パスを取得
@@ -142,7 +170,9 @@ async def animal_detail_page(request: Request, animal_id: int):  # type: ignore[
 
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
-async def animal_edit_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+async def animal_edit_page(
+    request: Request, animal_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     猫編集ページを表示
 
@@ -164,7 +194,9 @@ async def animal_edit_page(request: Request, animal_id: int):  # type: ignore[no
 
 
 @router.get("/care-logs", response_class=HTMLResponse)
-async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
+async def care_logs_list_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     世話記録一覧ページを表示
 
@@ -184,7 +216,9 @@ async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/care-logs/new", response_class=HTMLResponse)
-async def care_log_new_page(request: Request):  # type: ignore[no-untyped-def]
+async def care_log_new_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     世話記録新規登録ページを表示
 
@@ -203,7 +237,9 @@ async def care_log_new_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
-async def care_log_detail_page(request: Request, care_log_id: int):  # type: ignore[no-untyped-def]
+async def care_log_detail_page(
+    request: Request, care_log_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     世話記録詳細ページを表示
 
@@ -226,7 +262,9 @@ async def care_log_detail_page(request: Request, care_log_id: int):  # type: ign
 
 
 @router.get("/volunteers", response_class=HTMLResponse)
-async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def]
+async def volunteers_list_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     ボランティア一覧ページを表示
 
@@ -248,7 +286,9 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
 
 
 @router.get("/volunteers/new", response_class=HTMLResponse)
-async def volunteer_new_page(request: Request):  # type: ignore[no-untyped-def]
+async def volunteer_new_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """ボランティア新規作成ページ"""
     return templates.TemplateResponse(
         "admin/volunteers/new.html",
@@ -257,7 +297,9 @@ async def volunteer_new_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/volunteers/{volunteer_id}/edit", response_class=HTMLResponse)
-async def volunteer_edit_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+async def volunteer_edit_page(
+    request: Request, volunteer_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """ボランティア編集ページ"""
     return templates.TemplateResponse(
         "admin/volunteers/edit.html",
@@ -266,7 +308,9 @@ async def volunteer_edit_page(request: Request, volunteer_id: int):  # type: ign
 
 
 @router.get("/volunteers/{volunteer_id}", response_class=HTMLResponse)
-async def volunteer_detail_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+async def volunteer_detail_page(
+    request: Request, volunteer_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """ボランティア詳細ページ"""
     return templates.TemplateResponse(
         "admin/volunteers/detail.html",
@@ -275,7 +319,9 @@ async def volunteer_detail_page(request: Request, volunteer_id: int):  # type: i
 
 
 @router.get("/medical-records", response_class=HTMLResponse)
-async def medical_records_list_page(request: Request):  # type: ignore[no-untyped-def]
+async def medical_records_list_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     診療記録一覧ページを表示
 
@@ -297,7 +343,9 @@ async def medical_records_list_page(request: Request):  # type: ignore[no-untype
 
 
 @router.get("/medical-records/new", response_class=HTMLResponse)
-async def medical_record_new_page(request: Request):  # type: ignore[no-untyped-def]
+async def medical_record_new_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     診療記録新規登録ページを表示
 
@@ -318,7 +366,9 @@ async def medical_record_new_page(request: Request):  # type: ignore[no-untyped-
 
 
 @router.get("/medical-records/{record_id}", response_class=HTMLResponse)
-async def medical_record_detail_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+async def medical_record_detail_page(
+    request: Request, record_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     診療記録詳細ページを表示
 
@@ -341,7 +391,9 @@ async def medical_record_detail_page(request: Request, record_id: int):  # type:
 
 
 @router.get("/medical-records/{record_id}/edit", response_class=HTMLResponse)
-async def medical_record_edit_page(request: Request, record_id: int):  # type: ignore[no-untyped-def]
+async def medical_record_edit_page(
+    request: Request, record_id: int, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     診療記録修正ページを表示
 
@@ -364,7 +416,9 @@ async def medical_record_edit_page(request: Request, record_id: int):  # type: i
 
 
 @router.get("/medical-actions", response_class=HTMLResponse)
-async def medical_actions_list_page(request: Request):  # type: ignore[no-untyped-def]
+async def medical_actions_list_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     診療行為マスター一覧ページを表示
 
@@ -386,7 +440,9 @@ async def medical_actions_list_page(request: Request):  # type: ignore[no-untype
 
 
 @router.get("/adoptions/applicants", response_class=HTMLResponse)
-async def adoptions_applicants_page(request: Request):  # type: ignore[no-untyped-def]
+async def adoptions_applicants_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     里親希望者一覧ページを表示
 
@@ -408,7 +464,9 @@ async def adoptions_applicants_page(request: Request):  # type: ignore[no-untype
 
 
 @router.get("/adoptions/records", response_class=HTMLResponse)
-async def adoptions_records_page(request: Request):  # type: ignore[no-untyped-def]
+async def adoptions_records_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     譲渡記録一覧ページを表示
 
@@ -430,7 +488,9 @@ async def adoptions_records_page(request: Request):  # type: ignore[no-untyped-d
 
 
 @router.get("/reports", response_class=HTMLResponse)
-async def reports_page(request: Request):  # type: ignore[no-untyped-def]
+async def reports_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     帳票出力ページを表示
 
@@ -450,7 +510,9 @@ async def reports_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/settings", response_class=HTMLResponse)
-async def settings_page(request: Request):  # type: ignore[no-untyped-def]
+async def settings_page(
+    request: Request, current_user: User = Depends(get_current_user)
+) -> Response:
     """
     設定ページを表示
 
