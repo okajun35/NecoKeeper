@@ -16,7 +16,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.responses import Response
 
-from app.auth.dependencies import get_current_user, get_current_user_optional
+from app.auth.dependencies import (
+    get_current_user_optional,
+)
 from app.models.user import User
 
 router = APIRouter(prefix="/admin", tags=["admin-pages"])
@@ -28,7 +30,8 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(
-    request: Request, current_user: User | None = Depends(get_current_user_optional)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     ログインページを表示
@@ -56,7 +59,8 @@ async def login_page(
 
 @router.get("", response_class=HTMLResponse)
 async def dashboard_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     ダッシュボードページを表示（認証必須）
@@ -76,6 +80,9 @@ async def dashboard_page(
     Example:
         GET /admin
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/dashboard.html", {"request": request, "user": current_user}
     )
@@ -83,7 +90,8 @@ async def dashboard_page(
 
 @router.get("/animals", response_class=HTMLResponse)
 async def animals_list_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     猫一覧ページを表示（認証必須）
@@ -101,12 +109,19 @@ async def animals_list_page(
     Example:
         GET /admin/animals
     """
-    return templates.TemplateResponse("admin/animals/list.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/animals/list.html",
+        {"request": request, "user": current_user},
+    )
 
 
 @router.get("/animals/new", response_class=HTMLResponse)
 async def animal_new_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     猫新規登録ページを表示（認証必須）
@@ -123,12 +138,20 @@ async def animal_new_page(
     Example:
         GET /admin/animals/new
     """
-    return templates.TemplateResponse("admin/animals/new.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/animals/new.html",
+        {"request": request, "user": current_user},
+    )
 
 
 @router.get("/animals/{animal_id}", response_class=HTMLResponse)
 async def animal_detail_page(
-    request: Request, animal_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    animal_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     猫詳細ページを表示（認証必須）
@@ -147,6 +170,9 @@ async def animal_detail_page(
     Example:
         GET /admin/animals/123
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     from app.database import SessionLocal
     from app.models.animal import Animal
     from app.services import animal_service
@@ -163,7 +189,11 @@ async def animal_detail_page(
 
         return templates.TemplateResponse(
             "admin/animals/detail.html",
-            {"request": request, "animal": animal, "display_image": display_image},
+            {
+                "request": request,
+                "animal": animal,
+                "display_image": display_image,
+            },
         )
     finally:
         db.close()
@@ -171,7 +201,9 @@ async def animal_detail_page(
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
 async def animal_edit_page(
-    request: Request, animal_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    animal_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     猫編集ページを表示
@@ -188,14 +220,19 @@ async def animal_edit_page(
     Example:
         GET /admin/animals/123/edit
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/animals/edit.html", {"request": request, "animal_id": animal_id}
+        "admin/animals/edit.html",
+        {"request": request, "animal_id": animal_id, "user": current_user},
     )
 
 
 @router.get("/care-logs", response_class=HTMLResponse)
 async def care_logs_list_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     世話記録一覧ページを表示
@@ -212,12 +249,19 @@ async def care_logs_list_page(
     Example:
         GET /admin/care-logs
     """
-    return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/care_logs/list.html",
+        {"request": request, "user": current_user},
+    )
 
 
 @router.get("/care-logs/new", response_class=HTMLResponse)
 async def care_log_new_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     世話記録新規登録ページを表示
@@ -233,12 +277,20 @@ async def care_log_new_page(
     Example:
         GET /admin/care-logs/new
     """
-    return templates.TemplateResponse("admin/care_logs/new.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/care_logs/new.html",
+        {"request": request, "user": current_user},
+    )
 
 
 @router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
 async def care_log_detail_page(
-    request: Request, care_log_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    care_log_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     世話記録詳細ページを表示
@@ -255,15 +307,19 @@ async def care_log_detail_page(
     Example:
         GET /admin/care-logs/1
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/care_logs/detail.html",
-        {"request": request, "care_log_id": care_log_id},
+        {"request": request, "care_log_id": care_log_id, "user": current_user},
     )
 
 
 @router.get("/volunteers", response_class=HTMLResponse)
 async def volunteers_list_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     ボランティア一覧ページを表示
@@ -280,47 +336,74 @@ async def volunteers_list_page(
     Example:
         GET /admin/volunteers
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/volunteers/list.html", {"request": request}
+        "admin/volunteers/list.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/volunteers/new", response_class=HTMLResponse)
 async def volunteer_new_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """ボランティア新規作成ページ"""
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/volunteers/new.html",
-        {"request": request},
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/volunteers/{volunteer_id}/edit", response_class=HTMLResponse)
 async def volunteer_edit_page(
-    request: Request, volunteer_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    volunteer_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """ボランティア編集ページ"""
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/volunteers/edit.html",
-        {"request": request, "volunteer_id": volunteer_id},
+        {
+            "request": request,
+            "volunteer_id": volunteer_id,
+            "user": current_user,
+        },
     )
 
 
 @router.get("/volunteers/{volunteer_id}", response_class=HTMLResponse)
 async def volunteer_detail_page(
-    request: Request, volunteer_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    volunteer_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """ボランティア詳細ページ"""
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/volunteers/detail.html",
-        {"request": request, "volunteer_id": volunteer_id},
+        {
+            "request": request,
+            "volunteer_id": volunteer_id,
+            "user": current_user,
+        },
     )
 
 
 @router.get("/medical-records", response_class=HTMLResponse)
 async def medical_records_list_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     診療記録一覧ページを表示
@@ -337,14 +420,19 @@ async def medical_records_list_page(
     Example:
         GET /admin/medical-records
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/medical_records/list.html", {"request": request}
+        "admin/medical_records/list.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/medical-records/new", response_class=HTMLResponse)
 async def medical_record_new_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     診療記録新規登録ページを表示
@@ -360,14 +448,20 @@ async def medical_record_new_page(
     Example:
         GET /admin/medical-records/new
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/medical_records/new.html", {"request": request}
+        "admin/medical_records/new.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/medical-records/{record_id}", response_class=HTMLResponse)
 async def medical_record_detail_page(
-    request: Request, record_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    record_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     診療記録詳細ページを表示
@@ -384,15 +478,20 @@ async def medical_record_detail_page(
     Example:
         GET /admin/medical-records/123
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/medical_records/detail.html",
-        {"request": request, "record_id": record_id},
+        {"request": request, "record_id": record_id, "user": current_user},
     )
 
 
 @router.get("/medical-records/{record_id}/edit", response_class=HTMLResponse)
 async def medical_record_edit_page(
-    request: Request, record_id: int, current_user: User = Depends(get_current_user)
+    request: Request,
+    record_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     診療記録修正ページを表示
@@ -409,15 +508,19 @@ async def medical_record_edit_page(
     Example:
         GET /admin/medical-records/123/edit
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
         "admin/medical_records/edit.html",
-        {"request": request, "record_id": record_id},
+        {"request": request, "record_id": record_id, "user": current_user},
     )
 
 
 @router.get("/medical-actions", response_class=HTMLResponse)
 async def medical_actions_list_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     診療行為マスター一覧ページを表示
@@ -434,14 +537,19 @@ async def medical_actions_list_page(
     Example:
         GET /admin/medical-actions
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/medical_actions/list.html", {"request": request}
+        "admin/medical_actions/list.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/adoptions/applicants", response_class=HTMLResponse)
 async def adoptions_applicants_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     里親希望者一覧ページを表示
@@ -458,14 +566,19 @@ async def adoptions_applicants_page(
     Example:
         GET /admin/adoptions/applicants
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/adoptions/applicants.html", {"request": request}
+        "admin/adoptions/applicants.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/adoptions/records", response_class=HTMLResponse)
 async def adoptions_records_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     譲渡記録一覧ページを表示
@@ -482,14 +595,19 @@ async def adoptions_records_page(
     Example:
         GET /admin/adoptions/records
     """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse(
-        "admin/adoptions/records.html", {"request": request}
+        "admin/adoptions/records.html",
+        {"request": request, "user": current_user},
     )
 
 
 @router.get("/reports", response_class=HTMLResponse)
 async def reports_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     帳票出力ページを表示
@@ -506,12 +624,19 @@ async def reports_page(
     Example:
         GET /admin/reports
     """
-    return templates.TemplateResponse("admin/reports/index.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/reports/index.html",
+        {"request": request, "user": current_user},
+    )
 
 
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(
-    request: Request, current_user: User = Depends(get_current_user)
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
     """
     設定ページを表示
@@ -528,4 +653,10 @@ async def settings_page(
     Example:
         GET /admin/settings
     """
-    return templates.TemplateResponse("admin/settings/index.html", {"request": request})
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/settings/index.html",
+        {"request": request, "user": current_user},
+    )

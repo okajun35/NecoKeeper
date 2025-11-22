@@ -1,0 +1,16 @@
+{
+  "title": "Login",
+  "page_title": "Admin Login",
+  "subtitle": "Cat Shelter Management System",
+  "email_label": "Email Address",
+  "email_placeholder": "admin@example.com",
+  "password_label": "Password",
+  "password_placeholder": "••••••••",
+  "login_button": "Login",
+  "login_button_loading": "Logging in...",
+  "error_title": "Login Failed",
+  "dev_account_title": "Development Account:",
+  "dev_account_email": "Email: admin@example.com",
+  "dev_account_password": "Password: admin123",
+  "footer": "© 2025 NecoKeeper. All rights reserved."
+}

@@ -47,6 +47,7 @@ async function initI18n() {
       'reports', // Added reports namespace
       'settings', // Added settings namespace
       'care', // Added care namespace for public care form
+      'login', // Added login namespace
     ];
     const jaTranslations = {};
     const enTranslations = {};

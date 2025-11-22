@@ -1,0 +1,16 @@
+{
+  "title": "ログイン",
+  "page_title": "管理画面ログイン",
+  "subtitle": "保護猫管理システム",
+  "email_label": "メールアドレス",
+  "email_placeholder": "admin@example.com",
+  "password_label": "パスワード",
+  "password_placeholder": "••••••••",
+  "login_button": "ログイン",
+  "login_button_loading": "ログイン中...",
+  "error_title": "ログインに失敗しました",
+  "dev_account_title": "開発用アカウント:",
+  "dev_account_email": "メール: admin@example.com",
+  "dev_account_password": "パスワード: admin123",
+  "footer": "© 2025 NecoKeeper. All rights reserved."
+}

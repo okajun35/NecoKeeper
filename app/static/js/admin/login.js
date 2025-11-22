@@ -37,14 +37,23 @@ async function login(email, password) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'ログインに失敗しました');
+      // detailが配列の場合（バリデーションエラー）は最初のエラーメッセージを使用
+      let errorMessage = 'ログインに失敗しました';
+      if (error.detail) {
+        if (Array.isArray(error.detail)) {
+          errorMessage = error.detail.map(e => e.msg).join(', ');
+        } else if (typeof error.detail === 'string') {
+          errorMessage = error.detail;
+        }
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
 
-    // トークンをlocalStorageに保存
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('token_type', data.token_type);
+    // 注意: トークンはサーバー側でHTTPOnly Cookieとして設定されます
+    // JavaScriptからは直接アクセスできません（XSS対策）
+    // ログイン成功後、自動的にCookieが送信されるようになります
 
     // ダッシュボードにリダイレクト
     window.location.href = '/admin';
@@ -55,32 +64,48 @@ async function login(email, password) {
 }
 
 // フォーム送信イベント
-document.getElementById('loginForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  hideError();
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    hideError();
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const loginButton = document.getElementById('loginButton');
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const loginButton = document.getElementById('loginButton');
 
-  // ボタンを無効化
-  loginButton.disabled = true;
-  loginButton.textContent = 'ログイン中...';
+    // ボタンを無効化
+    loginButton.disabled = true;
+    // i18nが利用可能な場合は翻訳を使用
+    if (window.i18n && window.i18n.t) {
+      loginButton.textContent = window.i18n.t('login_button_loading', { ns: 'login' });
+    } else {
+      loginButton.textContent = 'ログイン中...';
+    }
 
-  try {
-    await login(email, password);
-  } catch (error) {
-    showError(error.message);
+    try {
+      await login(email, password);
+    } catch (error) {
+      showError(error.message);
 
-    // ボタンを有効化
-    loginButton.disabled = false;
-    loginButton.textContent = 'ログイン';
-  }
-});
+      // ボタンを有効化
+      loginButton.disabled = false;
+      // i18nが利用可能な場合は翻訳を使用
+      if (window.i18n && window.i18n.t) {
+        loginButton.textContent = window.i18n.t('login_button', { ns: 'login' });
+      } else {
+        loginButton.textContent = 'ログイン';
+      }
+    }
+  });
+}
 
 // Enterキーでログイン
-document.getElementById('password').addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-  }
-});
+const passwordField = document.getElementById('password');
+if (passwordField) {
+  passwordField.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+      document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+    }
+  });
+}
