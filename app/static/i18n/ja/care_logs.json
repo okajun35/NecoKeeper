@@ -20,6 +20,7 @@
   },
   "time_slots": {
     "morning": "朝",
+    "noon": "昼",
     "afternoon": "昼",
     "evening": "夕"
   },
@@ -63,5 +64,48 @@
     "load_failed": "世話記録の読み込みに失敗しました",
     "load_animals_failed": "猫一覧の読み込みに失敗しました",
     "required_fields": "必須項目を入力してください"
+  },
+  "public": {
+    "page_title": "記録一覧",
+    "header_caption": "{{name}}の記録一覧",
+    "animal_photo_alt": "猫の写真",
+    "error_heading": "エラーが発生しました",
+    "success_heading": "✓ 記録を保存しました",
+    "today_status_title": "今日の記録状況",
+    "daily_overview_title": "過去7日の日別状況",
+    "daily_overview_description": "朝・昼・夜の記録有無を日ごとに確認できます",
+    "daily_overview_hint": "欠けている日がないか確認しましょう",
+    "daily_table": {
+      "date": "日付"
+    },
+    "slot_status": {
+      "recorded": "記録あり",
+      "missing": "未記録"
+    },
+    "slot_chip": {
+      "recorded": "{{slot}}: 記録あり",
+      "missing": "{{slot}}: 未記録"
+    },
+    "today_badge": "今日",
+    "yesterday_badge": "昨日",
+    "latest_logs_title": "最新の記録",
+    "latest_logs_description": "最新入力順で表示しています",
+    "no_logs_message": "まだ記録がありません",
+    "no_logs_hint": "直近の記録がここに表示されます",
+    "add_record": "記録を入力する",
+    "view_all_status": "全猫の記録状況を見る",
+    "modal_title": "記録詳細",
+    "modal_close": "閉じる",
+    "time_slots": {
+      "morning": "朝",
+      "noon": "昼",
+      "evening": "夜"
+    },
+    "errors": {
+      "missing_animal_id": "猫のIDが指定されていません",
+      "load_list_failed": "記録一覧の取得に失敗しました",
+      "load_detail_failed": "記録詳細の取得に失敗しました"
+    },
+    "unnamed_animal": "名前未設定"
   }
 }

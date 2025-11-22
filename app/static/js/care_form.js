@@ -16,6 +16,188 @@ if (!animalId) {
 // 記録日に今日の日付を設定
 document.getElementById('logDate').value = getTodayString();
 
+const CARE_NAMESPACE = 'care';
+const PAGE_TITLE_SUFFIX = ' - NecoKeeper';
+const REQUIRED_FIELD_CONFIG = [
+  { id: 'logDate', key: 'log_date' },
+  { id: 'timeSlot', key: 'time_slot' },
+  { id: 'appetite', key: 'appetite' },
+  { id: 'energy', key: 'energy' },
+  { id: 'urination', key: 'urination' },
+  { id: 'cleaning', key: 'cleaning' },
+  { id: 'volunteer', key: 'recorder' },
+];
+
+function translateCare(key, fallback = '', options = {}) {
+  const namespacedKey = `${CARE_NAMESPACE}:${key}`;
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    const translation = window.i18n.t(namespacedKey, options);
+    if (translation && translation !== namespacedKey) {
+      return translation;
+    }
+  }
+
+  if (typeof fallback === 'string' && fallback.includes('{{') && options) {
+    return fallback.replace(/{{(\w+)}}/g, (_, k) => options[k] ?? '');
+  }
+
+  return fallback || key;
+}
+
+function updatePageTitle() {
+  const localizedTitle = translateCare('title', '世話記録入力');
+  document.title = `${localizedTitle}${PAGE_TITLE_SUFFIX}`;
+}
+
+function showToast(message, subMessage = '') {
+  const toast = document.getElementById('successToast');
+  const text = document.getElementById('successToastText');
+  const subText = document.getElementById('successToastSubText');
+  if (!toast || !text) return;
+
+  text.textContent = message;
+  if (subText) {
+    subText.textContent = subMessage;
+    subText.classList.toggle('hidden', !subMessage);
+  }
+
+  toast.classList.remove('hidden');
+  toast.dataset.visible = 'true';
+
+  clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = setTimeout(() => {
+    hideToast();
+  }, 2500);
+}
+
+function hideToast() {
+  const toast = document.getElementById('successToast');
+  if (!toast) return;
+  toast.classList.add('hidden');
+  toast.dataset.visible = 'false';
+}
+
+function getFieldContainer(fieldId) {
+  return document.querySelector(`[data-field="${fieldId}"]`);
+}
+
+function ensureFieldErrorElement(container) {
+  if (!container) return null;
+  let errorEl = container.querySelector('.field-error-message');
+  if (!errorEl) {
+    errorEl = document.createElement('p');
+    errorEl.className = 'field-error-message mt-2 text-sm text-red-600 hidden';
+    errorEl.setAttribute('role', 'alert');
+    container.appendChild(errorEl);
+  }
+  return errorEl;
+}
+
+function setFieldErrorState(fieldId, hasError, message = '') {
+  const container = getFieldContainer(fieldId);
+  const targetInput = document.getElementById(fieldId);
+
+  const errorClasses = ['ring-2', 'ring-red-300', 'ring-offset-2'];
+  if (container) {
+    errorClasses.forEach(cls => {
+      if (hasError) {
+        container.classList.add(cls);
+      } else {
+        container.classList.remove(cls);
+      }
+    });
+
+    const errorEl = ensureFieldErrorElement(container);
+    if (errorEl) {
+      errorEl.textContent = hasError ? message : '';
+      errorEl.classList.toggle('hidden', !hasError);
+    }
+  }
+
+  if (targetInput) {
+    if (hasError) {
+      targetInput.setAttribute('aria-invalid', 'true');
+    } else {
+      targetInput.removeAttribute('aria-invalid');
+    }
+  }
+}
+
+function clearAllFieldErrors() {
+  REQUIRED_FIELD_CONFIG.forEach(field => setFieldErrorState(field.id, false));
+}
+
+function focusField(fieldId) {
+  const container = getFieldContainer(fieldId);
+  if (!container) return;
+
+  const focusTarget = container.querySelector(
+    'input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+  );
+
+  if (focusTarget) {
+    focusTarget.focus();
+    if (typeof focusTarget.scrollIntoView === 'function') {
+      focusTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  } else if (typeof container.scrollIntoView === 'function') {
+    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function validateForm() {
+  const missingFields = [];
+
+  REQUIRED_FIELD_CONFIG.forEach(field => {
+    const element = document.getElementById(field.id);
+    if (!element) return;
+
+    const rawValue = typeof element.value === 'string' ? element.value.trim() : element.value;
+    const isMissing = rawValue === '' || rawValue === null || typeof rawValue === 'undefined';
+
+    if (isMissing) {
+      const fieldLabel = translateCare(field.key, field.key);
+      const fieldMessage = translateCare('validation_required', '{{field}}は必須です', {
+        field: fieldLabel,
+      });
+      missingFields.push({ id: field.id, label: fieldLabel, message: fieldMessage });
+      setFieldErrorState(field.id, true, fieldMessage);
+    } else {
+      setFieldErrorState(field.id, false);
+    }
+  });
+
+  if (missingFields.length > 0) {
+    const summaryMessageParts = [
+      translateCare(
+        'save_validation_error',
+        '未入力または不正な項目があります。赤枠の欄を確認してください。'
+      ),
+      translateCare('validation_missing_fields', '以下の必須項目が未入力です: {{fields}}', {
+        fields: missingFields.map(field => field.label).join(', '),
+      }),
+    ];
+
+    return {
+      isValid: false,
+      message: summaryMessageParts.join(' '),
+      firstInvalidFieldId: missingFields[0].id,
+    };
+  }
+
+  return { isValid: true, message: '' };
+}
+
+function setSubmitButtonState(isLoading) {
+  const submitBtn = document.getElementById('submitBtn');
+  if (!submitBtn) return;
+
+  submitBtn.disabled = isLoading;
+  submitBtn.textContent = isLoading
+    ? translateCare('saving', '保存中...')
+    : translateCare('save', '保存');
+}
+
 /**
  * 猫情報を取得して表示
  */
@@ -86,6 +268,8 @@ function setupButtonGroup(className, inputId) {
 
       // hidden inputに値を設定
       input.value = button.dataset.value;
+
+      setFieldErrorState(inputId, false);
     });
   });
 }
@@ -98,13 +282,18 @@ async function copyLastValues() {
     const response = await fetch(`${API_BASE}/care-logs/latest/${animalId}`);
     if (!response.ok) {
       if (response.status === 404) {
-        showSuccess('前回の記録がありません（初回記録です）');
+        showSuccess(translateCare('copy_no_data', '前回の記録がありません（初回記録です）'));
         return;
       }
-      throw new Error('前回値の取得に失敗しました');
+      throw new Error(translateCare('copy_failure', '前回値の取得に失敗しました'));
     }
 
     const lastLog = await response.json();
+
+    if (!lastLog) {
+      showSuccess(translateCare('copy_no_data', '前回の記録がありません（初回記録です）'));
+      return;
+    }
 
     // 各フィールドに値を設定
     // 記録日は今日の日付を維持（コピーしない）
@@ -126,23 +315,24 @@ async function copyLastValues() {
       if (energyBtn) energyBtn.click();
     }
 
-    if (lastLog.urination !== null) {
+    if (typeof lastLog.urination === 'boolean') {
       const urinationBtn = document.querySelector(
         `.urination-btn[data-value="${lastLog.urination}"]`
       );
       if (urinationBtn) urinationBtn.click();
     }
 
-    if (lastLog.cleaning !== null) {
+    if (typeof lastLog.cleaning === 'boolean') {
       const cleaningBtn = document.querySelector(`.cleaning-btn[data-value="${lastLog.cleaning}"]`);
       if (cleaningBtn) cleaningBtn.click();
     }
 
     // メモはコピーしない（毎回異なる可能性が高いため）
 
-    showSuccess('前回値をコピーしました');
+    showSuccess(translateCare('copy_success', '前回値をコピーしました'));
   } catch (error) {
-    showError(error.message);
+    const message = error?.message || translateCare('copy_failure', '前回値の取得に失敗しました');
+    showError(message);
   }
 }
 
@@ -162,6 +352,9 @@ function resetForm() {
   ['timeSlot', 'appetite', 'energy', 'urination', 'cleaning'].forEach(id => {
     document.getElementById(id).value = '';
   });
+
+  clearAllFieldErrors();
+  hideToast();
 }
 
 /**
@@ -170,9 +363,19 @@ function resetForm() {
 async function handleSubmit(e) {
   e.preventDefault();
 
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = '保存中...';
+  hideError();
+  hideSuccess();
+
+  const validationResult = validateForm();
+  if (!validationResult.isValid) {
+    showError(validationResult.message);
+    if (validationResult.firstInvalidFieldId) {
+      focusField(validationResult.firstInvalidFieldId);
+    }
+    return;
+  }
+
+  setSubmitButtonState(true);
 
   try {
     // ボランティア情報を取得
@@ -206,27 +409,39 @@ async function handleSubmit(e) {
     // オフラインマネージャーを使用して保存
     const result = await window.offlineManager.saveCareLog(formData);
 
-    if (result.online) {
-      showSuccess('記録を保存しました');
-    } else {
-      showSuccess('記録を一時保存しました（オンライン時に自動同期されます）');
-    }
+    const successMessage = result.online
+      ? translateCare('save_success_online', '記録を保存しました')
+      : translateCare(
+          'save_success_offline',
+          '記録を一時保存しました（オンライン時に自動同期されます）'
+        );
+    showToast(successMessage);
 
     // フォームをリセット
     setTimeout(() => {
       resetForm();
-      hideSuccess();
     }, 2000);
   } catch (error) {
-    showError(error.message);
+    const fallbackMessage = translateCare(
+      'error_api_failed',
+      '送信に失敗しました。時間をおいて再度お試しください。'
+    );
+    showError(error?.message || fallbackMessage);
   } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = '保存';
+    setSubmitButtonState(false);
   }
 }
 
 // 初期化処理
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // i18nを初期化
+  if (typeof initI18n === 'function') {
+    await initI18n();
+  }
+
+  updatePageTitle();
+  document.addEventListener('languageChanged', updatePageTitle);
+
   // 各ボタングループを初期化
   setupButtonGroup('time-slot-btn', 'timeSlot');
   setupButtonGroup('appetite-btn', 'appetite');
@@ -246,4 +461,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // データ読み込み
   loadAnimalInfo();
   loadVolunteers();
+
+  const logDateInput = document.getElementById('logDate');
+  if (logDateInput) {
+    logDateInput.addEventListener('input', () => {
+      if (logDateInput.value) {
+        setFieldErrorState('logDate', false);
+      }
+    });
+  }
+
+  const volunteerSelect = document.getElementById('volunteer');
+  if (volunteerSelect) {
+    volunteerSelect.addEventListener('change', () => {
+      if (volunteerSelect.value) {
+        setFieldErrorState('volunteer', false);
+      }
+    });
+  }
 });

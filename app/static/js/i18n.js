@@ -46,6 +46,7 @@ async function initI18n() {
       'adoptions',
       'reports', // Added reports namespace
       'settings', // Added settings namespace
+      'care', // Added care namespace for public care form
     ];
     const jaTranslations = {};
     const enTranslations = {};
@@ -231,26 +232,35 @@ async function changeLanguage(language) {
  * 言語切り替えボタンのイベントリスナーを設定
  */
 function setupLanguageSwitcher() {
-  // 言語切り替えボタン
-  const languageSwitcher = document.getElementById('language-switcher');
-  if (languageSwitcher) {
-    languageSwitcher.addEventListener('click', () => {
-      const newLanguage = currentLanguage === 'ja' ? 'en' : 'ja';
-      changeLanguage(newLanguage);
-    });
-  }
+  const attachHandlers = () => {
+    const languageSwitcher = document.getElementById('language-switcher');
+    if (languageSwitcher && !languageSwitcher.dataset.listenerAttached) {
+      languageSwitcher.dataset.listenerAttached = 'true';
+      languageSwitcher.addEventListener('click', () => {
+        const newLanguage = currentLanguage === 'ja' ? 'en' : 'ja';
+        changeLanguage(newLanguage);
+      });
+    }
 
-  // 言語選択ドロップダウン
-  const languageSelect = document.getElementById('language-select');
-  if (languageSelect) {
-    languageSelect.value = currentLanguage;
-    languageSelect.addEventListener('change', e => {
-      changeLanguage(e.target.value);
-    });
-  }
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) {
+      languageSelect.value = currentLanguage;
+      if (!languageSelect.dataset.listenerAttached) {
+        languageSelect.dataset.listenerAttached = 'true';
+        languageSelect.addEventListener('change', e => {
+          changeLanguage(e.target.value);
+        });
+      }
+    }
 
-  // 初期表示を更新
-  updateLanguageSwitcherUI();
+    updateLanguageSwitcherUI();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachHandlers, { once: true });
+  } else {
+    attachHandlers();
+  }
 }
 
 /**
