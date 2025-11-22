@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-**プロジェクトステータス**: MVP Core 完成！Phase 8（管理画面UI）完了、基本機能すべて実装済み
+**プロジェクトステータス**: MVP Core 完成！Phase 10（多言語対応）完了、基本機能すべて実装済み
 
 **完了済み:**
 - ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
@@ -18,6 +18,7 @@
 - ✅ Phase 7: 里親管理機能（全4タスク）✅ 2024-11-18完了
 - ✅ Phase 8: 管理画面UI（全15タスク）✅ 2024-11-18完了
 - ✅ Phase 9: Public API + PWA（全13タスク完了）
+- ✅ Phase 10: 多言語対応（全5タスク）✅ 2024-11-22完了
 
 **実装済み機能:**
 - ✅ データベース（全12モデル）
@@ -31,9 +32,10 @@
 - ✅ 管理画面UI（ダッシュボード、猫台帳、世話記録、診療記録、里親管理、ボランティア、帳票出力、設定、ログイン、体重グラフ、画像ギャラリー、検索）✅ 2024-11-18完了
 - ✅ Public API（認証不要の世話記録入力、記録一覧、記録詳細）
 - ✅ PWA機能（manifest.json、Service Worker、オフライン同期）
+- ✅ 多言語対応（日本語・英語、i18next統合、800+翻訳キー）✅ 2024-11-22完了
 - ✅ 統合テスト（232テスト、カバレッジ84.90%）
 
-**次のステップ**: Phase 10（多言語対応）、Phase 11（セキュリティとログ）、Phase 12（バックアップ）、Phase 15（デプロイ）
+**次のステップ**: Phase 11（セキュリティとログ）、Phase 12（バックアップ）、Phase 15（デプロイ）
 
 **重要な注意事項:**
 
@@ -108,7 +110,7 @@ pip install -r requirements.txt
 10. Phase 11: セキュリティとログ
 
 ### 中優先（Enhancement）
-11. Phase 10: 多言語対応
+11. ✅ Phase 10: 多言語対応
 12. Phase 12: バックアップとデータ管理
 13. Phase 15: デプロイとドキュメント
 
@@ -910,13 +912,15 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - 記録状況判定ロジックのテスト
   - _Requirements: Requirement 3_
 
-## Phase 10: 多言語対応
+## Phase 10: 多言語対応 ✅ 完了（100%）
 
 **Context7 MCP使用ガイドライン**:
 - i18next実装前: `mcp_context7_get_library_docs` で `/i18next/i18next` を参照（tokens: 5000）
 - バックエンド多言語化: Jinja2テンプレートでの実装方法を Context7 で確認
 
-### 15. i18n実装
+**実装完了日**: 2024-11-22
+
+### 15. i18n実装 ✅ 完了
 
 日本語・英語の多言語対応を実装します。
 
@@ -928,23 +932,23 @@ CSV・Excel形式でのデータ出力機能を実装します。
   - README.md（使用方法・命名規則ドキュメント）
   - _Requirements: Requirement 19.2, Requirement 19.6_
 
-- [ ] 15.2 フロントエンド多言語化を実装（JavaScript）
+- [x] 15.2 フロントエンド多言語化を実装（JavaScript）✅
   - i18nextライブラリ統合
   - 言語切り替え機能
   - ローカルストレージへの保存
   - ブラウザ言語設定からの自動選択
   - _Requirements: Requirement 19.3-19.5_
 
-- [ ] 15.3 バックエンド多言語化を実装（Jinja2）
+- [x] 15.3 バックエンド多言語化を実装（Jinja2）✅
   - テンプレートでの対訳ファイル読み込み
   - 言語切り替えエンドポイント
   - _Requirements: Requirement 19.3_
 
-- [ ] 15.4 PDF帳票の多言語化を実装
+- [x] 15.4 PDF帳票の多言語化を実装 ✅
   - PDFテンプレートでの言語切り替え
   - _Requirements: Requirement 19.7_
 
-- [ ] 15.5 多言語対応のテストを作成
+- [x] 15.5 多言語対応のテストを作成 ✅
   - 言語切り替えのテスト
   - 対訳ファイルの整合性チェック
   - _Requirements: Requirement 19_
@@ -1145,68 +1149,185 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 ## Phase 15: デプロイとドキュメント
 
-### 22. デプロイ設定
+**Context7 MCP使用ガイドライン**:
+- Docker実装前: Renderの最新ドキュメント（https://render.com/docs/docker）を参照
+- render.yaml実装前: Blueprint仕様（https://render.com/docs/blueprint-spec）を参照
+- Persistent Disks実装前: https://render.com/docs/disks を参照
 
-ホスティングサービスへのデプロイ設定を作成します。
+**デプロイ方針（ハッカソン向けPoC戦略）**:
+- **Dockerベースのデプロイ**を採用（WeasyPrint、Pillow等のOS依存パッケージを確実にインストール）
+- **2段階デプロイ戦略**:
+  - **Phase 1（Free Plan - 1週間のPoC）**:
+    - SQLite（エフェメラル、/tmp/）
+    - データは再デプロイで消える前提（PoC割り切り）
+    - PostgreSQL不要（シンプル構成）
+  - **Phase 2（Starter Plan - ハッカソン審査時）**:
+    - SQLite + Persistent Disk（1GB）で本番運用
+    - データ永続化
+- **render.yaml不要**（Render Dashboard UIから直接デプロイ）
+- **マルチステージビルド**でイメージサイズを最適化
 
-- [ ] 22.1 Renderデプロイ設定を作成（render.yaml）
-  - Web service設定
+**Free Plan制約（許容範囲）**:
+- ⚠️ Persistent Disk使用不可 → エフェメラルファイルシステム（PoC割り切り）
+- ⚠️ 15分間アクセスなしでスピンダウン（初回アクセス時に遅延）
+- ⚠️ 月750時間の制限（1週間のデモには十分）
+- ✅ PostgreSQL不要（シンプル構成）
+
+### 22. Dockerコンテナ化（Free Plan PoC向け）
+
+Dockerコンテナ化を実装します。
+
+- [ ] 22.1 Dockerfileを作成（マルチステージビルド）
+  - **Stage 1: Builder** - 依存関係のインストール
+    - Python 3.12ベースイメージ
+    - WeasyPrint依存パッケージ（libpango、libcairo、libgdk-pixbuf）
+    - **日本語フォント**（fonts-noto-cjk、fonts-ipafont-gothic）
+    - requirements.txtからPythonパッケージインストール
+  - **Stage 2: Runtime** - 本番環境用の軽量イメージ
+    - 必要な実行時パッケージのみコピー
+    - **日本語フォント**をコピー（PDF帳票の日本語表示に必須）
+    - 非rootユーザーで実行（セキュリティ）
+    - ヘルスチェック設定（HEALTHCHECK指令）
+  - **データベース設定**:
+    - SQLiteのみ（エフェメラル、/tmp/necokeeper.db）
+    - 再デプロイでデータ消失（PoC割り切り）
+  - **メディアファイル設定**:
+    - エフェメラルファイルシステム（/tmp/media/）
+  - **重要**: 日本語フォントがないとPDF帳票が正しく表示されない
+  - _Requirements: Requirement 20.1-20.2, Requirement 2.1-2.8（PDF生成）_
+
+- [ ] 22.2 .dockerignoreを作成
+  - 不要なファイルをビルドコンテキストから除外
+  - .git、.venv、__pycache__、*.pyc、tests/、docs/、data/、media/、backups/
+  - ビルド時間とイメージサイズの最適化
+  - _Requirements: Requirement 20.1_
+
+- [ ] 22.3 docker-compose.ymlを作成（ローカル開発用）
+  - Webサービス定義
+  - ボリュームマウント（data/、media/、backups/）
   - 環境変数設定
-  - Disk設定（1GB）
-  - _Requirements: Requirement 20.1-20.2, Requirement 20.4_
+  - ポートマッピング（8000:8000）
+  - _Requirements: Requirement 31_
 
-- [ ] 22.2 Railwayデプロイ設定を作成（railway.json）
-  - ビルド設定
-  - 起動コマンド設定
-  - _Requirements: Requirement 20.1-20.2_
+- [ ] 22.4 Dockerビルド・実行テストを実施
+  - ローカルでDockerイメージをビルド
+  - コンテナ起動確認（SQLite、エフェメラル）
+  - ヘルスチェック動作確認
+  - _Requirements: Requirement 20.1_
 
-- [ ] 22.3 Fly.ioデプロイ設定を作成（fly.toml）
-  - ビルド設定
-  - Volume設定
-  - リージョン設定
-  - _Requirements: Requirement 20.1-20.2, Requirement 20.4_
+### 23. Renderデプロイ設定（Free Plan PoC向け）
 
-- [ ] 22.4 環境変数テンプレートを作成（.env.example）
-  - 必須環境変数の一覧
-  - 説明コメント
+Render用のデプロイ設定を作成します。
+
+- [ ] 23.1 環境変数テンプレートを作成（.env.example）
+  - 必須環境変数の一覧と説明
+  - DATABASE_URL: sqlite:////tmp/necokeeper.db（エフェメラル）
+  - SECRET_KEY: （自動生成を推奨）
+  - ENVIRONMENT: production
+  - CORS_ORIGINS: 本番ドメイン
+  - MEDIA_DIR: /tmp/media（エフェメラル）
   - _Requirements: Requirement 20.3_
 
-- [ ] 22.5 デプロイ手順ドキュメントを作成（README.md）
-  - 各ホスティングサービスへのデプロイ手順
-  - 環境変数設定方法
-  - データベース永続化設定
+- [ ] 23.2 デプロイ手順ドキュメントを作成（DEPLOY.md）
+  - **Free Plan PoC デプロイ手順（1週間）**:
+    1. GitHubリポジトリ接続
+    2. Render Dashboard: New → Web Service
+    3. Language: Docker
+    4. Dockerfile Path: ./Dockerfile
+    5. 環境変数設定:
+       - DATABASE_URL: sqlite:////tmp/necokeeper.db
+       - SECRET_KEY: （自動生成）
+       - ENVIRONMENT: production
+    6. Plan: Free
+    7. デプロイ実行
+    8. ⚠️ 注意: データは再デプロイで消える（PoC割り切り）
+  - **Starter Planへの移行手順（ハッカソン審査時）**:
+    1. Web ServiceをStarter Planにアップグレード（$7/月）
+    2. Persistent Disk追加（1GB、/app/data）
+    3. 環境変数更新:
+       - DATABASE_URL: sqlite:////app/data/necokeeper.db
+       - MEDIA_DIR: /app/media
+    4. 再デプロイ
+    5. データベース初期化（alembic upgrade head）
+    6. 初期管理者アカウント作成
+  - **トラブルシューティング**:
+    - スピンダウン対策（Free Plan、15分）
+    - データ消失時の対応（再初期化）
+    - メモリ不足
   - _Requirements: Requirement 20.5-20.6_
 
-- [ ] 22.6 ワンクリックデプロイボタンを追加
-  - Deploy to Render
-  - Deploy to Railway
-  - _Requirements: Requirement 20.7_
+- [ ] 23.3 README.mdを更新
+  - プロジェクト概要
+  - 主な機能
+  - 技術スタック
+  - ローカル開発環境セットアップ
+  - Renderへのデプロイ方法（DEPLOY.mdへのリンク）
+  - ⚠️ Free Plan制約の明記（データ消失）
+  - ライセンス情報
+  - _Requirements: Requirement 20.5_
 
-### 23. ドキュメント整備
+### 24. ドキュメント整備
 
 開発・運用ドキュメントを整備します。
 
-- [ ] 23.1 API仕様書を作成
-  - OpenAPI（Swagger）仕様書
-  - FastAPIの自動生成機能を活用
+- [ ] 24.1 API仕様書を確認・更新
+  - FastAPIの自動生成OpenAPI（Swagger）仕様書を確認
+  - /docs エンドポイントでアクセス可能
+  - 各エンドポイントの説明を充実
   - _Requirements: 技術的制約1_
 
-- [ ] 23.2 開発環境セットアップガイドを作成
-  - 仮想環境作成手順
-  - 依存関係インストール手順
-  - データベース初期化手順
-  - 開発サーバー起動手順
+- [ ] 24.2 開発環境セットアップガイドを作成（DEVELOPMENT.md）
+  - **ローカル開発環境**:
+    - Python 3.12のインストール
+    - 仮想環境作成（python -m venv .venv）
+    - 依存関係インストール（pip install -r requirements.txt）
+    - 環境変数設定（.envファイル）
+    - データベース初期化（alembic upgrade head）
+    - 開発サーバー起動（uvicorn app.main:app --reload）
+  - **Docker開発環境**:
+    - docker-compose up -d
+    - ホットリロード設定
+  - **テスト実行**:
+    - pytest実行方法
+    - カバレッジ測定
+  - **コード品質チェック**:
+    - ruff、mypy、pre-commit
   - _Requirements: Requirement 31_
 
-- [ ] 23.3 運用マニュアルを作成
-  - バックアップ・リストア手順
-  - ユーザー管理手順
-  - トラブルシューティング
+- [ ] 24.3 運用マニュアルを作成（OPERATIONS.md）
+  - **バックアップ・リストア手順**:
+    - 自動バックアップ設定確認
+    - 手動バックアップ実行
+    - リストア手順
+  - **ユーザー管理手順**:
+    - 管理者アカウント作成
+    - パスワードリセット
+    - 権限変更
+  - **モニタリング**:
+    - ログ確認方法
+    - エラー監視
+    - パフォーマンス監視
+  - **トラブルシューティング**:
+    - よくある問題と解決方法
+    - データベース接続エラー
+    - メモリ不足
+    - ディスク容量不足
   - _Requirements: Requirement 11, Requirement 21_
 
-- [ ] 23.4 コードドキュメントを整備
-  - docstring追加
-  - 型ヒント追加
+- [ ] 24.4 アーキテクチャドキュメントを作成（ARCHITECTURE.md）
+  - システム構成図
+  - データベーススキーマ
+  - API設計
+  - 認証・認可フロー
+  - ファイル構成
+  - 技術スタック
+  - _Requirements: 技術的制約1_
+
+- [ ] 24.5 コントリビューションガイドを作成（CONTRIBUTING.md）
+  - 開発フロー（Git workflow）
+  - コーディング規約
+  - プルリクエストのガイドライン
+  - テスト要件
   - _Requirements: 技術的制約1_
 
 ## Phase 16: パフォーマンス最適化とテスト
@@ -1216,63 +1337,63 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - pytest-asyncio実装前: `mcp_context7_resolve_library_id` で "pytest-asyncio" を検索
 - Pillow実装前: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
 
-### 24. パフォーマンス最適化
+### 25. パフォーマンス最適化
 
 システムパフォーマンスを最適化します。
 
-- [ ] 24.1 データベースインデックスを最適化
+- [ ] 25.1 データベースインデックスを最適化
   - 頻繁に検索されるカラムのインデックス確認
   - 複合インデックスの追加
   - _Requirements: Requirement 28.1-28.2_
 
-- [ ] 24.2 クエリ最適化を実施
+- [ ] 25.2 クエリ最適化を実施
   - N+1問題の解消（eager loading）
   - 不要なカラムの除外
   - _Requirements: Requirement 28.1_
 
-- [ ] 24.3 画像最適化を実装
+- [ ] 25.3 画像最適化を実装
   - アップロード時の自動リサイズ
   - 圧縮処理
   - _Requirements: Requirement 27.9_
 
-- [ ] 24.4 キャッシュ戦略を実装
+- [ ] 25.4 キャッシュ戦略を実装
   - アクティブボランティア一覧のキャッシュ
   - 設定値のキャッシュ
   - _Requirements: Requirement 28.1_
 
-- [ ] 24.5 パフォーマンステストを実施
+- [ ] 25.5 パフォーマンステストを実施
   - レスポンスタイム測定（画面遷移3秒、記録保存2秒、PDF生成10秒）
   - 同時接続テスト（20名）
   - 大量データテスト（猫100頭）
   - _Requirements: Requirement 28.1-28.5_
 
-### 25. 統合テストとE2Eテスト
+### 26. 統合テストとE2Eテスト
 
 システム全体のテストを実施します。
 
-- [ ] 25.1 統合テストを作成（DDD準拠）
+- [ ] 26.1 統合テストを作成（DDD準拠）
   - ドメインサービス間の協調テスト
   - アプリケーションサービスの統合テスト
   - インフラストラクチャ層の統合テスト
   - APIエンドポイントのコントラクトテスト
   - _Requirements: Requirement 28_
 
-- [ ] 25.2 フロントエンドテストを作成
+- [ ] 26.2 フロントエンドテストを作成
   - Jest + jsdomでJavaScript関数のテスト
   - PWA機能（オフライン同期、キャッシュ）のテスト
   - _Requirements: Requirement 18_
 
-- [ ] 25.3 E2Eテストを作成
+- [ ] 26.3 E2Eテストを作成
   - ユーザーフロー（猫登録→記録入力→帳票出力）のテスト
   - Playwrightを使用
   - _Requirements: Requirement 28_
 
-- [ ] 25.4 ブラウザ互換性テストを実施
+- [ ] 26.4 ブラウザ互換性テストを実施
   - Chrome、Firefox、Safari、Edge（最新版+1つ前）
   - iOS 14+、Android 10+
   - _Requirements: Requirement 28.7-28.8_
 
-- [ ] 25.5 セキュリティテストを実施
+- [ ] 26.5 セキュリティテストを実施
   - SQLインジェクションテスト
   - XSSテスト
   - CSRF対策テスト
@@ -1280,73 +1401,73 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 ## Phase 17: 最終調整とリリース
 
-### 26. 最終調整
+### 27. 最終調整
 
 リリース前の最終調整を行います。
 
-- [ ] 26.1 エラーメッセージの多言語化を確認
+- [ ] 27.1 エラーメッセージの多言語化を確認
   - 全エラーメッセージが対訳ファイルに含まれているか確認
   - _Requirements: Requirement 19.6_
 
-- [ ] 26.2 UI/UXの最終調整
+- [ ] 27.2 UI/UXの最終調整
   - モバイル表示の確認
   - ボタンサイズの確認（最小44×44px）
   - _Requirements: Requirement 13.2_
 
-- [ ] 26.3 デフォルト設定値の確認
+- [ ] 27.3 デフォルト設定値の確認
   - 画像制限（最大20枚、最大5MB）
   - セッションタイムアウト（2時間）
   - ログイン試行回数制限（5回）
   - _Requirements: Requirement 22, Requirement 27.10_
 
-- [ ] 26.4 ログ出力の確認
+- [ ] 27.4 ログ出力の確認
   - 本番環境でのログレベル設定
   - 機密情報のマスキング
   - _Requirements: Requirement 29.6_
 
-- [ ] 26.5 HTTPS設定の確認
+- [ ] 27.5 HTTPS設定の確認
   - 本番環境でのHTTPS必須化
   - セキュリティヘッダーの確認
   - _Requirements: Requirement 22.5_
 
-- [ ] 26.6 負荷テストを実施
+- [ ] 27.6 負荷テストを実施
   - 同時接続20名での動作確認
   - システム稼働率95%の確認
   - _Requirements: Requirement 28.4, Requirement 28.6_
 
-### 27. リリース準備
+### 28. リリース準備
 
 リリースに向けた最終準備を行います。
 
-- [ ] 27.1 本番環境へのデプロイ
+- [ ] 28.1 本番環境へのデプロイ
   - Render/Railway/Fly.ioへのデプロイ
   - 環境変数設定
   - データベース永続化設定
   - _Requirements: Requirement 20.1-20.5_
 
-- [ ] 27.2 初期データ投入
+- [ ] 28.2 初期データ投入
   - セットアップウィザードの実行
   - 初期管理者アカウント作成
   - サンプルデータ投入
   - _Requirements: Requirement 31_
 
-- [ ] 27.3 バックアップ設定の確認
+- [ ] 28.3 バックアップ設定の確認
   - 自動バックアップの動作確認
   - バックアップファイルの保存先確認
   - _Requirements: Requirement 11_
 
-- [ ] 27.4 監視設定
+- [ ] 28.4 監視設定
   - エラーログ監視
   - システム稼働監視
   - _Requirements: Requirement 29.2_
 
-- [ ] 27.5 ユーザー向けドキュメントの公開
+- [ ] 28.5 ユーザー向けドキュメントの公開
   - オンラインヘルプの公開
   - FAQ の公開
   - プライバシーポリシーの公開
   - _Requirements: Requirement 32_
 
-- [ ] 27.6 リリースノートの作成
+- [ ] 28.6 リリースノートの作成
   - 実装機能一覧
   - 既知の制限事項
   - 今後の予定
@@ -1381,19 +1502,19 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - [x] Phase 8: 管理画面UI (15/15 完了) ✅ 2024-11-18
 - [x] Phase 9: Publicフォーム（PWA） (7/7 完了) ✅
 - [x] Phase 9: 記録一覧機能 (6/6 完了) ✅
-- [ ] Phase 10: 多言語対応 (0/5 完了)
+- [x] Phase 10: 多言語対応 (5/5 完了) ✅ 2024-11-22
 - [ ] Phase 11: セキュリティとログ (0/10 完了)
 - [ ] Phase 12: バックアップとデータ管理 (0/7 完了)
 - [ ] Phase 13: OCR機能（オプション） (0/7 完了)
 - [ ] Phase 14: ヘルプとサポート (0/4 完了)
-- [ ] Phase 15: デプロイとドキュメント (0/10 完了)
+- [ ] Phase 15: デプロイとドキュメント (0/11 完了)
 - [ ] Phase 16: パフォーマンス最適化とテスト (0/10 完了)
 - [ ] Phase 17: 最終調整とリリース (0/12 完了)
 
 ### 全体進捗
-**完了タスク数**: 76 / 141 タスク (53.9%)
-**MVP Core完了**: Phase 1-9（バックエンド + 管理画面UI + PWA + 記録一覧 + CSV/Excel出力）完全完了 ✅
-**推定残り時間**: 約65-97時間（1タスク平均1-1.5時間）
+**完了タスク数**: 81 / 142 タスク (57.0%)
+**MVP Core完了**: Phase 1-10（バックエンド + 管理画面UI + PWA + 記録一覧 + CSV/Excel出力 + 多言語対応）完全完了 ✅
+**推定残り時間**: 約61-91時間（1タスク平均1-1.5時間）
 
 ### 実装済み機能
 - ✅ データベース（全12モデル）
@@ -1409,6 +1530,7 @@ CSV・Excel形式でのデータ出力機能を実装します。
 - ✅ PWA機能（manifest.json、Service Worker、オフライン同期）
 - ✅ 記録一覧機能（個別猫・全猫の記録状況、記録詳細モーダル）
 - ✅ 管理画面UI（ダッシュボード、猫台帳、世話記録、診療記録、里親管理、ボランティア、帳票出力、設定、ログイン、体重グラフ、画像ギャラリー、検索）✅ 2024-11-18完了
+- ✅ 多言語対応（日本語・英語、i18next統合、800+翻訳キー）✅ 2024-11-22完了
 - ✅ 統合テスト（232テスト、カバレッジ84.90%）
 
 ### 実装済みAPI（合計30+エンドポイント）
@@ -1431,26 +1553,25 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 **推奨実装順序:**
 
-1. **Phase 11**: セキュリティとログ（優先度：高）
+1. **Phase 15**: デプロイとドキュメント（優先度：最高）
+   - Task 22.1-22.4: Dockerコンテナ化（シンプル構成）
+   - Task 23.1-23.3: Renderデプロイ設定（Free Plan PoC向け）
+   - Task 24.1-24.5: ドキュメント整備
+   - 推定時間: 11-16時間
+   - **理由**: ハッカソン向けPoC環境を早期に確立（1週間のデモ）
+   - **デプロイ戦略**: Free Plan（SQLiteエフェメラル）→ Starter Plan（Persistent Disk）の2段階
+
+2. **Phase 11**: セキュリティとログ（優先度：高）
    - Task 16.1-16.5: セキュリティ強化
    - Task 17.1-17.5: ログとエラーハンドリング
    - 推定時間: 10-15時間
 
-2. **Phase 12**: バックアップとデータ管理（優先度：高）
+3. **Phase 12**: バックアップとデータ管理（優先度：高）
    - Task 18.1-18.4: バックアップ機能
    - Task 19.1-19.4: 初期セットアップ
    - 推定時間: 11-16時間
 
-3. **Phase 15**: デプロイとドキュメント（優先度：高）
-   - Task 22.1-22.6: デプロイ設定
-   - Task 23.1-23.4: ドキュメント整備
-   - 推定時間: 10-15時間
-
-4. **Phase 10**: 多言語対応（優先度：中）
-   - Task 15.1-15.5: i18n実装
-   - 推定時間: 5-7時間
-
-5. **Phase 16**: パフォーマンス最適化とテスト（優先度：中）
-   - Task 24.1-24.5: パフォーマンス最適化
-   - Task 25.1-25.5: 統合テストとE2Eテスト
+4. **Phase 16**: パフォーマンス最適化とテスト（優先度：中）
+   - Task 25.1-25.5: パフォーマンス最適化
+   - Task 26.1-26.5: 統合テストとE2Eテスト
    - 推定時間: 15-22時間

@@ -1,0 +1,77 @@
+# NecoKeeper - .dockerignore
+# Dockerビルドコンテキストから除外するファイル
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+.venv
+venv
+env
+ENV
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# テスト・カバレッジ
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
+
+# ドキュメント
+docs
+*.md
+!README.md
+LICENSE
+
+# データ・メディア・バックアップ（ローカル開発用）
+data/
+media/
+backups/
+logs/
+*.db
+*.sqlite
+*.sqlite3
+
+# 環境変数
+.env
+.env.*
+!.env.example
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# その他
+tmp/
+temp/
+*.log
+*.pid
+*.seed
+*.pid.lock
+node_modules/
+package-lock.json
+yarn.lock
+
+# Kiro設定
+.kiro/
+
+# Pre-commit
+.pre-commit-config.yaml

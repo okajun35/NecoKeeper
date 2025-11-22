@@ -1,0 +1,54 @@
+# NecoKeeper - docker-compose.yml
+# ローカル開発環境用のDocker Compose設定
+
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: necokeeper-web
+    ports:
+      - '8000:8000'
+    environment:
+      # ローカル開発用の環境変数
+      - DATABASE_URL=sqlite:////app/data/necokeeper.db
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - CORS_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+      - MEDIA_DIR=/app/media
+      - BACKUP_DIR=/app/backups
+      - LOG_FILE=/app/logs/necokeeper.log
+      - PORT=8000
+    volumes:
+      # ローカル開発用のボリュームマウント（データ永続化）
+      - ./data:/app/data
+      - ./media:/app/media
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+      # ホットリロード用（開発時のみ）
+      - ./app:/app/app:ro
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# ボリューム定義（オプション）
+volumes:
+  data:
+  media:
+  backups:
+  logs:
