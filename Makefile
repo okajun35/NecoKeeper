@@ -58,9 +58,17 @@ mypy:
 	@mypy --config-file=mypy.ini $(MYPY_TARGETS) || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
 	@echo "✅ 型チェック完了"
 
+# 国際化翻訳ファイルをコンパイル
+i18n-compile:
+	@echo "🌐 i18n翻訳ファイルをコンパイル中..."
+	@pybabel compile -d app/locales
+	@echo "✅ i18n翻訳ファイルのコンパイル完了"
+
 # テスト実行（Pytest）
 test:
 	@echo "🧪 [4/5] テスト実行中（Pytest）..."
+	@echo "🌐 i18n翻訳ファイルをコンパイル中..."
+	@pybabel compile -d app/locales
 	@python -m pytest -v --tb=short
 	@echo "✅ テスト完了"
 
