@@ -20,6 +20,7 @@
   },
   "time_slots": {
     "morning": "Morning",
+    "noon": "Noon",
     "afternoon": "Afternoon",
     "evening": "Evening"
   },
@@ -63,5 +64,48 @@
     "load_failed": "Failed to load care logs",
     "load_animals_failed": "Failed to load animals list",
     "required_fields": "Please fill in all required fields"
+  },
+  "public": {
+    "page_title": "Care Log List",
+    "header_caption": "Care logs for {{name}}",
+    "animal_photo_alt": "Cat photo",
+    "error_heading": "An error occurred",
+    "success_heading": "✓ Care log saved",
+    "today_status_title": "Today's Record Status",
+    "daily_overview_title": "Last 7 Days (by date)",
+    "daily_overview_description": "See morning, noon, and evening entries for each day",
+    "daily_overview_hint": "Look for gaps to keep daily data complete",
+    "daily_table": {
+      "date": "Date"
+    },
+    "slot_status": {
+      "recorded": "Recorded",
+      "missing": "Missing"
+    },
+    "slot_chip": {
+      "recorded": "{{slot}}: recorded",
+      "missing": "{{slot}}: missing"
+    },
+    "today_badge": "Today",
+    "yesterday_badge": "Yesterday",
+    "latest_logs_title": "Latest Logs",
+    "latest_logs_description": "Sorted by most recent entries",
+    "no_logs_message": "No care logs yet",
+    "no_logs_hint": "Your most recent logs will appear here",
+    "add_record": "Add care log",
+    "view_all_status": "See all cats' status",
+    "modal_title": "Log details",
+    "modal_close": "Close",
+    "time_slots": {
+      "morning": "Morning",
+      "noon": "Noon",
+      "evening": "Evening"
+    },
+    "errors": {
+      "missing_animal_id": "Animal ID was not specified",
+      "load_list_failed": "Failed to load care logs",
+      "load_detail_failed": "Failed to load care log details"
+    },
+    "unnamed_animal": "Unnamed cat"
   }
 }

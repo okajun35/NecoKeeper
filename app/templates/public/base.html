@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="保護猫の世話記録を簡単に入力できるアプリ">
     <meta name="theme-color" content="#4f46e5">
-    <title>{% block title %}NecoKeeper{% endblock %}</title>
+    <title {% block title_attributes %}{% endblock %}>{% block title %}NecoKeeper{% endblock %}</title>
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/static/manifest.json">
@@ -17,6 +17,13 @@
     <meta name="apple-mobile-web-app-title" content="NecoKeeper">
 
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- i18next for internationalization -->
+    <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
+
+    <!-- i18n module (with namespaces support) -->
+    <script src="/static/js/i18n.js?v=20241122v1"></script>
+
     <script src="/static/js/offline.js"></script>
 
     {% block extra_head %}{% endblock %}
@@ -65,14 +72,26 @@
             const errorText = document.getElementById('errorText');
             errorText.textContent = message;
             errorDiv.classList.remove('hidden');
-            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            if (!errorDiv) return;
+            const errorText = document.getElementById('errorText');
+            if (errorText) {
+                errorText.textContent = '';
+            }
+            errorDiv.classList.add('hidden');
         }
 
         // 成功表示
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
             if (!successDiv) return;
-            successDiv.querySelector('p').textContent = '✓ ' + message;
+            const successText = document.getElementById('successText');
+            if (successText) {
+                successText.textContent = '✓ ' + message;
+            }
             successDiv.classList.remove('hidden');
         }
 

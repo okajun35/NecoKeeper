@@ -10,8 +10,13 @@ class OfflineManager {
     this.dbVersion = 1;
     this.db = null;
     this.isOnline = navigator.onLine;
+    this.syncStatusInfo = { status: null, count: 0, failCount: 0 };
 
     this.init();
+    window.addEventListener('languageChanged', () => {
+      this.updateConnectionStatus(this.isOnline);
+      this.redrawSyncStatus();
+    });
   }
 
   /**
@@ -92,13 +97,13 @@ class OfflineManager {
     if (isOnline) {
       statusElement.innerHTML = `
                 <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
-                    ✓ オンライン
+                    ${this.translate('status_online', '✓ オンライン')}
                 </div>
             `;
     } else {
       statusElement.innerHTML = `
                 <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-2 rounded-lg text-sm">
-                    ⚠ オフライン（記録は一時保存されます）
+                    ${this.translate('status_offline', '⚠ オフライン（記録は一時保存されます）')}
                 </div>
             `;
     }
@@ -120,12 +125,20 @@ class OfflineManager {
         });
 
         if (!response.ok) {
-          throw new Error('API request failed');
+          const message = await this.extractErrorMessage(response);
+          const error = new Error(message);
+          error.status = response.status;
+          error.isClientError = response.status >= 400 && response.status < 500;
+          throw error;
         }
 
         return { success: true, online: true };
       } catch (error) {
-        // オンラインだが送信失敗 → オフライン保存にフォールバック
+        if (error?.isClientError) {
+          // バリデーションエラーなどはそのまま呼び出し元へ
+          throw error;
+        }
+        // オンラインだが通信エラー → オフライン保存にフォールバック
         console.warn('[Offline] Online save failed, falling back to offline:', error);
         return await this.saveToIndexedDB(careLogData);
       }
@@ -205,7 +218,8 @@ class OfflineManager {
             console.log(`[Offline] Synced log ${log.id}`);
           } else {
             failCount++;
-            console.error(`[Offline] Failed to sync log ${log.id}:`, response.status);
+            const message = await this.extractErrorMessage(response);
+            console.error(`[Offline] Failed to sync log ${log.id}:`, message);
           }
         } catch (error) {
           failCount++;
@@ -228,18 +242,20 @@ class OfflineManager {
     const statusElement = document.getElementById('syncStatus');
     if (!statusElement) return;
 
+    this.syncStatusInfo = { status, count, failCount };
+
     switch (status) {
       case 'syncing':
         statusElement.innerHTML = `
                     <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm">
-                        🔄 同期中... (${count}件)
+                        ${this.translate('sync_in_progress', '🔄 同期中... ({{count}}件)', { count })}
                     </div>
                 `;
         break;
       case 'complete':
         statusElement.innerHTML = `
                     <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
-                        ✓ 同期完了 (${count}件)
+                        ${this.translate('sync_complete', '✓ 同期完了 ({{count}}件)', { count })}
                     </div>
                 `;
         setTimeout(() => {
@@ -249,11 +265,20 @@ class OfflineManager {
       case 'error':
         statusElement.innerHTML = `
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-                        ✗ 同期エラー
+                        ${this.translate('sync_error', '✗ 同期エラー')}
                     </div>
                 `;
         break;
     }
+  }
+
+  /**
+   * 現在の同期状態表示を再描画
+   */
+  redrawSyncStatus() {
+    if (!this.syncStatusInfo.status) return;
+    const { status, count, failCount } = this.syncStatusInfo;
+    this.updateSyncStatus(status, count, failCount);
   }
 
   /**
@@ -291,6 +316,44 @@ class OfflineManager {
   async getPendingCount() {
     const logs = await this.getPendingLogs();
     return logs.length;
+  }
+
+  async extractErrorMessage(response) {
+    try {
+      const data = await response.clone().json();
+      if (Array.isArray(data?.detail) && data.detail.length > 0) {
+        const first = data.detail[0];
+        if (typeof first === 'string') {
+          return first;
+        }
+        if (first?.msg) {
+          return first.msg;
+        }
+      }
+      if (data?.detail) {
+        if (typeof data.detail === 'string') {
+          return data.detail;
+        }
+        return JSON.stringify(data.detail);
+      }
+    } catch (error) {
+      console.warn('[Offline] Failed to parse error response', error);
+    }
+    return `API request failed (${response.status})`;
+  }
+
+  translate(key, fallback, options = {}) {
+    const namespacedKey = `care:${key}`;
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      const translation = window.i18n.t(namespacedKey, options);
+      if (translation && translation !== namespacedKey) {
+        return translation;
+      }
+    }
+    if (typeof fallback === 'string' && Object.keys(options).length > 0) {
+      return fallback.replace(/{{(\w+)}}/g, (_, match) => options[match] ?? '');
+    }
+    return fallback ?? key;
   }
 }
 
