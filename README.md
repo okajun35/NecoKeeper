@@ -21,6 +21,7 @@ NecoKeeperは、保護猫団体が日々の業務を効率的に管理するた�
 
 - **Python 3.12以上** (このプロジェクトは Python 3.12 で開発されています)
 - pip または uv (パッケージマネージャー)
+- **Docker** (オプション、コンテナ実行用)
 
 ### インストール手順
 
@@ -143,6 +144,122 @@ python scripts/seed_sample_data.py
 - 管理画面: http://localhost:8000/admin
 - API ドキュメント: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
+
+### Dockerを使用したセットアップ（推奨）
+
+Dockerを使用すると、環境構築が簡単になります。
+
+#### 前提条件
+- Docker Desktop（Windows/Mac）または Docker Engine（Linux）
+
+#### クイックスタート（単体コンテナ）
+
+**注意**: 単体コンテナではデータが永続化されません。データ永続化にはDocker Composeを使用してください。
+
+```bash
+# 1. イメージをビルド
+docker build -t necokeeper .
+
+# 2. コンテナを起動（ローカル開発用）
+docker run -d -p 8000:8000 \
+  --name necokeeper \
+  -e SECRET_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(32))") \
+  -e DATABASE_URL=sqlite:////tmp/data/necokeeper.db \
+  -e ENVIRONMENT=development \
+  -e DEBUG=true \
+  necokeeper
+
+# 3. ログを確認
+docker logs -f necokeeper
+
+# 4. ブラウザでアクセス
+# http://localhost:8000
+```
+
+#### Docker Composeを使用（ローカル開発・データ永続化）
+
+**推奨**: Docker Composeを使用すると、データが永続化されます。
+
+```bash
+# コンテナをビルド＆起動
+docker-compose up -d
+
+# ログを確認
+docker-compose logs -f
+
+# コンテナを停止（データは保持される）
+docker-compose down
+
+# コンテナとボリュームを削除（データも削除）
+docker-compose down -v
+```
+
+**データ永続化**:
+- ✅ `./data/necokeeper.db` - データベース
+- ✅ `./media/` - アップロード画像
+- ✅ `./backups/` - バックアップファイル
+- ✅ `./logs/` - ログファイル
+
+**初回のみ必要な手順**:
+```bash
+# データベース初期化（初回のみ）
+docker-compose exec web alembic upgrade head
+
+# 管理者アカウント作成（初回のみ）
+docker-compose exec web python -c "
+from app.database import SessionLocal
+from app.models.user import User
+from app.auth.password import hash_password
+
+db = SessionLocal()
+admin = User(
+    email='admin@example.com',
+    password_hash=hash_password('admin123'),
+    name='管理者',
+    role='admin',
+    is_active=True
+)
+db.add(admin)
+db.commit()
+print('✅ 管理者アカウント作成完了')
+"
+```
+
+**2回目以降の起動**:
+```bash
+# データは保持されているので、そのまま起動
+docker-compose up -d
+```
+
+#### Dockerコンテナの管理
+
+```bash
+# コンテナを停止
+docker stop necokeeper
+
+# コンテナを再起動
+docker restart necokeeper
+
+# コンテナを削除
+docker rm -f necokeeper
+
+# イメージを削除
+docker rmi necokeeper
+```
+
+### Renderへのデプロイ
+
+詳細なデプロイ手順は [DEPLOY.md](DEPLOY.md) を参照してください。
+
+**Free Plan（1週間のPoC）**:
+- 完全無料
+- SQLiteエフェメラル（再デプロイでデータ消失）
+- 15分でスピンダウン
+
+**Starter Plan（本番運用）**:
+- $7/月
+- Persistent Disk（データ永続化）
+- 常時稼働
 
 ## 開発
 
