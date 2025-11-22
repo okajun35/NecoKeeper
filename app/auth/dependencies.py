@@ -6,12 +6,15 @@ FastAPIのOAuth2PasswordBearerを使用した認証依存性を提供します�
 Context7参照: /fastapi/fastapi
 - OAuth2PasswordBearerスキーム
 - get_current_user依存性（トークンからユーザー取得）
+- get_current_user_optional依存性（オプショナル認証）
 - get_current_active_user依存性（アクティブユーザーのみ）
 """
 
+from __future__ import annotations
+
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
@@ -74,6 +77,66 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+
+async def get_current_user_optional(
+    request: Request, db: Annotated[Session, Depends(get_db)]
+) -> User | None:
+    """
+    オプショナル認証（未認証でもエラーにしない）
+
+    ログインページなど、認証済みユーザーをリダイレクトしたい場合に使用。
+    未認証の場合はNoneを返し、エラーを発生させない。
+
+    Context7参照: /fastapi/fastapi - Dependencies with try-except
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        db: データベースセッション
+
+    Returns:
+        User | None: 認証済みユーザー、または未認証の場合はNone
+
+    Example:
+        @router.get("/login")
+        async def login_page(
+            request: Request,
+            current_user: User | None = Depends(get_current_user_optional)
+        ):
+            if current_user:
+                return RedirectResponse(url="/admin")
+            return templates.TemplateResponse("login.html", {"request": request})
+    """
+    try:
+        # Authorizationヘッダーからトークンを取得
+        authorization = request.headers.get("authorization")
+        if not authorization:
+            return None
+
+        # "Bearer "プレフィックスを削除
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer":
+            return None
+
+        # トークンをデコード
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            return None
+
+        # ユーザーIDを整数に変換
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return None
+
+        # データベースからユーザーを取得
+        user = db.query(User).filter(User.id == user_id).first()
+        return user
+
+    except (InvalidTokenError, HTTPException):
+        return None
 
 
 async def get_current_active_user(

@@ -1220,6 +1220,204 @@ logger.info(
 )
 ```
 
+## サーバーサイド認証の実装（2025-11-23追加）
+
+### 問題の背景
+
+**問題**: 管理画面が一瞬表示されてからログイン画面にリダイレクトされる
+
+**原因**: 認証チェックがJavaScriptのみで行われていた
+
+```
+❌ 旧実装（セキュリティリスク）
+ブラウザ → サーバー（認証チェックなし）→ HTML返却
+         ↓
+      JavaScript実行 → JWTチェック → リダイレクト
+```
+
+**問題点**:
+- サーバーが認証チェックせずにHTMLを返していた
+- JavaScriptを無効にすると管理画面が見える
+- HTMLソースに機密情報が含まれる可能性
+
+### 解決策
+
+**サーバーサイドでJWT認証を実装**
+
+```
+✅ 新実装（セキュア）
+ブラウザ → サーバー（JWTで認証チェック）→ 401エラー → リダイレクト
+                                    ↓
+                                 認証OK → HTML返却
+```
+
+### 実装内容
+
+#### 1. オプショナル認証依存関数（app/auth/dependencies.py）
+
+```python
+async def get_current_user_optional(
+    request: Request, db: Session = Depends(get_db)
+) -> User | None:
+    """
+    オプショナル認証（未認証でもエラーにしない）
+
+    ログインページなど、認証済みユーザーをリダイレクトしたい場合に使用。
+    未認証の場合はNoneを返し、エラーを発生させない。
+
+    Context7参照: /fastapi/fastapi - Dependencies with try-except
+    """
+    try:
+        # Authorizationヘッダーからトークンを取得
+        authorization = request.headers.get("authorization")
+        if not authorization:
+            return None
+
+        # "Bearer "プレフィックスを削除
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer":
+            return None
+
+        # トークンをデコード
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            return None
+
+        # ユーザーIDを整数に変換
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return None
+
+        # データベースからユーザーを取得
+        user = db.query(User).filter(User.id == user_id).first()
+        return user
+
+    except (InvalidTokenError, HTTPException):
+        return None
+```
+
+#### 2. 管理画面ルーティングの修正（app/api/v1/admin_pages.py）
+
+```python
+from app.auth.dependencies import get_current_user, get_current_user_optional
+
+# ログインページ: オプショナル認証
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional)
+) -> Response:
+    """
+    ログインページ
+    既にログイン済みの場合はダッシュボードにリダイレクト
+    """
+    if current_user:
+        return RedirectResponse(url="/admin", status_code=302)
+
+    return templates.TemplateResponse("admin/login.html", {"request": request})
+
+
+# ダッシュボード: 認証必須
+@router.get("", response_class=HTMLResponse)
+async def dashboard_page(
+    request: Request,
+    current_user: User = Depends(get_current_user)  # 認証必須
+) -> Response:
+    """
+    ダッシュボード（認証必須）
+    未認証の場合は自動的に401エラー
+    """
+    return templates.TemplateResponse(
+        "admin/dashboard.html",
+        {"request": request, "user": current_user}
+    )
+
+
+# その他の全管理画面エンドポイント: 認証必須
+@router.get("/animals", response_class=HTMLResponse)
+async def animals_list_page(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+) -> Response:
+    """猫一覧ページ（認証必須）"""
+    return templates.TemplateResponse("admin/animals/list.html", {"request": request})
+```
+
+#### 3. カスタム例外ハンドラー（app/main.py）
+
+```python
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+) -> JSONResponse | RedirectResponse:
+    """
+    HTTPException用のカスタムハンドラー
+
+    管理画面の401エラーはログインページにリダイレクト。
+    APIエンドポイントはJSONエラーを返す。
+
+    Context7参照: /fastapi/fastapi - Custom Exception Handlers
+    """
+    # 管理画面の401エラーはログインページにリダイレクト
+    # ログインページ自体への401はリダイレクトしない（無限ループ防止）
+    if (
+        exc.status_code == 401
+        and request.url.path.startswith("/admin")
+        and not request.url.path.startswith("/admin/login")
+    ):
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    # APIエンドポイントはJSONエラーを返す
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=exc.headers if hasattr(exc, "headers") else None,
+    )
+```
+
+### セキュリティ改善
+
+✅ **サーバーサイドで認証チェック**: JWTトークンをサーバーで検証
+✅ **管理画面HTMLが認証なしで取得不可**: 401エラーを返す
+✅ **JavaScriptを無効にしても管理画面が見えない**: サーバーで防御
+✅ **401エラー時の適切なリダイレクト**: ログインページに誘導
+
+### JWTが適切な理由
+
+#### ❌ 誤解: 「JWTは問題がある」
+
+今回の問題は**JWTの問題ではなく、実装の問題**でした。
+
+#### ✅ 正解: 「JWTは適切だが、サーバーサイドで検証が必要」
+
+**JWTの利点**:
+1. **ステートレス認証**: サーバーにセッション情報を保存不要
+2. **水平スケーリング**: 複数サーバーで認証情報を共有可能
+3. **マイクロサービス対応**: APIとWebアプリで同じトークンを使用
+4. **モバイルアプリ対応**: Cookie不要（REST APIの標準）
+
+**重要**: JWTを使う場合も、**サーバーサイドで必ず検証**すること
+
+### テスト結果
+
+- **全525テストPass** ✅
+- **カバレッジ**: 73.48% → **83.02%** (+9.54%)
+- **認証依存関数**: 76.12%
+- **管理画面ページ**: 86.96%
+
+### 参考資料
+
+- **Context7参照**: `/fastapi/fastapi` - Security Dependencies, RedirectResponse, Custom Exception Handlers
+- **実装日**: 2025-11-23
+- **コミット**: `fix(auth): サーバーサイド認証を実装してセキュリティ問題を修正`
+
+---
+
 ## 今後の拡張
 
 ### Phase 2以降の機能

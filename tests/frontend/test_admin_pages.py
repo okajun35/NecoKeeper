@@ -152,23 +152,95 @@ class TestDashboardPages:
 class TestAuthPages:
     """認証画面のテスト"""
 
-    def test_login_page(self, test_client: TestClient):
-        """正常系: ログインページが表示される"""
+    def test_login_page_accessible_without_auth(self, test_client: TestClient):
+        """
+        正常系: ログインページは認証なしでアクセス可能
+
+        Given: 認証トークンなし
+        When: /admin/login にアクセス
+        Then: 200 OK でログインページが表示される
+        """
         # When
-        response = test_client.get("/admin/login")
+        response = test_client.get("/admin/login", follow_redirects=False)
 
         # Then
         assert response.status_code == 200
         assert b"text/html" in response.headers["content-type"].encode()
         assert "ログイン".encode() in response.content
 
-    def test_admin_page_requires_auth(self, test_client: TestClient):
-        """異常系: 認証なしで管理画面にアクセスするとログインページにリダイレクト"""
+    def test_login_page_redirects_when_authenticated(
+        self, test_client: TestClient, auth_token: str
+    ):
+        """
+        正常系: ログイン済みユーザーはダッシュボードにリダイレクト
+
+        Given: 有効な認証トークン
+        When: /admin/login にアクセス
+        Then: /admin にリダイレクトされる
+        """
+        # When
+        response = test_client.get(
+            "/admin/login",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            follow_redirects=False,
+        )
+
+        # Then
+        assert response.status_code == 302
+        assert response.headers["location"] == "/admin"
+
+    def test_dashboard_requires_authentication(self, test_client: TestClient):
+        """
+        セキュリティテスト: ダッシュボードは認証必須
+
+        Given: 認証トークンなし
+        When: /admin にアクセス
+        Then: 401 Unauthorized または /admin/login にリダイレクト
+        """
         # When
         response = test_client.get("/admin", follow_redirects=False)
 
         # Then
-        # 現在の実装では認証なしでもページは表示されるが、
-        # JavaScriptで認証チェックが行われる
-        # TODO: サーバーサイドで認証チェックを実装する場合は401またはリダイレクトに変更
-        assert response.status_code in [200, 401, 307, 302]
+        assert response.status_code in [401, 302]
+
+        if response.status_code == 302:
+            assert response.headers["location"] == "/admin/login"
+
+    def test_dashboard_accessible_with_valid_token(
+        self, test_client: TestClient, auth_token: str
+    ):
+        """
+        正常系: 認証済みユーザーはダッシュボードにアクセス可能
+
+        Given: 有効な認証トークン
+        When: /admin にアクセス
+        Then: 200 OK でダッシュボードが表示される
+        """
+        # When
+        response = test_client.get(
+            "/admin",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        # Then
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert "ダッシュボード".encode() in response.content
+
+    def test_dashboard_rejects_invalid_token(self, test_client: TestClient):
+        """
+        異常系: 無効なトークンでダッシュボードにアクセス
+
+        Given: 無効な認証トークン
+        When: /admin にアクセス
+        Then: 401 Unauthorized
+        """
+        # When
+        response = test_client.get(
+            "/admin",
+            headers={"Authorization": "Bearer invalid-token"},
+            follow_redirects=False,
+        )
+
+        # Then
+        assert response.status_code in [401, 302]
