@@ -1,0 +1,208 @@
+{
+  "title": "猫台帳",
+  "list_title": "猫一覧",
+  "detail_title": "猫詳細",
+  "new_title": "猫新規登録",
+  "new_description": "新しい猫を登録します",
+  "add_new": "新しい猫を登録",
+  "edit": "猫情報を編集",
+  "edit_description": "猫の情報を更新します",
+  "delete_confirm": "この猫を削除してもよろしいですか？",
+  "search_placeholder": "猫の名前で検索...",
+  "filter_by_status": "ステータスで絞り込み",
+  "description": "説明",
+  "search": {
+    "label": "検索",
+    "placeholder": "名前、柄、特徴で検索...",
+    "advanced": "詳細検索",
+    "clear": "クリア"
+  },
+  "filter": {
+    "status": "ステータス",
+    "all": "すべて",
+    "page_size": "表示件数",
+    "gender": "性別",
+    "age_min": "年齢（最小）",
+    "age_max": "年齢（最大）",
+    "rescue_date_from": "保護日（開始）",
+    "rescue_date_to": "保護日（終了）",
+    "ear_cut": "耳カット",
+    "collar": "首輪",
+    "with": "あり",
+    "without": "なし"
+  },
+  "page_size": {
+    "20": "20件",
+    "50": "50件",
+    "100": "100件"
+  },
+  "list": {
+    "empty": "猫が見つかりませんでした",
+    "load_error": "猫一覧の読み込みに失敗しました"
+  },
+  "profile_image_optional": "プロフィール画像（任意）",
+  "image_format_note": "PNG, JPG, GIF（最大5MB）",
+  "image_gallery_note": "※登録後、画像ギャラリーから追加・変更できます",
+  "collar_placeholder": "例: 赤い首輪",
+  "features_placeholder": "外傷、特徴、性格などを記入",
+  "back_to_list": "一覧に戻る",
+  "register": "登録",
+  "fields": {
+    "id": "ID",
+    "name": "名前",
+    "photo": "写真",
+    "pattern": "柄",
+    "tail_length": "しっぽの長さ",
+    "collar": "首輪",
+    "age": "年齢",
+    "gender": "性別",
+    "ear_cut": "耳カット",
+    "features": "特徴",
+    "status": "ステータス",
+    "protected_at": "保護日",
+    "created_at": "登録日",
+    "updated_at": "更新日"
+  },
+  "status": {
+    "protected": "保護中",
+    "treatment": "治療中",
+    "adoptable": "譲渡可能",
+    "adopted": "譲渡済み",
+    "deceased": "死亡"
+  },
+  "gender": {
+    "male": "オス",
+    "female": "メス",
+    "unknown": "不明"
+  },
+  "age": {
+    "kitten": "子猫",
+    "adult": "成猫",
+    "senior": "老猫"
+  },
+  "tail": {
+    "long": "長い",
+    "short": "短い",
+    "none": "なし",
+    "bobtail": "かぎしっぽ"
+  },
+  "collar_options": {
+    "has": "あり",
+    "none": "なし"
+  },
+  "tabs": {
+    "basic_info": "基本情報",
+    "care_logs": "世話記録",
+    "medical_records": "診療記録",
+    "gallery": "画像ギャラリー",
+    "weight_chart": "体重推移"
+  },
+  "care_log": {
+    "empty": "世話記録がありません",
+    "load_error": "世話記録の読み込みに失敗しました",
+    "recorder": "記録者",
+    "appetite": "食欲",
+    "energy": "元気",
+    "urination": "排尿",
+    "cleaning": "清掃",
+    "yes": "○",
+    "no": "×",
+    "done": "済",
+    "not_done": "未",
+    "unset": "未設定",
+    "unknown": "不明"
+  },
+  "medical_record": {
+    "empty": "診療記録がありません",
+    "load_error": "診療記録の読み込みに失敗しました",
+    "vet": "獣医師",
+    "weight": "体重",
+    "temperature": "体温",
+    "symptoms": "症状",
+    "actions": "診療行為",
+    "unknown": "不明"
+  },
+  "gallery": {
+    "empty": "画像がありません",
+    "upload": "画像をアップロード",
+    "add": "画像を追加",
+    "count": "{{count}}枚の画像",
+    "cat_image": "猫の画像",
+    "profile_image": "プロフィール画像",
+    "load_error": "画像の読み込みに失敗しました",
+    "fetch_error": "画像の取得に失敗しました"
+  },
+  "weight_chart": {
+    "empty": "体重データがありません",
+    "error": "体重データの読み込みに失敗しました",
+    "graph_title": "体重推移グラフ",
+    "data_title": "体重データ",
+    "date": "日付",
+    "weight_kg": "体重 (kg)",
+    "change": "変化",
+    "no_change": "変化なし",
+    "warning_message": "⚠️ 10%以上の体重変化がある場合は警告が表示されます",
+    "tooltip_weight": "体重",
+    "axis_weight": "体重 (kg)",
+    "axis_date": "日付",
+    "fetch_error": "体重データの取得に失敗しました"
+  },
+  "actions": {
+    "view_details": "詳細",
+    "edit_info": "編集",
+    "qr_code": "QR",
+    "change_status": "ステータス変更",
+    "generate_qr": "QRカード生成",
+    "generate_form": "紙記録フォーム生成",
+    "change_photo": "画像を変更",
+    "update_status": "ステータス更新",
+    "upload_photo": "写真をアップロード",
+    "delete_photo": "写真を削除"
+  },
+  "pagination": {
+    "summary": "全{{total}}件中 {{from}} - {{to}} 件を表示"
+  },
+  "fallbacks": {
+    "no_name": "名前なし"
+  },
+  "loading": {
+    "care_logs": "世話記録を読み込み中...",
+    "medical_records": "診療記録を読み込み中...",
+    "gallery": "画像ギャラリーを読み込み中...",
+    "weight_chart": "体重推移グラフを読み込み中..."
+  },
+  "modals": {
+    "profile_image": {
+      "title": "プロフィール画像を変更",
+      "upload_tab": "新しい画像をアップロード",
+      "select_tab": "ギャラリーから選択"
+    },
+    "qr_code": {
+      "title": "QRコード",
+      "description": "このQRコードを読み取ると世話記録の入力画面が開きます"
+    }
+  },
+  "paper_form": {
+    "title": "紙記録フォーム出力",
+    "description": "出力する年月を選択してください",
+    "year_label": "年",
+    "month_label": "月",
+    "generate": "出力"
+  },
+  "messages": {
+    "created": "猫を登録しました",
+    "updated": "猫情報を更新しました",
+    "deleted": "猫を削除しました",
+    "status_changed": "ステータスを変更しました",
+    "photo_uploaded": "写真をアップロードしました",
+    "photo_deleted": "写真を削除しました",
+    "load_failed": "猫一覧の読み込みに失敗しました",
+    "id_missing": "猫IDが指定されていません",
+    "load_error": "猫情報の読み込みに失敗しました"
+  },
+  "buttons": {
+    "register": "登録",
+    "save": "保存",
+    "cancel": "キャンセル"
+  }
+}

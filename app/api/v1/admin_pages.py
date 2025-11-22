@@ -183,6 +183,25 @@ async def care_logs_list_page(request: Request):  # type: ignore[no-untyped-def]
     return templates.TemplateResponse("admin/care_logs/list.html", {"request": request})
 
 
+@router.get("/care-logs/new", response_class=HTMLResponse)
+async def care_log_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    世話記録新規登録ページを表示
+
+    新しい世話記録を登録するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 世話記録新規登録ページのHTML
+
+    Example:
+        GET /admin/care-logs/new
+    """
+    return templates.TemplateResponse("admin/care_logs/new.html", {"request": request})
+
+
 @router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
 async def care_log_detail_page(request: Request, care_log_id: int):  # type: ignore[no-untyped-def]
     """
@@ -225,6 +244,33 @@ async def volunteers_list_page(request: Request):  # type: ignore[no-untyped-def
     """
     return templates.TemplateResponse(
         "admin/volunteers/list.html", {"request": request}
+    )
+
+
+@router.get("/volunteers/new", response_class=HTMLResponse)
+async def volunteer_new_page(request: Request):  # type: ignore[no-untyped-def]
+    """ボランティア新規作成ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/new.html",
+        {"request": request},
+    )
+
+
+@router.get("/volunteers/{volunteer_id}/edit", response_class=HTMLResponse)
+async def volunteer_edit_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+    """ボランティア編集ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/edit.html",
+        {"request": request, "volunteer_id": volunteer_id},
+    )
+
+
+@router.get("/volunteers/{volunteer_id}", response_class=HTMLResponse)
+async def volunteer_detail_page(request: Request, volunteer_id: int):  # type: ignore[no-untyped-def]
+    """ボランティア詳細ページ"""
+    return templates.TemplateResponse(
+        "admin/volunteers/detail.html",
+        {"request": request, "volunteer_id": volunteer_id},
     )
 
 

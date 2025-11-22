@@ -1,0 +1,15 @@
+{
+  "dashboard": "ダッシュボード",
+  "animals": "猫管理",
+  "care_logs": "世話記録",
+  "medical_records": "診療記録",
+  "medical_actions": "診療行為マスター",
+  "volunteers": "ボランティア",
+  "adoptions_applicants": "里親希望者",
+  "adoptions_records": "譲渡記録",
+  "reports": "帳票出力",
+  "settings": "設定",
+  "admin_panel": "管理画面",
+  "administrator": "管理者",
+  "logout": "ログアウト"
+}

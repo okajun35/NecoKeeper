@@ -105,10 +105,10 @@ async function updateBasicInfo() {
       throw new Error('基本情報の更新に失敗しました');
     }
 
-    showAlert('基本情報を更新しました', 'success');
+    showToast('基本情報を更新しました', 'success');
   } catch (error) {
     console.error('Error updating basic info:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   }
 }
 
@@ -176,10 +176,10 @@ async function generateQRCard() {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showAlert('QRカードを生成しました', 'success');
+    showToast('QRカードを生成しました', 'success');
   } catch (error) {
     console.error('Error generating QR card:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   } finally {
     // ボタンを元に戻す
     generateBtn.disabled = false;
@@ -288,10 +288,10 @@ async function generatePaperForm(year, month) {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showAlert(`${year}年${month}月の紙記録フォームを生成しました`, 'success');
+    showToast(`${year}年${month}月の紙記録フォームを生成しました`, 'success');
   } catch (error) {
     console.error('Error generating paper form:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   } finally {
     // ボタンを元に戻す
     generateBtn.disabled = false;
@@ -317,10 +317,10 @@ async function updateStatus() {
       throw new Error('ステータスの更新に失敗しました');
     }
 
-    showAlert('ステータスを更新しました', 'success');
+    showToast('ステータスを更新しました', 'success');
   } catch (error) {
     console.error('Error updating status:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   }
 }
 
@@ -342,7 +342,7 @@ async function loadCareRecords() {
     const data = await response.json();
 
     if (data.items.length === 0) {
-      content.innerHTML = '<div class="text-center py-8 text-gray-500">世話記録がありません</div>';
+      content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('care_log.empty', { ns: 'animals' })}</div>`;
       return;
     }
 
@@ -353,15 +353,15 @@ async function loadCareRecords() {
         <div class="border border-gray-200 rounded-lg p-4">
           <div class="flex justify-between items-start mb-2">
             <div>
-              <p class="font-medium">${record.created_at.split('T')[0]} - ${record.time_slot || '未設定'}</p>
-              <p class="text-sm text-gray-600">記録者: ${record.recorder_name || '不明'}</p>
+              <p class="font-medium">${record.created_at.split('T')[0]} - ${record.time_slot || translate('care_log.unset', { ns: 'animals' })}</p>
+              <p class="text-sm text-gray-600">${translate('care_log.recorder', { ns: 'animals' })}: ${record.recorder_name || translate('care_log.unknown', { ns: 'animals' })}</p>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">食欲:</span> ${record.appetite}/5</div>
-            <div><span class="text-gray-500">元気:</span> ${record.energy}/5</div>
-            <div><span class="text-gray-500">排尿:</span> ${record.urination ? '○' : '×'}</div>
-            <div><span class="text-gray-500">清掃:</span> ${record.cleaning ? '済' : '未'}</div>
+            <div><span class="text-gray-500">${translate('care_log.appetite', { ns: 'animals' })}:</span> ${record.appetite}/5</div>
+            <div><span class="text-gray-500">${translate('care_log.energy', { ns: 'animals' })}:</span> ${record.energy}/5</div>
+            <div><span class="text-gray-500">${translate('care_log.urination', { ns: 'animals' })}:</span> ${record.urination ? translate('care_log.yes', { ns: 'animals' }) : translate('care_log.no', { ns: 'animals' })}</div>
+            <div><span class="text-gray-500">${translate('care_log.cleaning', { ns: 'animals' })}:</span> ${record.cleaning ? translate('care_log.done', { ns: 'animals' }) : translate('care_log.not_done', { ns: 'animals' })}</div>
           </div>
           ${record.memo ? `<p class="mt-2 text-sm text-gray-600">${record.memo}</p>` : ''}
         </div>
@@ -372,8 +372,7 @@ async function loadCareRecords() {
     content.innerHTML = html;
   } catch (error) {
     console.error('Error loading care records:', error);
-    content.innerHTML =
-      '<div class="text-center py-8 text-red-500">世話記録の読み込みに失敗しました</div>';
+    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('care_log.load_error', { ns: 'animals' })}</div>`;
   }
 }
 
@@ -398,7 +397,7 @@ async function loadMedicalRecords() {
     const data = await response.json();
 
     if (data.items.length === 0) {
-      content.innerHTML = '<div class="text-center py-8 text-gray-500">診療記録がありません</div>';
+      content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('medical_record.empty', { ns: 'animals' })}</div>`;
       return;
     }
 
@@ -410,15 +409,15 @@ async function loadMedicalRecords() {
           <div class="flex justify-between items-start mb-2">
             <div>
               <p class="font-medium">${record.date}</p>
-              <p class="text-sm text-gray-600">獣医師: ${record.vet_name || '不明'}</p>
+              <p class="text-sm text-gray-600">${translate('medical_record.vet', { ns: 'animals' })}: ${record.vet_name || translate('medical_record.unknown', { ns: 'animals' })}</p>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-sm mb-2">
-            <div><span class="text-gray-500">体重:</span> ${record.weight}kg</div>
-            <div><span class="text-gray-500">体温:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
+            <div><span class="text-gray-500">${translate('medical_record.weight', { ns: 'animals' })}:</span> ${record.weight}kg</div>
+            <div><span class="text-gray-500">${translate('medical_record.temperature', { ns: 'animals' })}:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
           </div>
-          <p class="text-sm"><span class="text-gray-500">症状:</span> ${record.symptoms}</p>
-          ${record.medical_action_name ? `<p class="text-sm"><span class="text-gray-500">診療行為:</span> ${record.medical_action_name} ${record.dosage ? '(' + record.dosage + record.dosage_unit + ')' : ''}</p>` : ''}
+          <p class="text-sm"><span class="text-gray-500">${translate('medical_record.symptoms', { ns: 'animals' })}:</span> ${record.symptoms}</p>
+          ${record.medical_action_name ? `<p class="text-sm"><span class="text-gray-500">${translate('medical_record.actions', { ns: 'animals' })}:</span> ${record.medical_action_name} ${record.dosage ? '(' + record.dosage + record.dosage_unit + ')' : ''}</p>` : ''}
         </div>
       `;
     });
@@ -427,8 +426,7 @@ async function loadMedicalRecords() {
     content.innerHTML = html;
   } catch (error) {
     console.error('Error loading medical records:', error);
-    content.innerHTML =
-      '<div class="text-center py-8 text-red-500">診療記録の読み込みに失敗しました</div>';
+    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('medical_record.load_error', { ns: 'animals' })}</div>`;
   }
 }
 
@@ -447,7 +445,7 @@ async function loadGallery() {
     );
 
     if (!response.ok) {
-      throw new Error('画像の取得に失敗しました');
+      throw new Error(translate('gallery.fetch_error', { ns: 'animals' }));
     }
 
     const images = await response.json();
@@ -455,9 +453,9 @@ async function loadGallery() {
     if (images.length === 0) {
       content.innerHTML = `
         <div class="text-center py-8">
-          <p class="text-gray-500 mb-4">画像がありません</p>
+          <p class="text-gray-500 mb-4">${translate('gallery.empty', { ns: 'animals' })}</p>
           <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-            画像をアップロード
+            ${translate('gallery.upload', { ns: 'animals' })}
           </button>
         </div>
       `;
@@ -467,9 +465,9 @@ async function loadGallery() {
     // 画像ギャラリーの表示
     let html = `
       <div class="mb-4 flex justify-between items-center">
-        <p class="text-sm text-gray-600">${images.length}枚の画像</p>
+        <p class="text-sm text-gray-600">${translate('gallery.count', { ns: 'animals', count: images.length })}</p>
         <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-          画像を追加
+          ${translate('gallery.add', { ns: 'animals' })}
         </button>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -480,7 +478,7 @@ async function loadGallery() {
       const imageSrc = image.image_path.startsWith('/')
         ? image.image_path
         : `/media/${image.image_path}`;
-      const imageAlt = image.description || '猫の画像';
+      const imageAlt = image.description || translate('gallery.cat_image', { ns: 'animals' });
 
       html += `
         <div class="relative group">
@@ -506,8 +504,7 @@ async function loadGallery() {
     content.innerHTML = html;
   } catch (error) {
     console.error('Error loading gallery:', error);
-    content.innerHTML =
-      '<div class="text-center py-8 text-red-500">画像の読み込みに失敗しました</div>';
+    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('gallery.load_error', { ns: 'animals' })}</div>`;
   }
 }
 
@@ -544,11 +541,11 @@ async function uploadImage(file) {
       throw new Error(error.detail || '画像のアップロードに失敗しました');
     }
 
-    showAlert('画像をアップロードしました', 'success');
+    showToast('画像をアップロードしました', 'success');
     loadGallery();
   } catch (error) {
     console.error('Error uploading image:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   }
 }
 
@@ -570,11 +567,11 @@ async function deleteImage(imageId) {
       throw new Error('画像の削除に失敗しました');
     }
 
-    showAlert('画像を削除しました', 'success');
+    showToast('画像を削除しました', 'success');
     loadGallery();
   } catch (error) {
     console.error('Error deleting image:', error);
-    showAlert(error.message, 'error');
+    showToast('error', error.message);
   }
 }
 
@@ -621,7 +618,7 @@ async function loadWeightChart() {
     );
 
     if (!response.ok) {
-      throw new Error('体重データの取得に失敗しました');
+      throw new Error(translate('weight_chart.fetch_error', { ns: 'animals' }));
     }
 
     const data = await response.json();
@@ -636,8 +633,7 @@ async function loadWeightChart() {
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (weightData.length === 0) {
-      content.innerHTML =
-        '<div class="text-center py-8 text-gray-500">体重データがありません</div>';
+      content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('weight_chart.empty', { ns: 'animals' })}</div>`;
       return;
     }
 
@@ -645,8 +641,7 @@ async function loadWeightChart() {
     renderWeightChart(content, weightData);
   } catch (error) {
     console.error('Error loading weight chart:', error);
-    content.innerHTML =
-      '<div class="text-center py-8 text-red-500">体重データの読み込みに失敗しました</div>';
+    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('weight_chart.error', { ns: 'animals' })}</div>`;
   }
 }
 
@@ -657,20 +652,20 @@ function renderWeightChart(container, weightData) {
     <div class="space-y-6">
       <!-- グラフ -->
       <div class="bg-white p-4 rounded-lg border border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">体重推移グラフ</h3>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">${translate('weight_chart.graph_title', { ns: 'animals' })}</h3>
         <canvas id="weightChart" class="w-full" style="max-height: 400px;"></canvas>
       </div>
 
       <!-- テーブル -->
       <div class="bg-white p-4 rounded-lg border border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">体重データ</h3>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">${translate('weight_chart.data_title', { ns: 'animals' })}</h3>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">日付</th>
-                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">体重 (kg)</th>
-                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">変化</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">${translate('weight_chart.date', { ns: 'animals' })}</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">${translate('weight_chart.weight_kg', { ns: 'animals' })}</th>
+                <th class="px-4 py-2 text-right text-sm font-medium text-gray-700">${translate('weight_chart.change', { ns: 'animals' })}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -691,7 +686,7 @@ function renderWeightChart(container, weightData) {
         change = `${diff.toFixed(2)}kg (${percent.toFixed(1)}%)`;
         changeClass = 'text-red-600';
       } else {
-        change = '変化なし';
+        change = translate('weight_chart.no_change', { ns: 'animals' });
         changeClass = 'text-gray-500';
       }
 
@@ -716,7 +711,7 @@ function renderWeightChart(container, weightData) {
           </table>
         </div>
         <div class="mt-4 text-sm text-gray-600">
-          <p>⚠️ 10%以上の体重変化がある場合は警告が表示されます</p>
+          <p>${translate('weight_chart.warning_message', { ns: 'animals' })}</p>
         </div>
       </div>
     </div>
@@ -760,7 +755,7 @@ function drawWeightChart(weightData) {
       labels: labels,
       datasets: [
         {
-          label: '体重 (kg)',
+          label: translate('weight_chart.tooltip_weight', { ns: 'animals' }) + ' (kg)',
           data: weights,
           borderColor: 'rgb(79, 70, 229)',
           backgroundColor: 'rgba(79, 70, 229, 0.1)',
@@ -784,7 +779,7 @@ function drawWeightChart(weightData) {
         tooltip: {
           callbacks: {
             label: function (context) {
-              return `体重: ${context.parsed.y.toFixed(2)}kg`;
+              return `${translate('weight_chart.tooltip_weight', { ns: 'animals' })}: ${context.parsed.y.toFixed(2)}kg`;
             },
           },
         },
@@ -801,13 +796,13 @@ function drawWeightChart(weightData) {
           },
           title: {
             display: true,
-            text: '体重 (kg)',
+            text: translate('weight_chart.axis_weight', { ns: 'animals' }),
           },
         },
         x: {
           title: {
             display: true,
-            text: '日付',
+            text: translate('weight_chart.axis_date', { ns: 'animals' }),
           },
         },
       },
@@ -815,32 +810,8 @@ function drawWeightChart(weightData) {
   });
 }
 
-// アラート表示
-function showAlert(message, type = 'info') {
-  const container = document.getElementById('alertContainer');
-  const alert = document.createElement('div');
-
-  const bgColor =
-    type === 'success'
-      ? 'bg-green-50 border-green-200 text-green-800'
-      : type === 'error'
-        ? 'bg-red-50 border-red-200 text-red-800'
-        : 'bg-blue-50 border-blue-200 text-blue-800';
-
-  alert.className = `${bgColor} border rounded-lg p-4 shadow-lg`;
-  alert.textContent = message;
-
-  container.appendChild(alert);
-
-  setTimeout(() => {
-    alert.remove();
-  }, 3000);
-}
-
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
-}
+// 注: getToken, formatDate, apiRequest, showToast等はcommon.jsで定義済み
+// showAlertの代わりにshowToastを使用してください
 
 // プロフィール画像変更機能
 document.addEventListener('DOMContentLoaded', () => {
@@ -856,6 +827,41 @@ function setupProfileImageChange() {
   const preview = document.getElementById('modal-preview');
   const previewContainer = document.getElementById('modal-preview-container');
   const uploadBtn = document.getElementById('uploadBtn');
+  const fileNameText = document.getElementById('modal-file-name');
+
+  if (!modal || !changeBtn || !fileInput || !preview || !uploadBtn) {
+    return;
+  }
+
+  const applyPlaceholderText = () => {
+    if (!fileNameText) {
+      return;
+    }
+
+    fileNameText.setAttribute('data-i18n', 'file_input.empty');
+    fileNameText.setAttribute('data-i18n-ns', 'common');
+
+    if (window.i18n && typeof window.i18n.translateElement === 'function') {
+      window.i18n.translateElement(fileNameText);
+    } else {
+      fileNameText.textContent = '選択されていません';
+    }
+
+    fileNameText.classList.add('text-gray-500');
+  };
+
+  const showSelectedFileName = fileName => {
+    if (!fileNameText) {
+      return;
+    }
+
+    fileNameText.removeAttribute('data-i18n');
+    fileNameText.removeAttribute('data-i18n-ns');
+    fileNameText.textContent = fileName;
+    fileNameText.classList.remove('text-gray-500');
+  };
+
+  applyPlaceholderText();
 
   // モーダルを開く
   changeBtn.addEventListener('click', () => {
@@ -869,6 +875,7 @@ function setupProfileImageChange() {
     fileInput.value = '';
     previewContainer.classList.add('hidden');
     uploadBtn.disabled = true;
+    applyPlaceholderText();
   };
 
   closeBtn.addEventListener('click', closeModal);
@@ -913,22 +920,38 @@ function setupProfileImageChange() {
   // ファイル選択時のプレビュー
   fileInput.addEventListener('change', e => {
     const file = e.target.files[0];
-    if (file) {
-      // ファイルサイズチェック（5MB）
-      if (file.size > 5 * 1024 * 1024) {
-        showAlert('error', 'ファイルサイズは5MB以下にしてください');
-        fileInput.value = '';
-        return;
-      }
+    if (!file) {
+      previewContainer.classList.add('hidden');
+      uploadBtn.disabled = true;
+      applyPlaceholderText();
+      return;
+    }
 
-      // プレビュー表示
-      const reader = new FileReader();
-      reader.onload = e => {
-        preview.src = e.target.result;
-        previewContainer.classList.remove('hidden');
-        uploadBtn.disabled = false;
-      };
-      reader.readAsDataURL(file);
+    // ファイルサイズチェック（5MB）
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('ファイルサイズは5MB以下にしてください', 'error');
+      fileInput.value = '';
+      previewContainer.classList.add('hidden');
+      uploadBtn.disabled = true;
+      applyPlaceholderText();
+      return;
+    }
+
+    showSelectedFileName(file.name);
+
+    // プレビュー表示
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      previewContainer.classList.remove('hidden');
+      uploadBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  window.addEventListener('languageChanged', () => {
+    if (fileInput.files.length === 0) {
+      applyPlaceholderText();
     }
   });
 
@@ -962,11 +985,11 @@ function setupProfileImageChange() {
       // プロフィール画像を更新
       document.getElementById('animalPhoto').src = result.image_path;
 
-      showAlert('success', 'プロフィール画像を更新しました');
+      showToast('プロフィール画像を更新しました', 'success');
       closeModal();
     } catch (error) {
       console.error('Error uploading image:', error);
-      showAlert('error', error.message);
+      showToast(error.message, 'error');
     } finally {
       uploadBtn.disabled = false;
       uploadBtn.textContent = 'アップロード';
@@ -1021,7 +1044,7 @@ async function loadGalleryImages() {
       .join('');
   } catch (error) {
     console.error('Error loading gallery images:', error);
-    showAlert('error', error.message);
+    showToast(error.message, 'error');
   }
 }
 
@@ -1049,33 +1072,12 @@ async function selectGalleryImage(imageId, imagePath) {
     // プロフィール画像を更新
     document.getElementById('animalPhoto').src = result.image_path;
 
-    showAlert('success', 'プロフィール画像を更新しました');
+    showToast('プロフィール画像を更新しました', 'success');
 
     // モーダルを閉じる
     document.getElementById('profileImageModal').classList.add('hidden');
   } catch (error) {
     console.error('Error selecting gallery image:', error);
-    showAlert('error', error.message);
+    showToast(error.message, 'error');
   }
-}
-
-// アラート表示
-function showAlert(type, message) {
-  const container = document.getElementById('alertContainer');
-  const alert = document.createElement('div');
-
-  const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
-  const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
-
-  alert.className = `${bgColor} border rounded-lg p-4 shadow-lg`;
-  alert.innerHTML = `
-    <div class="flex items-center gap-2">
-      <span class="${textColor}">${message}</span>
-      <button onclick="this.parentElement.parentElement.remove()" class="${textColor} hover:opacity-70">✕</button>
-    </div>
-  `;
-
-  container.appendChild(alert);
-
-  setTimeout(() => alert.remove(), 5000);
 }

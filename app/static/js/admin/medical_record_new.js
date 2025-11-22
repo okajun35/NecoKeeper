@@ -19,7 +19,7 @@ async function loadAnimals() {
       },
     });
 
-    if (!response.ok) throw new Error('猫一覧の取得に失敗しました');
+    if (!response.ok) throw new Error(i18n.t('medical_records.messages.load_error'));
 
     const data = await response.json();
     const select = document.getElementById('animalId');
@@ -37,7 +37,7 @@ async function loadAnimals() {
     if (availableAnimals.length === 0) {
       const option = document.createElement('option');
       option.value = '';
-      option.textContent = '診療可能な猫がいません';
+      option.textContent = i18n.t('common.no_data');
       option.disabled = true;
       select.appendChild(option);
     }
@@ -46,7 +46,7 @@ async function loadAnimals() {
     select.addEventListener('change', handleAnimalChange);
   } catch (error) {
     console.error('Error loading animals:', error);
-    showError('猫一覧の読み込みに失敗しました');
+    showError(i18n.t('medical_records.messages.load_error'));
   }
 }
 
@@ -56,7 +56,7 @@ function handleAnimalChange(e) {
   const animalStatus = selectedOption.textContent.match(/\((.+)\)/)?.[1];
 
   if (animalStatus === '譲渡済み') {
-    showError('譲渡済みの猫は診療記録を登録できません');
+    showError(i18n.t('medical_records.validation.animal_required'));
     e.target.value = '';
   }
 }
@@ -66,13 +66,13 @@ async function loadVets() {
   try {
     // TODO: ユーザー一覧APIが実装されたら修正
     // 現時点では手動入力またはスキップ
-    console.log('獣医師一覧の読み込みはスキップされました（API未実装）');
+    console.log('Veterinarian list loading skipped (API not implemented)');
 
     // 仮のデータとして管理者を追加
     const select = document.getElementById('vetId');
     const option = document.createElement('option');
     option.value = '1';
-    option.textContent = '管理者（仮）';
+    option.textContent = 'Administrator (Temporary)';
     select.appendChild(option);
   } catch (error) {
     console.error('Error loading vets:', error);
@@ -93,7 +93,7 @@ async function loadMedicalActions() {
       }
     );
 
-    if (!response.ok) throw new Error('診療行為一覧の取得に失敗しました');
+    if (!response.ok) throw new Error(i18n.t('medical_records.messages.load_error'));
 
     const data = await response.json();
     medicalActionsData = data;
@@ -109,7 +109,7 @@ async function loadMedicalActions() {
     if (data.length === 0) {
       const option = document.createElement('option');
       option.value = '';
-      option.textContent = '有効な診療行為がありません';
+      option.textContent = i18n.t('common.no_data');
       option.disabled = true;
       select.appendChild(option);
     }
@@ -118,7 +118,7 @@ async function loadMedicalActions() {
     select.addEventListener('change', handleMedicalActionChange);
   } catch (error) {
     console.error('Error loading medical actions:', error);
-    showError('診療行為一覧の読み込みに失敗しました');
+    showError(i18n.t('medical_records.messages.load_error'));
   }
 }
 
@@ -131,12 +131,13 @@ function handleMedicalActionChange(e) {
     const action = medicalActionsData.find(a => a.id === actionId);
     if (action && action.unit) {
       // 投薬単位を表示
-      dosageLabel.innerHTML = `投薬回数 <span class="text-sm text-gray-500">(${action.unit})</span>`;
+      const dosageText = i18n.t('medical_records.labels.dosage');
+      dosageLabel.innerHTML = `${dosageText} <span class="text-sm text-gray-500">(${action.unit})</span>`;
     } else {
-      dosageLabel.textContent = '投薬回数';
+      dosageLabel.textContent = i18n.t('medical_records.labels.dosage');
     }
   } else if (dosageLabel) {
-    dosageLabel.textContent = '投薬回数';
+    dosageLabel.textContent = i18n.t('medical_records.labels.dosage');
   }
 }
 
@@ -189,7 +190,7 @@ async function handleSubmit(e) {
     if (!response.ok) {
       const errorData = await response.json();
       // エラーメッセージを適切に抽出
-      let errorMessage = '登録に失敗しました';
+      let errorMessage = i18n.t('medical_records.messages.save_error');
 
       if (errorData.detail) {
         if (typeof errorData.detail === 'string') {
@@ -209,7 +210,7 @@ async function handleSubmit(e) {
     window.location.href = '/admin/medical-records';
   } catch (error) {
     console.error('Error submitting form:', error);
-    showError(error.message || '登録に失敗しました');
+    showError(error.message || i18n.t('medical_records.messages.save_error'));
   }
 }
 
@@ -218,7 +219,4 @@ function showError(message) {
   alert(message);
 }
 
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
-}
+// 注: getToken等はcommon.jsで定義済み

@@ -1,0 +1,25 @@
+{
+  "title": "ダッシュボード",
+  "description": "保護猫管理システムの概要",
+  "stats": {
+    "protected": "保護中",
+    "adoptable": "譲渡可能",
+    "today_logs": "今日の記録",
+    "volunteers": "ボランティア"
+  },
+  "recent_logs": "最近の世話記録",
+  "needs_care": "記録が必要な猫",
+  "no_logs": "世話記録がありません",
+  "no_animals": "記録が必要な猫はいません",
+  "view_all": "すべて表示",
+  "dynamic": {
+    "appetite": "食欲",
+    "energy": "元気",
+    "morning": "朝",
+    "noon": "昼",
+    "evening": "夜",
+    "not_recorded": "未記録",
+    "record": "記録する",
+    "all_recorded": "✓ すべての猫の記録が完了しています"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "title": "帳票出力",
+  "description": "期間を指定して、世話記録や診療記録の集計帳票を出力できます。",
+  "cards": {
+    "daily": { "title": "日報", "desc": "日別の世話記録集計" },
+    "weekly": { "title": "週報", "desc": "週別の世話記録集計" },
+    "monthly": { "title": "月次集計", "desc": "月別の医療費・診療件数" },
+    "individual": { "title": "個別帳票", "desc": "猫ごとの記録まとめ" }
+  },
+  "form": {
+    "base_title": "帳票生成",
+    "daily": "日報生成",
+    "weekly": "週報生成",
+    "monthly": "月次集計生成",
+    "individual": "個別帳票生成",
+    "animal_select_label": "猫を選択",
+    "animal_loading": "読み込み中...",
+    "start_date": "開始日",
+    "end_date": "終了日",
+    "presets": {
+      "today": "今日",
+      "this_week": "今週",
+      "this_month": "今月",
+      "last_month": "先月",
+      "last_3_months": "過去3ヶ月",
+      "last_6_months": "過去6ヶ月",
+      "this_year": "今年"
+    },
+    "output_format": "出力形式",
+    "formats": { "pdf": "PDF", "csv": "CSV", "excel": "Excel" },
+    "buttons": { "generate_download": "生成・ダウンロード" }
+  },
+  "messages": {
+    "loading_generate": "帳票を生成中...",
+    "error_fetch_animals": "猫一覧の取得に失敗しました",
+    "error_required": "必須項目を入力してください",
+    "error_select_animal": "猫を選択してください",
+    "error_date_order": "開始日は終了日より前の日付を指定してください",
+    "error_no_token": "認証トークンが見つかりません。再ログインしてください。",
+    "success_generated": "帳票を生成しました",
+    "error_pdf": "PDF生成に失敗しました",
+    "error_csv": "CSV生成に失敗しました",
+    "error_excel": "Excel生成に失敗しました",
+    "error_general": "帳票の生成に失敗しました"
+  },
+  "animals": { "no_name": "名前なし" }
+}

@@ -1,0 +1,42 @@
+{
+  "title": "設定",
+  "page_description": "システム設定の管理",
+  "sections": {
+    "organization": {
+      "title": "団体情報",
+      "organization_name": "団体名",
+      "address": "住所",
+      "phone": "電話番号",
+      "email": "メールアドレス"
+    },
+    "image": {
+      "title": "画像設定",
+      "max_count": "最大枚数",
+      "max_count_help": "1猫あたりの最大画像枚数",
+      "max_size": "最大ファイルサイズ (MB)",
+      "max_size_help": "1ファイルあたりの最大サイズ"
+    },
+    "language": {
+      "title": "言語設定",
+      "default_language": "デフォルト言語",
+      "ja": "日本語",
+      "en": "English"
+    },
+    "security": {
+      "title": "セキュリティ設定",
+      "session_timeout": "セッションタイムアウト (時間)",
+      "login_attempts": "ログイン試行回数制限"
+    },
+    "backup": {
+      "title": "バックアップ設定",
+      "auto_backup": "自動バックアップ",
+      "auto_backup_label": "毎日2:00に自動バックアップを実行",
+      "retention_period": "保持期間 (日)",
+      "retention_period_help": "この期間を過ぎたバックアップは自動削除されます",
+      "backup_now": "今すぐバックアップ"
+    }
+  },
+  "buttons": {
+    "save": "保存"
+  }
+}

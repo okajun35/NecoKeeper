@@ -1,9 +1,11 @@
 {% extends "admin/base.html" %}
 
+{% block title_key %}title{% endblock %}
+{% block title_ns %}animals{% endblock %}
 {% block title %}猫管理{% endblock %}
 
-{% block page_title %}猫管理{% endblock %}
-{% block page_description %}保護猫の情報を管理します{% endblock %}
+{% block page_title %}<span data-i18n="title" data-i18n-ns="animals">猫管理</span>{% endblock %}
+{% block page_description %}<span data-i18n="description" data-i18n-ns="animals">保護猫の情報を管理します</span>{% endblock %}
 
 {% block header_actions %}
 <a href="/admin/animals/new"
@@ -11,7 +13,7 @@
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
     </svg>
-    <span>新規登録</span>
+    <span data-i18n="add_new" data-i18n-ns="animals">新規登録</span>
 </a>
 {% endblock %}
 
@@ -22,34 +24,36 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             <!-- 検索 -->
             <div class="md:col-span-2">
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">検索</label>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.label" data-i18n-ns="animals">検索</label>
                 <input type="text"
                        id="search"
+                       data-i18n-placeholder="search.placeholder"
+                       data-i18n-ns="animals"
                        placeholder="名前、柄、特徴で検索..."
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
             </div>
 
             <!-- ステータスフィルター -->
             <div>
-                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">ステータス</label>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.status" data-i18n-ns="animals">ステータス</label>
                 <select id="status-filter"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="">すべて</option>
-                    <option value="保護中">保護中</option>
-                    <option value="治療中">治療中</option>
-                    <option value="譲渡可能">譲渡可能</option>
-                    <option value="譲渡済み">譲渡済み</option>
+                    <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
+                    <option value="保護中" data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
+                    <option value="治療中" data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
+                    <option value="譲渡可能" data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
+                    <option value="譲渡済み" data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
                 </select>
             </div>
 
             <!-- 表示件数 -->
             <div>
-                <label for="page-size" class="block text-sm font-medium text-gray-700 mb-2">表示件数</label>
+                <label for="page-size" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.page_size" data-i18n-ns="animals">表示件数</label>
                 <select id="page-size"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="20">20件</option>
-                    <option value="50">50件</option>
-                    <option value="100">100件</option>
+                    <option value="20" data-i18n="page_size.20" data-i18n-ns="animals">20件</option>
+                    <option value="50" data-i18n="page_size.50" data-i18n-ns="animals">50件</option>
+                    <option value="100" data-i18n="page_size.100" data-i18n-ns="animals">100件</option>
                 </select>
             </div>
         </div>
@@ -61,7 +65,7 @@
                 <svg id="advanced-search-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
-                <span>詳細検索</span>
+                <span data-i18n="search.advanced" data-i18n-ns="animals">詳細検索</span>
             </button>
         </div>
 
@@ -70,19 +74,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 <!-- 性別 -->
                 <div>
-                    <label for="gender-filter" class="block text-sm font-medium text-gray-700 mb-2">性別</label>
+                    <label for="gender-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.gender" data-i18n-ns="animals">性別</label>
                     <select id="gender-filter"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">すべて</option>
-                        <option value="オス">オス</option>
-                        <option value="メス">メス</option>
-                        <option value="不明">不明</option>
+                        <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
+                        <option value="オス" data-i18n="gender.male" data-i18n-ns="animals">オス</option>
+                        <option value="メス" data-i18n="gender.female" data-i18n-ns="animals">メス</option>
+                        <option value="不明" data-i18n="gender.unknown" data-i18n-ns="animals">不明</option>
                     </select>
                 </div>
 
                 <!-- 年齢範囲（最小） -->
                 <div>
-                    <label for="age-min" class="block text-sm font-medium text-gray-700 mb-2">年齢（最小）</label>
+                    <label for="age-min" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.age_min" data-i18n-ns="animals">年齢（最小）</label>
                     <input type="number"
                            id="age-min"
                            placeholder="例: 0"
@@ -92,7 +96,7 @@
 
                 <!-- 年齢範囲（最大） -->
                 <div>
-                    <label for="age-max" class="block text-sm font-medium text-gray-700 mb-2">年齢（最大）</label>
+                    <label for="age-max" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.age_max" data-i18n-ns="animals">年齢（最大）</label>
                     <input type="number"
                            id="age-max"
                            placeholder="例: 10"
@@ -102,7 +106,7 @@
 
                 <!-- 保護日範囲（開始） -->
                 <div>
-                    <label for="rescue-date-from" class="block text-sm font-medium text-gray-700 mb-2">保護日（開始）</label>
+                    <label for="rescue-date-from" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.rescue_date_from" data-i18n-ns="animals">保護日（開始）</label>
                     <input type="date"
                            id="rescue-date-from"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
@@ -110,7 +114,7 @@
 
                 <!-- 保護日範囲（終了） -->
                 <div>
-                    <label for="rescue-date-to" class="block text-sm font-medium text-gray-700 mb-2">保護日（終了）</label>
+                    <label for="rescue-date-to" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.rescue_date_to" data-i18n-ns="animals">保護日（終了）</label>
                     <input type="date"
                            id="rescue-date-to"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
@@ -118,30 +122,32 @@
 
                 <!-- 耳カット -->
                 <div>
-                    <label for="ear-cut-filter" class="block text-sm font-medium text-gray-700 mb-2">耳カット</label>
+                    <label for="ear-cut-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.ear_cut" data-i18n-ns="animals">耳カット</label>
                     <select id="ear-cut-filter"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">すべて</option>
-                        <option value="あり">あり</option>
-                        <option value="なし">なし</option>
+                        <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
+                        <option value="あり" data-i18n="filter.with" data-i18n-ns="animals">あり</option>
+                        <option value="なし" data-i18n="filter.without" data-i18n-ns="animals">なし</option>
                     </select>
                 </div>
 
                 <!-- 首輪 -->
                 <div>
-                    <label for="collar-filter" class="block text-sm font-medium text-gray-700 mb-2">首輪</label>
+                    <label for="collar-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.collar" data-i18n-ns="animals">首輪</label>
                     <select id="collar-filter"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <option value="">すべて</option>
-                        <option value="あり">あり</option>
-                        <option value="なし">なし</option>
+                        <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
+                        <option value="あり" data-i18n="filter.with" data-i18n-ns="animals">あり</option>
+                        <option value="なし" data-i18n="filter.without" data-i18n-ns="animals">なし</option>
                     </select>
                 </div>
 
                 <!-- クリアボタン -->
                 <div class="flex items-end">
                     <button id="clear-advanced-search"
-                            class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                            class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                            data-i18n="search.clear"
+                            data-i18n-ns="animals">
                         クリア
                     </button>
                 </div>
@@ -153,7 +159,7 @@
     <div class="bg-white rounded-lg shadow-md">
         <div id="animals-list" class="divide-y divide-gray-200">
             <!-- HTMXで動的に読み込まれる -->
-            <div class="p-8 text-center text-gray-500">
+            <div class="p-8 text-center text-gray-500" data-i18n="loading" data-i18n-ns="common">
                 読み込み中...
             </div>
         </div>

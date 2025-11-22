@@ -1,0 +1,642 @@
+{
+  "common": {
+    "app_name": "NecoKeeper",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "add": "追加",
+    "search": "検索",
+    "filter": "フィルター",
+    "export": "エクスポート",
+    "import": "インポート",
+    "close": "閉じる",
+    "confirm": "確認",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ",
+    "loading": "読み込み中...",
+    "no_data": "データがありません",
+    "required": "必須",
+    "optional": "任意",
+    "yes": "はい",
+    "no": "いいえ",
+    "all": "すべて",
+    "none": "なし",
+    "select": "選択",
+    "clear": "クリア",
+    "refresh": "更新",
+    "download": "ダウンロード",
+    "upload": "アップロード",
+    "view": "表示",
+    "details": "詳細",
+    "list": "一覧",
+    "new": "新規",
+    "update": "更新",
+    "create": "作成",
+    "submit": "送信",
+    "reset": "リセット",
+    "apply": "適用",
+    "actions": "操作",
+    "status": "ステータス",
+    "date": "日付",
+    "time": "時刻",
+    "name": "名前",
+    "description": "説明",
+    "notes": "備考",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "login": "ログイン",
+    "profile": "プロフィール",
+    "help": "ヘルプ",
+    "about": "について",
+    "version": "バージョン",
+    "language": "言語",
+    "theme": "テーマ",
+    "notifications": "通知",
+    "dashboard": "ダッシュボード",
+    "home": "ホーム",
+    "menu": "メニュー",
+    "more": "もっと見る",
+    "less": "閉じる",
+    "show": "表示",
+    "hide": "非表示",
+    "enable": "有効",
+    "disable": "無効",
+    "active": "アクティブ",
+    "inactive": "非アクティブ",
+    "total": "合計",
+    "count": "件数",
+    "page": "ページ",
+    "per_page": "件/ページ",
+    "of": "の",
+    "to": "から",
+    "from": "まで",
+    "items": "件",
+    "records": "レコード"
+  },
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "animals": "猫台帳",
+    "care_logs": "世話記録",
+    "medical_records": "診療記録",
+    "adoptions": "里親管理",
+    "volunteers": "ボランティア",
+    "reports": "帳票出力",
+    "settings": "設定",
+    "logout": "ログアウト"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "description": "保護猫管理システムの概要",
+    "stats": {
+      "protected": "保護中",
+      "adoptable": "譲渡可能",
+      "today_logs": "今日の記録",
+      "volunteers": "ボランティア"
+    },
+    "recent_logs": "最近の世話記録",
+    "needs_care": "記録が必要な猫",
+    "no_logs": "世話記録がありません",
+    "no_animals": "記録が必要な猫はいません",
+    "view_all": "すべて表示"
+  },
+  "animals": {
+    "title": "猫管理",
+    "list_title": "猫一覧",
+    "detail_title": "猫詳細",
+    "add_new": "新規登録",
+    "edit": "猫情報を編集",
+    "delete_confirm": "この猫を削除してもよろしいですか？",
+    "search_placeholder": "名前、柄、特徴で検索...",
+    "filter_by_status": "ステータスで絞り込み",
+    "description": "保護猫の情報を管理します",
+    "back_to_list": "一覧に戻る",
+    "loading": "読み込み中...",
+    "no_data": "データがありません",
+    "search": {
+      "label": "検索",
+      "placeholder": "名前、柄、特徴で検索...",
+      "advanced": "詳細検索",
+      "clear": "クリア"
+    },
+    "filter": {
+      "status": "ステータス",
+      "gender": "性別",
+      "age_min": "年齢（最小）",
+      "age_max": "年齢（最大）",
+      "rescue_date_from": "保護日（開始）",
+      "rescue_date_to": "保護日（終了）",
+      "ear_cut": "耳カット",
+      "collar": "首輪",
+      "page_size": "表示件数",
+      "all": "すべて",
+      "with": "あり",
+      "without": "なし"
+    },
+    "fields": {
+      "id": "ID",
+      "name": "名前",
+      "photo": "写真",
+      "pattern": "柄",
+      "tail_length": "尻尾の長さ",
+      "collar": "首輪",
+      "age": "年齢",
+      "gender": "性別",
+      "ear_cut": "耳カット済み",
+      "features": "特徴",
+      "status": "ステータス",
+      "protected_at": "保護日",
+      "created_at": "登録日",
+      "updated_at": "更新日"
+    },
+    "status": {
+      "protected": "保護中",
+      "treatment": "治療中",
+      "adoptable": "譲渡可能",
+      "adopted": "譲渡済み",
+      "deceased": "死亡"
+    },
+    "gender": {
+      "male": "オス",
+      "female": "メス",
+      "unknown": "不明"
+    },
+    "tail_length": {
+      "long": "長い",
+      "short": "短い",
+      "hooked": "かぎしっぽ",
+      "none": "なし"
+    },
+    "age_category": {
+      "kitten": "子猫",
+      "adult": "成猫",
+      "senior": "老猫"
+    },
+    "tabs": {
+      "basic_info": "基本情報",
+      "care_logs": "世話記録",
+      "medical_records": "診療記録",
+      "gallery": "画像ギャラリー",
+      "weight_chart": "体重推移"
+    },
+    "actions": {
+      "view_details": "詳細を見る",
+      "edit_info": "情報を編集",
+      "change_status": "ステータス変更",
+      "update_status": "ステータス更新",
+      "generate_qr": "QRカード出力",
+      "generate_form": "紙記録フォーム出力",
+      "upload_photo": "写真をアップロード",
+      "delete_photo": "写真を削除",
+      "change_image": "画像を変更",
+      "upload_new": "新しい画像をアップロード",
+      "select_from_gallery": "ギャラリーから選択"
+    },
+    "modal": {
+      "profile_image": "プロフィール画像を変更",
+      "paper_form": "紙記録フォーム出力",
+      "select_year": "年",
+      "select_month": "月",
+      "confirm": "出力",
+      "upload_tab": "新しい画像をアップロード",
+      "gallery_tab": "ギャラリーから選択",
+      "preview": "プレビュー",
+      "no_images": "画像ギャラリーに画像がありません"
+    },
+    "form": {
+      "required": "必須",
+      "optional": "任意",
+      "select_placeholder": "選択してください",
+      "file_input_hint": "PNG, JPG, GIF（最大5MB）",
+      "profile_image": "プロフィール画像（任意）",
+      "profile_image_note": "※登録後、画像ギャラリーから追加・変更できます"
+    },
+    "messages": {
+      "created": "猫を登録しました",
+      "updated": "猫情報を更新しました",
+      "deleted": "猫を削除しました",
+      "status_changed": "ステータスを変更しました",
+      "photo_uploaded": "写真をアップロードしました",
+      "photo_deleted": "写真を削除しました",
+      "load_error": "読み込みに失敗しました"
+    },
+    "page_size": {
+      "20": "20件",
+      "50": "50件",
+      "100": "100件"
+    }
+  },
+  "care_logs": {
+    "title": "世話記録",
+    "list_title": "世話記録一覧",
+    "description": "全ての世話記録を管理",
+    "detail_title": "世話記録詳細",
+    "detail_description": "世話記録の詳細情報",
+    "add_new": "新しい記録を追加",
+    "edit": "記録を編集",
+    "delete_confirm": "この記録を削除してもよろしいですか？",
+    "export_csv": "CSVエクスポート",
+    "new_title": "世話記録新規登録",
+    "fields": {
+      "id": "ID",
+      "animal": "猫",
+      "recorder": "記録者",
+      "time_slot": "時点",
+      "appetite": "食欲",
+      "energy": "元気",
+      "urination": "排尿",
+      "cleaning": "清掃",
+      "memo": "メモ",
+      "log_date": "記録日",
+      "created_at": "登録日時"
+    },
+    "time_slots": {
+      "morning": "朝",
+      "afternoon": "昼",
+      "evening": "夕"
+    },
+    "appetite_levels": {
+      "1": "1 (食べない)",
+      "2": "2 (少し)",
+      "3": "3 (普通)",
+      "4": "4 (よく食べる)",
+      "5": "5 (完食)"
+    },
+    "energy_levels": {
+      "1": "1 (ぐったり)",
+      "2": "2 (元気がない)",
+      "3": "3 (普通)",
+      "4": "4 (元気)",
+      "5": "5 (とても元気)"
+    },
+    "urination_status": {
+      "yes": "あり",
+      "no": "なし"
+    },
+    "cleaning_status": {
+      "done": "済",
+      "not_done": "未"
+    },
+    "filter": {
+      "by_animal": "猫で絞り込み",
+      "by_date": "日付で絞り込み",
+      "by_time_slot": "時点で絞り込み",
+      "start_date": "開始日",
+      "end_date": "終了日"
+    },
+    "messages": {
+      "created": "世話記録を登録しました",
+      "updated": "世話記録を更新しました",
+      "deleted": "世話記録を削除しました",
+      "exported": "CSVをエクスポートしました"
+    }
+  },
+  "medical_records": {
+    "title": "診療記録",
+    "list_title": "診療記録一覧",
+    "description": "全ての診療記録を管理",
+    "detail_title": "診療記録詳細",
+    "detail_description": "診療記録の詳細情報",
+    "add_new": "新しい診療記録を追加",
+    "edit": "診療記録を編集",
+    "delete_confirm": "この診療記録を削除してもよろしいですか？",
+    "fields": {
+      "id": "ID",
+      "animal": "猫",
+      "vet": "獣医師",
+      "date": "診療日",
+      "time_slot": "時点",
+      "weight": "体重",
+      "temperature": "体温",
+      "symptoms": "症状",
+      "medical_action": "診療行為",
+      "dosage": "投薬量",
+      "dosage_unit": "単位",
+      "other": "その他",
+      "comment": "コメント",
+      "created_at": "登録日時",
+      "selling_price": "請求価格"
+    },
+    "dosage_units": {
+      "tablet": "錠",
+      "injection": "本",
+      "times": "回",
+      "ml": "mL"
+    },
+    "filter": {
+      "by_animal": "猫で絞り込み",
+      "by_vet": "獣医師で絞り込み",
+      "by_date": "日付で絞り込み",
+      "start_date": "開始日",
+      "end_date": "終了日"
+    },
+    "messages": {
+      "created": "診療記録を登録しました",
+      "updated": "診療記録を更新しました",
+      "deleted": "診療記録を削除しました"
+    }
+  },
+  "medical_actions": {
+    "title": "診療行為マスター",
+    "list_title": "診療行為一覧",
+    "add_new": "新しい診療行為を追加",
+    "edit": "診療行為を編集",
+    "delete_confirm": "この診療行為を削除してもよろしいですか？",
+    "fields": {
+      "id": "ID",
+      "name": "診療行為名",
+      "valid_from": "有効開始日",
+      "valid_to": "有効終了日",
+      "cost_price": "原価",
+      "selling_price": "請求価格",
+      "procedure_fee": "処置料金",
+      "currency": "通貨",
+      "dosage_unit": "投薬単位",
+      "created_at": "登録日時"
+    },
+    "messages": {
+      "created": "診療行為を登録しました",
+      "updated": "診療行為を更新しました",
+      "deleted": "診療行為を削除しました"
+    }
+  },
+  "adoptions": {
+    "title": "里親管理",
+    "applicants_title": "里親希望者一覧",
+    "records_title": "譲渡記録一覧",
+    "add_applicant": "新しい希望者を追加",
+    "add_record": "新しい譲渡記録を追加",
+    "edit_applicant": "希望者情報を編集",
+    "edit_record": "譲渡記録を編集",
+    "delete_confirm": "削除してもよろしいですか？",
+    "fields": {
+      "applicant": {
+        "id": "ID",
+        "name": "氏名",
+        "contact": "連絡先",
+        "address": "住所",
+        "family_structure": "家族構成",
+        "housing": "住居形態",
+        "experience": "飼育経験",
+        "motivation": "希望理由",
+        "status": "ステータス",
+        "created_at": "登録日"
+      },
+      "record": {
+        "id": "ID",
+        "animal": "猫",
+        "applicant": "希望者",
+        "interview_date": "面談日",
+        "interview_notes": "面談メモ",
+        "decision": "判定",
+        "adoption_date": "譲渡日",
+        "follow_up_date": "フォロー日",
+        "follow_up_notes": "フォローメモ",
+        "created_at": "登録日"
+      }
+    },
+    "status": {
+      "pending": "検討中",
+      "approved": "承認",
+      "rejected": "不承認",
+      "adopted": "譲渡済み"
+    },
+    "decision": {
+      "pending": "未定",
+      "approved": "承認",
+      "rejected": "不承認"
+    },
+    "messages": {
+      "applicant_created": "希望者を登録しました",
+      "applicant_updated": "希望者情報を更新しました",
+      "applicant_deleted": "希望者を削除しました",
+      "record_created": "譲渡記録を登録しました",
+      "record_updated": "譲渡記録を更新しました",
+      "record_deleted": "譲渡記録を削除しました"
+    }
+  },
+  "volunteers": {
+    "title": "ボランティア管理",
+    "list_title": "ボランティア一覧",
+    "add_new": "新しいボランティアを追加",
+    "edit": "ボランティア情報を編集",
+    "delete_confirm": "このボランティアを削除してもよろしいですか？",
+    "fields": {
+      "id": "ID",
+      "name": "氏名",
+      "contact": "連絡先",
+      "affiliation": "所属",
+      "status": "ステータス",
+      "started_at": "開始日",
+      "created_at": "登録日"
+    },
+    "status": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ"
+    },
+    "messages": {
+      "created": "ボランティアを登録しました",
+      "updated": "ボランティア情報を更新しました",
+      "deleted": "ボランティアを削除しました"
+    }
+  },
+  "reports": {
+    "title": "帳票出力",
+    "description": "各種帳票をPDF/CSV/Excel形式で出力できます",
+    "types": {
+      "daily": "日報",
+      "weekly": "週報",
+      "monthly": "月次集計",
+      "individual": "個別帳票"
+    },
+    "fields": {
+      "report_type": "帳票種別",
+      "start_date": "開始日",
+      "end_date": "終了日",
+      "animal": "猫（個別帳票の場合）",
+      "format": "出力形式"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "actions": {
+      "generate": "帳票を生成",
+      "download": "ダウンロード"
+    },
+    "messages": {
+      "generated": "帳票を生成しました",
+      "error": "帳票の生成に失敗しました"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "organization": {
+      "title": "団体情報",
+      "name": "団体名",
+      "address": "住所",
+      "phone": "電話番号",
+      "email": "メールアドレス"
+    },
+    "image": {
+      "title": "画像設定",
+      "max_count": "最大枚数",
+      "max_size": "最大ファイルサイズ (MB)"
+    },
+    "language": {
+      "title": "言語設定",
+      "current": "現在の言語",
+      "japanese": "日本語",
+      "english": "English"
+    },
+    "security": {
+      "title": "セキュリティ設定",
+      "session_timeout": "セッションタイムアウト (時間)",
+      "max_login_attempts": "ログイン試行回数制限"
+    },
+    "backup": {
+      "title": "バックアップ設定",
+      "auto_backup": "自動バックアップ",
+      "retention_days": "保持期間 (日)"
+    },
+    "messages": {
+      "saved": "設定を保存しました",
+      "error": "設定の保存に失敗しました"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "ログイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "remember_me": "ログイン状態を保持",
+      "forgot_password": "パスワードを忘れた方",
+      "submit": "ログイン"
+    },
+    "logout": {
+      "confirm": "ログアウトしてもよろしいですか？",
+      "success": "ログアウトしました"
+    },
+    "messages": {
+      "login_success": "ログインしました",
+      "login_failed": "ログインに失敗しました",
+      "invalid_credentials": "メールアドレスまたはパスワードが正しくありません",
+      "account_locked": "アカウントがロックされています",
+      "session_expired": "セッションが期限切れです。再度ログインしてください",
+      "unauthorized": "この操作を実行する権限がありません"
+    }
+  },
+  "public": {
+    "care_form": {
+      "title": "世話記録入力",
+      "description": "QRコードをスキャンして記録を入力してください",
+      "select_animal": "猫を選択",
+      "select_volunteer": "記録者を選択",
+      "time_slot": "時点",
+      "appetite": "食欲",
+      "energy": "元気",
+      "urination": "排尿",
+      "cleaning": "清掃",
+      "memo": "メモ",
+      "copy_last": "前回の入力をコピー",
+      "submit": "記録を保存",
+      "messages": {
+        "saved": "記録を保存しました",
+        "offline_saved": "オフラインで保存しました。オンライン時に自動同期されます",
+        "sync_pending": "同期待ち",
+        "syncing": "同期中...",
+        "synced": "同期済み",
+        "error": "記録の保存に失敗しました"
+      }
+    },
+    "care_log_list": {
+      "title": "記録一覧",
+      "today_status": "今日の記録状況",
+      "recent_logs": "直近7日間の記録",
+      "no_logs": "記録がありません",
+      "view_details": "詳細を見る",
+      "back_to_form": "記録入力に戻る"
+    },
+    "all_animals_status": {
+      "title": "全猫の記録状況",
+      "today": "今日",
+      "morning": "朝",
+      "afternoon": "昼",
+      "evening": "夕",
+      "recorded": "記録済み",
+      "not_recorded": "未記録",
+      "add_record": "記録を入力",
+      "view_logs": "記録一覧"
+    }
+  },
+  "errors": {
+    "400": "不正なリクエストです",
+    "401": "認証が必要です",
+    "403": "アクセスが拒否されました",
+    "404": "ページが見つかりません",
+    "500": "サーバーエラーが発生しました",
+    "network_error": "ネットワークエラーが発生しました",
+    "validation_error": "入力内容に誤りがあります",
+    "required_field": "この項目は必須です",
+    "invalid_email": "メールアドレスの形式が正しくありません",
+    "invalid_date": "日付の形式が正しくありません",
+    "invalid_number": "数値を入力してください",
+    "file_too_large": "ファイルサイズが大きすぎます",
+    "invalid_file_type": "このファイル形式はサポートされていません",
+    "upload_failed": "アップロードに失敗しました",
+    "delete_failed": "削除に失敗しました",
+    "update_failed": "更新に失敗しました",
+    "create_failed": "作成に失敗しました",
+    "unknown_error": "不明なエラーが発生しました"
+  },
+  "validation": {
+    "required": "{{field}}は必須です",
+    "min_length": "{{field}}は{{min}}文字以上で入力してください",
+    "max_length": "{{field}}は{{max}}文字以内で入力してください",
+    "min_value": "{{field}}は{{min}}以上で入力してください",
+    "max_value": "{{field}}は{{max}}以下で入力してください",
+    "invalid_format": "{{field}}の形式が正しくありません",
+    "email": "有効なメールアドレスを入力してください",
+    "url": "有効なURLを入力してください",
+    "date": "有効な日付を入力してください",
+    "number": "数値を入力してください",
+    "integer": "整数を入力してください",
+    "positive": "正の数を入力してください"
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "first": "最初",
+    "last": "最後",
+    "page": "ページ",
+    "of": "/",
+    "showing": "表示中",
+    "to": "〜",
+    "from": "",
+    "items": "件",
+    "per_page": "件/ページ",
+    "no_results": "結果がありません"
+  },
+  "date": {
+    "today": "今日",
+    "yesterday": "昨日",
+    "tomorrow": "明日",
+    "this_week": "今週",
+    "last_week": "先週",
+    "this_month": "今月",
+    "last_month": "先月",
+    "this_year": "今年",
+    "last_year": "昨年",
+    "days": "日",
+    "weeks": "週",
+    "months": "月",
+    "years": "年",
+    "hours": "時間",
+    "minutes": "分",
+    "seconds": "秒",
+    "ago": "前",
+    "from_now": "後"
+  }
+}

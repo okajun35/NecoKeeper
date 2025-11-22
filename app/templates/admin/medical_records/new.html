@@ -1,8 +1,11 @@
 {% extends "admin/base.html" %}
 
-{% block title %}診療記録登録{% endblock %}
-{% block page_title %}診療記録登録{% endblock %}
-{% block page_description %}新しい診療記録を登録{% endblock %}
+{% block title_key %}add_new{% endblock %}
+{% block title_ns %}medical_records{% endblock %}
+{% block title %}<span data-i18n="add_new" data-i18n-ns="medical_records">新しい診療記録を追加</span>{% endblock %}
+
+{% block page_title %}<span data-i18n="add_new" data-i18n-ns="medical_records">新しい診療記録を追加</span>{% endblock %}
+{% block page_description %}<span data-i18n="description" data-i18n-ns="medical_records">新しい診療記録を登録</span>{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
@@ -10,32 +13,32 @@
         <form id="medicalRecordForm" class="space-y-6">
             <!-- 基本情報 -->
             <div class="border-b border-gray-200 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">基本情報</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="basic_info" data-i18n-ns="medical_records">基本情報</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- 猫選択 -->
                     <div>
                         <label for="animalId" class="block text-sm font-medium text-gray-700 mb-2">
-                            猫 <span class="text-red-500">*</span>
+                            <span data-i18n="labels.animal" data-i18n-ns="medical_records">猫</span> <span class="text-red-500">*</span>
                         </label>
                         <select id="animalId" name="animal_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
+                            <option value="" data-i18n="placeholders.select" data-i18n-ns="medical_records">選択してください</option>
                         </select>
                     </div>
 
                     <!-- 獣医師選択 -->
                     <div>
                         <label for="vetId" class="block text-sm font-medium text-gray-700 mb-2">
-                            獣医師 <span class="text-red-500">*</span>
+                            <span data-i18n="labels.vet" data-i18n-ns="medical_records">獣医師</span> <span class="text-red-500">*</span>
                         </label>
                         <select id="vetId" name="vet_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
+                            <option value="" data-i18n="placeholders.select" data-i18n-ns="medical_records">選択してください</option>
                         </select>
                     </div>
 
                     <!-- 診療日 -->
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
-                            診療日 <span class="text-red-500">*</span>
+                            <span data-i18n="labels.date" data-i18n-ns="medical_records">診療日</span> <span class="text-red-500">*</span>
                         </label>
                         <input type="date" id="date" name="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     </div>
@@ -43,13 +46,13 @@
                     <!-- 時間帯 -->
                     <div>
                         <label for="timeSlot" class="block text-sm font-medium text-gray-700 mb-2">
-                            時間帯
+                            <span data-i18n="labels.time_slot" data-i18n-ns="medical_records">時間帯</span>
                         </label>
                         <select id="timeSlot" name="time_slot" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
-                            <option value="morning">午前</option>
-                            <option value="afternoon">午後</option>
-                            <option value="evening">夕方</option>
+                            <option value="" data-i18n="placeholders.select" data-i18n-ns="medical_records">選択してください</option>
+                            <option value="morning" data-i18n="time_slots.morning" data-i18n-ns="medical_records">午前</option>
+                            <option value="afternoon" data-i18n="time_slots.afternoon" data-i18n-ns="medical_records">午後</option>
+                            <option value="evening" data-i18n="time_slots.evening" data-i18n-ns="medical_records">夕方</option>
                         </select>
                     </div>
                 </div>
@@ -57,88 +60,87 @@
 
             <!-- 測定値 -->
             <div class="border-b border-gray-200 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">測定値</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="measurements" data-i18n-ns="medical_records">測定値</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- 体重 -->
                     <div>
                         <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">
-                            体重 (kg)
+                            <span data-i18n="labels.weight" data-i18n-ns="medical_records">体重 (kg)</span>
                         </label>
-                        <input type="number" id="weight" name="weight" step="0.01" min="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 4.5">
+                        <input type="number" id="weight" name="weight" step="0.01" min="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 4.5" data-i18n-placeholder="placeholders.weight" data-i18n-ns="medical_records">
                     </div>
 
                     <!-- 体温 -->
                     <div>
                         <label for="temperature" class="block text-sm font-medium text-gray-700 mb-2">
-                            体温 (℃)
+                            <span data-i18n="labels.temperature" data-i18n-ns="medical_records">体温 (℃)</span>
                         </label>
-                        <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 38.5">
-                        <p class="mt-1 text-xs text-gray-500">正常範囲: 35.0〜42.0℃</p>
+                        <input type="number" id="temperature" name="temperature" step="0.1" min="35" max="42" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 38.5" data-i18n-placeholder="placeholders.temperature" data-i18n-ns="medical_records">
+                        <p class="mt-1 text-xs text-gray-500" data-i18n="hints.temperature_range" data-i18n-ns="medical_records">正常範囲: 35.0〜42.0℃</p>
                     </div>
                 </div>
             </div>
 
             <!-- 症状・所見 -->
             <div class="border-b border-gray-200 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">症状・所見</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="symptoms_findings" data-i18n-ns="medical_records">症状・所見</h3>
                 <div class="space-y-4">
                     <!-- 症状 -->
                     <div>
                         <label for="symptoms" class="block text-sm font-medium text-gray-700 mb-2">
-                            症状 <span class="text-red-500">*</span>
+                            <span data-i18n="labels.symptoms" data-i18n-ns="medical_records">症状</span> <span class="text-red-500">*</span>
                         </label>
-                        <textarea id="symptoms" name="symptoms" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="観察された症状を記入してください"></textarea>
+                        <textarea id="symptoms" name="symptoms" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="観察された症状を記入してください" data-i18n-placeholder="placeholders.symptoms" data-i18n-ns="medical_records"></textarea>
                     </div>
 
                     <!-- コメント -->
                     <div>
                         <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">
-                            コメント
+                            <span data-i18n="labels.comment" data-i18n-ns="medical_records">コメント</span>
                         </label>
-                        <textarea id="comment" name="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="追加のコメントや注意事項"></textarea>
+                        <textarea id="comment" name="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="追加のコメントや注意事項" data-i18n-placeholder="placeholders.comment" data-i18n-ns="medical_records"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- 処置（オプション） -->
             <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">処置（オプション）</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="treatment_optional" data-i18n-ns="medical_records">処置（オプション）</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- 処置内容 -->
                     <div>
                         <label for="medicalActionId" class="block text-sm font-medium text-gray-700 mb-2">
-                            処置内容
+                            <span data-i18n="labels.medical_action" data-i18n-ns="medical_records">処置内容</span>
                         </label>
                         <select id="medicalActionId" name="medical_action_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="">選択してください</option>
+                            <option value="" data-i18n="placeholders.select" data-i18n-ns="medical_records">選択してください</option>
                         </select>
                     </div>
 
                     <!-- 投薬回数 -->
                     <div>
                         <label for="dosage" class="block text-sm font-medium text-gray-700 mb-2">
-                            投薬回数
+                            <span data-i18n="labels.dosage" data-i18n-ns="medical_records">投薬回数</span>
                         </label>
-                        <input type="number" id="dosage" name="dosage" step="1" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 2">
+                        <input type="number" id="dosage" name="dosage" step="1" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 2" data-i18n-placeholder="placeholders.dosage" data-i18n-ns="medical_records">
                     </div>
 
                     <!-- その他処置 -->
                     <div class="md:col-span-2">
                         <label for="other" class="block text-sm font-medium text-gray-700 mb-2">
-                            その他処置
+                            <span data-i18n="labels.other" data-i18n-ns="medical_records">その他処置</span>
                         </label>
-                        <textarea id="other" name="other" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="その他の処置内容"></textarea>
+                        <textarea id="other" name="other" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="その他の処置内容" data-i18n-placeholder="placeholders.other" data-i18n-ns="medical_records"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- ボタン -->
             <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                <button type="submit" id="submitBtn" class="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                <button type="submit" id="submitBtn" class="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium" data-i18n="buttons.submit" data-i18n-ns="medical_records">
                     登録する
                 </button>
-                <a href="/admin/medical-records" class="flex-1 sm:flex-none px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-center">
-                    キャンセル
+                <a href="/admin/medical-records" class="flex-1 sm:flex-none px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-center" data-i18n="buttons.cancel" data-i18n-ns="medical_records"></a>
                 </a>
             </div>
         </form>

@@ -27,6 +27,8 @@ repos:
           - pillow==10.1.0
           - uvicorn==0.24.0
           - types-pillow
+          - Babel==2.17.0
+          - types-babel
         args: [--config-file=mypy.ini]
         files: ^app/
 
@@ -35,11 +37,11 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: python -m pytest
+        entry: ./.venv/bin/python -m pytest
         language: system
         pass_filenames: false
         always_run: true
-        args: [-v, --tb=short, -x]
+        args: [-q, --tb=short, -x]
         stages: [pre-commit]
 
   # Prettier - JavaScript/JSON/YAML formatter

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const animalId = getAnimalIdFromUrl();
 
   if (!animalId) {
-    showError('猫IDが指定されていません');
+    showError(translate('messages.id_missing', { ns: 'animals' }));
     return;
   }
 
@@ -31,7 +31,7 @@ async function loadAnimalData(animalId) {
     fillForm(animal);
   } catch (error) {
     console.error('Error loading animal data:', error);
-    showError('猫情報の読み込みに失敗しました');
+    showError(translate('messages.load_error', { ns: 'animals' }));
   }
 }
 
@@ -65,7 +65,7 @@ function setupFormSubmit(animalId) {
     const submitButton = form.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
     submitButton.disabled = true;
-    submitButton.textContent = '保存中...';
+    submitButton.textContent = translate('buttons.saving', { ns: 'common' });
 
     try {
       const formData = {
@@ -87,7 +87,7 @@ function setupFormSubmit(animalId) {
       });
 
       // 成功メッセージを表示
-      showSuccess('猫情報を更新しました');
+      showSuccess(translate('messages.updated', { ns: 'animals' }));
 
       // 詳細ページにリダイレクト
       setTimeout(() => {

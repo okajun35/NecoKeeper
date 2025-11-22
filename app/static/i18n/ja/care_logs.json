@@ -1,0 +1,67 @@
+{
+  "title": "世話記録",
+  "list_title": "世話記録一覧",
+  "add_new": "新しい記録を追加",
+  "edit": "記録を編集",
+  "delete_confirm": "この記録を削除してもよろしいですか？",
+  "export_csv": "CSVエクスポート",
+  "fields": {
+    "id": "ID",
+    "animal": "猫",
+    "recorder": "記録者",
+    "time_slot": "時点",
+    "appetite": "食欲",
+    "energy": "元気",
+    "urination": "排尿",
+    "cleaning": "清掃",
+    "memo": "メモ",
+    "log_date": "記録日",
+    "created_at": "登録日時"
+  },
+  "time_slots": {
+    "morning": "朝",
+    "afternoon": "昼",
+    "evening": "夕"
+  },
+  "appetite_levels": {
+    "1": "1 (食べない)",
+    "2": "2 (少し)",
+    "3": "3 (普通)",
+    "4": "4 (よく食べる)",
+    "5": "5 (完食)"
+  },
+  "energy_levels": {
+    "1": "1 (ぐったり)",
+    "2": "2 (元気がない)",
+    "3": "3 (普通)",
+    "4": "4 (元気)",
+    "5": "5 (とても元気)"
+  },
+  "urination_status": {
+    "yes": "あり",
+    "no": "なし"
+  },
+  "cleaning_status": {
+    "done": "済",
+    "not_done": "未"
+  },
+  "filter": {
+    "by_animal": "猫で絞り込み",
+    "by_date": "日付で絞り込み",
+    "by_time_slot": "時点で絞り込み",
+    "start_date": "開始日",
+    "end_date": "終了日"
+  },
+  "messages": {
+    "created": "世話記録を登録しました",
+    "updated": "世話記録を更新しました",
+    "deleted": "世話記録を削除しました",
+    "exported": "CSVをエクスポートしました",
+    "create_failed": "世話記録の登録に失敗しました",
+    "update_failed": "世話記録の更新に失敗しました",
+    "delete_failed": "世話記録の削除に失敗しました",
+    "load_failed": "世話記録の読み込みに失敗しました",
+    "load_animals_failed": "猫一覧の読み込みに失敗しました",
+    "required_fields": "必須項目を入力してください"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "title": "Settings",
+  "page_description": "Manage system settings",
+  "sections": {
+    "organization": {
+      "title": "Organization Information",
+      "organization_name": "Organization Name",
+      "address": "Address",
+      "phone": "Phone Number",
+      "email": "Email Address"
+    },
+    "image": {
+      "title": "Image Settings",
+      "max_count": "Maximum Count",
+      "max_count_help": "Maximum number of images per cat",
+      "max_size": "Maximum File Size (MB)",
+      "max_size_help": "Maximum size per file"
+    },
+    "language": {
+      "title": "Language Settings",
+      "default_language": "Default Language",
+      "ja": "Japanese",
+      "en": "English"
+    },
+    "security": {
+      "title": "Security Settings",
+      "session_timeout": "Session Timeout (hours)",
+      "login_attempts": "Login Attempt Limit"
+    },
+    "backup": {
+      "title": "Backup Settings",
+      "auto_backup": "Auto Backup",
+      "auto_backup_label": "Run automatic backup daily at 2:00 AM",
+      "retention_period": "Retention Period (days)",
+      "retention_period_help": "Backups older than this period will be automatically deleted",
+      "backup_now": "Backup Now"
+    }
+  },
+  "buttons": {
+    "save": "Save"
+  }
+}

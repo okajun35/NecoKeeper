@@ -1,5 +1,7 @@
 {% extends "admin/base.html" %}
 
+{% block title_key %}new_title{% endblock %}
+{% block title_ns %}animals{% endblock %}
 {% block title %}猫新規登録 - NecoKeeper{% endblock %}
 
 {% block content %}
@@ -7,11 +9,11 @@
   <!-- ヘッダー -->
   <div class="flex justify-between items-center">
     <div>
-      <h2 class="text-2xl font-bold text-gray-900">猫新規登録</h2>
-      <p class="mt-1 text-sm text-gray-500">新しい猫を登録します</p>
+      <h2 class="text-2xl font-bold text-gray-900" data-i18n="new_title" data-i18n-ns="animals">猫新規登録</h2>
+      <p class="mt-1 text-sm text-gray-500" data-i18n="new_description" data-i18n-ns="animals">新しい猫を登録します</p>
     </div>
     <a href="/admin/animals"
-       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" data-i18n="cancel" data-i18n-ns="common">
       キャンセル
     </a>
   </div>
@@ -21,7 +23,7 @@
     <form id="new-form" class="space-y-6">
       <!-- プロフィール画像 -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="profile_image_optional" data-i18n-ns="animals">
           プロフィール画像（任意）
         </label>
         <div class="flex items-start gap-4">
@@ -29,6 +31,7 @@
           <div class="flex-shrink-0">
             <img id="profile-preview"
                  src="/static/images/default-cat.svg"
+                 data-i18n-alt="preview" data-i18n-ns="common"
                  alt="プレビュー"
                  class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300">
           </div>
@@ -38,15 +41,26 @@
                    id="profile-image"
                    name="profile_image"
                    accept="image/*"
-                   class="block w-full text-sm text-gray-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-lg file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-blue-50 file:text-blue-700
-                          hover:file:bg-blue-100">
-            <p class="mt-2 text-sm text-gray-500">
-              PNG, JPG, GIF（最大5MB）<br>
-              ※登録後、画像ギャラリーから追加・変更できます
+                   aria-describedby="profile-image-hint"
+                   class="sr-only">
+            <div class="flex items-center gap-3">
+              <label for="profile-image"
+                     class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 cursor-pointer text-sm font-semibold hover:bg-blue-100 transition-colors"
+                     data-i18n="file_input.choose"
+                     data-i18n-ns="common">
+                ファイルを選択
+              </label>
+              <span id="profile-image-filename"
+                    class="text-sm text-gray-500"
+                    data-i18n="file_input.empty"
+                    data-i18n-ns="common"
+                    aria-live="polite">
+                選択されていません
+              </span>
+            </div>
+            <p id="profile-image-hint" class="mt-2 text-sm text-gray-500">
+              <span data-i18n="image_format_note" data-i18n-ns="animals">PNG, JPG, GIF（最大5MB）</span><br>
+              <span data-i18n="image_gallery_note" data-i18n-ns="animals">※登録後、画像ギャラリーから追加・変更できます</span>
             </p>
           </div>
         </div>
@@ -56,7 +70,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-            名前 <span class="text-red-500">*</span>
+            <span data-i18n="fields.name" data-i18n-ns="animals">名前</span> <span class="text-red-500">*</span>
           </label>
           <input type="text" id="name" name="name" required
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -64,7 +78,7 @@
 
         <div>
           <label for="pattern" class="block text-sm font-medium text-gray-700 mb-2">
-            柄 <span class="text-red-500">*</span>
+            <span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span> <span class="text-red-500">*</span>
           </label>
           <input type="text" id="pattern" name="pattern" required
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -72,48 +86,49 @@
 
         <div>
           <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">
-            性別 <span class="text-red-500">*</span>
+            <span data-i18n="fields.gender" data-i18n-ns="animals">性別</span> <span class="text-red-500">*</span>
           </label>
           <select id="gender" name="gender" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">選択してください</option>
-            <option value="male">オス</option>
-            <option value="female">メス</option>
-            <option value="unknown">不明</option>
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="male" data-i18n="gender.male" data-i18n-ns="animals">オス</option>
+            <option value="female" data-i18n="gender.female" data-i18n-ns="animals">メス</option>
+            <option value="unknown" data-i18n="gender.unknown" data-i18n-ns="animals">不明</option>
           </select>
         </div>
 
         <div>
           <label for="age" class="block text-sm font-medium text-gray-700 mb-2">
-            年齢 <span class="text-red-500">*</span>
+            <span data-i18n="fields.age" data-i18n-ns="animals">年齢</span> <span class="text-red-500">*</span>
           </label>
           <select id="age" name="age" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">選択してください</option>
-            <option value="子猫">子猫</option>
-            <option value="成猫">成猫</option>
-            <option value="老猫">老猫</option>
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="子猫" data-i18n="age.kitten" data-i18n-ns="animals">子猫</option>
+            <option value="成猫" data-i18n="age.adult" data-i18n-ns="animals">成猫</option>
+            <option value="老猫" data-i18n="age.senior" data-i18n-ns="animals">老猫</option>
           </select>
         </div>
 
         <div>
           <label for="tail_length" class="block text-sm font-medium text-gray-700 mb-2">
-            尻尾の長さ <span class="text-red-500">*</span>
+            <span data-i18n="fields.tail_length" data-i18n-ns="animals">尻尾の長さ</span> <span class="text-red-500">*</span>
           </label>
           <select id="tail_length" name="tail_length" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">選択してください</option>
-            <option value="長い">長い</option>
-            <option value="短い">短い</option>
-            <option value="なし">なし</option>
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="長い" data-i18n="tail.long" data-i18n-ns="animals">長い</option>
+            <option value="短い" data-i18n="tail.short" data-i18n-ns="animals">短い</option>
+            <option value="なし" data-i18n="tail.none" data-i18n-ns="animals">なし</option>
           </select>
         </div>
 
         <div>
-          <label for="collar" class="block text-sm font-medium text-gray-700 mb-2">
+          <label for="collar" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.collar" data-i18n-ns="animals">
             首輪
           </label>
           <input type="text" id="collar" name="collar"
+                 data-i18n-placeholder="collar_placeholder" data-i18n-ns="animals"
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                  placeholder="例: 赤い首輪">
         </div>
@@ -122,27 +137,27 @@
           <label class="flex items-center gap-2">
             <input type="checkbox" id="ear_cut" name="ear_cut"
                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium text-gray-700">耳カット（TNR済み）</span>
+            <span class="text-sm font-medium text-gray-700" data-i18n="fields.ear_cut" data-i18n-ns="animals">耳カット（TNR済み）</span>
           </label>
         </div>
 
         <div>
           <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-            ステータス <span class="text-red-500">*</span>
+            <span data-i18n="status" data-i18n-ns="common">ステータス</span> <span class="text-red-500">*</span>
           </label>
           <select id="status" name="status" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">選択してください</option>
-            <option value="保護中">保護中</option>
-            <option value="治療中">治療中</option>
-            <option value="譲渡可能">譲渡可能</option>
-            <option value="譲渡済み">譲渡済み</option>
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="保護中" data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
+            <option value="治療中" data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
+            <option value="譲渡可能" data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
+            <option value="譲渡済み" data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
           </select>
         </div>
 
         <div>
           <label for="protected_at" class="block text-sm font-medium text-gray-700 mb-2">
-            保護日 <span class="text-red-500">*</span>
+            <span data-i18n="fields.protected_at" data-i18n-ns="animals">保護日</span> <span class="text-red-500">*</span>
           </label>
           <input type="date" id="protected_at" name="protected_at" required
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -151,21 +166,22 @@
 
       <!-- 特徴・性格 -->
       <div>
-        <label for="features" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="features" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.features" data-i18n-ns="animals">
           特徴・性格
         </label>
         <textarea id="features" name="features" rows="4"
+                  data-i18n-placeholder="features_placeholder" data-i18n-ns="animals"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="外傷、特徴、性格などを記入"></textarea>
       </div>
 
       <!-- 登録ボタン -->
       <div class="flex justify-end gap-3">
-        <a href="/admin/animals"
+        <a href="/admin/animals" data-i18n="cancel" data-i18n-ns="common"
            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
           キャンセル
         </a>
-        <button type="submit"
+        <button type="submit" data-i18n="register" data-i18n-ns="animals"
                 class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           登録
         </button>

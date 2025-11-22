@@ -1,8 +1,11 @@
 {% extends "admin/base.html" %}
 
+{% block title_key %}detail_title{% endblock %}
+{% block title_ns %}animals{% endblock %}
 {% block title %}猫詳細{% endblock %}
+
 {% block page_title %}{{ animal.name }}{% endblock %}
-{% block page_description %}猫の詳細情報{% endblock %}
+{% block page_description %}<span data-i18n="detail_title" data-i18n-ns="animals">猫の詳細情報</span>{% endblock %}
 
 {% block header_actions %}
 <div class="flex flex-wrap gap-2">
@@ -10,15 +13,15 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
-        <span>QRカード出力</span>
+        <span data-i18n="actions.generate_qr" data-i18n-ns="animals">QRカード出力</span>
     </button>
     <button id="generatePaperFormBtn" type="button" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
-        <span>紙記録フォーム出力</span>
+        <span data-i18n="actions.generate_form" data-i18n-ns="animals">紙記録フォーム出力</span>
     </button>
-    <a href="/admin/animals" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+    <a href="/admin/animals" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back_to_list" data-i18n-ns="animals">
         一覧に戻る
     </a>
 </div>
@@ -30,19 +33,19 @@
     <div class="bg-white rounded-lg shadow-sm">
         <div class="border-b border-gray-200">
             <nav class="flex overflow-x-auto" aria-label="Tabs">
-                <button id="tab-basic" class="tab-button active px-4 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap">
+                <button id="tab-basic" class="tab-button active px-4 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap" data-i18n="tabs.basic_info" data-i18n-ns="animals">
                     基本情報
                 </button>
-                <button id="tab-care" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                <button id="tab-care" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-i18n="tabs.care_logs" data-i18n-ns="animals">
                     世話記録
                 </button>
-                <button id="tab-medical" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                <button id="tab-medical" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-i18n="tabs.medical_records" data-i18n-ns="animals">
                     診療記録
                 </button>
-                <button id="tab-gallery" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                <button id="tab-gallery" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-i18n="tabs.gallery" data-i18n-ns="animals">
                     画像ギャラリー
                 </button>
-                <button id="tab-weight" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                <button id="tab-weight" class="tab-button px-4 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" data-i18n="tabs.weight_chart" data-i18n-ns="animals">
                     体重推移
                 </button>
             </nav>
@@ -59,21 +62,21 @@
                             <img id="animalPhoto" src="{{ display_image }}" alt="{{ animal.name }}" class="w-full h-full object-cover">
                             <!-- 画像変更ボタン（ホバー時に表示） -->
                             <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button id="changeProfileImageBtn" type="button" class="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                                <button id="changeProfileImageBtn" type="button" class="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors" data-i18n="actions.change_photo" data-i18n-ns="animals">
                                     画像を変更
                                 </button>
                             </div>
                         </div>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">ステータス</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.status" data-i18n-ns="animals">ステータス</label>
                             <select id="statusSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                <option value="保護中" {% if animal.status == '保護中' %}selected{% endif %}>保護中</option>
-                                <option value="治療中" {% if animal.status == '治療中' %}selected{% endif %}>治療中</option>
-                                <option value="譲渡可能" {% if animal.status == '譲渡可能' %}selected{% endif %}>譲渡可能</option>
-                                <option value="譲渡済み" {% if animal.status == '譲渡済み' %}selected{% endif %}>譲渡済み</option>
+                                <option value="保護中" {% if animal.status == '保護中' %}selected{% endif %} data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
+                                <option value="治療中" {% if animal.status == '治療中' %}selected{% endif %} data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
+                                <option value="譲渡可能" {% if animal.status == '譲渡可能' %}selected{% endif %} data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
+                                <option value="譲渡済み" {% if animal.status == '譲渡済み' %}selected{% endif %} data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
                             </select>
                             <button id="updateStatusBtn" class="mt-2 w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                                ステータス更新
+                                <span data-i18n="actions.update_status" data-i18n-ns="animals">ステータス更新</span>
                             </button>
                         </div>
                     </div>
@@ -83,66 +86,82 @@
                         <form id="basicInfoForm" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">名前 <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.name" data-i18n-ns="animals">名前</span> <span class="text-red-500">*</span>
+                                    </label>
                                     <input type="text" id="name" value="{{ animal.name }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">柄 <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span> <span class="text-red-500">*</span>
+                                    </label>
                                     <input type="text" id="pattern" value="{{ animal.pattern }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">尻尾の長さ <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.tail_length" data-i18n-ns="animals">尻尾の長さ</span> <span class="text-red-500">*</span>
+                                    </label>
                                     <select id="tailLength" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="長い" {% if animal.tail_length == '長い' %}selected{% endif %}>長い</option>
-                                        <option value="短い" {% if animal.tail_length == '短い' %}selected{% endif %}>短い</option>
-                                        <option value="かぎしっぽ" {% if animal.tail_length == 'かぎしっぽ' %}selected{% endif %}>かぎしっぽ</option>
-                                        <option value="なし" {% if animal.tail_length == 'なし' %}selected{% endif %}>なし</option>
+                                        <option value="長い" {% if animal.tail_length == '長い' %}selected{% endif %} data-i18n="tail.long" data-i18n-ns="animals">長い</option>
+                                        <option value="短い" {% if animal.tail_length == '短い' %}selected{% endif %} data-i18n="tail.short" data-i18n-ns="animals">短い</option>
+                                        <option value="かぎしっぽ" {% if animal.tail_length == 'かぎしっぽ' %}selected{% endif %} data-i18n="tail.bobtail" data-i18n-ns="animals">かぎしっぽ</option>
+                                        <option value="なし" {% if animal.tail_length == 'なし' %}selected{% endif %} data-i18n="tail.none" data-i18n-ns="animals">なし</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">首輪 <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.collar" data-i18n-ns="animals">首輪</span> <span class="text-red-500">*</span>
+                                    </label>
                                     <select id="collar" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="あり" {% if animal.collar == 'あり' %}selected{% endif %}>あり</option>
-                                        <option value="なし" {% if animal.collar == 'なし' %}selected{% endif %}>なし</option>
+                                        <option value="あり" {% if animal.collar == 'あり' %}selected{% endif %} data-i18n="collar_options.has" data-i18n-ns="animals">あり</option>
+                                        <option value="なし" {% if animal.collar == 'なし' %}selected{% endif %} data-i18n="collar_options.none" data-i18n-ns="animals">なし</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">年齢</label>
-                                    <input type="text" id="age" value="{{ animal.age or '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.age" data-i18n-ns="animals">年齢</span> <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="age" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                        <option value="子猫" {% if animal.age == '子猫' %}selected{% endif %} data-i18n="age.kitten" data-i18n-ns="animals">子猫</option>
+                                        <option value="成猫" {% if animal.age == '成猫' %}selected{% endif %} data-i18n="age.adult" data-i18n-ns="animals">成猫</option>
+                                        <option value="老猫" {% if animal.age == '老猫' %}selected{% endif %} data-i18n="age.senior" data-i18n-ns="animals">老猫</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">性別 <span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.gender" data-i18n-ns="animals">性別</span> <span class="text-red-500">*</span>
+                                    </label>
                                     <select id="gender" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="male" {% if animal.gender == 'male' %}selected{% endif %}>オス</option>
-                                        <option value="female" {% if animal.gender == 'female' %}selected{% endif %}>メス</option>
-                                        <option value="unknown" {% if animal.gender == 'unknown' %}selected{% endif %}>不明</option>
+                                        <option value="male" {% if animal.gender == 'male' %}selected{% endif %} data-i18n="gender.male" data-i18n-ns="animals">オス</option>
+                                        <option value="female" {% if animal.gender == 'female' %}selected{% endif %} data-i18n="gender.female" data-i18n-ns="animals">メス</option>
+                                        <option value="unknown" {% if animal.gender == 'unknown' %}selected{% endif %} data-i18n="gender.unknown" data-i18n-ns="animals">不明</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                     <input type="checkbox" id="earCut" {% if animal.ear_cut %}checked{% endif %} class="mr-2">
-                                    耳カット済み
+                                    <span data-i18n="fields.ear_cut" data-i18n-ns="animals">耳カット</span>
                                 </label>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">特徴</label>
-                                <textarea id="features" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">{{ animal.features or '' }}</textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.features" data-i18n-ns="animals">特徴</label>
+                                <textarea id="features" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" data-i18n-placeholder="features_placeholder" data-i18n-ns="animals" placeholder="外傷、特徴、性格などを記入">{{ animal.features or '' }}</textarea>
                             </div>
 
                             <div class="flex gap-2">
-                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="buttons.save" data-i18n-ns="common">
                                     保存
                                 </button>
-                                <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                                <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="buttons.cancel" data-i18n-ns="common">
                                     キャンセル
                                 </button>
                             </div>
@@ -153,28 +172,28 @@
 
             <!-- 世話記録タブ -->
             <div id="content-care" class="tab-content hidden">
-                <div class="text-center py-8 text-gray-500">
+                <div class="text-center py-8 text-gray-500" data-i18n="loading.care_logs" data-i18n-ns="animals">
                     世話記録を読み込み中...
                 </div>
             </div>
 
             <!-- 診療記録タブ -->
             <div id="content-medical" class="tab-content hidden">
-                <div class="text-center py-8 text-gray-500">
+                <div class="text-center py-8 text-gray-500" data-i18n="loading.medical_records" data-i18n-ns="animals">
                     診療記録を読み込み中...
                 </div>
             </div>
 
             <!-- 画像ギャラリータブ -->
             <div id="content-gallery" class="tab-content hidden">
-                <div class="text-center py-8 text-gray-500">
+                <div class="text-center py-8 text-gray-500" data-i18n="loading.gallery" data-i18n-ns="animals">
                     画像ギャラリーを読み込み中...
                 </div>
             </div>
 
             <!-- 体重推移タブ -->
             <div id="content-weight" class="tab-content hidden">
-                <div class="text-center py-8 text-gray-500">
+                <div class="text-center py-8 text-gray-500" data-i18n="loading.weight_chart" data-i18n-ns="animals">
                     体重推移グラフを読み込み中...
                 </div>
             </div>
@@ -190,7 +209,7 @@
     <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">プロフィール画像を変更</h3>
+                <h3 class="text-xl font-bold" data-i18n="modals.profile_image.title" data-i18n-ns="animals">プロフィール画像を変更</h3>
                 <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -201,10 +220,10 @@
             <!-- タブ -->
             <div class="border-b border-gray-200 mb-4">
                 <nav class="flex space-x-4">
-                    <button id="tab-upload" class="modal-tab active px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 font-medium">
+                    <button id="tab-upload" class="modal-tab active px-4 py-2 border-b-2 border-indigo-600 text-indigo-600 font-medium" data-i18n="modals.profile_image.upload_tab" data-i18n-ns="animals">
                         新しい画像をアップロード
                     </button>
-                    <button id="tab-gallery" class="modal-tab px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                    <button id="tab-gallery" class="modal-tab px-4 py-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-i18n="modals.profile_image.select_tab" data-i18n-ns="animals">
                         ギャラリーから選択
                     </button>
                 </nav>
@@ -214,23 +233,40 @@
             <div id="content-upload" class="modal-content">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">画像ファイル</label>
-                        <input type="file" id="modal-file-input" accept="image/*" class="block w-full text-sm text-gray-500
-                               file:mr-4 file:py-2 file:px-4
-                               file:rounded-lg file:border-0
-                               file:text-sm file:font-semibold
-                               file:bg-indigo-50 file:text-indigo-700
-                               hover:file:bg-indigo-100">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.photo" data-i18n-ns="animals">画像ファイル</label>
+                            <input type="file"
+                                   id="modal-file-input"
+                                   accept="image/*"
+                                   aria-describedby="modal-file-hint"
+                                   class="sr-only">
+                            <div class="flex items-center gap-3">
+                                <label for="modal-file-input"
+                                       class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 cursor-pointer text-sm font-semibold hover:bg-indigo-100 transition-colors"
+                                       data-i18n="file_input.choose"
+                                       data-i18n-ns="common">
+                                    ファイルを選択
+                                </label>
+                                <span id="modal-file-name"
+                                      class="text-sm text-gray-500"
+                                      data-i18n="file_input.empty"
+                                      data-i18n-ns="common"
+                                      aria-live="polite">
+                                    選択されていません
+                                </span>
+                            </div>
+                            <p id="modal-file-hint" class="mt-2 text-sm text-gray-500">
+                                <span data-i18n="image_format_note" data-i18n-ns="animals">PNG, JPG, GIF（最大5MB）</span>
+                            </p>
                     </div>
                     <div id="modal-preview-container" class="hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">プレビュー</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="common.preview" data-i18n-ns="common">プレビュー</label>
                         <img id="modal-preview" class="w-64 h-64 object-cover rounded-lg border-2 border-gray-300">
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button id="cancelUploadBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        <button id="cancelUploadBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" data-i18n="buttons.cancel" data-i18n-ns="common">
                             キャンセル
                         </button>
-                        <button id="uploadBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" disabled>
+                        <button id="uploadBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" disabled data-i18n="actions.upload_photo" data-i18n-ns="animals">
                             アップロード
                         </button>
                     </div>
@@ -242,7 +278,7 @@
                 <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- JavaScriptで動的に生成 -->
                 </div>
-                <div id="gallery-empty" class="hidden text-center py-8 text-gray-500">
+                <div id="gallery-empty" class="hidden text-center py-8 text-gray-500" data-i18n="gallery.empty" data-i18n-ns="animals">
                     画像ギャラリーに画像がありません
                 </div>
             </div>
@@ -253,41 +289,41 @@
 <!-- 紙記録フォーム年月選択モーダル -->
 <div id="paperFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-bold mb-4">紙記録フォーム出力</h3>
-        <p class="text-sm text-gray-600 mb-4">出力する年月を選択してください</p>
+        <h3 class="text-lg font-bold mb-4" data-i18n="paper_form.title" data-i18n-ns="animals">紙記録フォーム出力</h3>
+        <p class="text-sm text-gray-600 mb-4" data-i18n="paper_form.description" data-i18n-ns="animals">出力する年月を選択してください</p>
 
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">年</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="paper_form.year_label" data-i18n-ns="animals">年</label>
                 <select id="paperFormYear" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     <!-- JavaScriptで動的に生成 -->
                 </select>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">月</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="paper_form.month_label" data-i18n-ns="animals">月</label>
                 <select id="paperFormMonth" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                    <option value="1">1月</option>
-                    <option value="2">2月</option>
-                    <option value="3">3月</option>
-                    <option value="4">4月</option>
-                    <option value="5">5月</option>
-                    <option value="6">6月</option>
-                    <option value="7">7月</option>
-                    <option value="8">8月</option>
-                    <option value="9">9月</option>
-                    <option value="10">10月</option>
-                    <option value="11">11月</option>
-                    <option value="12">12月</option>
+                    <option value="1" data-i18n="months.1" data-i18n-ns="common">1月</option>
+                    <option value="2" data-i18n="months.2" data-i18n-ns="common">2月</option>
+                    <option value="3" data-i18n="months.3" data-i18n-ns="common">3月</option>
+                    <option value="4" data-i18n="months.4" data-i18n-ns="common">4月</option>
+                    <option value="5" data-i18n="months.5" data-i18n-ns="common">5月</option>
+                    <option value="6" data-i18n="months.6" data-i18n-ns="common">6月</option>
+                    <option value="7" data-i18n="months.7" data-i18n-ns="common">7月</option>
+                    <option value="8" data-i18n="months.8" data-i18n-ns="common">8月</option>
+                    <option value="9" data-i18n="months.9" data-i18n-ns="common">9月</option>
+                    <option value="10" data-i18n="months.10" data-i18n-ns="common">10月</option>
+                    <option value="11" data-i18n="months.11" data-i18n-ns="common">11月</option>
+                    <option value="12" data-i18n="months.12" data-i18n-ns="common">12月</option>
                 </select>
             </div>
         </div>
 
         <div class="flex gap-2 mt-6">
-            <button id="confirmPaperFormBtn" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <button id="confirmPaperFormBtn" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors" data-i18n="paper_form.generate" data-i18n-ns="animals">
                 出力
             </button>
-            <button id="cancelPaperFormBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+            <button id="cancelPaperFormBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="buttons.cancel" data-i18n-ns="common">
                 キャンセル
             </button>
         </div>
@@ -302,5 +338,5 @@
 <script>
     const animalId = {{ animal.id }};
 </script>
-<script src="/static/js/admin/animal_detail.js?v=3"></script>
+<script src="/static/js/admin/animal_detail.js?v=6"></script>
 {% endblock %}

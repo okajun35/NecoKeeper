@@ -102,9 +102,9 @@ pip install -r requirements.txt
 6. ✅ Phase 9: Publicフォーム（基本入力）
 
 ### 高優先（MVP Extended）
-7. Phase 5: 診療記録機能
-8. Phase 7: 里親管理機能
-9. Phase 8: 管理画面UI（基本画面）
+7. ✅ Phase 5: 診療記録機能
+8. ✅ Phase 7: 里親管理機能
+9. ✅ Phase 8: 管理画面UI（基本画面）
 10. Phase 11: セキュリティとログ
 
 ### 中優先（Enhancement）
@@ -920,10 +920,12 @@ CSV・Excel形式でのデータ出力機能を実装します。
 
 日本語・英語の多言語対応を実装します。
 
-- [ ] 15.1 対訳ファイルを作成（app/static/i18n/）
-  - ja.json（日本語）
-  - en.json（英語）
+- [x] 15.1 対訳ファイルを作成（app/static/i18n/）✅
+  - ja.json（日本語）- 完成
+  - en.json（英語）- 完成
   - カテゴリ別に文言を定義（共通UI、猫台帳、世話記録、診療記録、里親管理、帳票、エラーメッセージ）
+  - 17カテゴリ、800+翻訳キー実装
+  - README.md（使用方法・命名規則ドキュメント）
   - _Requirements: Requirement 19.2, Requirement 19.6_
 
 - [ ] 15.2 フロントエンド多言語化を実装（JavaScript）

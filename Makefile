@@ -3,6 +3,9 @@
 # デフォルトターゲット
 .DEFAULT_GOAL := help
 
+# mypyで解析するパス（pre-commitと同一設定）
+MYPY_TARGETS = app/
+
 # ヘルプメッセージ
 help:
 	@echo "NecoKeeper - 開発用Makeコマンド"
@@ -52,12 +55,20 @@ format:
 # pre-commitと同じ設定: app/配下のPythonファイルのみチェック
 mypy:
 	@echo "🔎 [3/5] 型チェック中（Mypy）..."
-	@mypy --config-file=mypy.ini app/ || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
+	@mypy --config-file=mypy.ini $(MYPY_TARGETS) || (echo "⚠️  Mypy型チェックでエラーが見つかりました" && exit 1)
 	@echo "✅ 型チェック完了"
+
+# 国際化翻訳ファイルをコンパイル
+i18n-compile:
+	@echo "🌐 i18n翻訳ファイルをコンパイル中..."
+	@pybabel compile -d app/locales
+	@echo "✅ i18n翻訳ファイルのコンパイル完了"
 
 # テスト実行（Pytest）
 test:
 	@echo "🧪 [4/5] テスト実行中（Pytest）..."
+	@echo "🌐 i18n翻訳ファイルをコンパイル中..."
+	@pybabel compile -d app/locales
 	@python -m pytest -v --tb=short
 	@echo "✅ テスト完了"
 

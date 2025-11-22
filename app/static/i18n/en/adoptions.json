@@ -1,0 +1,72 @@
+{
+  "applicants": {
+    "title": "Applicant Management",
+    "description": "Register and manage adoption applicants",
+    "search_placeholder": "Search by name, contact...",
+    "fields": {
+      "name": "Name",
+      "contact": "Contact",
+      "address": "Address",
+      "family": "Family",
+      "environment": "Environment",
+      "conditions": "Conditions",
+      "registration_date": "Registration Date"
+    },
+    "labels": {
+      "address": "Address",
+      "family": "Family",
+      "registration_date": "Registered"
+    },
+    "placeholders": {
+      "contact": "Phone number, email, etc.",
+      "family": "e.g., Couple, 1 child",
+      "environment": "e.g., Apartment, pets allowed",
+      "conditions": "e.g., Adult cat preferred, male preferred"
+    },
+    "modal": {
+      "title_new": "Register Applicant",
+      "title_edit": "Edit Applicant"
+    }
+  },
+  "records": {
+    "title": "Adoption Records",
+    "description": "Manage interview and adoption records",
+    "buttons": {
+      "new_interview": "New Interview",
+      "complete_adoption": "Complete Adoption"
+    },
+    "filters": {
+      "animal": "Cat",
+      "applicant": "Applicant",
+      "decision": "Decision"
+    },
+    "fields": {
+      "animal": "Cat",
+      "applicant": "Applicant",
+      "interview_date": "Interview Date",
+      "interview_note": "Interview Notes",
+      "decision": "Decision",
+      "adoption_date": "Adoption Date"
+    },
+    "decision": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "modal": {
+      "title_new": "New Interview Record",
+      "title_edit": "Edit Interview Record",
+      "adoption_complete": "Complete Adoption"
+    },
+    "messages": {
+      "adoption_warning": "⚠️ Completing adoption will change the cat's status to 'Adopted'.",
+      "registered": "Registered",
+      "updated": "Updated",
+      "adoption_completed": "Adoption completed"
+    },
+    "labels": {
+      "interview_date_label": "Interview",
+      "adoption_date_label": "Adopted"
+    }
+  }
+}

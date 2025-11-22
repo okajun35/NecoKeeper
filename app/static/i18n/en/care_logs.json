@@ -1,0 +1,67 @@
+{
+  "title": "Care Logs",
+  "list_title": "Care Log List",
+  "add_new": "Add New Log",
+  "edit": "Edit Log",
+  "delete_confirm": "Are you sure you want to delete this log?",
+  "export_csv": "Export CSV",
+  "fields": {
+    "id": "ID",
+    "animal": "Cat",
+    "recorder": "Recorder",
+    "time_slot": "Time Slot",
+    "appetite": "Appetite",
+    "energy": "Energy",
+    "urination": "Urination",
+    "cleaning": "Cleaning",
+    "memo": "Memo",
+    "log_date": "Log Date",
+    "created_at": "Created At"
+  },
+  "time_slots": {
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening"
+  },
+  "appetite_levels": {
+    "1": "1 (Not eating)",
+    "2": "2 (Little)",
+    "3": "3 (Normal)",
+    "4": "4 (Good)",
+    "5": "5 (Excellent)"
+  },
+  "energy_levels": {
+    "1": "1 (Lethargic)",
+    "2": "2 (Low energy)",
+    "3": "3 (Normal)",
+    "4": "4 (Energetic)",
+    "5": "5 (Very energetic)"
+  },
+  "urination_status": {
+    "yes": "Yes",
+    "no": "No"
+  },
+  "cleaning_status": {
+    "done": "Done",
+    "not_done": "Not done"
+  },
+  "filter": {
+    "by_animal": "Filter by cat",
+    "by_date": "Filter by date",
+    "by_time_slot": "Filter by time slot",
+    "start_date": "Start date",
+    "end_date": "End date"
+  },
+  "messages": {
+    "created": "Care log created successfully",
+    "updated": "Care log updated successfully",
+    "deleted": "Care log deleted successfully",
+    "exported": "CSV exported successfully",
+    "create_failed": "Failed to create care log",
+    "update_failed": "Failed to update care log",
+    "delete_failed": "Failed to delete care log",
+    "load_failed": "Failed to load care logs",
+    "load_animals_failed": "Failed to load animals list",
+    "required_fields": "Please fill in all required fields"
+  }
+}

@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+  <h2 class="text-2xl font-bold mb-4" data-i18n="volunteer_detail" data-i18n-ns="volunteers">ボランティア詳細</h2>
+  <div id="volunteerDetail">
+    <!-- JavaScriptで動的に表示 -->
+  </div>
+  <div class="mt-6 flex gap-2">
+    <a href="/admin/volunteers" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-i18n="back" data-i18n-ns="common">戻る</a>
+    <a id="editBtn" href="#" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" data-i18n="edit" data-i18n-ns="common">編集</a>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="/static/js/admin/volunteer_detail.js"></script>
+{% endblock %}

@@ -7,10 +7,26 @@ let filteredRecords = [];
 let animals = [];
 let applicants = [];
 
+// Helper function for safe i18next translation
+function t(key, options = {}) {
+  if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+    return i18next.t(key, options);
+  }
+  // Fallback: return last part of key
+  const parts = key.split('.');
+  return parts[parts.length - 1];
+}
+
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
-  loadData();
-  setupEventListeners();
+  // Wait for i18next to initialize before loading data
+  const checkI18n = setInterval(() => {
+    if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+      clearInterval(checkI18n);
+      loadData();
+      setupEventListeners();
+    }
+  }, 50);
 });
 
 // イベントリスナー設定
@@ -40,28 +56,12 @@ async function loadData() {
   hideError();
 
   try {
-    const token = localStorage.getItem('access_token');
-
     // 並列で全データを取得
-    const [recordsRes, animalsRes, applicantsRes] = await Promise.all([
-      fetch('/api/v1/adoptions/records?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-      fetch('/api/v1/animals?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-      fetch('/api/v1/adoptions/applicants?limit=1000', {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+    const [recordsData, animalsData, applicantsData] = await Promise.all([
+      apiRequest('/api/v1/adoptions/records?limit=1000'),
+      apiRequest('/api/v1/animals?limit=1000'),
+      apiRequest('/api/v1/adoptions/applicants?limit=1000'),
     ]);
-
-    if (!recordsRes.ok || !animalsRes.ok || !applicantsRes.ok) {
-      throw new Error('データの取得に失敗しました');
-    }
-
-    const recordsData = await recordsRes.json();
-    const animalsData = await animalsRes.json();
-    const applicantsData = await applicantsRes.json();
 
     // APIレスポンスが配列かオブジェクト（{items: [...]}）かを確認
     allRecords = Array.isArray(recordsData) ? recordsData : recordsData.items || [];
@@ -83,25 +83,25 @@ function populateFilters() {
   // 猫フィルター
   const animalFilter = document.getElementById('animalFilter');
   animalFilter.innerHTML =
-    '<option value="">すべて</option>' +
+    `<option value="">${t('common:filters.all', { ns: 'common' })}</option>` +
     animals.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
   // 里親希望者フィルター
   const applicantFilter = document.getElementById('applicantFilter');
   applicantFilter.innerHTML =
-    '<option value="">すべて</option>' +
+    `<option value="">${t('common:filters.all', { ns: 'common' })}</option>` +
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
   // モーダル用の選択肢も設定（譲渡可能な猫のみ）
   document.getElementById('animalId').innerHTML =
-    '<option value="">選択してください</option>' +
+    `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
     animals
       .filter(a => a.status === '譲渡可能')
       .map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`)
       .join('');
 
   document.getElementById('applicantId').innerHTML =
-    '<option value="">選択してください</option>' +
+    `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 }
 
@@ -119,24 +119,24 @@ function renderRecords() {
             <div class="p-4 hover:bg-gray-50">
                 <div class="flex items-start justify-between mb-2">
                     <div>
-                        <h3 class="font-medium text-gray-900">${animal ? escapeHtml(animal.name) : '不明'}</h3>
-                        <p class="text-sm text-gray-500">${applicant ? escapeHtml(applicant.name) : '不明'}</p>
+                        <h3 class="font-medium text-gray-900">${animal ? escapeHtml(animal.name) : t('adoptions:records.labels.animal', { ns: 'adoptions' })}</h3>
+                        <p class="text-sm text-gray-500">${applicant ? escapeHtml(applicant.name) : t('adoptions:records.labels.applicant', { ns: 'adoptions' })}</p>
                     </div>
                     ${decisionBadge}
                 </div>
                 <div class="space-y-1 text-sm text-gray-600">
-                    ${record.interview_date ? `<p>面談日: ${formatDate(record.interview_date)}</p>` : ''}
-                    ${record.adoption_date ? `<p>譲渡日: ${formatDate(record.adoption_date)}</p>` : ''}
+                    ${record.interview_date ? `<p>${t('adoptions:records.labels.interview_date_label', { ns: 'adoptions' })}: ${formatDate(record.interview_date)}</p>` : ''}
+                    ${record.adoption_date ? `<p>${t('adoptions:records.labels.adoption_date_label', { ns: 'adoptions' })}: ${formatDate(record.adoption_date)}</p>` : ''}
                 </div>
                 <div class="mt-3 flex gap-2">
                     <button onclick="editRecord(${record.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                        編集
+                        ${t('common:buttons.edit', { ns: 'common' })}
                     </button>
                     ${
                       !record.adoption_date && record.decision === 'approved'
                         ? `
                         <button onclick="openAdoptionModal(${record.animal_id}, ${record.applicant_id})" class="flex-1 px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                            譲渡完了
+                            ${t('adoptions:records.buttons.complete_adoption', { ns: 'adoptions' })}
                         </button>
                     `
                         : ''
@@ -157,17 +157,17 @@ function renderRecords() {
 
       return `
             <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${animal ? escapeHtml(animal.name) : '不明'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${applicant ? escapeHtml(applicant.name) : '不明'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${animal ? escapeHtml(animal.name) : '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${applicant ? escapeHtml(applicant.name) : '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${record.interview_date ? formatDate(record.interview_date) : '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${decisionBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${record.adoption_date ? formatDate(record.adoption_date) : '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick="editRecord(${record.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">編集</button>
+                    <button onclick="editRecord(${record.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">${t('common:buttons.edit', { ns: 'common' })}</button>
                     ${
                       !record.adoption_date && record.decision === 'approved'
                         ? `
-                        <button onclick="openAdoptionModal(${record.animal_id}, ${record.applicant_id})" class="text-green-600 hover:text-green-900">譲渡完了</button>
+                        <button onclick="openAdoptionModal(${record.animal_id}, ${record.applicant_id})" class="text-green-600 hover:text-green-900">${t('adoptions:records.buttons.complete_adoption', { ns: 'adoptions' })}</button>
                     `
                         : ''
                     }
@@ -181,9 +181,9 @@ function renderRecords() {
 // 判定結果バッジ
 function getDecisionBadge(decision) {
   const badges = {
-    pending: '<span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">審査中</span>',
-    approved: '<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">承認済み</span>',
-    rejected: '<span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">不承認</span>',
+    pending: `<span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">${t('adoptions:records.decision.pending', { ns: 'adoptions' })}</span>`,
+    approved: `<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">${t('adoptions:records.decision.approved', { ns: 'adoptions' })}</span>`,
+    rejected: `<span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">${t('adoptions:records.decision.rejected', { ns: 'adoptions' })}</span>`,
   };
   return (
     badges[decision] || '<span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">-</span>'
@@ -224,7 +224,7 @@ function openInterviewModal(record = null) {
   form.reset();
 
   if (record) {
-    title.textContent = '面談記録編集';
+    title.textContent = t('adoptions:records.modal.title_edit', { ns: 'adoptions' });
     document.getElementById('recordId').value = record.id;
     document.getElementById('animalId').value = record.animal_id;
     document.getElementById('applicantId').value = record.applicant_id;
@@ -232,7 +232,7 @@ function openInterviewModal(record = null) {
     document.getElementById('interviewNote').value = record.interview_note || '';
     document.getElementById('decision').value = record.decision || 'pending';
   } else {
-    title.textContent = '面談記録登録';
+    title.textContent = t('adoptions:records.modal.title_new', { ns: 'adoptions' });
     document.getElementById('recordId').value = '';
     document.getElementById('decision').value = 'pending';
   }
@@ -273,12 +273,21 @@ async function saveInterview(e) {
     });
 
     if (!response.ok) {
-      throw new Error('保存に失敗しました');
+      throw new Error(
+        t('adoptions:records.messages.error', {
+          ns: 'adoptions',
+          defaultValue: '保存に失敗しました',
+        })
+      );
     }
 
     closeInterviewModal();
     await loadData();
-    alert(recordId ? '更新しました' : '登録しました');
+    alert(
+      recordId
+        ? t('adoptions:records.messages.updated', { ns: 'adoptions' })
+        : t('adoptions:records.messages.registered', { ns: 'adoptions' })
+    );
   } catch (error) {
     alert(error.message);
   }
@@ -330,24 +339,23 @@ async function completeAdoption(e) {
     });
 
     if (!response.ok) {
-      throw new Error('譲渡完了処理に失敗しました');
+      throw new Error(
+        t('adoptions:records.messages.error', {
+          ns: 'adoptions',
+          defaultValue: '譲渡完了処理に失敗しました',
+        })
+      );
     }
 
     closeAdoptionModal();
     await loadData();
-    alert('譲渡完了しました。猫のステータスが「譲渡済み」に更新されました。');
+    alert(t('adoptions:records.messages.adoption_completed', { ns: 'adoptions' }));
   } catch (error) {
     alert(error.message);
   }
 }
 
-// ユーティリティ関数
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return '-';
-  return date.toLocaleDateString('ja-JP');
-}
+// 注: formatDateはcommon.jsで定義済み
 
 function escapeHtml(text) {
   const div = document.createElement('div');

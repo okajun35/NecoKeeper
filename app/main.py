@@ -22,6 +22,7 @@ from app.api.v1 import (
     care_logs,
     dashboard,
     images,
+    language,
     medical_actions,
     medical_records,
     pdf,
@@ -32,6 +33,7 @@ from app.api.v1 import (
     volunteers,
 )
 from app.config import get_settings
+from app.middleware.auth_redirect import AuthRedirectMiddleware
 
 # 設定を取得
 settings = get_settings()
@@ -104,6 +106,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 認証リダイレクトミドルウェア（401エラーを共通処理）
+app.add_middleware(AuthRedirectMiddleware)
 
 
 # 静的ファイルのマウント
@@ -186,6 +191,7 @@ app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")  # ダッシュボードAPI
 app.include_router(images.router, prefix="/api/v1")
+app.include_router(language.router, prefix="/api/v1")  # 言語切り替えAPI
 app.include_router(medical_actions.router, prefix="/api/v1")
 app.include_router(medical_records.router, prefix="/api/v1")
 app.include_router(pdf.router, prefix="/api/v1")

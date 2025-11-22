@@ -1,0 +1,72 @@
+{
+  "applicants": {
+    "title": "里親希望者管理",
+    "description": "里親希望者の登録と管理",
+    "search_placeholder": "名前、連絡先で検索...",
+    "fields": {
+      "name": "氏名",
+      "contact": "連絡先",
+      "address": "住所",
+      "family": "家族構成",
+      "environment": "飼育環境",
+      "conditions": "希望条件",
+      "registration_date": "登録日"
+    },
+    "labels": {
+      "address": "住所",
+      "family": "家族",
+      "registration_date": "登録日"
+    },
+    "placeholders": {
+      "contact": "電話番号、メールアドレス等",
+      "family": "例: 夫婦2人、子供1人",
+      "environment": "例: マンション、ペット可",
+      "conditions": "例: 成猫希望、オス希望"
+    },
+    "modal": {
+      "title_new": "里親希望者登録",
+      "title_edit": "里親希望者編集"
+    }
+  },
+  "records": {
+    "title": "譲渡記録管理",
+    "description": "面談記録と譲渡記録の管理",
+    "buttons": {
+      "new_interview": "面談記録登録",
+      "complete_adoption": "譲渡完了"
+    },
+    "filters": {
+      "animal": "猫",
+      "applicant": "里親希望者",
+      "decision": "判定結果"
+    },
+    "fields": {
+      "animal": "猫",
+      "applicant": "里親希望者",
+      "interview_date": "面談日",
+      "interview_note": "面談内容",
+      "decision": "判定",
+      "adoption_date": "譲渡日"
+    },
+    "decision": {
+      "pending": "審査中",
+      "approved": "承認済み",
+      "rejected": "不承認"
+    },
+    "modal": {
+      "title_new": "面談記録登録",
+      "title_edit": "面談記録編集",
+      "adoption_complete": "譲渡完了"
+    },
+    "messages": {
+      "adoption_warning": "⚠️ 譲渡完了すると、猫のステータスが「譲渡済み」に変更されます。",
+      "registered": "登録しました",
+      "updated": "更新しました",
+      "adoption_completed": "譲渡完了しました"
+    },
+    "labels": {
+      "interview_date_label": "面談日",
+      "adoption_date_label": "譲渡日"
+    }
+  }
+}

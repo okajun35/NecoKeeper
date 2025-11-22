@@ -4,12 +4,42 @@
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
-  const recordId = getRecordIdFromUrl();
-  if (recordId) {
-    loadMedicalRecord(recordId);
-  } else {
-    showError('診療記録IDが指定されていません');
-  }
+  // i18nが初期化されるまで待機
+  const waitForI18n = setInterval(() => {
+    if (window.i18n && window.i18n.getCurrentLanguage) {
+      clearInterval(waitForI18n);
+
+      const recordId = getRecordIdFromUrl();
+      if (recordId) {
+        loadMedicalRecord(recordId);
+      } else {
+        showError(window.i18n.t('load_error', { ns: 'medical_records' }));
+      }
+
+      // 言語変更イベントをリッスン
+      window.addEventListener('languageChanged', () => {
+        // 動的に生成されたコンテンツを再レンダリング
+        const recordId = getRecordIdFromUrl();
+        if (recordId) {
+          loadMedicalRecord(recordId);
+        }
+      });
+    }
+  }, 100);
+
+  // タイムアウト（5秒）
+  setTimeout(() => {
+    clearInterval(waitForI18n);
+    if (!window.i18n || !window.i18n.getCurrentLanguage) {
+      console.warn('[medical_records_detail] i18n initialization timeout');
+      const recordId = getRecordIdFromUrl();
+      if (recordId) {
+        loadMedicalRecord(recordId);
+      } else {
+        showError('診療記録IDが指定されていません');
+      }
+    }
+  }, 5000);
 });
 
 // URLから診療記録IDを取得
@@ -32,9 +62,17 @@ async function loadMedicalRecord(recordId) {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error('診療記録が見つかりません');
+        const noDataMsg =
+          window.i18n && window.i18n.t
+            ? window.i18n.t('no_data', { ns: 'common' })
+            : 'データがありません';
+        throw new Error(noDataMsg);
       }
-      throw new Error('診療記録の取得に失敗しました');
+      const errorMsg =
+        window.i18n && window.i18n.t
+          ? window.i18n.t('load_error', { ns: 'medical_records' })
+          : '読み込みに失敗しました';
+      throw new Error(errorMsg);
     }
 
     const record = await response.json();
@@ -49,25 +87,32 @@ async function loadMedicalRecord(recordId) {
 
 // 診療記録を表示
 function renderMedicalRecord(record) {
+  const t = key =>
+    window.i18n && window.i18n.t ? window.i18n.t(key, { ns: 'medical_records' }) : key;
+  const notAvailable = t('dynamic.not_available');
+
   // 基本情報
   document.getElementById('recordDate').textContent = record.date;
-  document.getElementById('recordTimeSlot').textContent = record.time_slot || '-';
+  document.getElementById('recordTimeSlot').textContent = record.time_slot || notAvailable;
 
   // 猫名を表示（リンク付き）
-  const animalText = record.animal_name || `猫ID: ${record.animal_id}`;
+  const animalText = record.animal_name || `${t('dynamic.cat_id')}: ${record.animal_id}`;
   const animalLink = record.animal_name
     ? `<a href="/admin/animals/${record.animal_id}" class="text-indigo-600 hover:text-indigo-900">${animalText}</a>`
     : animalText;
   document.getElementById('recordAnimal').innerHTML = animalLink;
 
   // 獣医師名を表示
-  document.getElementById('recordVet').textContent = record.vet_name || `獣医ID: ${record.vet_id}`;
+  document.getElementById('recordVet').textContent =
+    record.vet_name || `${t('dynamic.vet_id')}: ${record.vet_id}`;
 
   // 測定値
-  document.getElementById('recordWeight').textContent = record.weight ? `${record.weight}kg` : '-';
+  document.getElementById('recordWeight').textContent = record.weight
+    ? `${record.weight}${t('dynamic.kg')}`
+    : notAvailable;
   document.getElementById('recordTemperature').textContent = record.temperature
-    ? `${record.temperature}℃`
-    : '-';
+    ? `${record.temperature}${t('dynamic.celsius')}`
+    : notAvailable;
 
   // 症状
   document.getElementById('recordSymptoms').textContent = record.symptoms;
@@ -77,13 +122,13 @@ function renderMedicalRecord(record) {
     document.getElementById('medicalActionSection').classList.remove('hidden');
     document.getElementById('recordMedicalAction').textContent = record.medical_action_name;
 
-    const dosageText = record.dosage ? `${record.dosage}${record.dosage_unit || ''}` : '-';
+    const dosageText = record.dosage ? `${record.dosage}${record.dosage_unit || ''}` : notAvailable;
     document.getElementById('recordDosage').textContent = dosageText;
 
     // 請求価格
     const billingText = record.billing_amount
-      ? `¥${Number(record.billing_amount).toLocaleString()}`
-      : '-';
+      ? `${t('dynamic.yen')}${Number(record.billing_amount).toLocaleString()}`
+      : notAvailable;
     document.getElementById('recordBilling').textContent = billingText;
   }
 
@@ -116,17 +161,8 @@ function renderMedicalRecord(record) {
   }
 }
 
-// 日時フォーマット
-function formatDateTime(dateTimeStr) {
-  const date = new Date(dateTimeStr);
-  return date.toLocaleString('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+// 注: formatDateTime, getToken等はcommon.jsで定義済み
+// (common.jsのformatDateTimeが自動的に言語を検出)
 
 // ローディング表示
 function showLoading() {
@@ -141,16 +177,13 @@ function hideLoading() {
 // エラー表示
 function showError(message) {
   const errorDiv = document.getElementById('errorMessage');
-  errorDiv.querySelector('p').textContent = message;
+  const translatedMessage =
+    message.includes('medical_records') || message.includes('common') ? message : message;
+  errorDiv.querySelector('p').textContent = translatedMessage;
   errorDiv.classList.remove('hidden');
   document.getElementById('recordDetail').classList.add('hidden');
 }
 
 function hideError() {
   document.getElementById('errorMessage').classList.add('hidden');
-}
-
-// トークン取得
-function getToken() {
-  return localStorage.getItem('access_token');
 }

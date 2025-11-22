@@ -1,0 +1,39 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+  <h2 class="text-2xl font-bold mb-4" data-i18n="new_volunteer" data-i18n-ns="volunteers">ボランティア新規登録</h2>
+  <div class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="name" data-i18n-ns="volunteers">名前</label>
+      <input id="inputName" type="text" class="w-full border rounded px-3 py-2" required>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="contact" data-i18n-ns="volunteers">連絡先</label>
+      <input id="inputContact" type="text" class="w-full border rounded px-3 py-2">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="affiliation" data-i18n-ns="volunteers">所属</label>
+      <input id="inputAffiliation" type="text" class="w-full border rounded px-3 py-2">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="status" data-i18n-ns="common">ステータス</label>
+      <select id="selectStatus" class="w-full border rounded px-3 py-2">
+        <option value="active" data-i18n="status_active" data-i18n-ns="volunteers">アクティブ</option>
+        <option value="inactive" data-i18n="status_inactive" data-i18n-ns="volunteers">非アクティブ</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="start_date" data-i18n-ns="volunteers">開始日</label>
+      <input id="inputStartedAt" type="date" class="w-full border rounded px-3 py-2">
+    </div>
+    <div id="formError" class="hidden text-red-600 text-sm"></div>
+    <div class="flex gap-2">
+      <button id="btnSave" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" data-i18n="save" data-i18n-ns="common">保存</button>
+      <a href="/admin/volunteers" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-i18n="cancel" data-i18n-ns="common">キャンセル</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="/static/js/admin/volunteer_new.js"></script>
+{% endblock %}

@@ -163,7 +163,9 @@ def generate_animal_qr_code_bytes(
         bytes: QRコード画像のバイト列
 
     Example:
-        >>> qr_bytes = generate_animal_qr_code_bytes("https://necokeeper.example.com", 123)
+        >>> qr_bytes = generate_animal_qr_code_bytes(
+        ...     "https://necokeeper.example.com", 123
+        ... )
         >>> with open("animal_123_qr.png", "wb") as f:
         ...     f.write(qr_bytes)
     """
