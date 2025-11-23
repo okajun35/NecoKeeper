@@ -272,12 +272,20 @@ docker rmi necokeeper
 
 ### Renderへのデプロイ
 
+**🎉 本番環境デプロイ完了！**
+
+- **URL**: https://necokeeper.onrender.com
+- **プラン**: Render Free Plan
+- **デプロイ日**: 2024-11-23
+- **動作確認**: ✅ ログイン画面、API、多言語対応すべて正常動作
+
 詳細なデプロイ手順は [DEPLOY.md](DEPLOY.md) を参照してください。
 
 **Free Plan（1週間のPoC）**:
 - 完全無料
 - SQLiteエフェメラル（再デプロイでデータ消失）
 - 15分でスピンダウン
+- **現在稼働中**: https://necokeeper.onrender.com
 
 **Starter Plan（本番運用）**:
 - $7/月
