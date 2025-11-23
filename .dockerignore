@@ -42,13 +42,15 @@ docs
 LICENSE
 
 # データ・メディア・バックアップ（ローカル開発用）
-data/
+# data/ は Free Plan 用に Docker イメージに含める
+# data/
 media/
 backups/
 logs/
-*.db
-*.sqlite
-*.sqlite3
+# *.db は Free Plan 用に Docker イメージに含める
+# *.db
+# *.sqlite
+# *.sqlite3
 
 # 環境変数
 .env
