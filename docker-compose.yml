@@ -19,7 +19,7 @@ services:
       - ENVIRONMENT=development
       - DEBUG=true
       - LOG_LEVEL=DEBUG
-      - CORS_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+      - CORS_ORIGINS=["http://localhost:8000","http://127.0.0.1:8000"]
       - MEDIA_DIR=/app/media
       - BACKUP_DIR=/app/backups
       - LOG_FILE=/app/logs/necokeeper.log
