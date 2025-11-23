@@ -108,6 +108,29 @@ cp .env.example .env
 # 特に SECRET_KEY は本番環境では必ず変更してください
 ```
 
+**重要な環境変数**:
+
+| 変数名 | 説明 | 開発環境 | 本番環境 |
+|--------|------|----------|----------|
+| `SECRET_KEY` | JWT署名用の秘密鍵（32文字以上） | 任意 | **必須変更** |
+| `DEBUG` | デバッグモード | `true` | **`false`** |
+| `ENVIRONMENT` | 実行環境 | `development` | `production` |
+| `NECOKEEPER_DB_PATH` | DBファイルパス | `data/necokeeper.db` | 環境に応じて |
+| `COOKIE_SECURE` | Cookie Secureフラグ | `false` | **`true`** |
+| `COOKIE_SAMESITE` | Cookie SameSite属性 | `lax` | `lax` |
+| `COOKIE_MAX_AGE` | Cookie有効期限（秒） | `7200` | `7200` |
+
+**DB パス設定**:
+- **ローカル開発**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（デフォルト）
+- **Render Free Plan**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（イメージに含まれる）
+- **Render Starter Plan**: `NECOKEEPER_DB_PATH=/app/data/necokeeper.db`（永続ディスク）
+- 未設定の場合: `DATABASE_URL` の値を使用（後方互換性）
+
+**セキュリティ注意事項**:
+- ⚠️ 本番環境では`DEBUG=false`、`COOKIE_SECURE=true`を必ず設定
+- ⚠️ `SECRET_KEY`は32文字以上のランダム文字列を使用
+- 生成方法: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+
 6. アプリケーションを起動
 
 ```bash

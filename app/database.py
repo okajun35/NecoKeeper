@@ -7,6 +7,7 @@ SQLAlchemyエンジンとセッション管理を提供します。
 
 from __future__ import annotations
 
+import os
 from collections.abc import Generator
 
 from sqlalchemy import MetaData, create_engine
@@ -16,6 +17,12 @@ from app.config import get_settings
 
 # 設定を取得
 settings = get_settings()
+
+# DB パスの決定（環境変数で制御可能）
+# Free Plan: data/necokeeper.db（イメージに含まれる）
+# Starter Plan: 永続ディスクのパスを NECOKEEPER_DB_PATH で指定
+DB_PATH = os.getenv("NECOKEEPER_DB_PATH", "data/necokeeper.db")
+DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 # PostgreSQL互換の命名規則
 # Alembicマイグレーションと統合し、一貫性のある制約名を生成
@@ -29,11 +36,13 @@ NAMING_CONVENTION = {
 
 # SQLAlchemyエンジンの作成
 # SQLiteの場合、check_same_threadをFalseに設定してマルチスレッド対応
+# NECOKEEPER_DB_PATH が設定されている場合はそちらを優先
 engine = create_engine(
-    settings.database_url,
+    DATABASE_URL if os.getenv("NECOKEEPER_DB_PATH") else settings.database_url,
     echo=settings.database_echo,
     connect_args={"check_same_thread": False}
-    if "sqlite" in settings.database_url
+    if "sqlite"
+    in (DATABASE_URL if os.getenv("NECOKEEPER_DB_PATH") else settings.database_url)
     else {},
 )
 

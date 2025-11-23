@@ -71,6 +71,9 @@ COPY app/ ./app/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
 
+# リポジトリの DB をイメージに含める（Free Plan 用）
+COPY data ./data
+
 # エフェメラルディレクトリの作成（Free Plan用）
 # 注意: これらのディレクトリは再デプロイで消える
 RUN mkdir -p /tmp/data /tmp/media /tmp/backups /tmp/logs && \
@@ -101,6 +104,10 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"
 
-# 起動コマンド
+# 初期化スクリプトをコピー
+COPY scripts/init_db.sh /app/scripts/init_db.sh
+RUN chmod +x /app/scripts/init_db.sh
+
+# 起動コマンド（自動初期化付き）
 # Renderの$PORT環境変数を使用（デフォルト8000）
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["/app/scripts/init_db.sh"]
