@@ -36,7 +36,10 @@ class TestGetCurrentUserOptional:
         from app.auth.dependencies import get_current_user_optional
 
         request = Mock(spec=Request)
-        request.headers = {"authorization": f"Bearer {auth_token}"}
+        request.cookies = Mock()
+        request.cookies.get = Mock(return_value=None)
+        request.headers = Mock()
+        request.headers.get = Mock(return_value=f"Bearer {auth_token}")
 
         # When
         result = await get_current_user_optional(request, test_db)
@@ -65,7 +68,10 @@ class TestGetCurrentUserOptional:
         from app.auth.dependencies import get_current_user_optional
 
         request = Mock(spec=Request)
-        request.headers = {}
+        request.cookies = Mock()
+        request.cookies.get = Mock(return_value=None)
+        request.headers = Mock()
+        request.headers.get = Mock(return_value=None)
 
         # When
         result = await get_current_user_optional(request, test_db)
@@ -92,7 +98,10 @@ class TestGetCurrentUserOptional:
         from app.auth.dependencies import get_current_user_optional
 
         request = Mock(spec=Request)
-        request.headers = {"authorization": "Bearer invalid-token"}
+        request.cookies = Mock()
+        request.cookies.get = Mock(return_value=None)
+        request.headers = Mock()
+        request.headers.get = Mock(return_value="Bearer invalid-token")
 
         # When
         result = await get_current_user_optional(request, test_db)
@@ -126,7 +135,10 @@ class TestGetCurrentUserOptional:
         )
 
         request = Mock(spec=Request)
-        request.headers = {"authorization": f"Bearer {expired_token}"}
+        request.cookies = Mock()
+        request.cookies.get = Mock(return_value=None)
+        request.headers = Mock()
+        request.headers.get = Mock(return_value=f"Bearer {expired_token}")
 
         # When
         result = await get_current_user_optional(request, test_db)

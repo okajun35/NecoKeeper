@@ -11,7 +11,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.auth.dependencies import get_current_user
+from app.auth.dependencies import get_current_user_from_cookie_or_header
 from app.database import get_db
 from app.models.user import User
 from app.schemas.adoption import (
@@ -37,7 +37,7 @@ async def list_applicants(  # type: ignore[no-untyped-def]
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     里親希望者一覧を取得
@@ -63,7 +63,7 @@ async def list_applicants(  # type: ignore[no-untyped-def]
 async def create_applicant(  # type: ignore[no-untyped-def]
     applicant_data: ApplicantCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     里親希望者を登録
@@ -86,7 +86,7 @@ async def create_applicant(  # type: ignore[no-untyped-def]
 async def get_applicant(  # type: ignore[no-untyped-def]
     applicant_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     里親希望者を取得
@@ -108,7 +108,7 @@ async def update_applicant(  # type: ignore[no-untyped-def]
     applicant_id: int,
     applicant_data: ApplicantUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     里親希望者を更新
@@ -139,7 +139,7 @@ async def list_adoption_records(  # type: ignore[no-untyped-def]
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     譲渡記録一覧を取得
@@ -168,7 +168,7 @@ async def list_adoption_records(  # type: ignore[no-untyped-def]
 async def create_interview_record(  # type: ignore[no-untyped-def]
     record_data: AdoptionRecordCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     面談記録を登録
@@ -197,7 +197,7 @@ async def create_adoption(  # type: ignore[no-untyped-def]
     applicant_id: int,
     adoption_date: date,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     譲渡記録を登録し、猫のステータスを「譲渡済み」に更新
@@ -222,7 +222,7 @@ async def create_adoption(  # type: ignore[no-untyped-def]
 async def get_adoption_record(  # type: ignore[no-untyped-def]
     record_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     譲渡記録を取得
@@ -244,7 +244,7 @@ async def update_adoption_record(  # type: ignore[no-untyped-def]
     record_id: int,
     record_data: AdoptionRecordUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
 ):
     """
     譲渡記録を更新

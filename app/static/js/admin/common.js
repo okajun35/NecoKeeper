@@ -209,29 +209,42 @@ function getTimeSlotLabel(timeSlot) {
 
 /**
  * 認証トークンを取得
- * @returns {string|null} - アクセストークン
+ * Cookie認証を使用しているため、このメソッドは後方互換性のためのダミー実装
+ * @returns {string|null} - アクセストークン（常にnull）
  */
 function getAccessToken() {
-  return localStorage.getItem('access_token');
+  // Cookie認証に移行したため、localStorageは使用しない
+  // 後方互換性のために関数は残す
+  return null;
 }
 
 /**
  * ログアウト処理
+ * Cookie削除のためにサーバーエンドポイントを呼び出す
  */
-function logout() {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('token_type');
-  window.location.href = '/admin/login';
+async function logout() {
+  try {
+    // サーバー側でCookieを削除
+    await fetch('/api/v1/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin', // Cookieを送信
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    // エラーが発生してもログインページにリダイレクト
+    window.location.href = '/admin/login';
+  }
 }
 
 /**
  * 認証チェック
+ * Cookie認証を使用しているため、この関数は不要
+ * サーバー側で認証チェックが行われる
  */
 function checkAuth() {
-  const token = getAccessToken();
-  if (!token) {
-    window.location.href = '/admin/login';
-  }
+  // Cookie認証では不要（サーバー側でチェック）
+  // 後方互換性のために関数は残す
 }
 
 /**
