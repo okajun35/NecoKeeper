@@ -13,7 +13,8 @@ services:
       - '8000:8000'
     environment:
       # ローカル開発用の環境変数
-      - DATABASE_URL=sqlite:////app/data/necokeeper.db
+      - DATABASE_URL=sqlite:///./data/necokeeper.db
+      - NECOKEEPER_DB_PATH=data/necokeeper.db
       - SECRET_KEY=dev-secret-key-change-in-production
       - ENVIRONMENT=development
       - DEBUG=true

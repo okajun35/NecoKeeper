@@ -76,6 +76,7 @@ main (開発) → PR → deploy (本番) → Render自動デプロイ
 - 本番環境では**必ず`DEBUG=false`**に設定
 - `SECRET_KEY`は**32文字以上のランダム文字列**を使用
 - `CORS_ORIGINS`は**実際のドメインのみ**を指定
+- **Cookie設定は本番環境で必須**（`COOKIE_SECURE=true`）
 - **環境変数はRender Dashboard画面から設定**（Dockerに内蔵しない）
 
 **環境変数の設定方法**:
@@ -86,9 +87,16 @@ main (開発) → PR → deploy (本番) → Render自動デプロイ
 ```bash
 # 必須
 SECRET_KEY=<32文字以上のランダム文字列>
-DATABASE_URL=sqlite:////tmp/data/necokeeper.db
 ENVIRONMENT=production
 DEBUG=false
+
+# DB パス設定（Free Plan: リポジトリの DB を使用）
+NECOKEEPER_DB_PATH=data/necokeeper.db
+
+# Cookie設定（認証用）- 本番環境では必須
+COOKIE_SECURE=true
+COOKIE_SAMESITE=lax
+COOKIE_MAX_AGE=7200
 
 # 推奨
 CORS_ORIGINS=https://necokeeper.onrender.com
@@ -97,6 +105,11 @@ BACKUP_DIR=/tmp/backups
 LOG_FILE=/tmp/logs/necokeeper.log
 LOG_LEVEL=INFO
 ```
+
+**DB パス設定の説明**:
+- **Free Plan**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（イメージに含まれる DB を使用）
+- **Starter Plan**: `NECOKEEPER_DB_PATH=/mnt/data/necokeeper.db`（永続ディスクを使用）
+- 未設定の場合: `DATABASE_URL` の値を使用（後方互換性）
 
 **重要**:
 - ⚠️ **本番環境では必ず`DEBUG=false`に設定してください**
@@ -125,45 +138,77 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 デプロイには5-10分かかります。
 
-#### 6. 初回セットアップ（Render環境のみ）
+#### 6. 初回セットアップ（Free Plan: 不要）
+
+**Free Plan の場合**:
+- ✅ **リポジトリの `data/necokeeper.db` が Docker イメージに含まれています**
+- ✅ **デプロイ後すぐに使用可能**（初期化不要）
+- ⚠️ **再デプロイすると、リポジトリの DB に戻ります**（変更は失われる）
+
+**初期管理者アカウント**:
+- Email: `admin@example.com`
+- Password: `admin123`
 
 **注意**:
-- ⚠️ **Render Free Planでは再デプロイのたびにデータが消えます**
-- ⚠️ 再デプロイ後は毎回この手順が必要です
-- ✅ ローカル開発環境では`data/necokeeper.db`が永続化されるため不要
+- Free Plan では DB の変更（新規登録、データ追加）は再デプロイで消えます
+- デモ・PoC 用途に最適
+- 本番運用には Starter Plan への移行を推奨
 
-デプロイ完了後、以下の手順で初期化：
-
-1. **Shell** タブを開く（Render Dashboard）
-2. データベース初期化:
-   ```bash
-   alembic upgrade head
-   ```
-3. 初期管理者アカウント作成:
-   ```bash
-   python -c "
-   from app.database import SessionLocal
-   from app.models.user import User
-   from app.auth.password import hash_password
-
-   db = SessionLocal()
-   admin = User(
-       email='admin@example.com',
-       password_hash=hash_password('admin123'),
-       name='管理者',
-       role='admin',
-       is_active=True
-   )
-   db.add(admin)
-   db.commit()
-   print('✅ 管理者アカウント作成完了')
-   "
-   ```
-
-**Starter Planへの移行後**:
-- ✅ Persistent Diskでデータ永続化
-- ✅ 初回のみ初期化すればOK
+**Starter Plan への移行後**:
+- ✅ Persistent Disk でデータ永続化
 - ✅ 再デプロイでもデータは保持される
+- ⚠️ 初回のみ DB 初期化が必要（後述）
+
+**自動初期化の設定（オプション）**:
+
+Dockerfileに以下を追加すると、起動時に自動初期化されます：
+
+```dockerfile
+# エントリーポイントスクリプトを作成
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+```
+
+`docker-entrypoint.sh`:
+```bash
+#!/bin/bash
+set -e
+
+# データベースマイグレーション
+echo "Running database migrations..."
+alembic upgrade head
+
+# 初期管理者アカウント作成（存在しない場合のみ）
+echo "Checking for admin user..."
+python -c "
+from app.database import SessionLocal
+from app.models.user import User
+from app.auth.password import hash_password
+
+db = SessionLocal()
+existing_admin = db.query(User).filter(User.email == 'admin@example.com').first()
+
+if not existing_admin:
+    admin = User(
+        email='admin@example.com',
+        password_hash=hash_password('admin123'),
+        name='管理者',
+        role='admin',
+        is_active=True
+    )
+    db.add(admin)
+    db.commit()
+    print('✅ 管理者アカウント作成完了')
+else:
+    print('ℹ️ 管理者アカウントは既に存在します')
+"
+
+# アプリケーション起動
+echo "Starting application..."
+exec uvicorn app.main:app --host 0.0.0.0 --port \${PORT:-8000}
+```
 
 #### 7. アクセス確認
 
@@ -206,7 +251,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 ```bash
 # データベースパスを永続化ディスクに変更
-DATABASE_URL=sqlite:////app/data/necokeeper.db
+NECOKEEPER_DB_PATH=/app/data/necokeeper.db
 
 # メディアファイルパスを永続化ディスクに変更
 MEDIA_DIR=/app/media
@@ -214,19 +259,46 @@ BACKUP_DIR=/app/backups
 LOG_FILE=/app/logs/necokeeper.log
 ```
 
+**重要**: `NECOKEEPER_DB_PATH` を設定することで、永続ディスクの DB を使用します。
+
 #### 4. 再デプロイ
 
 **Manual Deploy** → **Deploy latest commit**
 
-#### 5. データベース初期化（再度）
+#### 5. データベース初期化（Starter Plan のみ）
 
-Persistent Diskは空なので、再度初期化が必要：
+Persistent Disk は空なので、初期化が必要：
 
+1. **Shell** タブを開く（Render Dashboard）
+2. データベース初期化:
+   ```bash
+   alembic upgrade head
+   ```
+3. 初期管理者アカウント作成:
+   ```bash
+   python -c "
+   from app.database import SessionLocal
+   from app.models.user import User
+   from app.auth.password import hash_password
+
+   db = SessionLocal()
+   admin = User(
+       email='admin@example.com',
+       password_hash=hash_password('admin123'),
+       name='管理者',
+       role='admin',
+       is_active=True
+   )
+   db.add(admin)
+   db.commit()
+   print('✅ 管理者アカウント作成完了')
+   "
+   ```
+
+**または、init_db.py スクリプトを使用**:
 ```bash
-alembic upgrade head
+python init_db.py
 ```
-
-初期管理者アカウントも再作成してください。
 
 #### 6. データ移行（オプション）
 
@@ -357,6 +429,102 @@ uvicorn app.main:app --reload
 ```
 
 アクセス: http://localhost:8000
+
+---
+
+## 🔒 Cookie設定の詳細
+
+### Cookie設定が重要な理由
+
+NecoKeeperは認証にJWT（JSON Web Token）を使用しており、トークンをHTTPOnly Cookieに保存します。
+適切なCookie設定は、以下のセキュリティ対策に不可欠です：
+
+| 設定 | 目的 | 開発環境 | 本番環境 |
+|------|------|----------|----------|
+| `httponly=True` | XSS攻撃対策（JavaScriptからアクセス不可） | ✅ 有効 | ✅ 有効 |
+| `secure=True` | HTTPS必須（盗聴対策） | ❌ 無効 | ✅ **必須** |
+| `samesite=lax` | CSRF攻撃対策 | ✅ 有効 | ✅ 有効 |
+| `max_age=7200` | 自動削除（2時間） | ✅ 有効 | ✅ 有効 |
+
+### 環境変数の設定
+
+#### 本番環境（Render）
+
+```bash
+COOKIE_SECURE=true      # HTTPS必須
+COOKIE_SAMESITE=lax     # CSRF対策
+COOKIE_MAX_AGE=7200     # 2時間（7200秒）
+```
+
+#### 開発環境（ローカル）
+
+```bash
+COOKIE_SECURE=false     # HTTP許可（ローカル開発用）
+COOKIE_SAMESITE=lax     # CSRF対策
+COOKIE_MAX_AGE=7200     # 2時間（7200秒）
+```
+
+### セキュリティリスク
+
+**❌ `COOKIE_SECURE=false`を本番環境で使用した場合**:
+
+```
+HTTP経由でトークンが送信される
+    ↓
+中間者攻撃（MITM）でトークンが盗まれる
+    ↓
+攻撃者が管理画面にアクセス可能
+```
+
+**✅ `COOKIE_SECURE=true`を本番環境で使用した場合**:
+
+```
+HTTPS経由でのみトークンが送信される
+    ↓
+暗号化された通信でトークンが保護される
+    ↓
+中間者攻撃を防止
+```
+
+### トラブルシューティング
+
+#### ログインできない（本番環境）
+
+**症状**: ログインボタンを押しても管理画面に遷移しない
+
+**原因**: `COOKIE_SECURE=true`だが、HTTPでアクセスしている
+
+**解決方法**:
+1. HTTPSでアクセスしているか確認: `https://necokeeper.onrender.com`
+2. Renderは自動的にHTTPSを提供するため、通常は問題なし
+3. カスタムドメインを使用している場合は、SSL証明書を確認
+
+#### ログインできない（開発環境）
+
+**症状**: ローカル開発でログインできない
+
+**原因**: `COOKIE_SECURE=true`だが、HTTPでアクセスしている
+
+**解決方法**:
+```bash
+# .envファイルで設定
+COOKIE_SECURE=false
+```
+
+#### Cookieが保存されない
+
+**確認方法**（Chrome DevTools）:
+1. F12でDevToolsを開く
+2. **Application** タブ → **Cookies**
+3. `access_token`が存在するか確認
+
+**期待される値**:
+- **Name**: `access_token`
+- **Value**: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+- **HttpOnly**: ✅
+- **Secure**: ✅（本番環境）
+- **SameSite**: `Lax`
+- **Expires**: 2時間後
 
 ---
 

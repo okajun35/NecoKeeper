@@ -85,6 +85,7 @@ async def get_current_user_optional(
     """
     オプショナル認証（未認証でもエラーにしない）
 
+    CookieまたはAuthorizationヘッダーからトークンを取得し、認証を試みます。
     ログインページなど、認証済みユーザーをリダイレクトしたい場合に使用。
     未認証の場合はNoneを返し、エラーを発生させない。
 
@@ -105,17 +106,32 @@ async def get_current_user_optional(
         ):
             if current_user:
                 return RedirectResponse(url="/admin")
-            return templates.TemplateResponse("login.html", {"request": request})
+            return templates.TemplateResponse(
+                "login.html", {"request": request}
+            )
     """
     try:
-        # Authorizationヘッダーからトークンを取得
-        authorization = request.headers.get("authorization")
-        if not authorization:
-            return None
+        token = None
 
-        # "Bearer "プレフィックスを削除
-        scheme, _, token = authorization.partition(" ")
-        if scheme.lower() != "bearer":
+        # 1. Cookieからトークンを取得（HTMLページ用）
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            # "Bearer "プレフィックスを削除
+            if cookie_token.startswith("Bearer "):
+                token = cookie_token[7:]
+            else:
+                token = cookie_token
+
+        # 2. Authorizationヘッダーからトークンを取得（API用、後方互換性）
+        if not token:
+            authorization = request.headers.get("authorization")
+            if authorization:
+                # "Bearer "プレフィックスを削除
+                scheme, _, header_token = authorization.partition(" ")
+                if scheme.lower() == "bearer":
+                    token = header_token
+
+        if not token:
             return None
 
         # トークンをデコード
@@ -139,8 +155,80 @@ async def get_current_user_optional(
         return None
 
 
+async def get_current_user_from_cookie_or_header(
+    request: Request, db: Annotated[Session, Depends(get_db)]
+) -> User:
+    """
+    CookieまたはAuthorizationヘッダーから認証情報を取得
+
+    HTMLページ（Cookie）とAPI（Header）の両方に対応した認証依存関数。
+    認証に失敗した場合は401エラーを返します。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        db: データベースセッション
+
+    Returns:
+        User: 認証されたユーザー
+
+    Raises:
+        HTTPException: 認証に失敗した場合
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="認証情報を検証できませんでした",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        token = None
+
+        # 1. Cookieからトークンを取得（HTMLページ用）
+        cookie_token = request.cookies.get("access_token")
+        if cookie_token:
+            if cookie_token.startswith("Bearer "):
+                token = cookie_token[7:]
+            else:
+                token = cookie_token
+
+        # 2. Authorizationヘッダーからトークンを取得（API用、後方互換性）
+        if not token:
+            authorization = request.headers.get("authorization")
+            if authorization:
+                scheme, _, header_token = authorization.partition(" ")
+                if scheme.lower() == "bearer":
+                    token = header_token
+
+        if not token:
+            raise credentials_exception
+
+        # トークンをデコード
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            raise credentials_exception
+
+        # ユーザーIDを整数に変換
+        try:
+            user_id = int(user_id)
+        except ValueError as e:
+            raise credentials_exception from e
+
+        # データベースからユーザーを取得
+        user = db.query(User).filter(User.id == user_id).first()
+
+        if user is None:
+            raise credentials_exception
+
+        return user
+
+    except InvalidTokenError as e:
+        raise credentials_exception from e
+
+
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user_from_cookie_or_header)],
 ) -> User:
     """
     現在のアクティブユーザーを取得

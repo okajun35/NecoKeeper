@@ -117,6 +117,20 @@ class Settings(BaseSettings):
         default="http://localhost:8000", description="アプリケーションのベースURL"
     )
 
+    # Cookie設定（認証用）
+    cookie_secure: bool = Field(
+        default=True,
+        description="Cookie Secureフラグ（本番環境ではTrue、開発環境ではFalse）",
+    )
+    cookie_samesite: Literal["lax", "strict", "none"] = Field(
+        default="lax", description="Cookie SameSite属性（CSRF対策）"
+    )
+    cookie_max_age: int = Field(
+        default=7200,  # 2時間
+        description="Cookie有効期限（秒）",
+        gt=0,
+    )
+
     @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:

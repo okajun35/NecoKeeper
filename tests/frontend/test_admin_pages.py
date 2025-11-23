@@ -168,6 +168,29 @@ class TestAuthPages:
         assert b"text/html" in response.headers["content-type"].encode()
         assert "ログイン".encode() in response.content
 
+    def test_login_page_has_i18n_support(self, test_client: TestClient):
+        """
+        正常系: ログインページに多言語化サポートがある
+
+        Given: 認証トークンなし
+        When: /admin/login にアクセス
+        Then: i18next と data-i18n 属性が含まれる
+        """
+        # When
+        response = test_client.get("/admin/login", follow_redirects=False)
+
+        # Then
+        assert response.status_code == 200
+        # i18nextライブラリが読み込まれている
+        assert b"i18next" in response.content
+        # i18n.jsが読み込まれている
+        assert b"/static/js/i18n.js" in response.content
+        # data-i18n属性が使用されている
+        assert b"data-i18n" in response.content
+        assert b'data-i18n-ns="login"' in response.content
+        # 言語切り替えボタンがある
+        assert b"language-switcher" in response.content
+
     def test_login_page_redirects_when_authenticated(
         self, test_client: TestClient, auth_token: str
     ):

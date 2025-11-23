@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -29,6 +29,7 @@ router = APIRouter(prefix="/auth", tags=["認証"])
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[Session, Depends(get_db)],
 ) -> dict[str, Any]:
@@ -118,6 +119,21 @@ async def login_for_access_token(
     # JWTアクセストークンを生成
     access_token = create_access_token(data={"user_id": user.id, "role": user.role})
 
+    # 設定を取得
+    from app.config import get_settings
+
+    settings = get_settings()
+
+    # HTTPOnly Cookieにトークンを設定（HTMLページ用）
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,  # JavaScriptからアクセス不可（XSS対策）
+        secure=settings.cookie_secure,  # 環境変数で制御（本番: True、開発: False）
+        samesite=settings.cookie_samesite,  # CSRF対策
+        max_age=settings.cookie_max_age,  # 環境変数で制御
+    )
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -170,3 +186,19 @@ async def read_users_me(
         ```
     """
     return current_user
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout(response: Response) -> dict[str, str]:
+    """
+    ログアウト
+
+    HTTPOnly Cookieを削除してログアウトします。
+
+    Returns:
+        dict: ログアウト成功メッセージ
+    """
+    # Cookieを削除
+    response.delete_cookie(key="access_token")
+
+    return {"message": "ログアウトしました"}
