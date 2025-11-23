@@ -1,14 +1,21 @@
 #!/bin/bash
 # データベース初期化スクリプト
-# Render Free Plan用: 起動時に自動的にデータベースを初期化
+# Render Free Plan用: 起動時にイメージ内のDBを/tmp/data/にコピー
 
 set -e
 
-echo "🔍 データベースの存在確認..."
+echo "🔍 データベースの準備..."
 
-# データベースファイルが存在しない場合のみ初期化
-if [ ! -f "/tmp/data/necokeeper.db" ]; then
-    echo "📦 データベースが見つかりません。初期化を開始します..."
+# /tmp/data ディレクトリを作成（存在しない場合）
+mkdir -p /tmp/data
+
+# イメージ内のDBを/tmp/data/にコピー（Free Plan用）
+if [ -f "/app/data/necokeeper.db" ] && [ ! -f "/tmp/data/necokeeper.db" ]; then
+    echo "📦 イメージ内のDBを/tmp/data/にコピー中..."
+    cp /app/data/necokeeper.db /tmp/data/necokeeper.db
+    echo "✅ DBコピー完了"
+elif [ ! -f "/tmp/data/necokeeper.db" ]; then
+    echo "📦 DBが見つかりません。マイグレーションで初期化します..."
 
     # マイグレーション実行
     echo "🔄 マイグレーション実行中..."
