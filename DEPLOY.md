@@ -99,12 +99,16 @@ COOKIE_SAMESITE=lax
 COOKIE_MAX_AGE=7200
 
 # 推奨
-CORS_ORIGINS=https://necokeeper.onrender.com
+CORS_ORIGINS=["https://necokeeper.onrender.com"]
 MEDIA_DIR=/tmp/media
 BACKUP_DIR=/tmp/backups
 LOG_FILE=/tmp/logs/necokeeper.log
 LOG_LEVEL=INFO
 ```
+
+**重要**: `CORS_ORIGINS` は JSON 配列形式で指定してください。
+- 単一オリジン: `["https://necokeeper.onrender.com"]`
+- 複数オリジン: `["https://necokeeper.onrender.com","https://www.example.com"]`
 
 **DB パス設定の説明**:
 - **Free Plan**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（イメージに含まれる DB を使用）
