@@ -214,6 +214,9 @@ __marimo__/
 # Media files (uploaded images, etc.)
 media/
 
+# Temporary files
+tmp/
+
 # Node.js
 node_modules/
 npm-debug.log*
