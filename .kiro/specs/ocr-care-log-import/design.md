@@ -6,127 +6,191 @@
 
 ## Architecture
 
-### System Components
+### System Components - 3-Phase Hook Workflow
+
+**Design Rationale**: 段階的なワークフローにより、各フェーズで人間の確認・修正が可能。OCRの誤認識を事前に修正でき、データの整合性を保証。
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         User                                 │
-│  (Provides image/PDF + prompt with cat ID/name)             │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         ▼
+│  Phase 1: PDF → Image (自動Hook)                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  User: PDFを tmp/pdfs/ に配置                                │
+│    ↓                                                        │
+│  Kiro Hook: ファイル保存を検知                                │
+│    ↓                                                        │
+│  pdf_to_image.py: PDF → PNG変換                             │
+│    ↓                                                        │
+│  Output: tmp/images/ に画像を出力                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                         ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                      Kiro (Orchestrator)                     │
-│  - Receives user prompt and file                            │
-│  - Detects file extension (.pdf, .jpg, .png)                │
-│  - Invokes appropriate Hook or LLM                          │
-│  - Manages workflow and error handling                      │
-└────┬────────────────────────────────────┬───────────────────┘
-     │                                    │
-     │ (if PDF)                          │ (if image)
-     ▼                                    ▼
-┌─────────────────────┐         ┌──────────────────────────────┐
-│  PDF Conversion     │         │  Multimodal LLM              │
-│  Hook Script        │         │  (Image Analysis)            │
-│  - pdf2image        │         │  - OCR text extraction       │
-│  - Convert to JPG   │         │  - Structure understanding   │
-│  - Return path      │         │  - JSON generation           │
-└──────┬──────────────┘         └────────┬─────────────────────┘
-       │                                 │
-       │ image path                      │ JSON data
-       └────────────┬────────────────────┘
-                    ▼
-         ┌──────────────────────┐
-         │  Data Validation     │
-         │  - Schema check      │
-         │  - Range validation  │
-         │  - Date validation   │
-         └──────┬───────────────┘
-                │
-                ▼
-         ┌──────────────────────┐
-         │  Data Registration   │
-         │  Hook Script         │
-         │  - API authentication│
-         │  - Batch registration│
-         │  - Error handling    │
-         └──────┬───────────────┘
-                │
-                ▼
-         ┌──────────────────────┐
-         │  NecoKeeper API      │
-         │  POST /api/v1/       │
-         │  care-logs           │
-         └──────┬───────────────┘
-                │
-                ▼
-         ┌──────────────────────┐
-         │  PostgreSQL Database │
-         │  care_logs table     │
-         └──────────────────────┘
+│  Phase 2: Image → JSON (手動 + Kiroチャット)                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  User: Kiroチャットで画像を添付                               │
+│    ↓                                                        │
+│  User: 「ID12の猫、11/14-11/23のデータをJSONに変換」          │
+│    ↓                                                        │
+│  Kiro: マルチモーダルLLMでOCR解析                             │
+│    ↓                                                        │
+│  Kiro: JSON生成                                             │
+│    ↓                                                        │
+│  User: JSONを確認・修正（必要に応じて）                        │
+│    ↓                                                        │
+│  User: tmp/json/ に保存                                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────┐
+│  Phase 3: JSON → Database (自動Hook)                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Kiro Hook: ファイル保存を検知                                │
+│    ↓                                                        │
+│  register_care_logs.py: JSON読み込み                         │
+│    ↓                                                        │
+│  API認証 (POST /api/v1/auth/token)                          │
+│    ↓                                                        │
+│  データ登録 (POST /api/v1/care-logs)                         │
+│    ↓                                                        │
+│  Output: 結果ログ + 処理済みファイル移動                       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                         ↓
+                 ┌──────────────────┐
+                 │  PostgreSQL DB   │
+                 │  care_logs table │
+                 └──────────────────┘
 ```
+
+### Benefits of 3-Phase Workflow
+
+1. **人間の確認ポイント**
+   - Phase 2でJSONを確認・修正可能
+   - OCRミスを事前に修正
+   - データ品質の保証
+
+2. **段階的な処理**
+   - 各Phaseが独立して動作
+   - エラー時の切り分けが容易
+   - 再実行が簡単
+
+3. **柔軟性**
+   - PDFスキップして直接画像から開始可能
+   - JSONを手動作成して登録も可能
+   - 部分的な自動化
+
+4. **Kiroの強みを活用**
+   - ファイル監視Hookで自動化
+   - チャットでインタラクティブな修正
+   - LLMの画像解析能力を活用
 
 ### Workflow Sequence
 
-#### Workflow 1: Image File Processing
+#### Workflow 1: Direct Image Processing (Image → JSON → Database)
+
+**Use Case**: ユーザーが既に画像ファイルを持っている場合
 
 ```
-User → Kiro: "この画像からID5の猫の2025年11月の記録を登録して" + image.jpg
+User → File System: 画像を tmp/images/ に配置（または既に存在）
   │
-  ├─→ Kiro: Detect file extension (.jpg)
+  ├─→ User → Kiro Chat: 画像を添付
+  │                     「ID12の猫、2024-11-14から11-23のデータをJSONに変換して
+  │                      tmp/json/care_log_20241114.json に保存して」
   │
-  ├─→ Kiro: Extract cat_id=5, year=2025, month=11 from prompt
+  ├─→ Kiro: ユーザープロンプトから抽出
+  │     - animal_id: 12
+  │     - start_date: 2024-11-14
+  │     - end_date: 2024-11-23
+  │     - output_path: tmp/json/care_log_20241114.json
   │
-  ├─→ Kiro → LLM: Analyze image with structured prompt
+  ├─→ Kiro → LLM: マルチモーダル解析
+  │     │         プロンプト: 「animal_id=12, 期間=2024-11-14～11-23で
+  │     │                     この画像からJSONを生成」
   │     │
-  │     └─→ LLM: Extract table data → Generate JSON
+  │     └─→ LLM: OCR解析 → JSON生成
+  │           [
+  │             {"animal_id": 12, "log_date": "2024-11-14", "time_slot": "morning", ...},
+  │             {"animal_id": 12, "log_date": "2024-11-14", "time_slot": "noon", ...},
+  │             ...
+  │           ]
+  │
+  ├─→ Kiro: JSONをファイルに保存
+  │     tmp/json/care_log_20241114.json
+  │
+  ├─→ User: JSONを確認・修正（必要に応じて）
+  │
+  ├─→ Kiro Hook: ファイル保存を検知（tmp/json/*.json）
+  │     │
+  │     └─→ register_care_logs.py 自動実行
   │           │
-  │           └─→ Return: [
-  │                 {"log_date": "2025-11-04", "time_slot": "morning", ...},
-  │                 {"log_date": "2025-11-04", "time_slot": "evening", ...},
-  │                 ...
-  │               ]
+  │           ├─→ API認証 (POST /api/v1/auth/token)
+  │           │
+  │           ├─→ データ登録 (POST /api/v1/care-logs)
+  │           │
+  │           └─→ 結果ログ出力 + ファイル移動
   │
-  ├─→ Kiro: Validate JSON data
-  │
-  ├─→ Kiro → Hook: Call data_registration_hook.py with JSON
-  │     │
-  │     ├─→ Hook: Authenticate with API (POST /api/v1/auth/token)
-  │     │
-  │     ├─→ Hook: For each record, POST /api/v1/care-logs
-  │     │
-  │     └─→ Hook: Return summary (success: 10, failed: 0)
-  │
-  └─→ Kiro → User: "10件の記録を登録しました"
+  └─→ Kiro → User: 「✅ 24件の記録を登録しました」
 ```
 
-#### Workflow 2: PDF File Processing
+**Benefits**:
+1. **人間の確認**: JSONを保存前に確認・修正可能
+2. **柔軟性**: 画像から直接開始できる
+3. **自動化**: JSON保存後は自動でDB登録
+
+#### Workflow 2: Full PDF Processing (PDF → Image → JSON → Database)
+
+**Use Case**: ユーザーがPDFファイルから開始する場合
 
 ```
-User → Kiro: "このPDFから猫「あみ」の2025年5月の記録を登録して" + record.pdf
+User → File System: PDFを tmp/pdfs/ に配置
+  │                 例: tmp/pdfs/care_log_202411.pdf
   │
-  ├─→ Kiro: Detect file extension (.pdf)
-  │
-  ├─→ Kiro: Extract cat_name="あみ", year=2025, month=5 from prompt
-  │
-  ├─→ Kiro → Hook: Call pdf_conversion_hook.py with PDF path
+  ├─→ Kiro Hook: ファイル保存を検知（tmp/pdfs/*.pdf）
   │     │
-  │     ├─→ Hook: Convert first page to JPG using pdf2image
+  │     └─→ pdf_to_image.py 自動実行
+  │           │
+  │           ├─→ PDF読み込み
+  │           │
+  │           ├─→ 最初のページをPNGに変換
+  │           │
+  │           └─→ tmp/images/care_log_202411_page1.png に保存
+  │
+  ├─→ Kiro → User: 「✅ PDF変換完了: tmp/images/care_log_202411_page1.png
+  │                 次のステップ: Kiroチャットで画像を開いてJSONに変換してください」
+  │
+  ├─→ User → Kiro Chat: 画像を添付
+  │                     「ID12の猫、2024-11-14から11-23のデータをJSONに変換して
+  │                      tmp/json/care_log_20241114.json に保存して」
+  │
+  ├─→ Kiro → LLM: マルチモーダル解析
   │     │
-  │     └─→ Hook: Return image path (tmp/images/record_page1.jpg)
+  │     └─→ LLM: OCR解析 → JSON生成
   │
-  ├─→ Kiro: Search cat by name "あみ" → animal_id=3
+  ├─→ Kiro: JSONをファイルに保存
+  │     tmp/json/care_log_20241114.json
   │
-  ├─→ Kiro → LLM: Analyze image with structured prompt
+  ├─→ User: JSONを確認・修正（必要に応じて）
+  │
+  ├─→ Kiro Hook: ファイル保存を検知（tmp/json/*.json）
   │     │
-  │     └─→ LLM: Extract table data → Generate JSON
+  │     └─→ register_care_logs.py 自動実行
+  │           │
+  │           ├─→ API認証
+  │           │
+  │           ├─→ データ登録
+  │           │
+  │           └─→ 結果ログ出力
   │
-  ├─→ Kiro: Validate JSON data
-  │
-  ├─→ Kiro → Hook: Call data_registration_hook.py with JSON
-  │
-  └─→ Kiro → User: "15件の記録を登録しました"
+  └─→ Kiro → User: 「✅ 24件の記録を登録しました」
 ```
+
+**Benefits**:
+1. **完全自動化**: PDF配置 → 画像変換は自動
+2. **人間の確認**: JSON生成時に確認・修正可能
+3. **段階的処理**: 各フェーズで状態確認可能
 
 ## Components and Interfaces
 
@@ -212,33 +276,57 @@ def register_care_logs(
 - Log all errors with details
 - Return detailed summary
 
-### 3. Multimodal LLM Prompt Template
+### 3. User Prompt Examples
 
-**Purpose**: Structure the prompt for consistent JSON output
+**Purpose**: ユーザーがKiroチャットで使用するプロンプトの例
+
+**Example 1: 基本的な使い方**
+```
+これはIDが12の猫の2024年11月14日～23日の記録です。
+猫のお世話記録登録用のregister_care_logs.pyの仕様に合わせてJSON化して
+tmp/json/care_log_20241114.json に保存して
+```
+
+**Example 2: 年をまたぐ場合**
+```
+これはIDが4の猫の2024年11月15日～25日の記録です。
+scripts/hooks/register_care_logs.pyの仕様に合わせてJSON化して
+tmp/json/care_log_202411.json に保存して
+```
+
+**Example 3: 短縮形**
+```
+ID12、11/14-11/23、JSON化してtmp/json/に保存
+```
+
+### 4. Kiro's Internal Prompt Template
+
+**Purpose**: Kiroが内部的に使用するLLMプロンプトテンプレート
 
 **Template**:
 ```
 あなたは手書きの猫世話記録表を解析するOCRアシスタントです。
 
-画像から以下の情報を抽出し、JSON形式で出力してください：
+ユーザーが指定した情報：
+- 猫ID: {animal_id}
+- 対象期間: {start_date} ～ {end_date}
 
-【対象猫】
-- animal_id: {animal_id}
+この情報を使用して、画像から世話記録を抽出してください。
 
-【対象期間】
-- year: {year}
-- month: {month}
+【重要】
+- すべてのレコードの animal_id は {animal_id} に設定してください
+- 日付は {start_date} から {end_date} の範囲内のみ抽出してください
+- 範囲外の日付は無視してください
 
 【抽出する項目】
-1. 日付（M/D形式）
+1. 日付（M/D形式または11/14形式）
 2. 時間帯（朝/昼/夕）
-3. ごはん（○/△/×）
+3. 飲水（○/×）
 4. 元気（○/△/×）
-5. 排尿（○/×/数字）
-6. 排便（○/×）
-7. 嘔吐（○/×）
-8. 投薬（○/×）
-9. 備考（手書きメモ）
+5. 排尿（○/×）
+6. 清掃（○/×）
+7. メモ（手書きメモ）
+8. 記録者（手書き名前）
 
 【出力形式】
 以下のJSON配列形式で出力してください：
@@ -251,69 +339,200 @@ def register_care_logs(
     "appetite": 1-5,
     "energy": 1-5,
     "urination": true | false,
-    "cleaning": false,
-    "memo": "排便: あり, 嘔吐: なし, 投薬: なし, 備考: ...",
+    "cleaning": true | false,
+    "memo": "排便: なし, 嘔吐: なし, 投薬: なし, 備考: ...",
     "recorder_name": "OCR自動取込",
-    "from_paper": true
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import",
+    "ip_address": null,
+    "user_agent": null
   }}
 ]
 
 【マッピングルール】
-- ごはん: ○→5, △→3, ×→1
-- 元気: ○→5, △→3, ×→1
-- 排尿: ○→true, ×→false, 数字→true（回数はmemoに記載）
-- 排便/嘔吐/投薬: ○→"あり", ×→"なし"（memoに追記）
-- 空欄: デフォルト値を使用
+- 飲水: ○→appetite=5, ×→appetite=3, 空欄→appetite=3
+- 元気: ○→energy=5, △→energy=3, ×→energy=1, 空欄→energy=3
+- 排尿: ○→true, ×→false, 空欄→false
+- 清掃: ○→true, ×→false, 空欄→false
 - 朝→morning, 昼→noon, 夕→evening
+- 日付: M/D形式を YYYY-MM-DD に変換（YYYYは{start_date}の年を使用）
+
+【メモ欄の処理】
+- 手書きメモがある場合: "排便: なし, 嘔吐: なし, 投薬: なし, 備考: {手書きメモ}"
+- 手書きメモがない場合: "排便: なし, 嘔吐: なし, 投薬: なし"
+- 記録者名がある場合: 備考に追記 "備考: {記録者名}"
 
 【注意事項】
 - 読み取れない文字は "?" で表記
-- 不明確な記号は保守的に解釈
-- 日付は {year}-{month:02d}-DD 形式に変換
+- 不明確な記号は保守的に解釈（空欄として扱う）
 - 各日付・時間帯ごとに1レコード作成
+- animal_id は必ず {animal_id} を使用（画像から読み取らない）
+- 日付範囲外のデータは出力しない
+
+【実例】
+画像に「11/14 朝 ○ ○ × ×」とある場合：
+{{
+  "animal_id": {animal_id},
+  "log_date": "{start_date.year}-11-14",
+  "time_slot": "morning",
+  "appetite": 5,
+  "energy": 5,
+  "urination": false,
+  "cleaning": false,
+  "memo": "排便: なし, 嘔吐: なし, 投薬: なし",
+  "recorder_name": "OCR自動取込",
+  "from_paper": true,
+  "recorder_id": null,
+  "device_tag": "OCR-Import",
+  "ip_address": null,
+  "user_agent": null
+}}
 
 画像を解析して、上記形式のJSONを出力してください。
 ```
 
-### 4. Cat Identification Service
+**Design Rationale**:
+- ユーザー指定の `animal_id` をプロンプトに含めることで、OCRの誤認識を防止
+- 日付範囲を明示することで、範囲外データの混入を防止
+- 実例を示すことで、LLMの出力精度を向上
 
-**Purpose**: Resolve cat name/ID from user prompt via API
+### 4. Kiro Hook Scripts
 
-**Interface**:
+#### Hook 1: PDF to Image Converter (自動実行)
+
+**File**: `.kiro/hooks/pdf_to_image_hook.py`
+
+**Trigger**: ファイル保存時（`tmp/pdfs/*.pdf`）
+
+**Purpose**: PDFの最初のページを画像に自動変換
+
+**Implementation**:
 ```python
-def identify_cat(
-    identifier: str | int,
-    api_base_url: str,
-    auth_token: str
-) -> int:
-    """
-    Identify cat by ID or name using NecoKeeper API.
+"""
+Kiro Hook: PDF → Image 自動変換
+Trigger: tmp/pdfs/*.pdf にファイルが保存されたとき
+"""
+import sys
+from pathlib import Path
+from scripts.hooks.pdf_to_image import convert_pdf_to_image
 
-    Args:
-        identifier: Cat ID (int) or name (str)
-        api_base_url: Base URL of NecoKeeper API
-        auth_token: Authentication token
+def main():
+    pdf_path = sys.argv[1]  # Kiroから渡されるファイルパス
 
-    Returns:
-        int: animal_id
+    try:
+        # PDF → PNG変換
+        image_path = convert_pdf_to_image(
+            pdf_path=pdf_path,
+            output_dir="tmp/images"
+        )
 
-    Raises:
-        CatNotFoundError: If no cat matches
-        MultipleCatsFoundError: If multiple cats match
+        print(f"✅ PDF変換完了: {image_path}")
+        print(f"")
+        print(f"次のステップ:")
+        print(f"1. Kiroチャットで画像を開く")
+        print(f"2. 「ID<猫ID>の猫、<開始日>から<終了日>のデータをJSONに変換して")
+        print(f"    tmp/json/<ファイル名>.json に保存して」と指示")
 
-    Implementation:
-        1. GET /api/v1/animals (fetch all animals)
-        2. Search in memory by ID or name (case-insensitive)
-        3. Return matching animal_id
-    """
+    except Exception as e:
+        print(f"❌ PDF変換エラー: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
 ```
 
-**Implementation Notes**:
-- Fetch all animals via `GET /api/v1/animals`
-- Search in memory (no database dependency)
-- Case-insensitive name matching
-- Only requires `requests` library
-- No SQLAlchemy or database connection needed
+#### Hook 2: JSON to Database Registrar (自動実行)
+
+**File**: `.kiro/hooks/register_care_logs_hook.py`
+
+**Trigger**: ファイル保存時（`tmp/json/*.json`）
+
+**Purpose**: JSONファイルを自動的にデータベースに登録
+
+**Implementation**:
+```python
+"""
+Kiro Hook: JSON → Database 自動登録
+Trigger: tmp/json/*.json にファイルが保存されたとき
+"""
+import sys
+import json
+from pathlib import Path
+from scripts.hooks.register_care_logs import register_care_logs
+from scripts.utils.logging_config import setup_logger
+
+logger = setup_logger("register_care_logs_hook")
+
+def main():
+    json_path = sys.argv[1]  # Kiroから渡されるファイルパス
+
+    try:
+        # JSONファイル読み込み
+        with open(json_path) as f:
+            care_logs = json.load(f)
+
+        logger.info(f"JSONファイル読み込み: {json_path}")
+        logger.info(f"レコード数: {len(care_logs)}")
+
+        # API経由でデータ登録
+        result = register_care_logs(
+            care_logs=care_logs,
+            api_base_url="http://localhost:8000",
+            admin_username="admin",
+            admin_password="password"  # TODO: 環境変数から取得
+        )
+
+        # 結果表示
+        print(f"")
+        print(f"✅ データ登録完了")
+        print(f"  成功: {result['success_count']}件")
+        print(f"  失敗: {result['failed_count']}件")
+
+        if result['failed_count'] > 0:
+            print(f"")
+            print(f"❌ エラー詳細:")
+            for error in result['errors']:
+                print(f"  - {error}")
+
+        # 処理済みファイルを移動
+        processed_dir = Path("tmp/json/processed")
+        processed_dir.mkdir(parents=True, exist_ok=True)
+
+        processed_path = processed_dir / Path(json_path).name
+        Path(json_path).rename(processed_path)
+
+        logger.info(f"処理済みファイル移動: {processed_path}")
+
+    except Exception as e:
+        logger.error(f"データ登録エラー: {e}")
+        print(f"❌ エラー: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+**Hook Configuration**:
+```json
+// .kiro/hooks/config.json
+{
+  "hooks": [
+    {
+      "name": "pdf_to_image",
+      "trigger": "file_save",
+      "watch": "tmp/pdfs/*.pdf",
+      "script": ".kiro/hooks/pdf_to_image_hook.py"
+    },
+    {
+      "name": "register_care_logs",
+      "trigger": "file_save",
+      "watch": "tmp/json/*.json",
+      "script": ".kiro/hooks/register_care_logs_hook.py"
+    }
+  ]
+}
+```
 
 ## Data Models
 
@@ -461,8 +680,8 @@ class CareLog(Base):
 *For any* record imported via OCR, the from_paper flag must be set to True.
 **Validates: Requirements 1.6, 10.1**
 
-### Property 7: Cat Identification Uniqueness
-*For any* cat identifier provided by the user, the system must resolve to exactly one animal_id or raise an error.
+### Property 7: User-Specified Animal ID Validation
+*For any* user-specified animal_id, the system must verify the animal exists in the database before processing OCR data.
 **Validates: Requirements 4.1, 4.3, 4.4**
 
 ### Property 8: PDF First Page Extraction
@@ -504,10 +723,11 @@ class CareLog(Base):
 - **Out of Range Values**: Skip record, log error, continue processing
 - **Missing Required Fields**: Skip record, log error, continue processing
 
-#### 4. Cat Identification Errors
-- **Cat Not Found**: Notify user, halt process
-- **Multiple Cats Found**: Request user clarification, halt process
-- **Invalid Identifier**: Notify user, halt process
+#### 4. User Input Validation Errors
+- **Animal Not Found**: Return 404 "指定された猫が見つかりません"
+- **Invalid Date Range**: Return 400 "日付範囲が不正です（開始日 > 終了日）"
+- **Invalid File Format**: Return 415 "サポートされていないファイル形式です（JPG, PNG, PDFのみ）"
+- **File Size Exceeded**: Return 413 "ファイルサイズが大きすぎます（最大50MB）"
 
 #### 5. API Registration Errors
 - **Authentication Failed**: Notify user, halt process
@@ -557,12 +777,13 @@ class CareLog(Base):
 - Test individual record failure handling
 - Test summary generation
 
-#### Cat Identification Tests
-- Test identification by ID
-- Test identification by name
-- Test multiple matches error
-- Test no matches error
-- Test case-insensitive name matching
+#### User Input Validation Tests
+- Test valid animal_id acceptance
+- Test invalid animal_id rejection (404)
+- Test valid date range acceptance
+- Test invalid date range rejection (start > end)
+- Test file format validation (JPG, PNG, PDF)
+- Test file size limit enforcement (50MB)
 
 #### Data Validation Tests
 - Test JSON schema validation
@@ -630,6 +851,48 @@ def test_time_slot_mapping(time_indicator):
     """
     time_slot = map_time_slot(time_indicator)
     assert time_slot in ["morning", "noon", "evening"]
+```
+
+#### Property 7: User-Specified Animal ID Validation Test
+```python
+@given(animal_id=st.integers(min_value=1, max_value=1000))
+def test_user_specified_animal_id_validation(animal_id, db_session):
+    """
+    Property: System must verify animal_id exists before processing
+    **Validates: Requirements 4.1, 4.3, 4.4**
+    """
+    # Create test animal
+    if animal_id % 2 == 0:  # Even IDs exist
+        animal = Animal(id=animal_id, name=f"Cat{animal_id}")
+        db_session.add(animal)
+        db_session.commit()
+
+    # Test validation
+    if animal_id % 2 == 0:
+        assert validate_animal_id(db_session, animal_id) is True
+    else:
+        with pytest.raises(HTTPException) as exc:
+            validate_animal_id(db_session, animal_id)
+        assert exc.value.status_code == 404
+```
+
+#### Property 13: Date Range Validation Test
+```python
+@given(
+    start_date=st.dates(min_value=date(2020, 1, 1), max_value=date(2030, 12, 31)),
+    end_date=st.dates(min_value=date(2020, 1, 1), max_value=date(2030, 12, 31))
+)
+def test_date_range_validation(start_date, end_date):
+    """
+    Property: System must reject invalid date ranges (start > end)
+    **Validates: User-specified metadata validation**
+    """
+    if start_date <= end_date:
+        assert validate_date_range(start_date, end_date) is True
+    else:
+        with pytest.raises(HTTPException) as exc:
+            validate_date_range(start_date, end_date)
+        assert exc.value.status_code == 400
 ```
 
 #### Property 4: Value Range Validation Test
@@ -785,19 +1048,127 @@ logs/
 └── ocr-import.log  # Import logs
 ```
 
+## User Workflow
+
+### Workflow Example: PDF → Database
+
+```bash
+# Step 1: PDFを配置（自動でHook実行）
+$ cp ~/Downloads/care_log_202411.pdf tmp/pdfs/
+
+# Kiro Hook自動実行
+✅ PDF変換完了: tmp/images/care_log_202411_page1.png
+
+次のステップ:
+Kiroチャットで画像を添付して、以下のように指示してください：
+「これはIDが<猫ID>の猫の<開始日>～<終了日>の記録です。
+ 猫のお世話記録登録用のregister_care_logs.pyの仕様に合わせてJSON化して
+ tmp/json/<ファイル名>.json に保存して」
+
+# Step 2: Kiroチャットで対話的にJSON生成
+User: [画像を添付]
+      「これはIDが12の猫の2024年11月14日～23日の記録です。
+       猫のお世話記録登録用のregister_care_logs.pyの仕様に合わせてJSON化して
+       tmp/json/care_log_20241114.json に保存して」
+
+Kiro: [画像を解析中...]
+      [ユーザープロンプトから抽出]
+      - animal_id: 12
+      - start_date: 2024-11-14
+      - end_date: 2024-11-23
+      - output_path: tmp/json/care_log_20241114.json
+
+      [JSON生成中...]
+
+Kiro: ✅ JSONファイルを保存しました: tmp/json/care_log_20241114.json
+      24件のレコードを生成しました。
+
+# (オプション) JSONを確認・修正
+$ cat tmp/json/care_log_20241114.json
+$ vim tmp/json/care_log_20241114.json  # 必要に応じて修正
+
+# Step 3: JSONを保存（自動でHook実行）
+# ファイルを保存すると自動的にKiro Hookが実行される
+
+# Kiro Hook自動実行
+JSONファイル読み込み: tmp/json/care_log_20241114.json
+レコード数: 24
+
+✅ データ登録完了
+  成功: 24件
+  失敗: 0件
+
+処理済みファイル移動: tmp/json/processed/care_log_20241114.json
+```
+
+### Prompt Variations
+
+```bash
+# パターン1: 詳細指定
+「これはIDが4の猫の2024年11月15日～25日の記録です。
+ scripts/hooks/register_care_logs.pyの仕様に合わせてJSON化して
+ tmp/json/care_log_202411.json に保存して」
+
+# パターン2: 簡潔指定
+「ID12、11/14-11/23、JSON化してtmp/json/に保存」
+
+# パターン3: 年をまたぐ場合
+「これはIDが7の猫の2024年12月25日～2025年1月5日の記録です。
+ JSON化してtmp/json/care_log_202412.json に保存して」
+```
+
+### Directory Structure
+
+```
+tmp/
+├── pdfs/                    # PDF配置フォルダ（Hook監視）
+│   └── care_log_202411.pdf
+│
+├── images/                  # 変換後の画像（Hook出力）
+│   └── care_log_202411_page1.png
+│
+└── json/                    # JSON配置フォルダ（Hook監視）
+    ├── care_log_20241114.json
+    └── processed/           # 処理済みファイル
+        └── care_log_20241114.json
+```
+
+### User Experience Principles
+
+1. **段階的な処理**
+   - 各フェーズで状態確認可能
+   - エラー時の切り分けが容易
+   - 再実行が簡単
+
+2. **人間の確認ポイント**
+   - Phase 2でJSONを確認・修正可能
+   - OCRミスを事前に修正
+   - データ品質の保証
+
+3. **自動化と柔軟性のバランス**
+   - PDF変換は自動（Phase 1）
+   - JSON生成は対話的（Phase 2）
+   - DB登録は自動（Phase 3）
+
+4. **明確なフィードバック**
+   - 各Hookの実行結果を表示
+   - 次のステップを明示
+   - エラー時の対処方法を提示
+
 ## Future Enhancements
 
 ### Phase 2 Features
-- Multi-page PDF processing
-- Batch processing of multiple files
-- OCR confidence scoring
-- Manual correction interface
-- Historical data comparison
-- Automatic cat name recognition from image
+- Multi-page PDF processing（複数ページの一括処理）
+- Batch processing of multiple files（複数ファイルの一括アップロード）
+- OCR confidence scoring（信頼度スコア表示）
+- Manual correction interface（取り込み前のプレビュー・修正機能）
+- Historical data comparison（過去データとの比較・重複チェック）
+- Export error logs（エラーログのCSVエクスポート）
 
 ### Phase 3 Features
-- Real-time preview of extracted data
-- Interactive field correction
-- Template-based extraction for different form layouts
-- Mobile app integration
-- Cloud-based OCR service option
+- Real-time preview of extracted data（リアルタイムプレビュー）
+- Interactive field correction（フィールド単位の修正UI）
+- Template-based extraction for different form layouts（複数フォーマット対応）
+- Mobile app integration（モバイルアプリからの直接アップロード）
+- Cloud-based OCR service option（クラウドOCRサービス連携）
+- AI-powered handwriting recognition improvement（手書き認識精度の継続的改善）

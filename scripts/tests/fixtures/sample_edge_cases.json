@@ -1,0 +1,50 @@
+[
+  {
+    "animal_id": 2,
+    "log_date": "2025-11-10",
+    "time_slot": "morning",
+    "appetite": 1,
+    "energy": 1,
+    "urination": false,
+    "cleaning": false,
+    "memo": "排便: なし, 嘔吐: あり, 投薬: あり, 備考: 体調不良のため投薬",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import",
+    "ip_address": null,
+    "user_agent": null
+  },
+  {
+    "animal_id": 2,
+    "log_date": "2025-11-10",
+    "time_slot": "noon",
+    "appetite": 1,
+    "energy": 1,
+    "urination": false,
+    "cleaning": false,
+    "memo": "排便: なし, 嘔吐: なし, 投薬: なし, 備考: 食欲なし",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import",
+    "ip_address": null,
+    "user_agent": null
+  },
+  {
+    "animal_id": 3,
+    "log_date": "2025-11-15",
+    "time_slot": "evening",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "排便: あり, 嘔吐: なし, 投薬: なし, 備考: とても元気",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import",
+    "ip_address": null,
+    "user_agent": null
+  }
+]

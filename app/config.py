@@ -131,6 +131,23 @@ class Settings(BaseSettings):
         gt=0,
     )
 
+    # OCR Import設定
+    ocr_temp_dir: str = Field(
+        default="tmp/images", description="OCR一時ファイル保存ディレクトリ"
+    )
+    ocr_log_file: str = Field(
+        default="logs/ocr-import.log", description="OCRログファイルパス"
+    )
+    necokeeper_api_url: str = Field(
+        default="http://localhost:8000", description="NecoKeeper API URL"
+    )
+    necokeeper_admin_username: str = Field(
+        default="admin", description="NecoKeeper管理者ユーザー名"
+    )
+    necokeeper_admin_password: str = Field(
+        default="", description="NecoKeeper管理者パスワード"
+    )
+
     @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:

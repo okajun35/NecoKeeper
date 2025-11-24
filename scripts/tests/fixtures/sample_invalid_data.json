@@ -1,0 +1,71 @@
+[
+  {
+    "animal_id": 1,
+    "log_date": "2025-11-04",
+    "time_slot": "morning",
+    "appetite": 10,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "Invalid appetite value (should be 1-5)",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import"
+  },
+  {
+    "animal_id": 1,
+    "log_date": "2025-02-30",
+    "time_slot": "noon",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "Invalid date (Feb 30 doesn't exist)",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import"
+  },
+  {
+    "animal_id": 1,
+    "log_date": "2025-11-05",
+    "time_slot": "midnight",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "Invalid time_slot (should be morning/noon/evening)",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import"
+  },
+  {
+    "animal_id": -1,
+    "log_date": "2025-11-06",
+    "time_slot": "morning",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "Invalid animal_id (negative)",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import"
+  },
+  {
+    "log_date": "2025-11-07",
+    "time_slot": "morning",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "Missing required field: animal_id",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "recorder_id": null,
+    "device_tag": "OCR-Import"
+  }
+]

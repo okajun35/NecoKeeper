@@ -4,8 +4,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const careLogId = parseInt(document.body.dataset.careLogId);
   const detailContainer = document.getElementById('care-log-detail');
+  const careLogId = parseInt(detailContainer.dataset.careLogId);
 
   try {
     const careLog = await apiRequest(`/api/v1/care-logs/${careLogId}`);
@@ -15,49 +15,71 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'care_logs' }) : key);
+    const tCommon = key =>
+      typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'common' }) : key;
+
+    // 翻訳がまだロードされていない可能性があるため、少し待つ
+    if (!i18next.isInitialized) {
+      await new Promise(resolve => {
+        const check = setInterval(() => {
+          if (i18next.isInitialized) {
+            clearInterval(check);
+            resolve();
+          }
+        }, 100);
+      });
+    }
+
+    // 更新成功メッセージの表示
+    if (sessionStorage.getItem('careLogUpdateSuccess')) {
+      sessionStorage.removeItem('careLogUpdateSuccess');
+      showToast(t('messages.updated'), 'success');
+    }
+
     detailContainer.innerHTML = `
             <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">記録日</label>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.log_date">${t('fields.log_date')}</label>
                         <p class="mt-1 text-lg">${careLog.log_date}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">時点</label>
-                        <p class="mt-1 text-lg">${getTimeSlotLabel(careLog.time_slot)}</p>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.time_slot">${t('fields.time_slot')}</label>
+                        <p class="mt-1 text-lg" data-i18n="care_logs:time_slots.${careLog.time_slot}">${t('time_slots.' + careLog.time_slot)}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">猫ID</label>
-                        <p class="mt-1 text-lg">${careLog.animal_id}</p>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.animal">${t('fields.animal')}</label>
+                        <p class="mt-1 text-lg">${careLog.animal_name || careLog.animal_id}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">記録者</label>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.recorder">${t('fields.recorder')}</label>
                         <p class="mt-1 text-lg">${careLog.recorder_name}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">食欲</label>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.appetite">${t('fields.appetite')}</label>
                         <p class="mt-1 text-lg">${'★'.repeat(careLog.appetite)}${'☆'.repeat(5 - careLog.appetite)}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">元気</label>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.energy">${t('fields.energy')}</label>
                         <p class="mt-1 text-lg">${'★'.repeat(careLog.energy)}${'☆'.repeat(5 - careLog.energy)}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">排尿</label>
-                        <p class="mt-1 text-lg">${careLog.urination ? '✓ あり' : '✗ なし'}</p>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.urination">${t('fields.urination')}</label>
+                        <p class="mt-1 text-lg" data-i18n="care_logs:urination_status.${careLog.urination ? 'yes' : 'no'}">${careLog.urination ? t('urination_status.yes') : t('urination_status.no')}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">清掃</label>
-                        <p class="mt-1 text-lg">${careLog.cleaning ? '✓ 済み' : '✗ 未'}</p>
+                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.cleaning">${t('fields.cleaning')}</label>
+                        <p class="mt-1 text-lg" data-i18n="care_logs:cleaning_status.${careLog.cleaning ? 'done' : 'not_done'}">${careLog.cleaning ? t('cleaning_status.done') : t('cleaning_status.not_done')}</p>
                     </div>
                 </div>
 
@@ -65,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   careLog.memo
                     ? `
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">メモ</label>
+                    <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.memo">${t('fields.memo')}</label>
                     <p class="mt-1 text-gray-900 whitespace-pre-wrap">${careLog.memo}</p>
                 </div>
                 `
@@ -75,30 +97,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="pt-4 border-t">
                     <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
                         <div>
-                            <span class="font-medium">作成日時:</span> ${new Date(careLog.created_at).toLocaleString('ja-JP')}
+                            <span class="font-medium" data-i18n="care_logs:fields.created_at">${t('fields.created_at')}</span>: ${new Date(careLog.created_at).toLocaleString(i18next.language === 'en' ? 'en-US' : 'ja-JP')}
                         </div>
                         <div>
-                            <span class="font-medium">最終更新:</span> ${new Date(careLog.last_updated_at).toLocaleString('ja-JP')}
+                            <span class="font-medium" data-i18n="common:last_updated">${tCommon('last_updated')}</span>: ${new Date(careLog.last_updated_at).toLocaleString(i18next.language === 'en' ? 'en-US' : 'ja-JP')}
                         </div>
                     </div>
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <a href="/admin/care-logs/${careLogId}/edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        編集
+                    <a href="/admin/care-logs/${careLogId}/edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" data-i18n="common:edit">
+                        ${tCommon('edit')}
                     </a>
-                    <button onclick="deleteCareLog(${careLogId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                        削除
+                    <button onclick="deleteCareLog(${careLogId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" data-i18n="common:delete">
+                        ${tCommon('delete')}
                     </button>
                 </div>
             </div>
         `;
   } catch (error) {
     console.error('Error loading care log:', error);
+    const errorMessage =
+      error.message || (error.detail ? error.detail : i18next.t('care_logs:load_failed'));
     detailContainer.innerHTML = `
             <div class="text-center py-8">
-                <p class="text-red-600">世話記録の読み込みに失敗しました</p>
-                <p class="text-gray-600 mt-2">${error.message}</p>
+                <p class="text-red-600" data-i18n="care_logs:load_failed">世話記録の読み込みに失敗しました</p>
+                <p class="text-gray-600 mt-2">${errorMessage}</p>
             </div>
         `;
   }

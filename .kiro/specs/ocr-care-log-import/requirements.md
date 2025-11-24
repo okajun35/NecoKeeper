@@ -4,6 +4,13 @@
 
 手書きの猫世話記録表（PDF/画像）をOCR解析し、NecoKeeperのデータベースに自動登録する機能を実装します。ボランティアが紙に記録した世話記録を効率的にデジタル化し、データ入力の手間を削減します。
 
+**重要な設計判断**: 3段階のKiro Hookワークフローを採用します：
+1. **Phase 1 (自動)**: PDF → Image変換
+2. **Phase 2 (対話)**: Image → JSON変換（Kiroチャットで猫ID・日付範囲を指定）
+3. **Phase 3 (自動)**: JSON → Database登録
+
+この設計により、OCRの誤認識を防ぎつつ、人間の確認ポイントを設けることでデータの整合性を保証します。手書きの「12」が「2」に誤認識されるような問題を、Phase 2でユーザーが明示的に指定することで回避します。
+
 ## Glossary
 
 - **OCR (Optical Character Recognition)**: 光学文字認識。画像内の文字を読み取りテキストデータに変換する技術
@@ -16,30 +23,37 @@
 
 ## Requirements
 
-### Requirement 1
+### Requirement 1: Phase 2 - Image to JSON Conversion (Interactive)
 
-**User Story:** As a ボランティア, I want to upload a handwritten care log image, so that I can digitize paper records without manual data entry.
+**User Story:** As a ボランティア, I want to use Kiro chat to convert a handwritten care log image to JSON with specified metadata (animal_id, date_range), so that I can digitize paper records with human verification before database registration.
 
-#### Acceptance Criteria
-
-1. WHEN a user provides an image file (jpg, png) with a handwritten care log THEN the System SHALL extract the care log data and convert it to JSON format
-2. WHEN the extracted JSON data is valid THEN the System SHALL register the care log records to the database via API
-3. WHEN the image contains multiple days of records THEN the System SHALL extract all records and register them individually
-4. WHEN the image quality is poor or text is unreadable THEN the System SHALL notify the user and request manual verification or clarification
-5. WHEN the LLM cannot interpret the image content THEN the System SHALL notify the user and request manual verification or clarification
-6. WHEN the registration is complete THEN the System SHALL set the from_paper flag to True for all imported records
-
-### Requirement 2
-
-**User Story:** As a ボランティア, I want to upload a PDF file with a care log, so that I can import records from scanned documents.
+**Design Rationale:** Phase 2 is interactive to allow human verification and correction of OCR results before database registration.
 
 #### Acceptance Criteria
 
-1. WHEN a user provides a PDF file THEN the System SHALL convert the first page to an image file
-2. WHEN PDF conversion is complete THEN the System SHALL return the image file path
-3. WHEN the PDF has multiple pages THEN the System SHALL only process the first page
-4. WHEN PDF conversion fails THEN the System SHALL notify the user and halt the process
-5. WHEN the image is extracted THEN the System SHALL proceed with OCR analysis
+1. WHEN a user attaches an image file (jpg, png) in Kiro chat with animal_id and date_range in the prompt THEN Kiro SHALL extract the care log data and convert it to JSON format
+2. WHEN the user specifies a JSON output path THEN Kiro SHALL save the generated JSON to the specified path
+3. WHEN the image contains multiple days of records THEN Kiro SHALL extract all records within the specified date range
+4. WHEN the image quality is poor or text is unreadable THEN Kiro SHALL mark unclear fields with "?" and notify the user
+5. WHEN the LLM cannot interpret the image content THEN Kiro SHALL notify the user and request clarification
+6. WHEN JSON is generated THEN all records SHALL have from_paper flag set to True
+7. WHEN JSON is saved to tmp/json/ THEN the user SHALL have the opportunity to review and edit before automatic registration
+8. WHEN the user confirms the JSON is correct THEN they SHALL save it to trigger Phase 3 Hook
+
+### Requirement 2: Phase 1 - PDF to Image Conversion (Automatic Hook)
+
+**User Story:** As a ボランティア, I want to place a PDF file in a watched folder so that it is automatically converted to an image, enabling me to proceed with OCR analysis.
+
+**Design Rationale:** Phase 1 is fully automated using Kiro Hook to reduce manual steps.
+
+#### Acceptance Criteria
+
+1. WHEN a user places a PDF file in tmp/pdfs/ THEN the Kiro Hook SHALL automatically detect the file
+2. WHEN the Hook detects a PDF file THEN it SHALL convert the first page to a PNG image
+3. WHEN the PDF has multiple pages THEN the Hook SHALL only process the first page
+4. WHEN PDF conversion is complete THEN the Hook SHALL save the image to tmp/images/ with a descriptive filename
+5. WHEN PDF conversion fails THEN the Hook SHALL log the error and notify the user
+6. WHEN the image is saved THEN the Hook SHALL display the next steps to the user (use Kiro chat for Phase 2)
 
 ### Requirement 3
 
@@ -57,41 +71,53 @@
 8. WHEN the handwritten record contains "備考" (notes) field THEN the System SHALL map it to the memo field
 9. WHEN the handwritten record contains time indicators (朝/昼/夕) THEN the System SHALL map them to time_slot field (morning/noon/evening)
 
-### Requirement 4
+### Requirement 4: User-Specified Metadata in Kiro Chat Prompt
 
-**User Story:** As a ボランティア, I want to specify the cat in my prompt, so that records are associated with the correct animal.
+**User Story:** As a ボランティア, I want to specify the cat ID, date range, and output path in my Kiro chat prompt, so that records are associated with the correct animal without OCR misrecognition errors.
 
-#### Acceptance Criteria
-
-1. WHEN the user provides a cat identifier (ID or name) in the prompt THEN the System SHALL use the specified animal_id for all records
-2. WHEN the user provides a cat name THEN the System SHALL search the database for a matching animal by name
-3. WHEN multiple cats match the provided name THEN the System SHALL request user clarification
-4. WHEN no cat matches the provided identifier THEN the System SHALL notify the user and halt the import process
-5. WHEN the cat is successfully identified THEN the System SHALL use the animal_id for all extracted records
-
-### Requirement 5
-
-**User Story:** As a システム管理者, I want the system to handle date information correctly, so that records are associated with the correct dates.
+**Design Rationale:** All critical metadata (animal_id, date_range, output_path) is user-specified in a natural language prompt to prevent OCR errors. For example, handwritten "12" can be misread as "2" or "2-", causing data integrity issues.
 
 #### Acceptance Criteria
 
-1. WHEN the user specifies a year and month in the prompt THEN the System SHALL use the specified year-month for date parsing
-2. WHEN the handwritten record contains dates in M/D format THEN the System SHALL combine them with the specified year-month
-3. WHEN the date format is ambiguous THEN the System SHALL request user clarification
-4. WHEN a date is invalid (e.g., 2/30) THEN the System SHALL log an error and skip that record
-5. WHEN no year-month is specified THEN the System SHALL use the current year and month as default
+1. WHEN the user provides a prompt like "これはIDが12の猫の2024年11月14日～23日の記録です。JSON化してtmp/json/care_log.json に保存して" THEN Kiro SHALL extract animal_id=12, start_date=2024-11-14, end_date=2024-11-23, output_path=tmp/json/care_log.json
+2. WHEN the user provides a prompt like "ID4、11/15-11/25、JSON化してtmp/json/に保存" THEN Kiro SHALL extract animal_id=4, start_date=2024-11-15, end_date=2024-11-25, and generate an appropriate filename
+3. WHEN the user mentions "register_care_logs.pyの仕様に合わせて" THEN Kiro SHALL reference the JSON schema from that script
+4. WHEN Kiro generates JSON THEN all records SHALL have the user-specified animal_id
+5. WHEN OCR extracts a different animal_id from the image THEN Kiro SHALL override it with the user-specified value
+6. WHEN OCR extracts dates outside the specified range THEN Kiro SHALL exclude those records from the JSON output
+7. WHEN the user does not specify a year THEN Kiro SHALL use the current year as default
 
-### Requirement 6
+### Requirement 5: Kiro Hook Configuration and Management
 
-**User Story:** As a システム管理者, I want the system to use Kiro Hooks for PDF conversion and data registration, so that the workflow is automated and maintainable.
+**User Story:** As a システム管理者, I want to configure Kiro Hooks for automatic PDF conversion and JSON registration, so that the workflow is automated and maintainable.
+
+**Design Rationale:** Kiro Hooks provide file-watching capabilities to automate Phase 1 and Phase 3, reducing manual intervention.
 
 #### Acceptance Criteria
 
-1. WHEN a PDF file is provided THEN the System SHALL invoke the PDF conversion Hook script
-2. WHEN the PDF conversion Hook is invoked THEN the Hook SHALL accept a PDF file path and return the first page as an image path
-3. WHEN image data is extracted and converted to JSON THEN the System SHALL invoke the data registration Hook script
-4. WHEN the data registration Hook is invoked THEN the Hook SHALL accept JSON data and register it via the NecoKeeper API with administrator privileges
-5. WHEN the data registration Hook is invoked THEN the Hook SHALL authenticate with the API by calling the authentication endpoint
+1. WHEN the system is set up THEN there SHALL be two Kiro Hooks configured: pdf_to_image_hook and register_care_logs_hook
+2. WHEN pdf_to_image_hook is configured THEN it SHALL watch tmp/pdfs/*.pdf for new files
+3. WHEN register_care_logs_hook is configured THEN it SHALL watch tmp/json/*.json for new files
+4. WHEN a Hook is triggered THEN it SHALL receive the file path as an argument
+5. WHEN a Hook completes successfully THEN it SHALL log the result and notify the user
+6. WHEN a Hook fails THEN it SHALL log the error with details and exit with non-zero status
+7. WHEN Hooks are configured THEN they SHALL be documented in .kiro/hooks/config.json
+
+### Requirement 6: Phase 3 - JSON to Database Registration (Automatic Hook)
+
+**User Story:** As a ボランティア, I want JSON files to be automatically registered to the database when saved to a watched folder, so that I don't need to manually trigger the registration process.
+
+**Design Rationale:** Phase 3 is fully automated using Kiro Hook to complete the workflow after human verification in Phase 2.
+
+#### Acceptance Criteria
+
+1. WHEN a user saves a JSON file to tmp/json/ THEN the Kiro Hook SHALL automatically detect the file
+2. WHEN the Hook detects a JSON file THEN it SHALL read and validate the JSON structure
+3. WHEN JSON validation passes THEN the Hook SHALL authenticate with the NecoKeeper API
+4. WHEN authentication succeeds THEN the Hook SHALL register each record via POST /api/v1/care-logs
+5. WHEN registration is complete THEN the Hook SHALL display a summary (success count, failure count)
+6. WHEN registration succeeds THEN the Hook SHALL move the processed JSON to tmp/json/processed/
+7. WHEN registration fails THEN the Hook SHALL log detailed error messages and keep the JSON file for retry
 
 ### Requirement 7
 
@@ -170,25 +196,41 @@
 
 ## Technical Notes
 
-### PDF Conversion
+### Phase 1: PDF Conversion (Automatic Hook)
 - Use `pdf2image` or `PyMuPDF` library
-- Convert only the first page to JPEG format
-- Store temporary images in `tmp/images/`
-- Clean up temporary files after processing
+- Convert only the first page to PNG format
+- Store images in `tmp/images/` with descriptive filenames
+- Hook script: `.kiro/hooks/pdf_to_image_hook.py`
+- Watch pattern: `tmp/pdfs/*.pdf`
 
-### Image Analysis
+### Phase 2: Image Analysis (Interactive Kiro Chat)
 - Use Kiro's multimodal LLM capability
-- Pass image via chat "Add image" feature
-- Provide structured prompt with expected JSON format
-- Handle OCR errors gracefully
+- User attaches image in chat
+- User provides prompt: "ID<猫ID>の猫、<開始日>から<終了日>のデータをJSONに変換して tmp/json/<ファイル名>.json に保存して"
+- Kiro generates JSON with user-specified metadata
+- User reviews and edits JSON if needed
+- User saves JSON to tmp/json/ to trigger Phase 3
 
-### API Authentication
-- Store API credentials in environment variables or config file
-- Use existing NecoKeeper authentication endpoints
-- Handle token refresh if needed
+### Phase 3: Database Registration (Automatic Hook)
+- Hook script: `.kiro/hooks/register_care_logs_hook.py`
+- Watch pattern: `tmp/json/*.json`
+- Authenticate with NecoKeeper API (POST /api/v1/auth/token)
+- Register records via POST /api/v1/care-logs
+- Move processed files to `tmp/json/processed/`
+- Store API credentials in environment variables
+
+### Directory Structure
+```
+tmp/
+├── pdfs/                    # Phase 1 input (Hook監視)
+├── images/                  # Phase 1 output / Phase 2 input
+└── json/                    # Phase 2 output / Phase 3 input (Hook監視)
+    └── processed/           # Phase 3 output (処理済み)
+```
 
 ### Error Handling
 - Log all errors to `logs/ocr-import.log`
+- Phase 1/3 Hooks: Display error and exit with non-zero status
+- Phase 2: Notify user in chat and request clarification
 - Continue processing on non-fatal errors
-- Provide detailed error messages to user
-- Support retry mechanism for failed records
+- Support manual retry by re-saving files

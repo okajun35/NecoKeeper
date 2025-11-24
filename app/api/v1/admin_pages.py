@@ -316,6 +316,36 @@ async def care_log_detail_page(
     )
 
 
+@router.get("/care-logs/{care_log_id}/edit", response_class=HTMLResponse)
+async def care_log_edit_page(
+    request: Request,
+    care_log_id: int,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """
+    世話記録編集ページを表示
+
+    指定されたIDの世話記録を編集するフォームを表示。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+        care_log_id: 世話記録ID
+
+    Returns:
+        HTMLResponse: 世話記録編集ページのHTML
+
+    Example:
+        GET /admin/care-logs/1/edit
+    """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/care_logs/edit.html",
+        {"request": request, "care_log_id": care_log_id, "user": current_user},
+    )
+
+
 @router.get("/volunteers", response_class=HTMLResponse)
 async def volunteers_list_page(
     request: Request,
