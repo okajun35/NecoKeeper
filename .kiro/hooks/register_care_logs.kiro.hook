@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Care Log Data Registration",
+  "description": "Automatically registers care log data to the NecoKeeper database when a JSON file is saved in tmp/json/. This is Phase 3 of the OCR care log import workflow.",
+  "version": "1",
+  "when": {
+    "type": "onSave",
+    "patterns": ["tmp/json/*.json"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A care log JSON file has been selected for database registration.\n\nFile: {{file_path}}\n\nPlease execute the following command to register the data:\n\n```bash\npython scripts/hooks/register_care_logs.py {{file_path}}\n```\n\nThe script will:\n1. Authenticate with the NecoKeeper API\n2. Register each care log record via POST /api/v1/care-logs\n3. Display a detailed summary with success/failure counts\n4. Move the processed file to tmp/json/processed/\n\nPrerequisites:\n- NecoKeeper API must be running (http://localhost:8000)\n- Environment variables must be set: NECOKEEPER_ADMIN_USERNAME, NECOKEEPER_ADMIN_PASSWORD\n\nIf registration fails, provide troubleshooting guidance:\n- Verify API is running: curl http://localhost:8000/docs\n- Check .env file for correct credentials\n- Validate JSON file format matches schema\n- Check network connectivity"
+  }
+}

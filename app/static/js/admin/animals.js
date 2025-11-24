@@ -325,11 +325,15 @@ function changePage(page) {
 // QRコードを表示
 function showQRCode(animalId) {
   const qrUrl = `${API_BASE}/animals/${animalId}/qr`;
+  const publicUrl = `/public/care?animal_id=${animalId}`;
   const modalTitle = translate('modals.qr_code.title', {
     defaultValue: 'QRコード',
   });
   const modalDescription = translate('modals.qr_code.description', {
     defaultValue: 'このQRコードをスキャンすると、世話記録入力画面が開きます',
+  });
+  const linkText = translate('modals.qr_code.link_text', {
+    defaultValue: '世話記録入力画面を開く',
   });
 
   // モーダルを作成
@@ -346,6 +350,14 @@ function showQRCode(animalId) {
       </div>
       <div class="flex justify-center">
         <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
+      </div>
+      <div class="mt-4 text-center">
+        <a href="${publicUrl}" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline flex items-center justify-center gap-1">
+          ${linkText}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+        </a>
       </div>
       <p class="mt-4 text-sm text-gray-600 text-center">
         ${modalDescription}

@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "PDF to Image Converter",
+  "description": "Converts PDF files to images for OCR processing. Right-click on a PDF file in tmp/pdfs/ or tmp/pdf/ and select 'Run Hook: PDF to Image Converter' to convert it. This is Phase 1 of the OCR care log import workflow.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A PDF file has been selected for OCR processing.\n\nFile: {{file_path}}\n\nPlease execute the following command to convert the PDF to an image using PyMuPDF:\n\n```bash\npython scripts/hooks/pdf_to_image.py {{file_path}} --use-pymupdf\n```\n\nAfter conversion:\n1. Confirm the image was created in tmp/images/\n2. Display the output path\n3. Inform the user of the next steps for Phase 2:\n   - Attach the generated image in Kiro chat\n   - Provide prompt: \"これはIDが<猫ID>の猫の<開始日>～<終了日>の記録です。JSON化してtmp/json/<ファイル名>.json に保存して\"\n   - Example: \"これはIDが12の猫の2024年11月14日～23日の記録です。JSON化してtmp/json/care_log_20241114.json に保存して\"\n\nIf the conversion fails, provide troubleshooting guidance:\n- Check if PDF file is corrupted\n- Verify file size is under 50MB\n- Ensure PyMuPDF is installed: pip install PyMuPDF"
+  },
+  "workspaceFolderName": "NecoKeeper",
+  "shortName": "pdf_to_image"
+}

@@ -1,5 +1,9 @@
 {
   "title": "Care Logs",
+  "detail_title": "Care Log Details",
+  "detail_description": "Detailed information about the care log",
+  "edit_care_log": "Edit Care Log",
+  "edit_description": "Edit an existing care log",
   "list_title": "Care Log List",
   "add_new": "Add New Log",
   "edit": "Edit Log",

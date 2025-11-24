@@ -1,5 +1,9 @@
 {
   "title": "世話記録",
+  "detail_title": "世話記録詳細",
+  "detail_description": "世話記録の詳細情報",
+  "edit_care_log": "世話記録の編集",
+  "edit_description": "登録済みの世話記録を編集します",
   "list_title": "世話記録一覧",
   "add_new": "新しい記録を追加",
   "edit": "記録を編集",
