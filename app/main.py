@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api import automation
 from app.api.v1 import (
     admin_pages,
     adoptions,
@@ -224,6 +225,10 @@ async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # 
 
 
 # APIルーターの登録
+# Automation API（API Key認証）
+app.include_router(automation.router, prefix="/api")
+
+# User-Facing API（OAuth2認証）
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
 app.include_router(care_logs.router, prefix="/api/v1")

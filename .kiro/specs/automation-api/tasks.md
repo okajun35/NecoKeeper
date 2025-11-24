@@ -15,7 +15,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
 
 ### Phase 1: 基盤実装（必須）
 
-- [ ] 1. API Key認証モジュールの実装
+- [x] 1. API Key認証モジュールの実装
   - `app/auth/api_key.py` の作成
   - `APIKeyHeader` スキームの定義
   - `get_automation_api_key()` 依存関数の実装
@@ -24,7 +24,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
   - _Context7: /fastapi/fastapi - APIKeyHeader, Security_
 
-- [ ] 1.1 API Key認証のユニットテストを作成
+- [x] 1.1 API Key認証のユニットテストを作成
   - `tests/auth/test_api_key.py` の作成
   - 有効なAPI Keyのテスト
   - 無効なAPI Keyのテスト（403）
@@ -33,7 +33,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - オプショナル検証のテスト
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 2. 設定管理の拡張
+- [x] 2. 設定管理の拡張
   - `app/config.py` の更新
   - `enable_automation_api` 設定の追加
   - `automation_api_key` 設定の追加
@@ -41,21 +41,21 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - 本番環境でのバリデーション（32文字以上）
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [ ] 2.1 設定管理のユニットテストを作成
+- [x] 2.1 設定管理のユニットテストを作成
   - `tests/test_config.py` の更新
   - 本番環境でのAPI Key検証テスト
   - API Key長さ検証テスト
   - セキュリティプロパティのテスト
   - _Requirements: 2.3, 2.4, 2.5_
 
-- [ ] 3. Automation APIルーターの作成
+- [x] 3. Automation APIルーターの作成
   - `app/api/automation/__init__.py` の作成
   - ルーター設定（prefix, tags, dependencies）
   - 共通エラーレスポンスの定義
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
   - _Context7: /fastapi/fastapi - APIRouter with dependencies_
 
-- [ ] 4. 世話記録登録Automation APIの実装
+- [x] 4. 世話記録登録Automation APIの実装
   - `app/api/automation/care_logs.py` の作成
   - `POST /api/automation/care-logs` エンドポイント
   - リクエストスキーマの定義
@@ -63,7 +63,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - エラーハンドリング
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [ ] 4.1 世話記録登録APIのユニットテストを作成
+- [x] 4.1 世話記録登録APIのユニットテストを作成
   - `tests/api/automation/test_care_logs.py` の作成
   - 正常系: 世話記録登録成功
   - 異常系: API Key未設定（401）
@@ -72,21 +72,21 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - 異常系: 猫が存在しない（404）
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [ ] 5. メインアプリケーションへの統合
+- [x] 5. メインアプリケーションへの統合
   - `app/main.py` の更新
   - Automation APIルーターの登録
   - 既存ルーターとの共存確認
   - OpenAPIドキュメントの確認
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 5.1 統合テストを作成
+- [x] 5.1 統合テストを作成
   - `tests/test_integration_automation_api.py` の作成
   - ユーザーAPIとAutomation APIの分離確認
   - 認証方式の独立性確認
   - OpenAPIドキュメント生成確認
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 6. Kiro Hook統合
+- [x] 6. Kiro Hook統合
   - `scripts/hooks/register_care_logs.py` の更新
   - `/api/automation/care-logs` エンドポイントに変更
   - `X-Automation-Key` ヘッダーの追加
@@ -94,14 +94,14 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - エラーハンドリングの改善
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 6.1 Kiro Hook統合テストを作成
+- [x] 6.1 Kiro Hook統合テストを作成
   - `tests/hooks/test_register_care_logs_automation.py` の作成
   - Automation API経由での登録テスト
   - API Key認証のテスト
   - エラーハンドリングのテスト
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 7. 環境変数テンプレート更新
+- [x] 7. 環境変数テンプレート更新
   - `.env.example` の更新
   - `ENABLE_AUTOMATION_API` の追加
   - `AUTOMATION_API_KEY` の追加
@@ -109,7 +109,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - セキュリティ警告の追加
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [ ] 8. Checkpoint - すべてのテストが通ることを確認
+- [x] 8. Checkpoint - すべてのテストが通ることを確認
   - すべてのユニットテストがPass
   - すべての統合テストがPass
   - カバレッジ70%以上
@@ -117,14 +117,14 @@ Automation API機能の実装タスクリストです。優先度順に実装を
 
 ### Phase 2: 拡張実装（推奨）
 
-- [ ] 9. 猫登録Automation APIの実装
+- [x] 9. 猫登録Automation APIの実装
   - `app/api/automation/animals.py` の作成
   - `POST /api/automation/animals` エンドポイント
   - `GET /api/automation/animals/{animal_id}` エンドポイント
   - エラーハンドリング
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
 
-- [ ] 9.1 猫登録APIのユニットテストを作成
+- [x] 9.1 猫登録APIのユニットテストを作成
   - `tests/api/automation/test_animals.py` の作成
   - 正常系: 猫登録成功
   - 正常系: 猫情報取得成功
@@ -132,7 +132,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - 異常系: 猫が存在しない（404）
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 10. ドキュメント作成
+- [x] 10. ドキュメント作成
   - `docs/automation-api-guide.md` の作成
   - デュアル認証アーキテクチャの説明
   - API Key生成方法
@@ -142,7 +142,7 @@ Automation API機能の実装タスクリストです。優先度順に実装を
   - トラブルシューティング
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
-- [ ] 11. OCR Import Guide更新
+- [x] 11. OCR Import Guide更新
   - `docs/ocr-import-guide.md` の更新
   - Automation API使用方法の追加
   - 環境変数設定手順の更新
