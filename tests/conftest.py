@@ -342,3 +342,18 @@ def temp_media_dir(tmp_path, monkeypatch):
     yield media_dir
 
     # クリーンアップは自動的に行われる（tmp_pathが削除される）
+
+
+@pytest.fixture(scope="function")
+def automation_api_key(monkeypatch) -> str:
+    """Automation API用のテストキーを設定"""
+    from app.config import get_settings
+
+    # 環境変数を設定
+    monkeypatch.setenv("ENABLE_AUTOMATION_API", "true")
+    monkeypatch.setenv("AUTOMATION_API_KEY", "test-api-key-32-characters-long-xxx")
+
+    # 設定キャッシュをクリア
+    get_settings.cache_clear()
+
+    return "test-api-key-32-characters-long-xxx"

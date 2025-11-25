@@ -15,6 +15,28 @@
 
 `.env`ファイルに以下を設定してください：
 
+#### 推奨: Automation API認証（シンプル・セキュア）
+
+```bash
+# NecoKeeper API設定
+NECOKEEPER_API_URL=http://localhost:8000
+
+# Automation API認証（推奨）
+ENABLE_AUTOMATION_API=true
+AUTOMATION_API_KEY=your_secure_api_key_here
+
+# OCR設定（オプション）
+OCR_TEMP_DIR=tmp/images
+OCR_LOG_FILE=logs/ocr-import.log
+```
+
+**API Keyの生成方法**:
+```bash
+python -c "import secrets; print('AUTOMATION_API_KEY=' + secrets.token_urlsafe(32))"
+```
+
+#### 従来方式: OAuth2認証（非推奨）
+
 ```bash
 # NecoKeeper API設定
 NECOKEEPER_API_URL=http://localhost:8000
@@ -25,6 +47,8 @@ NECOKEEPER_ADMIN_PASSWORD=your_secure_password
 OCR_TEMP_DIR=tmp/images
 OCR_LOG_FILE=logs/ocr-import.log
 ```
+
+**注意**: OAuth2認証は将来的に廃止される予定です。Automation API認証への移行を推奨します。
 
 ### 依存ライブラリのインストール
 
@@ -37,6 +61,49 @@ source .venv/bin/activate  # Linux/Mac
 # 必要なライブラリをインストール
 pip install pdf2image Pillow requests python-dotenv
 ```
+
+---
+
+## 認証方式の選択
+
+OCR Importは2つの認証方式をサポートしています：
+
+### 方式1: Automation API認証（推奨）
+
+**特徴**:
+- ✅ シンプルな設定（API Key 1つのみ）
+- ✅ セキュア（固定トークン、ユーザー認証不要）
+- ✅ 自動化に最適（トークン更新不要）
+- ✅ 監査可能（自動化操作として記録）
+
+**設定方法**:
+```bash
+# .env
+ENABLE_AUTOMATION_API=true
+AUTOMATION_API_KEY=<32文字以上のランダム文字列>
+```
+
+**使用エンドポイント**:
+- `POST /api/automation/care-logs`
+
+### 方式2: OAuth2認証（従来方式・非推奨）
+
+**特徴**:
+- ⚠️ 複雑な設定（ユーザー名・パスワード必要）
+- ⚠️ トークン更新が必要
+- ⚠️ ユーザー認証に依存
+
+**設定方法**:
+```bash
+# .env
+NECOKEEPER_ADMIN_USERNAME=admin
+NECOKEEPER_ADMIN_PASSWORD=your_password
+```
+
+**使用エンドポイント**:
+- `POST /api/v1/care-logs`
+
+**注意**: この方式は将来的に廃止される予定です。
 
 ---
 
@@ -356,6 +423,60 @@ curl http://localhost:8000/api/v1/animals
 
 #### 4. API認証エラー
 
+##### Automation API認証エラー（推奨方式）
+
+**エラー**: `X-Automation-Key header is required`
+
+**原因**: API Keyが設定されていない
+
+**対処法**:
+- `.env`ファイルに`AUTOMATION_API_KEY`を設定
+
+```bash
+# API Keyを生成
+python -c "import secrets; print('AUTOMATION_API_KEY=' + secrets.token_urlsafe(32))"
+
+# .envファイルに追加
+echo "AUTOMATION_API_KEY=<生成されたキー>" >> .env
+```
+
+---
+
+**エラー**: `Invalid Automation API Key`
+
+**原因**: API Keyが正しくない
+
+**対処法**:
+- `.env`ファイルのAPI Keyを確認
+- サーバー側の`AUTOMATION_API_KEY`と一致しているか確認
+
+```bash
+# .envファイルを確認
+cat .env | grep AUTOMATION_API_KEY
+```
+
+---
+
+**エラー**: `Automation API is disabled`
+
+**原因**: サーバー側でAutomation APIが無効化されている
+
+**対処法**:
+- サーバー側の`.env`ファイルで`ENABLE_AUTOMATION_API=true`を設定
+- サーバーを再起動
+
+```bash
+# サーバー側の.envを確認
+cat .env | grep ENABLE_AUTOMATION_API
+
+# サーバーを再起動
+uvicorn app.main:app --reload
+```
+
+---
+
+##### OAuth2認証エラー（従来方式）
+
 **エラー**: `Authentication failed: Invalid credentials`
 
 **原因**: 管理者認証情報が正しくない
@@ -368,6 +489,8 @@ curl http://localhost:8000/api/v1/animals
 # .envファイルを確認
 cat .env | grep NECOKEEPER_ADMIN
 ```
+
+**推奨**: Automation API認証への移行を検討してください。
 
 ---
 
@@ -478,6 +601,65 @@ pip install --upgrade pdf2image
 1. 画像サイズを最適化（1-2MB程度）
 2. 画像の解像度を調整（300-600 DPI）
 3. 複数の画像を分割して処理
+
+---
+
+#### 問題: Automation API認証が動作しない
+
+**チェックリスト**:
+- [ ] サーバー側で`ENABLE_AUTOMATION_API=true`が設定されているか
+- [ ] サーバー側とクライアント側のAPI Keyが一致しているか
+- [ ] API Keyが32文字以上か（本番環境）
+- [ ] サーバーが再起動されているか
+
+**対処法**:
+1. サーバー側の設定を確認
+
+```bash
+# サーバー側の.env
+cat .env | grep AUTOMATION_API
+
+# 出力例:
+# ENABLE_AUTOMATION_API=true
+# AUTOMATION_API_KEY=xK7mP9nQ2wR5tY8uI1oP4aS6dF3gH0jK9lZ2xC5vB7nM4qW1eR3tY6uI8oP0aS2d
+```
+
+2. クライアント側の設定を確認
+
+```bash
+# クライアント側の.env
+cat .env | grep AUTOMATION_API_KEY
+
+# サーバー側と一致しているか確認
+```
+
+3. サーバーを再起動
+
+```bash
+uvicorn app.main:app --reload
+```
+
+4. 動作確認
+
+```bash
+# curlでテスト
+curl -X POST http://localhost:8000/api/automation/care-logs \
+  -H "X-Automation-Key: your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "animal_id": 1,
+    "log_date": "2025-11-24",
+    "time_slot": "morning",
+    "appetite": 5,
+    "energy": 5,
+    "urination": true,
+    "cleaning": false,
+    "memo": "テスト",
+    "recorder_name": "OCR自動取込",
+    "from_paper": true,
+    "device_tag": "OCR-Import"
+  }'
+```
 
 ---
 
@@ -646,7 +828,9 @@ cat logs/ocr-import.log
 
 1. **認証情報の管理**:
    - `.env`ファイルをGitにコミットしない
-   - 管理者パスワードを定期的に変更
+   - Automation API Keyは32文字以上の強力なランダム文字列を使用
+   - API Keyを定期的にローテーション（推奨: 3-6ヶ月ごと）
+   - 管理者パスワードを定期的に変更（OAuth2使用時）
 
 2. **ファイルの取り扱い**:
    - 一時ファイルは自動的に削除されます
@@ -654,7 +838,80 @@ cat logs/ocr-import.log
 
 3. **API接続**:
    - HTTPS接続を推奨（本番環境）
-   - APIトークンは安全に保管
+   - API Keyは環境変数で管理（コードに含めない）
+   - 本番環境では必ず`ENABLE_AUTOMATION_API=true`と強力なAPI Keyを設定
+
+4. **Automation API使用時の追加セキュリティ**:
+   - API Keyは最小権限の原則に従う（猫登録と世話記録登録のみ）
+   - すべての操作は監査ログに記録される
+   - 不正なアクセスは自動的にブロックされる
+
+---
+
+### Q11: Automation API認証とOAuth2認証の違いは何ですか？
+
+**A**: 以下の表で比較します：
+
+| 項目 | Automation API | OAuth2 |
+|------|---------------|--------|
+| **設定の簡単さ** | ✅ 簡単（API Key 1つ） | ❌ 複雑（ユーザー名・パスワード） |
+| **セキュリティ** | ✅ 高（固定トークン） | ⚠️ 中（トークン更新必要） |
+| **自動化適性** | ✅ 最適 | ❌ 不向き |
+| **監査** | ✅ 自動化操作として記録 | ⚠️ ユーザー操作として記録 |
+| **トークン更新** | ✅ 不要 | ❌ 必要 |
+| **推奨度** | ✅ 推奨 | ❌ 非推奨（将来廃止予定） |
+
+**推奨**: 新規セットアップではAutomation API認証を使用してください。
+
+---
+
+### Q12: 既存のOAuth2認証からAutomation API認証に移行するには？
+
+**A**: 以下の手順で移行できます：
+
+1. **API Keyを生成**:
+```bash
+python -c "import secrets; print('AUTOMATION_API_KEY=' + secrets.token_urlsafe(32))"
+```
+
+2. **サーバー側の.envを更新**:
+```bash
+# 追加
+ENABLE_AUTOMATION_API=true
+AUTOMATION_API_KEY=<生成されたキー>
+
+# 既存の設定は残しておく（互換性のため）
+NECOKEEPER_ADMIN_USERNAME=admin
+NECOKEEPER_ADMIN_PASSWORD=password
+```
+
+3. **サーバーを再起動**:
+```bash
+uvicorn app.main:app --reload
+```
+
+4. **クライアント側の.envを更新**:
+```bash
+# 追加
+AUTOMATION_API_KEY=<サーバーと同じキー>
+
+# 既存の設定は削除可能
+# NECOKEEPER_ADMIN_USERNAME=admin
+# NECOKEEPER_ADMIN_PASSWORD=password
+```
+
+5. **動作確認**:
+```bash
+# Kiroで画像を開いて通常通りプロンプトを実行
+この画像から猫ID 5 の2025年11月の記録を登録して
+```
+
+6. **OAuth2設定を削除**（動作確認後）:
+```bash
+# サーバー側とクライアント側の.envから削除
+# NECOKEEPER_ADMIN_USERNAME=admin
+# NECOKEEPER_ADMIN_PASSWORD=password
+```
 
 ---
 
@@ -751,31 +1008,67 @@ export LOG_LEVEL=DEBUG
 
 ### C. 環境変数の完全リスト
 
+#### クライアント側（OCR Import）
+
 ```bash
 # 必須
 NECOKEEPER_API_URL=http://localhost:8000
-NECOKEEPER_ADMIN_USERNAME=admin
-NECOKEEPER_ADMIN_PASSWORD=your_secure_password
+
+# 認証方式1: Automation API（推奨）
+AUTOMATION_API_KEY=<32文字以上のランダム文字列>
+
+# 認証方式2: OAuth2（非推奨・将来廃止予定）
+# NECOKEEPER_ADMIN_USERNAME=admin
+# NECOKEEPER_ADMIN_PASSWORD=your_secure_password
 
 # オプション
 OCR_TEMP_DIR=tmp/images
 OCR_LOG_FILE=logs/ocr-import.log
 LOG_LEVEL=INFO
+```
 
-# データベース（NecoKeeper本体）
+#### サーバー側（NecoKeeper本体）
+
+```bash
+# Automation API設定
+ENABLE_AUTOMATION_API=true
+AUTOMATION_API_KEY=<32文字以上のランダム文字列>
+
+# データベース
 DATABASE_URL=postgresql://user:password@localhost/necokeeper
 
-# セキュリティ（NecoKeeper本体）
+# セキュリティ
 SECRET_KEY=your_secret_key_here
+
+# OAuth2認証（既存ユーザー向け・互換性維持）
+# 管理者アカウントの設定は引き続き必要
 ```
 
 ### D. 関連ドキュメント
 
 - [NecoKeeper README](../README.md)
 - [デプロイガイド](../DEPLOY.md)
+- [Automation API ガイド](./automation-api-guide.md) - API Key認証の詳細
 - [API仕様書](./api-documentation.md)（作成予定）
 
 ---
 
-**最終更新**: 2025-11-23
-**バージョン**: 1.0.0
+## 変更履歴
+
+### v1.1.0 (2025-11-25)
+- ✨ Automation API認証のサポートを追加
+- 📝 認証方式の選択セクションを追加
+- 🔧 環境変数設定の更新
+- 🐛 トラブルシューティングセクションの拡充
+- 📚 FAQ（Q11, Q12）を追加
+
+### v1.0.0 (2025-11-23)
+- 🎉 初版リリース
+- 📝 基本的なOCRインポートワークフローを文書化
+- 🖼️ 画像とPDFの両方のワークフローをサポート
+- 🔍 トラブルシューティングガイドを追加
+
+---
+
+**最終更新**: 2025-11-25
+**バージョン**: 1.1.0

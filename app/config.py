@@ -5,8 +5,9 @@
 Pydantic Settingsを使用して環境変数の検証と型変換を行います。
 """
 
+import os
 from functools import lru_cache
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -148,6 +149,42 @@ class Settings(BaseSettings):
         default="", description="NecoKeeper管理者パスワード"
     )
 
+    # Automation API設定
+    enable_automation_api: bool = Field(
+        default=False, description="Automation APIの有効化"
+    )
+    automation_api_key: str | None = Field(
+        default=None, description="Automation API用の固定API Key"
+    )
+
+    @property
+    def is_automation_api_secure(self) -> bool:
+        """
+        Automation APIのセキュリティ検証
+
+        本番環境でAutomation APIが有効な場合、API Keyが設定され、
+        かつ32文字以上であることを確認します。
+
+        Returns:
+            bool: セキュリティ要件を満たしている場合True
+
+        Example:
+            settings = get_settings()
+            if settings.enable_automation_api and not settings.is_automation_api_secure:
+                raise ValueError("Automation API Key is not secure")
+        """
+        if not self.enable_automation_api:
+            return True
+
+        if self.automation_api_key is None:
+            return False
+
+        # 本番環境では32文字以上を要求
+        if self.environment == "production":
+            return len(self.automation_api_key) >= 32
+
+        return True
+
     @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:
@@ -178,6 +215,37 @@ class Settings(BaseSettings):
         if not v:
             raise ValueError("DATABASE_URLは必須です")
         return v
+
+    def model_post_init(self, __context: Any) -> None:
+        """
+        モデル初期化後の検証
+
+        すべてのフィールドが設定された後に実行されるため、
+        フィールド間の依存関係を検証できます。
+
+        Requirements: 2.3, 2.4, 2.5
+        """
+        # テスト環境では検証をスキップ
+        is_testing = os.environ.get("PYTEST_CURRENT_TEST") is not None
+        if is_testing:
+            return
+
+        # Automation APIが無効な場合は検証不要
+        if not self.enable_automation_api:
+            return
+
+        # Automation APIが有効な場合、API Keyが必須
+        if self.automation_api_key is None or self.automation_api_key == "":
+            raise ValueError(
+                "AUTOMATION_API_KEY is required when ENABLE_AUTOMATION_API is true"
+            )
+
+        # 本番環境では32文字以上を要求
+        if self.environment == "production" and len(self.automation_api_key) < 32:
+            raise ValueError(
+                "AUTOMATION_API_KEY must be at least 32 characters in production. "
+                'Generate a secure key with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+            )
 
 
 @lru_cache

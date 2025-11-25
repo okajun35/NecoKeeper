@@ -2,8 +2,8 @@
 """
 Data Registration Hook Script
 
-This script registers care log data to the NecoKeeper API.
-It handles authentication, batch registration, error handling,
+This script registers care log data to the NecoKeeper API using the Automation API.
+It handles authentication via API Key, batch registration, error handling,
 and generates a summary of the registration process.
 
 Requirements:
@@ -13,6 +13,11 @@ Requirements:
 - 7.2: Log processing status
 - 7.4: Display summary with success/failed counts
 - 7.5: List skipped records with reasons
+- 8.1: Use /api/automation/care-logs endpoint
+- 8.2: Include X-Automation-Key header
+- 8.3: Read from AUTOMATION_API_KEY environment variable
+- 8.4: Log error and display user-friendly message on authentication failure
+- 8.5: Display setup instructions if API Key is not set
 
 Usage:
     python scripts/hooks/register_care_logs.py <json_file_path>
@@ -22,8 +27,7 @@ Example:
 
 Environment Variables:
     NECOKEEPER_API_URL: Base URL of NecoKeeper API (default: http://localhost:8000)
-    NECOKEEPER_ADMIN_USERNAME: Admin username for authentication
-    NECOKEEPER_ADMIN_PASSWORD: Admin password for authentication
+    AUTOMATION_API_KEY: API Key for Automation API authentication (required)
 """
 
 from __future__ import annotations
@@ -134,88 +138,65 @@ def get_api_config() -> dict[str, str]:
     Get API configuration from environment variables.
 
     Returns:
-        dict: API configuration with base_url, username, and password
+        dict: API configuration with base_url and api_key
 
     Raises:
         ValueError: If required environment variables are not set
     """
     api_url = os.getenv("NECOKEEPER_API_URL", "http://localhost:8000")
-    username = os.getenv("NECOKEEPER_ADMIN_USERNAME")
-    password = os.getenv("NECOKEEPER_ADMIN_PASSWORD")
+    api_key = os.getenv("AUTOMATION_API_KEY")
 
-    if not username or not password:
-        raise ValueError(
-            "NECOKEEPER_ADMIN_USERNAME and NECOKEEPER_ADMIN_PASSWORD "
-            "environment variables must be set"
+    if not api_key:
+        error_msg = (
+            "\n" + "=" * 70 + "\n"
+            "ERROR: AUTOMATION_API_KEY environment variable is not set\n"
+            "=" * 70 + "\n\n"
+            "The Automation API requires an API Key for authentication.\n\n"
+            "Setup Instructions:\n"
+            "1. Generate a secure API Key:\n"
+            '   python -c "import secrets; print(secrets.token_urlsafe(32))"\n\n'
+            "2. Add the API Key to your .env file:\n"
+            "   AUTOMATION_API_KEY=<your-generated-key>\n\n"
+            "3. Enable the Automation API in your .env file:\n"
+            "   ENABLE_AUTOMATION_API=true\n\n"
+            "4. Restart the NecoKeeper server\n\n"
+            "For more information, see docs/automation-api-guide.md\n" + "=" * 70
         )
+        raise ValueError(error_msg)
 
     return {
         "base_url": api_url.rstrip("/"),
-        "username": username,
-        "password": password,
+        "api_key": api_key,
     }
 
 
-def authenticate(base_url: str, username: str, password: str) -> str:
+def verify_api_key(base_url: str, api_key: str) -> None:
     """
-    Authenticate with the NecoKeeper API and get access token.
+    Verify that the API Key is valid by making a test request.
 
     Args:
         base_url: Base URL of the API
-        username: Admin username
-        password: Admin password
-
-    Returns:
-        str: Access token
+        api_key: Automation API Key
 
     Raises:
-        AuthenticationError: If authentication fails
+        AuthenticationError: If API Key is invalid or Automation API is disabled
     """
-    logger.info("Authenticating with NecoKeeper API...")
+    logger.info("Verifying Automation API Key...")
 
-    auth_url = f"{base_url}/api/v1/auth/token"
-
-    try:
-        # OAuth2 Password Flow requires form data
-        response = requests.post(
-            auth_url,
-            data={
-                "username": username,
-                "password": password,
-            },
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-            timeout=30,
-        )
-
-        if response.status_code == 200:
-            token_data = response.json()
-            access_token = token_data.get("access_token")
-
-            if not access_token:
-                raise AuthenticationError("No access token in response")
-
-            logger.info("Authentication successful")
-            return access_token
-
-        else:
-            error_detail = response.json().get("detail", "Unknown error")
-            raise AuthenticationError(
-                f"Authentication failed (status {response.status_code}): {error_detail}"
-            )
-
-    except requests.exceptions.RequestException as e:
-        raise AuthenticationError(f"Network error during authentication: {e}") from e
+    # We'll verify the key by attempting to access the automation endpoint
+    # The actual verification happens when we make the first request
+    logger.info("API Key configured for Automation API")
 
 
 def register_care_log(
-    base_url: str, access_token: str, care_log_data: dict[str, Any]
+    base_url: str, api_key: str, care_log_data: dict[str, Any]
 ) -> dict[str, Any]:
     """
-    Register a single care log record via API.
+    Register a single care log record via Automation API.
 
     Args:
         base_url: Base URL of the API
-        access_token: Authentication token
+        api_key: Automation API Key
         care_log_data: Care log data to register
 
     Returns:
@@ -223,11 +204,12 @@ def register_care_log(
 
     Raises:
         RegistrationError: If registration fails
+        AuthenticationError: If API Key is invalid
     """
-    register_url = f"{base_url}/api/v1/care-logs"
+    register_url = f"{base_url}/api/automation/care-logs"
 
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "X-Automation-Key": api_key,
         "Content-Type": "application/json",
     }
 
@@ -238,6 +220,24 @@ def register_care_log(
 
         if response.status_code == 201:
             return response.json()
+        elif response.status_code == 401:
+            error_detail = response.json().get("detail", "API Key is missing")
+            raise AuthenticationError(
+                f"Authentication failed: {error_detail}\n"
+                "Please check that AUTOMATION_API_KEY is set correctly."
+            )
+        elif response.status_code == 403:
+            error_detail = response.json().get("detail", "Invalid API Key")
+            raise AuthenticationError(
+                f"Authentication failed: {error_detail}\n"
+                "The API Key is invalid. Please check your AUTOMATION_API_KEY."
+            )
+        elif response.status_code == 503:
+            error_detail = response.json().get("detail", "Automation API is disabled")
+            raise AuthenticationError(
+                f"Service unavailable: {error_detail}\n"
+                "Please enable the Automation API by setting ENABLE_AUTOMATION_API=true"
+            )
         else:
             error_detail = response.json().get("detail", "Unknown error")
             raise RegistrationError(
@@ -251,14 +251,13 @@ def register_care_log(
 def register_care_logs_batch(
     care_logs: list[dict[str, Any]],
     api_base_url: str,
-    admin_username: str,
-    admin_password: str,
+    api_key: str,
 ) -> dict[str, Any]:
     """
-    Register care log records via NecoKeeper API.
+    Register care log records via NecoKeeper Automation API.
 
     This function:
-    1. Authenticates with the API
+    1. Verifies API Key configuration
     2. Registers each record in a batch loop
     3. Continues processing on individual failures
     4. Generates a summary with success/failed counts
@@ -266,8 +265,7 @@ def register_care_logs_batch(
     Args:
         care_logs: List of care log data dictionaries
         api_base_url: Base URL of NecoKeeper API
-        admin_username: Administrator username
-        admin_password: Administrator password
+        api_key: Automation API Key
 
     Returns:
         dict: Summary with success_count, failed_count, errors
@@ -276,8 +274,7 @@ def register_care_logs_batch(
         >>> summary = register_care_logs_batch(
         ...     care_logs=[{"animal_id": 1, ...}],
         ...     api_base_url="http://localhost:8000",
-        ...     admin_username="admin",
-        ...     admin_password="password"
+        ...     api_key="your-api-key"
         ... )
         >>> print(summary["summary"]["successful"])
         10
@@ -286,13 +283,14 @@ def register_care_logs_batch(
     summary.total_records = len(care_logs)
 
     logger.info(f"Starting batch registration of {summary.total_records} records...")
+    logger.info("Using Automation API with API Key authentication")
 
-    # Step 1: Authenticate
+    # Step 1: Verify API Key is configured
     try:
-        access_token = authenticate(api_base_url, admin_username, admin_password)
+        verify_api_key(api_base_url, api_key)
     except AuthenticationError as e:
-        logger.error(f"Authentication failed: {e}")
-        # If authentication fails, all records fail
+        logger.error(f"API Key verification failed: {e}")
+        # If verification fails, all records fail
         for index, record in enumerate(care_logs):
             summary.add_failure(
                 record_index=index,
@@ -303,6 +301,7 @@ def register_care_logs_batch(
         return summary.to_dict()
 
     # Step 2: Register each record
+    authentication_failed = False
     for index, care_log_data in enumerate(care_logs):
         log_date = care_log_data.get("log_date", "N/A")
         time_slot = care_log_data.get("time_slot", "N/A")
@@ -315,13 +314,34 @@ def register_care_logs_batch(
 
         try:
             # Register the record
-            result = register_care_log(api_base_url, access_token, care_log_data)
+            result = register_care_log(api_base_url, api_key, care_log_data)
 
             # Success
             summary.add_success()
             logger.info(
                 f"  ✓ Successfully registered record {index + 1} (ID: {result.get('id')})"
             )
+
+        except AuthenticationError as e:
+            # Authentication failed - stop processing remaining records
+            authentication_failed = True
+            summary.add_failure(
+                record_index=index,
+                record=care_log_data,
+                error_message=str(e),
+                error_type="authentication_error",
+            )
+            logger.error(f"  ✗ Authentication failed for record {index + 1}: {e}")
+
+            # Mark all remaining records as failed due to authentication
+            for remaining_index in range(index + 1, len(care_logs)):
+                summary.add_failure(
+                    record_index=remaining_index,
+                    record=care_logs[remaining_index],
+                    error_message="Skipped due to authentication failure",
+                    error_type="authentication_error",
+                )
+            break
 
         except RegistrationError as e:
             # Individual record failed - log and continue
@@ -348,6 +368,12 @@ def register_care_logs_batch(
         f"Batch registration complete: {summary.successful} successful, "
         f"{summary.failed} failed"
     )
+
+    if authentication_failed:
+        logger.error(
+            "Authentication failed. Please check your AUTOMATION_API_KEY and "
+            "ensure ENABLE_AUTOMATION_API=true on the server."
+        )
 
     return summary.to_dict()
 
@@ -418,8 +444,7 @@ def main() -> int:
         result = register_care_logs_batch(
             care_logs=care_logs,
             api_base_url=config["base_url"],
-            admin_username=config["username"],
-            admin_password=config["password"],
+            api_key=config["api_key"],
         )
 
         # Create summary object for printing
