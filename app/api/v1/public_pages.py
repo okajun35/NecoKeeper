@@ -13,11 +13,16 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from app.config import get_settings
+
 router = APIRouter(prefix="/public", tags=["public-pages"])
 
 # テンプレートディレクトリを設定
 templates_dir = Path(__file__).parent.parent.parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
+
+# 設定を取得
+settings = get_settings()
 
 
 @router.get("/care", response_class=HTMLResponse)
@@ -39,7 +44,8 @@ async def care_form_page(request: Request, animal_id: int):  # type: ignore[no-u
         GET /public/care?animal_id=1
     """
     return templates.TemplateResponse(
-        "public/care_form.html", {"request": request, "animal_id": animal_id}
+        "public/care_form.html",
+        {"request": request, "animal_id": animal_id, "settings": settings},
     )
 
 
@@ -62,7 +68,8 @@ async def care_log_list_page(request: Request, animal_id: int):  # type: ignore[
         GET /public/care-logs?animal_id=1
     """
     return templates.TemplateResponse(
-        "public/care_log_list.html", {"request": request, "animal_id": animal_id}
+        "public/care_log_list.html",
+        {"request": request, "animal_id": animal_id, "settings": settings},
     )
 
 
@@ -84,5 +91,5 @@ async def all_animals_status_page(request: Request):  # type: ignore[no-untyped-
         GET /public/animals/status
     """
     return templates.TemplateResponse(
-        "public/all_animals_status.html", {"request": request}
+        "public/all_animals_status.html", {"request": request, "settings": settings}
     )

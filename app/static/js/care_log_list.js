@@ -16,6 +16,12 @@ const TIME_SLOT_EMOJI = {
 
 let careLogData = null;
 
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
+  ? '/static/icons/halloween_logo_2.webp'
+  : '/static/images/default.svg';
+const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
+
 function translateCareLogs(key, fallback = '', options = {}) {
   const namespacedKey = `${CARE_LOGS_NAMESPACE}:${key}`;
   if (window.i18n && typeof window.i18n.t === 'function') {
@@ -43,13 +49,15 @@ function getActiveLanguage() {
 }
 
 function getUnnamedAnimalLabel() {
-  return translateCareLogs('public.unnamed_animal', '名前未設定');
+  return translateCareLogs('public.unnamed_animal', fallbackText('No name set', '名前未設定'));
 }
 
 function setAnimalCaption(name) {
   const captionEl = document.getElementById('animalHeaderCaption');
   if (!captionEl) return;
-  const fallback = name ? `${name}の記録一覧` : '記録一覧';
+  const fallback = name
+    ? fallbackText(`${name}'s log list`, `${name}の記録一覧`)
+    : fallbackText('Care log list', '記録一覧');
   captionEl.textContent = translateCareLogs('public.header_caption', fallback, { name });
 }
 
@@ -66,11 +74,11 @@ function updateAnimalInfo(data) {
     const photoUrl =
       data.animal_photo && data.animal_photo.trim() !== ''
         ? data.animal_photo
-        : '/static/images/default.svg';
+        : DEFAULT_IMAGE_PLACEHOLDER;
     photoElement.src = photoUrl;
     photoElement.onerror = function handleImageError() {
       photoElement.onerror = null;
-      photoElement.src = '/static/images/default.svg';
+      photoElement.src = DEFAULT_IMAGE_PLACEHOLDER;
     };
   }
 
@@ -116,9 +124,9 @@ function updateTodayStatus(todayStatus = {}) {
 
 function getTimeSlotLabel(timeSlot) {
   const fallbackMap = {
-    morning: '朝',
-    noon: '昼',
-    evening: '夜',
+    morning: fallbackText('Morning', '朝'),
+    noon: fallbackText('Noon', '昼'),
+    evening: fallbackText('Evening', '夜'),
   };
   const fallback = fallbackMap[timeSlot] || timeSlot || '';
   return translateCareLogs(`public.time_slots.${timeSlot}`, fallback);
@@ -203,10 +211,10 @@ function buildDailySummary(logs = []) {
 
 function getRelativeDayBadge(daySummary) {
   if (daySummary.isToday) {
-    return translateCareLogs('public.today_badge', '今日');
+    return translateCareLogs('public.today_badge', fallbackText('Today', '今日'));
   }
   if (daySummary.isYesterday) {
-    return translateCareLogs('public.yesterday_badge', '昨日');
+    return translateCareLogs('public.yesterday_badge', fallbackText('Yesterday', '昨日'));
   }
   return '';
 }
@@ -227,7 +235,9 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
   const slotLabel = getTimeSlotLabel(slotKey);
   const ariaLabel = translateCareLogs(
     hasRecord ? 'public.slot_chip.recorded' : 'public.slot_chip.missing',
-    hasRecord ? `${slotLabel}: 記録あり` : `${slotLabel}: 未記録`,
+    hasRecord
+      ? `${slotLabel}: ${fallbackText('Recorded', '記録あり')}`
+      : `${slotLabel}: ${fallbackText('Missing', '未記録')}`,
     { slot: slotLabel }
   );
   element.setAttribute('aria-label', ariaLabel);
@@ -253,7 +263,7 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
     }`;
     statusEl.textContent = translateCareLogs(
       hasRecord ? 'public.slot_status.recorded' : 'public.slot_status.missing',
-      hasRecord ? '記録あり' : '未記録'
+      hasRecord ? fallbackText('Recorded', '記録あり') : fallbackText('Missing', '未記録')
     );
 
     element.appendChild(emojiEl);

@@ -130,7 +130,12 @@
     "cat_image": "Cat image",
     "profile_image": "Profile image",
     "load_error": "Failed to load images",
-    "fetch_error": "Failed to fetch images"
+    "fetch_error": "Failed to fetch images",
+    "upload_success": "Image uploaded successfully",
+    "upload_failed": "Failed to upload image",
+    "delete_confirm": "Are you sure you want to delete this image?",
+    "delete_failed": "Failed to delete image",
+    "delete_success": "Image deleted successfully"
   },
   "weight_chart": {
     "empty": "No weight data available",
@@ -171,6 +176,9 @@
     "gallery": "Loading gallery...",
     "weight_chart": "Loading weight chart..."
   },
+  "status_text": {
+    "uploading": "Uploading..."
+  },
   "modals": {
     "profile_image": {
       "title": "Change Profile Image",
@@ -179,7 +187,8 @@
     },
     "qr_code": {
       "title": "QR Code",
-      "description": "Scanning this QR code opens the care log input screen"
+      "description": "Scanning this QR code opens the care log input screen",
+      "link_text": "Open care log input screen"
     }
   },
   "paper_form": {
@@ -189,6 +198,11 @@
     "month_label": "Month",
     "generate": "Generate"
   },
+  "errors": {
+    "file_size_limit": "File size must be 5MB or less",
+    "upload_failed": "Failed to upload",
+    "profile_image_set_failed": "Failed to set profile image"
+  },
   "messages": {
     "created": "Cat registered successfully",
     "updated": "Cat information updated successfully",
@@ -196,6 +210,7 @@
     "status_changed": "Status changed successfully",
     "photo_uploaded": "Photo uploaded successfully",
     "photo_deleted": "Photo deleted successfully",
+    "profile_image_updated": "Profile image updated",
     "load_failed": "Failed to load the cat list",
     "id_missing": "Cat ID is not specified",
     "load_error": "Failed to load cat information"

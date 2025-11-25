@@ -19,6 +19,7 @@ from starlette.responses import Response
 from app.auth.dependencies import (
     get_current_user_optional,
 )
+from app.config import get_settings
 from app.models.user import User
 
 router = APIRouter(prefix="/admin", tags=["admin-pages"])
@@ -26,6 +27,9 @@ router = APIRouter(prefix="/admin", tags=["admin-pages"])
 # テンプレートディレクトリを設定
 templates_dir = Path(__file__).parent.parent.parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
+
+# 設定を取得
+settings = get_settings()
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -54,7 +58,9 @@ async def login_page(
     if current_user:
         return RedirectResponse(url="/admin", status_code=302)
 
-    return templates.TemplateResponse("admin/login.html", {"request": request})
+    return templates.TemplateResponse(
+        "admin/login.html", {"request": request, "settings": settings}
+    )
 
 
 @router.get("", response_class=HTMLResponse)
@@ -84,7 +90,8 @@ async def dashboard_page(
         return RedirectResponse(url="/admin/login", status_code=302)
 
     return templates.TemplateResponse(
-        "admin/dashboard.html", {"request": request, "user": current_user}
+        "admin/dashboard.html",
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -114,7 +121,7 @@ async def animals_list_page(
 
     return templates.TemplateResponse(
         "admin/animals/list.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -143,7 +150,7 @@ async def animal_new_page(
 
     return templates.TemplateResponse(
         "admin/animals/new.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -193,6 +200,7 @@ async def animal_detail_page(
                 "request": request,
                 "animal": animal,
                 "display_image": display_image,
+                "settings": settings,
             },
         )
     finally:
@@ -225,7 +233,12 @@ async def animal_edit_page(
 
     return templates.TemplateResponse(
         "admin/animals/edit.html",
-        {"request": request, "animal_id": animal_id, "user": current_user},
+        {
+            "request": request,
+            "animal_id": animal_id,
+            "user": current_user,
+            "settings": settings,
+        },
     )
 
 
@@ -254,7 +267,7 @@ async def care_logs_list_page(
 
     return templates.TemplateResponse(
         "admin/care_logs/list.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -282,7 +295,7 @@ async def care_log_new_page(
 
     return templates.TemplateResponse(
         "admin/care_logs/new.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -312,7 +325,12 @@ async def care_log_detail_page(
 
     return templates.TemplateResponse(
         "admin/care_logs/detail.html",
-        {"request": request, "care_log_id": care_log_id, "user": current_user},
+        {
+            "request": request,
+            "care_log_id": care_log_id,
+            "user": current_user,
+            "settings": settings,
+        },
     )
 
 
@@ -342,7 +360,12 @@ async def care_log_edit_page(
 
     return templates.TemplateResponse(
         "admin/care_logs/edit.html",
-        {"request": request, "care_log_id": care_log_id, "user": current_user},
+        {
+            "request": request,
+            "care_log_id": care_log_id,
+            "user": current_user,
+            "settings": settings,
+        },
     )
 
 
@@ -371,7 +394,7 @@ async def volunteers_list_page(
 
     return templates.TemplateResponse(
         "admin/volunteers/list.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -386,7 +409,7 @@ async def volunteer_new_page(
 
     return templates.TemplateResponse(
         "admin/volunteers/new.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -406,6 +429,7 @@ async def volunteer_edit_page(
             "request": request,
             "volunteer_id": volunteer_id,
             "user": current_user,
+            "settings": settings,
         },
     )
 
@@ -426,6 +450,7 @@ async def volunteer_detail_page(
             "request": request,
             "volunteer_id": volunteer_id,
             "user": current_user,
+            "settings": settings,
         },
     )
 
@@ -455,7 +480,7 @@ async def medical_records_list_page(
 
     return templates.TemplateResponse(
         "admin/medical_records/list.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -483,7 +508,7 @@ async def medical_record_new_page(
 
     return templates.TemplateResponse(
         "admin/medical_records/new.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -513,7 +538,12 @@ async def medical_record_detail_page(
 
     return templates.TemplateResponse(
         "admin/medical_records/detail.html",
-        {"request": request, "record_id": record_id, "user": current_user},
+        {
+            "request": request,
+            "record_id": record_id,
+            "user": current_user,
+            "settings": settings,
+        },
     )
 
 
@@ -543,7 +573,12 @@ async def medical_record_edit_page(
 
     return templates.TemplateResponse(
         "admin/medical_records/edit.html",
-        {"request": request, "record_id": record_id, "user": current_user},
+        {
+            "request": request,
+            "record_id": record_id,
+            "user": current_user,
+            "settings": settings,
+        },
     )
 
 
@@ -572,7 +607,7 @@ async def medical_actions_list_page(
 
     return templates.TemplateResponse(
         "admin/medical_actions/list.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -601,7 +636,7 @@ async def adoptions_applicants_page(
 
     return templates.TemplateResponse(
         "admin/adoptions/applicants.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -630,7 +665,7 @@ async def adoptions_records_page(
 
     return templates.TemplateResponse(
         "admin/adoptions/records.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -659,7 +694,7 @@ async def reports_page(
 
     return templates.TemplateResponse(
         "admin/reports/index.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )
 
 
@@ -688,5 +723,5 @@ async def settings_page(
 
     return templates.TemplateResponse(
         "admin/settings/index.html",
-        {"request": request, "user": current_user},
+        {"request": request, "user": current_user, "settings": settings},
     )

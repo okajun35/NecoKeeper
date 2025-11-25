@@ -1,0 +1,1709 @@
+/* ============================================
+   Necro-Terminal Theme (Kiroween Mode)
+   "Ghost in the Machine" Cyberpunk/Horror UI
+   ============================================
+
+   This stylesheet implements the Necro-Terminal theme for NecoKeeper,
+   transforming the application into a cyberpunk/horror-themed interface
+   for the Kiroween hackathon.
+
+   Features:
+   - Pure black background with terminal green text
+   - Wireframe-style UI components (transparent backgrounds, green borders)
+   - CRT monitor effects (scanlines, screen curvature, vignette)
+   - Random glitch effects
+   - Monospace font throughout
+
+   Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 8.1, 8.5
+   ============================================ */
+
+/* ============================================
+   CSS Custom Properties (Color Scheme)
+   ============================================ */
+:root {
+  /* Core Colors */
+  --terminal-bg: #000000;           /* Pure black background */
+  --terminal-green: #33ff00;        /* Primary terminal green */
+  --terminal-dim: #1a8000;          /* Dim green for borders */
+  --terminal-glow: rgba(51, 255, 0, 0.5);  /* Glow effect */
+
+  /* Additional Colors */
+  --terminal-dark-green: #0d4000;   /* Darker green for hover states */
+  --terminal-bright-green: #66ff33; /* Brighter green for focus */
+  --terminal-shadow: rgba(51, 255, 0, 0.3);  /* Shadow effect */
+
+  /* Spacing */
+  --terminal-border-width: 2px;
+  --terminal-border-radius: 0;      /* Sharp corners for retro look */
+
+  /* Typography */
+  --terminal-font-family: 'Courier New', Courier, monospace;
+  --terminal-font-size-base: 14px;
+  --terminal-line-height: 1.5;
+}
+
+/* ============================================
+   Global Overrides for Kiroween Mode
+   ============================================ */
+body.kiroween-mode {
+  background: var(--terminal-bg) !important;
+  color: var(--terminal-green) !important;
+  font-family: var(--terminal-font-family) !important;
+  font-size: var(--terminal-font-size-base);
+  line-height: var(--terminal-line-height);
+  overflow-x: hidden;
+}
+
+/* Force monospace font on all elements */
+body.kiroween-mode * {
+  font-family: var(--terminal-font-family) !important;
+}
+
+/* ============================================
+   CRT Overlay Effects
+   ============================================ */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+
+  /* Scanlines effect */
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+
+  /* Screen curvature simulation */
+  transform: perspective(1000px) rotateX(0deg);
+
+  /* Vignette effect */
+  box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.9);
+}
+
+/* Additional scanline animation */
+.crt-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 51%
+  );
+  background-size: 100% 4px;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* ============================================
+   Glitch Animation
+   ============================================ */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+body.kiroween-mode.glitch-active {
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ============================================
+   Typography Overrides
+   ============================================ */
+body.kiroween-mode h1,
+body.kiroween-mode h2,
+body.kiroween-mode h3,
+body.kiroween-mode h4,
+body.kiroween-mode h5,
+body.kiroween-mode h6 {
+  color: var(--terminal-green) !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+body.kiroween-mode p,
+body.kiroween-mode span,
+body.kiroween-mode div,
+body.kiroween-mode label {
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode a {
+  color: var(--terminal-bright-green) !important;
+  text-decoration: none;
+  border-bottom: 1px solid var(--terminal-dim);
+  transition: all 0.2s ease;
+}
+
+body.kiroween-mode a:hover {
+  color: var(--terminal-green) !important;
+  border-bottom-color: var(--terminal-green);
+  text-shadow: 0 0 5px var(--terminal-glow);
+}
+
+/* ============================================
+   Wireframe Button Styles
+   ============================================ */
+body.kiroween-mode button,
+body.kiroween-mode .btn,
+body.kiroween-mode input[type="submit"],
+body.kiroween-mode input[type="button"] {
+  background: transparent !important;
+  color: var(--terminal-green) !important;
+  border: var(--terminal-border-width) solid var(--terminal-green) !important;
+  border-radius: var(--terminal-border-radius) !important;
+  padding: 0.5rem 1rem;
+  font-family: var(--terminal-font-family) !important;
+  font-size: var(--terminal-font-size-base);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none !important;
+}
+
+body.kiroween-mode button:hover,
+body.kiroween-mode .btn:hover,
+body.kiroween-mode input[type="submit"]:hover,
+body.kiroween-mode input[type="button"]:hover {
+  background: var(--terminal-dark-green) !important;
+  border-color: var(--terminal-bright-green) !important;
+  color: var(--terminal-bright-green) !important;
+  box-shadow: 0 0 10px var(--terminal-glow) !important;
+  text-shadow: 0 0 5px var(--terminal-glow);
+}
+
+body.kiroween-mode button:active,
+body.kiroween-mode .btn:active {
+  transform: scale(0.98);
+}
+
+body.kiroween-mode button:focus,
+body.kiroween-mode .btn:focus {
+  outline: 2px solid var(--terminal-bright-green) !important;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Wireframe Form Input Styles
+   ============================================ */
+body.kiroween-mode input[type="text"],
+body.kiroween-mode input[type="email"],
+body.kiroween-mode input[type="password"],
+body.kiroween-mode input[type="number"],
+body.kiroween-mode input[type="tel"],
+body.kiroween-mode input[type="url"],
+body.kiroween-mode input[type="search"],
+body.kiroween-mode input[type="date"],
+body.kiroween-mode input[type="time"],
+body.kiroween-mode textarea,
+body.kiroween-mode select {
+  background: transparent !important;
+  color: var(--terminal-green) !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-radius: var(--terminal-border-radius) !important;
+  padding: 0.5rem;
+  font-family: var(--terminal-font-family) !important;
+  font-size: var(--terminal-font-size-base);
+  transition: all 0.2s ease;
+  box-shadow: none !important;
+}
+
+/* Select boxes need solid black fill for legibility */
+body.kiroween-mode select,
+body.kiroween-mode select option {
+  background: var(--terminal-bg) !important;
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode input::placeholder,
+body.kiroween-mode textarea::placeholder {
+  color: var(--terminal-dim) !important;
+  opacity: 0.7;
+}
+
+body.kiroween-mode input:focus,
+body.kiroween-mode textarea:focus,
+body.kiroween-mode select:focus {
+  border-color: var(--terminal-green) !important;
+  outline: none !important;
+  box-shadow: 0 0 10px var(--terminal-shadow) !important;
+}
+
+body.kiroween-mode input:hover,
+body.kiroween-mode textarea:hover,
+body.kiroween-mode select:hover {
+  border-color: var(--terminal-green) !important;
+}
+
+/* Checkbox and Radio Styles */
+body.kiroween-mode input[type="checkbox"],
+body.kiroween-mode input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  background: transparent !important;
+  cursor: pointer;
+  position: relative;
+}
+
+body.kiroween-mode input[type="radio"] {
+  border-radius: 50%;
+}
+
+body.kiroween-mode input[type="checkbox"]:checked::before,
+body.kiroween-mode input[type="radio"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--terminal-green);
+}
+
+body.kiroween-mode input[type="radio"]:checked::before {
+  border-radius: 50%;
+}
+
+/* ============================================
+   Wireframe Card/Container Styles
+   ============================================ */
+body.kiroween-mode .card,
+body.kiroween-mode .container,
+body.kiroween-mode .panel,
+body.kiroween-mode .box,
+body.kiroween-mode .modal-content,
+body.kiroween-mode .dialog {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-radius: var(--terminal-border-radius) !important;
+  padding: 1rem;
+  box-shadow: none !important;
+}
+
+body.kiroween-mode .card:hover,
+body.kiroween-mode .panel:hover {
+  border-color: var(--terminal-green) !important;
+  box-shadow: 0 0 15px var(--terminal-shadow) !important;
+}
+
+/* Tailwind card overrides for Kiroween mode */
+body.kiroween-mode .bg-white,
+body.kiroween-mode .bg-gray-50,
+body.kiroween-mode .bg-gray-100 {
+  background: transparent !important;
+}
+
+body.kiroween-mode .rounded-lg,
+body.kiroween-mode .rounded-xl,
+body.kiroween-mode .rounded-md {
+  border-radius: 0 !important;
+}
+
+body.kiroween-mode .shadow-md,
+body.kiroween-mode .shadow-lg,
+body.kiroween-mode .shadow-sm {
+  box-shadow: none !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+/* Grid and list container borders */
+body.kiroween-mode .divide-y > * + * {
+  border-color: var(--terminal-dim) !important;
+}
+
+body.kiroween-mode .border-gray-200,
+body.kiroween-mode .border-gray-300 {
+  border-color: var(--terminal-dim) !important;
+}
+
+/* Image sizing and styling */
+body.kiroween-mode img {
+  max-width: 100%;
+  height: auto;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-radius: 0 !important;
+}
+
+body.kiroween-mode img.w-20 {
+  width: 5rem !important;
+  height: 5rem !important;
+  min-width: 5rem !important;
+  max-width: 5rem !important;
+}
+
+body.kiroween-mode img.w-10 {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+}
+
+/* Override object-cover to maintain aspect ratio */
+body.kiroween-mode .object-cover {
+  object-fit: cover;
+}
+
+/* Hover effects on list items */
+body.kiroween-mode .hover\:bg-gray-50:hover {
+  background: rgba(51, 255, 0, 0.05) !important;
+}
+
+/* Text colors */
+body.kiroween-mode .text-gray-500,
+body.kiroween-mode .text-gray-600,
+body.kiroween-mode .text-gray-700 {
+  color: var(--terminal-dim) !important;
+}
+
+body.kiroween-mode .text-gray-900,
+body.kiroween-mode .text-gray-800 {
+  color: var(--terminal-green) !important;
+}
+
+/* Status badges */
+body.kiroween-mode .bg-yellow-100,
+body.kiroween-mode .bg-green-100,
+body.kiroween-mode .bg-blue-100,
+body.kiroween-mode .bg-red-100,
+body.kiroween-mode .bg-purple-100 {
+  background: transparent !important;
+  border: 1px solid var(--terminal-dim) !important;
+}
+
+body.kiroween-mode .text-yellow-800 {
+  color: #ffaa00 !important;
+  border-color: #ffaa00 !important;
+}
+
+body.kiroween-mode .text-green-800 {
+  color: var(--terminal-bright-green) !important;
+  border-color: var(--terminal-bright-green) !important;
+}
+
+body.kiroween-mode .text-blue-800 {
+  color: #00aaff !important;
+  border-color: #00aaff !important;
+}
+
+body.kiroween-mode .text-red-800 {
+  color: #ff3333 !important;
+  border-color: #ff3333 !important;
+}
+
+/* Action buttons */
+body.kiroween-mode .bg-indigo-600 {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-green) !important;
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode .bg-indigo-600:hover,
+body.kiroween-mode .hover\:bg-indigo-700:hover {
+  background: rgba(51, 255, 0, 0.2) !important;
+  color: var(--terminal-bright-green) !important;
+}
+
+body.kiroween-mode .bg-gray-100 {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+body.kiroween-mode .hover\:bg-gray-200:hover {
+  background: rgba(51, 255, 0, 0.1) !important;
+  border-color: var(--terminal-green) !important;
+}
+
+/* ============================================
+   Table Styles
+   ============================================ */
+body.kiroween-mode table {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+body.kiroween-mode th,
+body.kiroween-mode td {
+  background: transparent !important;
+  color: var(--terminal-green) !important;
+  border: 1px solid var(--terminal-dim) !important;
+  padding: 0.5rem;
+}
+
+body.kiroween-mode th {
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+body.kiroween-mode tr:hover {
+  background: rgba(51, 255, 0, 0.05) !important;
+}
+
+/* ============================================
+   Navigation Styles
+   ============================================ */
+body.kiroween-mode nav,
+body.kiroween-mode .navbar,
+body.kiroween-mode .menu {
+  background: transparent !important;
+  border-bottom: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+body.kiroween-mode .nav-link,
+body.kiroween-mode .menu-item {
+  color: var(--terminal-green) !important;
+  border: none !important;
+  transition: all 0.2s ease;
+}
+
+body.kiroween-mode .nav-link:hover,
+body.kiroween-mode .menu-item:hover {
+  color: var(--terminal-bright-green) !important;
+  text-shadow: 0 0 5px var(--terminal-glow);
+}
+
+/* ============================================
+   Alert/Notification Styles
+   ============================================ */
+body.kiroween-mode .alert,
+body.kiroween-mode .notification,
+body.kiroween-mode .message {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-green) !important;
+  color: var(--terminal-green) !important;
+  padding: 1rem;
+}
+
+body.kiroween-mode .alert-error,
+body.kiroween-mode .error {
+  border-color: #ff3333 !important;
+  color: #ff3333 !important;
+}
+
+body.kiroween-mode .alert-warning,
+body.kiroween-mode .warning {
+  border-color: #ffaa00 !important;
+  color: #ffaa00 !important;
+}
+
+body.kiroween-mode .alert-success,
+body.kiroween-mode .success {
+  border-color: var(--terminal-bright-green) !important;
+  color: var(--terminal-bright-green) !important;
+}
+
+/* ============================================
+   Modal/Dialog Styles
+   ============================================ */
+body.kiroween-mode .modal,
+body.kiroween-mode .overlay {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+body.kiroween-mode .modal-header,
+body.kiroween-mode .modal-footer {
+  border-color: var(--terminal-dim) !important;
+}
+
+/* ============================================
+   Loading/Spinner Styles
+   ============================================ */
+body.kiroween-mode .spinner,
+body.kiroween-mode .loader {
+  border: 3px solid var(--terminal-dim) !important;
+  border-top-color: var(--terminal-green) !important;
+}
+
+/* ============================================
+   Badge/Tag Styles
+   ============================================ */
+body.kiroween-mode .badge,
+body.kiroween-mode .tag,
+body.kiroween-mode .label {
+  background: transparent !important;
+  color: var(--terminal-green) !important;
+  border: 1px solid var(--terminal-green) !important;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   Scrollbar Styles
+   ============================================ */
+body.kiroween-mode ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+body.kiroween-mode ::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-dim);
+}
+
+body.kiroween-mode ::-webkit-scrollbar-thumb {
+  background: var(--terminal-dim);
+  border: 1px solid var(--terminal-green);
+}
+
+body.kiroween-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--terminal-green);
+}
+
+/* ============================================
+   Selection Styles
+   ============================================ */
+body.kiroween-mode ::selection {
+  background: var(--terminal-green);
+  color: var(--terminal-bg);
+}
+
+body.kiroween-mode ::-moz-selection {
+  background: var(--terminal-green);
+  color: var(--terminal-bg);
+}
+
+/* ============================================
+   Tailwind Override Specificity
+   ============================================
+   These rules use !important to ensure they
+   override Tailwind's utility classes when
+   Kiroween Mode is active.
+   ============================================ */
+
+/* Override Tailwind background colors */
+body.kiroween-mode [class*="bg-"] {
+  background-color: transparent !important;
+}
+
+/* Override Tailwind text colors */
+body.kiroween-mode [class*="text-"] {
+  color: var(--terminal-green) !important;
+}
+
+/* Override Tailwind border colors */
+body.kiroween-mode [class*="border-"] {
+  border-color: var(--terminal-dim) !important;
+}
+
+/* Override Tailwind rounded corners */
+body.kiroween-mode [class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+/* Override Tailwind shadows */
+body.kiroween-mode [class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* Preserve specific Tailwind utilities that don't conflict */
+/* Layout utilities (flex, grid, display) are intentionally not overridden */
+
+/* ============================================
+   Responsive Design - Mobile Optimization
+   ============================================
+   Requirements: 10.1, 10.2, 10.3, 10.4, 10.5
+
+   This section ensures the Necro-Terminal theme
+   works seamlessly on mobile devices with:
+   - Responsive CRT effects (10.1, 10.4)
+   - Minimum readable font sizes (10.2)
+   - Touch-friendly target sizes (10.3)
+   - Keyboard-friendly form inputs (10.5)
+   ============================================ */
+
+/* ============================================
+   Tablet and Small Desktop (768px - 1024px)
+   ============================================ */
+@media (max-width: 1024px) {
+  /* Adjust CRT effects for medium screens (Requirement 10.1, 10.4) */
+  .crt-overlay {
+    /* Reduce scanline density for better readability */
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+
+    /* Reduce vignette intensity */
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Adjust scanline animation speed */
+  .crt-overlay::before {
+    background-size: 100% 6px;
+  }
+}
+
+/* ============================================
+   Mobile Devices (max-width: 768px)
+   ============================================ */
+@media (max-width: 768px) {
+  /* Ensure minimum font size (Requirement 10.2) */
+  :root {
+    --terminal-font-size-base: 14px;
+  }
+
+  body.kiroween-mode {
+    font-size: 14px; /* Minimum readable size */
+  }
+
+  /* Touch target sizes - 44x44px minimum (Requirement 10.3) */
+  body.kiroween-mode button,
+  body.kiroween-mode .btn,
+  body.kiroween-mode input[type="submit"],
+  body.kiroween-mode input[type="button"] {
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 14px;
+  }
+
+  /* Form inputs - touch-friendly and keyboard-friendly (Requirement 10.3, 10.5) */
+  body.kiroween-mode input[type="text"],
+  body.kiroween-mode input[type="email"],
+  body.kiroween-mode input[type="password"],
+  body.kiroween-mode input[type="number"],
+  body.kiroween-mode input[type="tel"],
+  body.kiroween-mode input[type="url"],
+  body.kiroween-mode input[type="search"],
+  body.kiroween-mode input[type="date"],
+  body.kiroween-mode input[type="time"],
+  body.kiroween-mode textarea,
+  body.kiroween-mode select {
+    font-size: 16px; /* Prevent zoom on iOS (Requirement 10.5) */
+    min-height: 44px; /* Touch target size (Requirement 10.3) */
+    padding: 0.75rem;
+  }
+
+  /* Checkbox and radio - larger touch targets (Requirement 10.3) */
+  body.kiroween-mode input[type="checkbox"],
+  body.kiroween-mode input[type="radio"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Links - larger touch targets (Requirement 10.3) */
+  body.kiroween-mode a {
+    padding: 0.5rem;
+    display: inline-block;
+    min-height: 44px;
+    line-height: 1.5;
+  }
+
+  /* Adjust CRT effects for mobile (Requirement 10.1, 10.4) */
+  .crt-overlay {
+    /* Further reduce scanline density on mobile */
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.08),
+      rgba(0, 0, 0, 0.08) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+
+    /* Lighter vignette for mobile */
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.6);
+
+    /* Reduce screen curvature on mobile */
+    transform: perspective(1500px) rotateX(0deg);
+  }
+
+  /* Adjust scanline animation for mobile */
+  .crt-overlay::before {
+    background-size: 100% 8px;
+    animation: scanline 10s linear infinite; /* Slower animation */
+  }
+
+  /* Table responsiveness */
+  body.kiroween-mode table {
+    font-size: 14px;
+  }
+
+  body.kiroween-mode th,
+  body.kiroween-mode td {
+    padding: 0.75rem;
+    min-height: 44px;
+  }
+
+  /* Card/Container spacing */
+  body.kiroween-mode .card,
+  body.kiroween-mode .container,
+  body.kiroween-mode .panel {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  /* Navigation touch targets */
+  body.kiroween-mode .nav-link,
+  body.kiroween-mode .menu-item {
+    padding: 0.75rem 1rem;
+    min-height: 44px;
+    display: block;
+  }
+
+  /* Modal adjustments for mobile */
+  body.kiroween-mode .modal-content {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+}
+
+/* ============================================
+   Small Mobile Devices (max-width: 480px)
+   ============================================ */
+@media (max-width: 480px) {
+  /* Maintain minimum font size (Requirement 10.2) */
+  body.kiroween-mode {
+    font-size: 14px;
+  }
+
+  /* Responsive typography - maintain readability */
+  body.kiroween-mode h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  body.kiroween-mode h2 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  body.kiroween-mode h3 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  body.kiroween-mode h4,
+  body.kiroween-mode h5,
+  body.kiroween-mode h6 {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  /* Further optimize CRT effects for small screens (Requirement 10.1, 10.4) */
+  .crt-overlay {
+    /* Minimal scanlines on small screens */
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.05),
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+
+    /* Very light vignette */
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Minimal scanline animation on small screens */
+  .crt-overlay::before {
+    background-size: 100% 10px;
+    opacity: 0.5; /* Reduce intensity */
+  }
+
+  /* Compact button spacing */
+  body.kiroween-mode button,
+  body.kiroween-mode .btn {
+    padding: 0.75rem;
+    font-size: 14px;
+  }
+
+  /* Form layout adjustments */
+  body.kiroween-mode input,
+  body.kiroween-mode textarea,
+  body.kiroween-mode select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Compact table cells */
+  body.kiroween-mode th,
+  body.kiroween-mode td {
+    padding: 0.5rem;
+    font-size: 14px;
+  }
+
+  /* Scrollbar adjustments for small screens */
+  body.kiroween-mode ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* ============================================
+   Landscape Orientation on Mobile
+   ============================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Reduce vertical spacing in landscape */
+  body.kiroween-mode .card,
+  body.kiroween-mode .container,
+  body.kiroween-mode .panel {
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+  }
+
+  /* Compact headers in landscape */
+  body.kiroween-mode h1 {
+    font-size: 1.25rem;
+  }
+
+  body.kiroween-mode h2 {
+    font-size: 1.1rem;
+  }
+
+  /* Reduce CRT effects in landscape for better readability */
+  .crt-overlay {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   Keyboard Visibility Adjustments (iOS/Android)
+   ============================================
+   Requirement 10.5: Ensure form inputs remain
+   visible when mobile keyboard appears
+   ============================================ */
+
+/* When keyboard is visible, reduce fixed elements */
+@media (max-width: 768px) {
+  /* Ensure focused inputs are visible above keyboard */
+  body.kiroween-mode input:focus,
+  body.kiroween-mode textarea:focus,
+  body.kiroween-mode select:focus {
+    /* Scroll into view with padding */
+    scroll-margin-top: 100px;
+    scroll-margin-bottom: 100px;
+  }
+
+  /* Reduce CRT overlay intensity when input is focused */
+  body.kiroween-mode:has(input:focus) .crt-overlay,
+  body.kiroween-mode:has(textarea:focus) .crt-overlay {
+    opacity: 0.5; /* Reduce visual noise when typing */
+  }
+
+  /* Ensure form containers don't get hidden by keyboard */
+  body.kiroween-mode form {
+    padding-bottom: 200px; /* Space for keyboard */
+  }
+}
+
+/* ============================================
+   Touch Device Optimizations
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  body.kiroween-mode button:hover,
+  body.kiroween-mode .btn:hover,
+  body.kiroween-mode a:hover,
+  body.kiroween-mode .nav-link:hover {
+    /* Keep base styles, remove hover-specific effects */
+    text-shadow: none;
+    box-shadow: none !important;
+  }
+
+  /* Add active/tap states instead */
+  body.kiroween-mode button:active,
+  body.kiroween-mode .btn:active,
+  body.kiroween-mode a:active {
+    background: var(--terminal-dark-green) !important;
+    transform: scale(0.95);
+  }
+
+  /* Larger tap targets for touch */
+  body.kiroween-mode button,
+  body.kiroween-mode .btn,
+  body.kiroween-mode a,
+  body.kiroween-mode input,
+  body.kiroween-mode select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ============================================
+   High DPI / Retina Display Adjustments
+   ============================================ */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper borders on high DPI screens */
+  body.kiroween-mode button,
+  body.kiroween-mode .btn,
+  body.kiroween-mode input,
+  body.kiroween-mode .card {
+    border-width: 1px; /* Thinner borders look better on retina */
+  }
+
+  /* Adjust scanline density for retina displays */
+  .crt-overlay {
+    background-size: 100% 2px;
+  }
+}
+
+/* ============================================
+   Print Styles (Disable effects for printing)
+   ============================================ */
+@media print {
+  body.kiroween-mode {
+    background: white !important;
+    color: black !important;
+  }
+
+  .crt-overlay {
+    display: none !important;
+  }
+
+  body.kiroween-mode * {
+    color: black !important;
+    border-color: black !important;
+  }
+}
+
+/* ============================================
+   Accessibility Enhancements
+   ============================================ */
+
+/* Focus visible for keyboard navigation */
+body.kiroween-mode *:focus-visible {
+  outline: 2px solid var(--terminal-bright-green) !important;
+  outline-offset: 2px;
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  body.kiroween-mode,
+  body.kiroween-mode *,
+  .crt-overlay,
+  .crt-overlay::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --terminal-green: #00ff00;
+    --terminal-dim: #00aa00;
+  }
+}
+
+/* ============================================
+   Boot Sequence Styles
+   ============================================ */
+.boot-sequence {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--terminal-bg);
+  color: var(--terminal-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: var(--terminal-font-family);
+  transition: opacity 0.5s ease;
+}
+
+.boot-text {
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.boot-text p {
+  margin: 0.5rem 0;
+  animation: typing 0.5s steps(40, end);
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   Boot Sequence Styles
+   ============================================
+   Requirements: 3.1, 3.2, 3.3, 3.4, 3.5
+   ============================================ */
+
+/* Boot sequence overlay - full screen, black background */
+.boot-sequence {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--terminal-bg);
+  color: var(--terminal-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: var(--terminal-font-family);
+  pointer-events: all; /* Block interaction during boot (Requirement 3.4) */
+  opacity: 1;
+}
+
+/* Boot text container - centered text */
+.boot-text {
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.8;
+  padding: 2rem;
+}
+
+/* Boot text lines - initially hidden for typing effect */
+.boot-text p {
+  margin: 0.5rem 0;
+  opacity: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Typing animation effect (Requirement 3.5) */
+@keyframes typing {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.boot-text p.typing-animation {
+  animation: typing 0.5s steps(40, end) forwards;
+  opacity: 1;
+}
+
+/* Cursor blink animation (Requirement 3.5) */
+.cursor-blink {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Responsive boot sequence for mobile */
+@media (max-width: 768px) {
+  .boot-text {
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .boot-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================
+   Admin Layout Overrides (Sidebar, Header, Main)
+   ============================================ */
+
+/* Sidebar */
+body.kiroween-mode aside,
+body.kiroween-mode #sidebar {
+  background: var(--terminal-bg) !important;
+  border-right: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-color: var(--terminal-dim) !important;
+  width: 16rem !important;
+  min-width: 16rem !important;
+  max-width: 16rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* On large screens, ensure sidebar is visible and positioned correctly */
+@media (min-width: 1024px) {
+  body.kiroween-mode #sidebar {
+    position: static !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* Sidebar border sections */
+body.kiroween-mode aside .border-b,
+body.kiroween-mode aside .border-t,
+body.kiroween-mode #sidebar .border-b,
+body.kiroween-mode #sidebar .border-t {
+  border-color: var(--terminal-dim) !important;
+}
+
+/* Sidebar Logo - horizontal layout */
+body.kiroween-mode .sidebar-logo-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+body.kiroween-mode .sidebar-logo-img {
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+
+body.kiroween-mode .sidebar-logo-text {
+  color: var(--terminal-green) !important;
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  letter-spacing: 0.15em !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Sidebar Logo Subtitle */
+body.kiroween-mode .sidebar-logo-subtitle {
+  color: var(--terminal-bright-green) !important;
+  font-size: 0.8rem !important;
+  margin-top: 5px !important;
+  background-color: rgba(26, 128, 0, 0.3) !important; /* Green background "cushion" */
+  padding: 2px 8px !important;
+  border-radius: 2px !important;
+  display: inline-block !important;
+  text-shadow: 0 0 5px var(--terminal-glow) !important;
+}
+
+/* Sidebar Links */
+body.kiroween-mode .sidebar-link {
+  color: var(--terminal-green) !important;
+  background: transparent !important;
+  border: var(--terminal-border-width) solid transparent !important;
+  border-radius: 0 !important;
+  transition: all 0.2s ease;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+body.kiroween-mode .sidebar-link:hover {
+  background: rgba(51, 255, 0, 0.1) !important;
+  border-color: var(--terminal-dim) !important;
+  color: var(--terminal-bright-green) !important;
+  text-shadow: 0 0 5px var(--terminal-glow);
+}
+
+body.kiroween-mode .sidebar-link.active {
+  background: rgba(51, 255, 0, 0.15) !important;
+  border-color: var(--terminal-green) !important;
+  color: var(--terminal-bright-green) !important;
+  font-weight: bold;
+}
+
+/* Sidebar navigation - ensure vertical layout */
+body.kiroween-mode aside nav {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.kiroween-mode aside nav.space-y-1 {
+  gap: 0.25rem !important;
+}
+
+body.kiroween-mode aside nav.space-y-1 > * {
+  width: 100% !important;
+}
+
+/* Sidebar SVG icons - CRITICAL: set fixed size */
+body.kiroween-mode .sidebar-link svg {
+  stroke: var(--terminal-green) !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  min-width: 1.25rem !important;
+  max-width: 1.25rem !important;
+  flex-shrink: 0;
+}
+
+body.kiroween-mode .sidebar-link:hover svg,
+body.kiroween-mode .sidebar-link.active svg {
+  stroke: var(--terminal-bright-green) !important;
+}
+
+/* All SVG icons in Kiroween mode - set default sizing */
+body.kiroween-mode svg {
+  flex-shrink: 0;
+}
+
+body.kiroween-mode svg.w-5 {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  max-width: 1.25rem !important;
+  max-height: 1.25rem !important;
+}
+
+body.kiroween-mode svg.w-6 {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  max-width: 1.5rem !important;
+  max-height: 1.5rem !important;
+}
+
+body.kiroween-mode svg.w-4 {
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 1rem !important;
+  max-height: 1rem !important;
+}
+
+/* User section in sidebar */
+body.kiroween-mode aside .bg-indigo-100,
+body.kiroween-mode #sidebar .bg-indigo-100 {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+body.kiroween-mode aside .text-indigo-600,
+body.kiroween-mode #sidebar .text-indigo-600 {
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode aside .bg-gray-100,
+body.kiroween-mode #sidebar .bg-gray-100 {
+  background: transparent !important;
+}
+
+/* User section - ensure proper layout with icon and text inline */
+body.kiroween-mode #sidebar .p-4.border-t {
+  padding: 1rem !important;
+}
+
+body.kiroween-mode #sidebar .p-4.border-t .flex.items-center.gap-3 {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+body.kiroween-mode #sidebar .p-4.border-t .flex-1.min-w-0 {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.kiroween-mode #sidebar .p-4.border-t .flex-1.min-w-0 p {
+  margin: 0 !important;
+}
+
+/* Logout button spacing */
+body.kiroween-mode #sidebar button[onclick="logout()"] {
+  margin-top: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Header */
+body.kiroween-mode header {
+  background: var(--terminal-bg) !important;
+  border-bottom: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  border-color: var(--terminal-dim) !important;
+}
+
+body.kiroween-mode header h2 {
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode header p {
+  color: var(--terminal-dim) !important;
+}
+
+body.kiroween-mode header button {
+  background: transparent !important;
+  color: var(--terminal-green) !important;
+  border: var(--terminal-border-width) solid transparent !important;
+}
+
+body.kiroween-mode header button:hover {
+  background: rgba(51, 255, 0, 0.1) !important;
+  border-color: var(--terminal-dim) !important;
+}
+
+body.kiroween-mode header svg {
+  stroke: var(--terminal-green) !important;
+}
+
+/* Main content area */
+body.kiroween-mode main {
+  background: var(--terminal-bg) !important;
+}
+
+/* Fix flex container background */
+body.kiroween-mode .flex.h-screen {
+  background: var(--terminal-bg) !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+body.kiroween-mode .flex-1 {
+  background: var(--terminal-bg) !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+body.kiroween-mode .flex-1.flex.flex-col {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Mobile menu button */
+body.kiroween-mode #mobile-menu-button {
+  background: var(--terminal-bg) !important;
+  border: var(--terminal-border-width) solid var(--terminal-green) !important;
+  color: var(--terminal-green) !important;
+  /* Required positioning styles (Tailwind classes not loaded in Kiroween mode) */
+  position: fixed !important;
+  top: 1rem !important;
+  left: 1rem !important;
+  z-index: 50 !important;
+  padding: 0.5rem !important;
+  cursor: pointer !important;
+}
+
+body.kiroween-mode #mobile-menu-button:hover {
+  background: rgba(51, 255, 0, 0.1) !important;
+}
+
+/* CRITICAL: Hide mobile menu button on desktop (lg: breakpoint and above) */
+@media (min-width: 1024px) {
+  body.kiroween-mode #mobile-menu-button {
+    display: none !important;
+  }
+}
+
+body.kiroween-mode #mobile-menu-button svg {
+  stroke: var(--terminal-green) !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+/* Mobile overlay */
+body.kiroween-mode #mobile-overlay {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* ============================================
+   Mobile Sidebar Transform Classes
+   (Required because Tailwind is not loaded in Kiroween mode)
+   ============================================ */
+/* Base styles for sidebar - mobile first */
+body.kiroween-mode #sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 16rem !important;
+  z-index: 40 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: transform 0.3s ease-in-out !important;
+  overflow: hidden !important;
+}
+
+/* Sidebar navigation - scrollable area */
+body.kiroween-mode #sidebar nav {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* User section at bottom - fixed height, never cut off */
+body.kiroween-mode #sidebar > .p-4.border-t {
+  flex-shrink: 0 !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* Sidebar hidden state (mobile only) */
+body.kiroween-mode #sidebar.-translate-x-full {
+  transform: translateX(-100%) !important;
+}
+
+/* Sidebar visible state */
+body.kiroween-mode #sidebar:not(.-translate-x-full) {
+  transform: translateX(0) !important;
+}
+
+/* Desktop: Always show sidebar and make it static */
+@media (min-width: 1024px) {
+  body.kiroween-mode #sidebar {
+    position: relative !important;
+    transform: translateX(0) !important;
+  }
+
+  body.kiroween-mode #sidebar.-translate-x-full {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Mobile overlay visibility */
+body.kiroween-mode #mobile-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 30 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+body.kiroween-mode #mobile-overlay.hidden {
+  display: none !important;
+}
+
+body.kiroween-mode #mobile-overlay:not(.hidden) {
+  display: block !important;
+}
+
+/* Hide overlay on desktop */
+@media (min-width: 1024px) {
+  body.kiroween-mode #mobile-overlay {
+    display: none !important;
+  }
+}
+
+/* Notification badge */
+body.kiroween-mode .bg-red-500 {
+  background: #ff3333 !important;
+}
+
+/* Language switcher text */
+body.kiroween-mode .language-text {
+  color: var(--terminal-green) !important;
+}
+
+/* ============================================
+   Grid Layout Overrides
+   ============================================ */
+/* Ensure grid displays correctly in Kiroween mode */
+body.kiroween-mode .grid {
+  display: grid !important;
+}
+
+body.kiroween-mode .grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+body.kiroween-mode .grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+body.kiroween-mode .grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+body.kiroween-mode .grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+/* Responsive grid overrides */
+@media (min-width: 1024px) {
+  body.kiroween-mode .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body.kiroween-mode .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  body.kiroween-mode .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Grid gap */
+body.kiroween-mode .gap-3 {
+  gap: 0.75rem !important;
+}
+
+body.kiroween-mode .gap-4 {
+  gap: 1rem !important;
+}
+
+body.kiroween-mode .gap-6 {
+  gap: 1.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  body.kiroween-mode .lg\:gap-6 {
+    gap: 1.5rem !important;
+  }
+}
+
+/* ============================================
+   Dashboard Statistics Card Overrides
+   ============================================ */
+/* Stats icon containers */
+body.kiroween-mode .bg-indigo-100,
+body.kiroween-mode .bg-green-100,
+body.kiroween-mode .bg-blue-100,
+body.kiroween-mode .bg-purple-100 {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+/* Stats icons stroke color */
+body.kiroween-mode .text-indigo-600,
+body.kiroween-mode .text-green-600,
+body.kiroween-mode .text-blue-600,
+body.kiroween-mode .text-purple-600 {
+  color: var(--terminal-green) !important;
+}
+
+body.kiroween-mode .text-indigo-600 svg,
+body.kiroween-mode .text-green-600 svg,
+body.kiroween-mode .text-blue-600 svg,
+body.kiroween-mode .text-purple-600 svg {
+  stroke: var(--terminal-green) !important;
+}
+
+/* ============================================
+   Mobile Menu Improvements
+   ============================================ */
+/* Close button should be more prominent */
+body.kiroween-mode #sidebar-close-button {
+  background: transparent !important;
+  border: var(--terminal-border-width) solid var(--terminal-green) !important;
+  color: var(--terminal-green) !important;
+  padding: 0.25rem;
+}
+
+body.kiroween-mode #sidebar-close-button:hover {
+  background: rgba(51, 255, 0, 0.1) !important;
+}
+
+body.kiroween-mode #sidebar-close-button svg {
+  stroke: var(--terminal-green) !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+/* ============================================
+   Mobile Header Title Fix
+   ============================================ */
+/* Add padding to header title on mobile to avoid overlap with menu button */
+@media (max-width: 1023px) {
+  body.kiroween-mode header h2 {
+    padding-left: 4rem !important;
+  }
+
+  body.kiroween-mode header .flex-1 {
+    margin-left: 0 !important;
+  }
+
+  /* Also fix the header container */
+  body.kiroween-mode header .flex-1.min-w-0 {
+    margin-left: 3.5rem !important;
+  }
+}
+
+/* ============================================
+   Dashboard Card Images - Uniform Size
+   ============================================ */
+/* Needs Care animal images - fixed size with aspect ratio */
+body.kiroween-mode #needs-care img {
+  width: 120px !important;
+  height: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+}
+
+/* Recent logs and needs care container items */
+body.kiroween-mode #needs-care > div,
+body.kiroween-mode #recent-logs > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+  padding: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
+  background: transparent !important;
+}
+
+/* Responsive image size for mobile */
+@media (max-width: 640px) {
+  body.kiroween-mode #needs-care img {
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+  }
+}
+
+/* ============================================
+   End of Necro-Terminal Theme
+   ============================================ */

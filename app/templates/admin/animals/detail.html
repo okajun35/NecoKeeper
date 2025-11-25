@@ -28,11 +28,97 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .animal-photo-container {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #111827;
+        min-height: 240px;
+    }
+
+    .animal-photo-container img {
+        width: 100%;
+        height: auto;
+        max-height: 24rem;
+        object-fit: contain;
+    }
+
+    .animal-photo-container::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .animal-photo-container:hover::after {
+        opacity: 1;
+    }
+
+    .animal-photo-container .change-photo-btn {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .animal-photo-container:hover .change-photo-btn {
+        opacity: 1;
+        pointer-events: auto;
+    }
+</style>
+{% if settings.kiroween_mode %}
+<style>
+    /* Kiroween Mode Overrides - High Specificity */
+
+    /* Active Tab - Light Green Background */
+    body.kiroween-mode .tab-button.active {
+        background-color: #d1fae5 !important; /* Light green background */
+        color: #065f46 !important; /* Dark green text */
+        border-bottom-color: #059669 !important; /* Green border */
+    }
+
+    /* Select Box - Black Background */
+    body.kiroween-mode select,
+    body.kiroween-mode #statusSelect {
+        background-color: #000000 !important;
+        color: #33ff00 !important;
+        border: 1px solid #10b981 !important;
+    }
+
+    body.kiroween-mode select option {
+        background-color: #000000 !important;
+        color: #33ff00 !important;
+    }
+
+    /* Photo Container - Green Border */
+    body.kiroween-mode .animal-photo-container {
+        border: 4px solid #10b981 !important; /* Green border */
+        box-sizing: border-box;
+    }
+
+    /* Mobile photo size adjustment */
+    @media (max-width: 640px) {
+        body.kiroween-mode .animal-photo-container {
+            max-width: 200px !important;
+            margin: 0 auto !important;
+        }
+    }
+</style>
+{% endif %}
 <div class="space-y-4 lg:space-y-6">
     <!-- タブナビゲーション -->
     <div class="bg-white rounded-lg shadow-sm">
         <div class="border-b border-gray-200">
-            <nav class="flex overflow-x-auto" aria-label="Tabs">
+            <nav class="flex flex-col gap-2 md:flex-row md:gap-0 md:overflow-x-auto" aria-label="Tabs">
                 <button id="tab-basic" class="tab-button active px-4 py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap" data-i18n="tabs.basic_info" data-i18n-ns="animals">
                     基本情報
                 </button>
@@ -58,14 +144,12 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- 左カラム: 画像 -->
                     <div class="lg:col-span-1">
-                        <div class="bg-gray-100 rounded-lg overflow-hidden aspect-square relative group">
-                            <img id="animalPhoto" src="{{ display_image }}" alt="{{ animal.name }}" class="w-full h-full object-cover">
+                        <div class="bg-gray-100 rounded-lg overflow-hidden relative group animal-photo-container">
+                            <img id="animalPhoto" src="{{ display_image }}" alt="{{ animal.name }}" class="w-full h-auto max-h-96 object-contain">
                             <!-- 画像変更ボタン（ホバー時に表示） -->
-                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button id="changeProfileImageBtn" type="button" class="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors" data-i18n="actions.change_photo" data-i18n-ns="animals">
-                                    画像を変更
-                                </button>
-                            </div>
+                            <button id="changeProfileImageBtn" type="button" class="change-photo-btn px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition-colors" data-i18n="actions.change_photo" data-i18n-ns="animals">
+                                画像を変更
+                            </button>
                         </div>
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.status" data-i18n-ns="animals">ステータス</label>
@@ -332,11 +416,115 @@
 
 {% endblock %}
 
+{% block extra_head %}
+{% if settings.kiroween_mode %}
+<style>
+    /* Kiroween Mode Specific Styles for Detail Page */
+
+    /* Modals (Paper Form, Profile Image, etc.) */
+    body.kiroween-mode #paperFormModal .bg-white,
+    body.kiroween-mode #profileImageModal .bg-white {
+        background-color: #000000 !important;
+        border: 2px solid #33ff00 !important;
+        color: #33ff00 !important;
+    }
+
+    /* Modal Text Colors */
+    body.kiroween-mode #paperFormModal h3,
+    body.kiroween-mode #paperFormModal p,
+    body.kiroween-mode #paperFormModal label,
+    body.kiroween-mode #profileImageModal h3,
+    body.kiroween-mode #profileImageModal p,
+    body.kiroween-mode #profileImageModal label,
+    body.kiroween-mode #profileImageModal span {
+        color: #33ff00 !important;
+    }
+
+    /* Modal Buttons - Cancel (Gray) */
+    body.kiroween-mode #paperFormModal button.bg-gray-200,
+    body.kiroween-mode #profileImageModal button.bg-gray-200 {
+        background-color: transparent !important;
+        border: 1px solid #33ff00 !important;
+        color: #33ff00 !important;
+    }
+    body.kiroween-mode #paperFormModal button.bg-gray-200:hover,
+    body.kiroween-mode #profileImageModal button.bg-gray-200:hover {
+        background-color: rgba(51, 255, 0, 0.1) !important;
+    }
+
+    /* Modal Buttons - Primary (Green/Indigo) */
+    body.kiroween-mode #paperFormModal button.bg-green-600,
+    body.kiroween-mode #profileImageModal button.bg-indigo-600 {
+        background-color: #33ff00 !important;
+        color: #000000 !important;
+        border: 1px solid #33ff00 !important;
+    }
+    body.kiroween-mode #paperFormModal button.bg-green-600:hover,
+    body.kiroween-mode #profileImageModal button.bg-indigo-600:hover {
+        background-color: #29cc00 !important;
+    }
+
+    /* Alerts */
+    body.kiroween-mode #alertContainer > div {
+        background-color: #000000 !important;
+        border: 2px solid #33ff00 !important;
+        color: #33ff00 !important;
+    }
+    body.kiroween-mode #alertContainer > div p,
+    body.kiroween-mode #alertContainer > div span {
+        color: #33ff00 !important;
+    }
+
+    /* Active Tab Styling */
+    .kiroween-mode .tab-button.active {
+        background-color: rgba(51, 255, 0, 0.2) !important;
+        color: #33ff00 !important;
+        border-bottom-color: #33ff00 !important;
+    }
+
+    .kiroween-mode .tab-button {
+        color: #1a8000 !important;
+    }
+
+    .kiroween-mode .tab-button:hover {
+        color: #33ff00 !important;
+        background-color: rgba(51, 255, 0, 0.1);
+    }
+
+    /* Select Box Styling */
+    .kiroween-mode select {
+        background-color: #000 !important;
+        color: #33ff00 !important;
+        border: 1px solid #33ff00 !important;
+    }
+
+    .kiroween-mode select option {
+        background-color: #000;
+        color: #33ff00;
+    }
+
+    /* Photo Styling */
+    .kiroween-mode .animal-photo-container {
+        border: 2px solid #33ff00 !important;
+        box-shadow: 0 0 10px rgba(51, 255, 0, 0.3);
+    }
+
+    /* Mobile Photo Size Adjustment */
+    @media (max-width: 1023px) {
+        .kiroween-mode .animal-photo-container {
+            max-width: 240px !important;
+            margin: 0 auto 1rem auto !important;
+        }
+    }
+</style>
+{% endif %}
+{% endblock %}
+
 {% block extra_scripts %}
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     const animalId = {{ animal.id }};
 </script>
-<script src="/static/js/admin/animal_detail.js?v=6"></script>
+<script src="/static/js/admin/animal_detail.js?v=7"></script>
 {% endblock %}

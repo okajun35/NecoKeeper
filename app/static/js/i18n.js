@@ -13,7 +13,7 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
-const I18N_VERSION = '20241121v4';
+const I18N_VERSION = '20241126v2';
 
 /**
  * i18nextを初期化
@@ -26,12 +26,18 @@ async function initI18n() {
   }
 
   try {
+    // Kiroweenモードかどうかを判定
+    const isKiroween = document.body.classList.contains('kiroween-mode');
+
     // 保存された言語設定を取得、なければブラウザ言語を使用
     const savedLanguage = localStorage.getItem('language');
     const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
-    const defaultLanguage =
-      savedLanguage ||
-      (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
+
+    // Kiroweenモードの場合は強制的に英語、それ以外は保存された設定またはブラウザ言語
+    const defaultLanguage = isKiroween
+      ? 'en'
+      : savedLanguage ||
+        (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
     // 翻訳ファイルを読み込み(名前空間ごと)
     const namespaces = [

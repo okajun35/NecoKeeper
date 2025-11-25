@@ -4,9 +4,11 @@
 
 let recordId = null;
 let medicalActionsData = [];
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
+  applyKiroweenHints();
   // i18nが初期化されるまで待機
   const waitForI18n = setInterval(() => {
     if (window.i18n && window.i18n.getCurrentLanguage) {
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.addEventListener('languageChanged', () => {
         // 言語切り替え時は、ページの再読み込みは不要
         // テンプレートの data-i18n 属性が自動的に翻訳される
+        applyKiroweenHints();
       });
     }
   }, 100);
@@ -44,6 +47,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 5000);
 });
+
+function applyKiroweenHints() {
+  const hint = document.getElementById('temperatureRangeHint');
+  if (!hint) {
+    return;
+  }
+
+  if (!hint.dataset.originalText) {
+    hint.dataset.originalText = hint.textContent;
+  }
+  if (!hint.dataset.originalI18nKey && hint.getAttribute('data-i18n')) {
+    hint.dataset.originalI18nKey = hint.getAttribute('data-i18n');
+  }
+  if (!hint.dataset.originalI18nNs && hint.getAttribute('data-i18n-ns')) {
+    hint.dataset.originalI18nNs = hint.getAttribute('data-i18n-ns');
+  }
+
+  if (isKiroweenMode) {
+    hint.textContent = 'Normal range: 35.0 - 42.0℃';
+    if (hint.dataset.originalI18nKey) {
+      hint.removeAttribute('data-i18n');
+    }
+    if (hint.dataset.originalI18nNs) {
+      hint.removeAttribute('data-i18n-ns');
+    }
+  } else {
+    hint.textContent = hint.dataset.originalText || hint.textContent;
+    if (hint.dataset.originalI18nKey) {
+      hint.setAttribute('data-i18n', hint.dataset.originalI18nKey);
+    }
+    if (hint.dataset.originalI18nNs) {
+      hint.setAttribute('data-i18n-ns', hint.dataset.originalI18nNs);
+    }
+  }
+}
 
 // URLから診療記録IDを取得
 function getRecordIdFromUrl() {

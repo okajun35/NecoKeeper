@@ -6,6 +6,11 @@
 const I18N_NAMESPACE = 'animals';
 const COMMON_NAMESPACE = 'common';
 
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
+  ? '/static/icons/halloween_logo_2.webp'
+  : '/static/images/default.svg';
+
 let currentPage = 1;
 let currentPageSize = 20;
 let currentStatus = '';
@@ -175,7 +180,7 @@ function renderAnimalsList(animals = []) {
   container.innerHTML = animals
     .map(animal => {
       const photoUrl =
-        animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+        animal.photo && animal.photo.trim() !== '' ? animal.photo : DEFAULT_IMAGE_PLACEHOLDER;
       const displayName =
         animal.name && animal.name.trim() !== ''
           ? animal.name
@@ -185,9 +190,9 @@ function renderAnimalsList(animals = []) {
         <div class="p-6 hover:bg-gray-50 transition-colors">
             <div class="flex items-center gap-6">
                 <!-- 写真 -->
-                <img src="${photoUrl}"
-                     alt="${displayName}"
-                     onerror="this.onerror=null; this.src='/static/images/default.svg';"
+                 <img src="${photoUrl}"
+                   alt="${displayName}"
+                   onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
                      class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200">
 
                 <!-- 基本情報 -->
@@ -336,30 +341,60 @@ function showQRCode(animalId) {
     defaultValue: '世話記録入力画面を開く',
   });
 
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+
+  // モーダルスタイル
+  const modalContentClass = isKiroween
+    ? 'p-6 max-w-md w-full mx-4'
+    : 'bg-white rounded-lg p-6 max-w-md w-full mx-4';
+
+  const modalContentStyle = isKiroween
+    ? 'background-color: #000000 !important; border: 2px solid #33ff00 !important; color: #33ff00 !important;'
+    : '';
+
+  const closeButtonClass = isKiroween
+    ? 'text-[#33ff00] hover:text-black hover:bg-[#33ff00] border border-[#33ff00] px-3 py-1 transition-colors duration-200 font-bold'
+    : 'text-gray-500 hover:text-gray-700';
+
+  const closeButtonText = isKiroween ? '[ CLOSE ]' : '✕';
+
+  const linkClass = isKiroween
+    ? 'text-[#33ff00] hover:text-[#66ff33] underline flex flex-nowrap items-center justify-center gap-2 whitespace-nowrap'
+    : 'text-indigo-600 hover:text-indigo-800 underline flex items-center justify-center gap-1 whitespace-nowrap';
+
+  const descriptionClass = isKiroween
+    ? 'mt-4 text-sm text-[#1a8000] text-center'
+    : 'mt-4 text-sm text-gray-600 text-center';
+
   // モーダルを作成
   const modal = document.createElement('div');
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+
+  if (isKiroween) {
+    modal.style.zIndex = '10000';
+  }
+
   modal.innerHTML = `
-    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <div class="${modalContentClass}" style="${modalContentStyle}">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">${modalTitle}</h3>
         <button onclick="this.closest('.fixed').remove()"
-                class="text-gray-500 hover:text-gray-700">
-          ✕
+                class="${closeButtonClass}">
+          ${closeButtonText}
         </button>
       </div>
-      <div class="flex justify-center">
+      <div class="flex justify-center bg-white p-2 rounded">
         <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
       </div>
       <div class="mt-4 text-center">
-        <a href="${publicUrl}" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline flex items-center justify-center gap-1">
+        <a href="${publicUrl}" target="_blank" class="${linkClass}">
           ${linkText}
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
           </svg>
         </a>
       </div>
-      <p class="mt-4 text-sm text-gray-600 text-center">
+      <p class="${descriptionClass}">
         ${modalDescription}
       </p>
     </div>

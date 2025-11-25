@@ -4,6 +4,12 @@
 {% block page_title %}<span data-i18n="applicants.title" data-i18n-ns="adoptions">里親希望者管理</span>{% endblock %}
 {% block page_description %}<span data-i18n="applicants.description" data-i18n-ns="adoptions">里親希望者の登録と管理</span>{% endblock %}
 
+{% block extra_head %}
+    {% if settings.kiroween_mode %}
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/kiroween_admin_modal.css') }}">
+    {% endif %}
+{% endblock %}
+
 {% block header_actions %}
 <button id="newApplicantBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="buttons.register" data-i18n-ns="common">新規登録</span>
@@ -81,8 +87,9 @@
 </div>
 
 <!-- 新規登録・編集モーダル -->
-<div id="applicantModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
+<div id="applicantModal" class="modal-overlay hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="modal relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
+        <div class="modal-content">
         <div class="flex justify-between items-center mb-4">
             <h3 id="modalTitle" class="text-lg font-medium text-gray-900" data-i18n="applicants.modal.title_new" data-i18n-ns="adoptions">里親希望者登録</h3>
             <button id="closeModal" class="text-gray-400 hover:text-gray-600">
@@ -134,6 +141,7 @@
                 </button>
             </div>
         </form>
+        </div>
     </div>
 </div>
 

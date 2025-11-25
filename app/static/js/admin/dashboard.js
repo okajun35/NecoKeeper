@@ -106,16 +106,22 @@ async function loadNeedsCare() {
         if (!animal.noon_recorded) missing.push(t('dynamic.noon'));
         if (!animal.evening_recorded) missing.push(t('dynamic.evening'));
 
+        // Check for Kiroween mode
+        const isKiroween = document.body.classList.contains('kiroween-mode');
+        const defaultImage = isKiroween
+          ? '/static/icons/halloween_logo_2.webp'
+          : '/static/images/default.svg';
+
         const photoUrl =
           animal.animal_photo && animal.animal_photo.trim() !== ''
             ? animal.animal_photo
-            : '/static/images/default.svg';
+            : defaultImage;
 
         return `
                 <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                     <img src="${photoUrl}"
                          alt="${animal.animal_name}"
-                         onerror="this.onerror=null; this.src='/static/images/default.svg';"
+                         onerror="this.onerror=null; this.src='${defaultImage}';"
                          class="w-12 h-12 rounded-full object-cover">
                     <div class="flex-1">
                         <div class="font-medium text-gray-900">${animal.animal_name}</div>

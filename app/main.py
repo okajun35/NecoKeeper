@@ -8,6 +8,7 @@ FastAPIアプリケーションの初期化、ミドルウェアの設定、ル�
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -116,7 +117,11 @@ app.add_middleware(AuthRedirectMiddleware)
 # 静的ファイルのマウント
 # メディアファイル（画像など）
 if Path(settings.media_dir).exists():
-    app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")
+    app.mount(
+        "/media",
+        StaticFiles(directory=settings.media_dir),
+        name="media",
+    )
 
 # 静的アセット（CSS、JS、画像など）
 if Path("app/static").exists():
@@ -153,6 +158,116 @@ async def health_check() -> dict[str, str]:
         "status": "healthy",
         "app_name": settings.app_name,
         "version": settings.app_version,
+    }
+
+
+# PWA Manifest エンドポイント（動的生成）
+@app.get("/manifest.json", tags=["PWA"])
+async def get_manifest() -> dict[str, Any]:
+    """
+    PWA Manifest を動的に生成
+
+    Kiroween Mode の場合は Halloween アイコンを使用し、
+    標準モードの場合は通常のアイコンを使用します。
+
+    Returns:
+        dict: PWA Manifest JSON
+    """
+    # アイコンのベースパスを決定
+    if settings.kiroween_mode:
+        # Kiroween Mode: Halloween アイコンを使用
+        icon_base = "/static/icons/halloween_icon.webp"
+        app_name = "Necro-Terminal"
+        short_name = "Necro-Terminal"
+        description = "Ghost in the Machine - 保護猫管理システム"
+        theme_color = "#000000"
+        background_color = "#000000"
+    else:
+        # 標準モード: 通常のアイコンを使用
+        icon_base = "/static/icons/icon"
+        app_name = "NecoKeeper - 保護猫管理システム"
+        short_name = "NecoKeeper"
+        description = "保護猫の世話記録を簡単に入力できるアプリ"
+        theme_color = "#4f46e5"
+        background_color = "#ffffff"
+
+    # アイコン配列を生成
+    if settings.kiroween_mode:
+        # Halloween アイコンは単一ファイル（WebP）
+        icons = [
+            {
+                "src": icon_base,
+                "sizes": "512x512",
+                "type": "image/webp",
+                "purpose": "any maskable",
+            }
+        ]
+    else:
+        # 標準アイコンは複数サイズ（PNG）
+        icons = [
+            {
+                "src": f"{icon_base}-72x72.png",
+                "sizes": "72x72",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-96x96.png",
+                "sizes": "96x96",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-128x128.png",
+                "sizes": "128x128",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-144x144.png",
+                "sizes": "144x144",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-152x152.png",
+                "sizes": "152x152",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-192x192.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-384x384.png",
+                "sizes": "384x384",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+            {
+                "src": f"{icon_base}-512x512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
+        ]
+
+    return {
+        "name": app_name,
+        "short_name": short_name,
+        "description": description,
+        "start_url": "/public/care-form",
+        "display": "standalone",
+        "background_color": background_color,
+        "theme_color": theme_color,
+        "orientation": "portrait",
+        "icons": icons,
+        "categories": ["productivity", "utilities"],
+        "lang": "ja",
+        "dir": "ltr",
     }
 
 
