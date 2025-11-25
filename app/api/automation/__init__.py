@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, status
 
+from app.api.automation import animals, care_logs
 from app.auth.api_key import get_automation_api_key
 
 # Automation APIルーター
@@ -60,7 +61,9 @@ router = APIRouter(
                         },
                         "not_configured": {
                             "summary": "Not Configured",
-                            "value": {"detail": "Automation API Key is not configured"},
+                            "value": {
+                                "detail": ("Automation API Key is not configured")
+                            },
                         },
                     }
                 }
@@ -75,9 +78,6 @@ router = APIRouter(
     },
 )
 
-
-# サブルーターをインポート
-from app.api.automation import animals, care_logs
 
 # サブルーターを登録
 router.include_router(animals.router)

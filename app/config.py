@@ -5,6 +5,7 @@
 Pydantic Settingsを使用して環境変数の検証と型変換を行います。
 """
 
+import os
 from functools import lru_cache
 from typing import Any, Literal
 
@@ -224,8 +225,6 @@ class Settings(BaseSettings):
 
         Requirements: 2.3, 2.4, 2.5
         """
-        import os
-
         # テスト環境では検証をスキップ
         is_testing = os.environ.get("PYTEST_CURRENT_TEST") is not None
         if is_testing:
