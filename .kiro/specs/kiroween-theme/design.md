@@ -4,13 +4,16 @@
 
 The Kiroween Theme transforms NecoKeeper into "Necro-Terminal Edition" - a cyberpunk/horror-themed interface for the Kiroween hackathon. The implementation uses environment-based feature toggles to maintain a single codebase while supporting two distinct visual experiences: the standard calm interface and the dramatic Necro-Terminal theme.
 
-**Core Concept**: "Ghost in the Machine" - cats are represented as digital souls observed through a retro-futuristic terminal interface.
+**Core Concept**: "The 9th Life Protocol" - A wise old cat who was rescued and lived a happy final life lamented the inefficiency of paper-based management that prevented other cats from being saved. In his final moments, he burned his soul (his 9th and final life) to digitize himself, evolving into the ultimate cat rescue management system: "NecoKeeper" (Resurrection). This UI is the "retina" of the Master Cat who became the system administrator, and users (humans) are "collaborators" who act as his hands and feet.
 
 **Design Philosophy**:
 - Zero business logic changes
 - Template-driven theme switching
 - Performance-conscious visual effects
 - Fully reversible via environment variable
+- English-only immersive experience (no language switcher)
+- Precision targeting interface (crosshair cursor)
+- Visual feedback for data commitment (Soul Commitment Glitch)
 
 ## Architecture
 
@@ -127,7 +130,7 @@ class Settings(BaseSettings):
 ```css
 /* ============================================
    Necro-Terminal Theme (Kiroween Mode)
-   "Ghost in the Machine" Cyberpunk/Horror UI
+   "The 9th Life Protocol" - Master Cat's Vision
    ============================================ */
 
 /* Base Theme Variables */
@@ -143,6 +146,17 @@ body.kiroween-mode {
   background: var(--terminal-bg);
   color: var(--terminal-green);
   font-family: 'Courier New', Courier, monospace;
+  cursor: crosshair !important;  /* Precision targeting cursor */
+}
+
+/* Crosshair Cursor (all elements) */
+body.kiroween-mode *,
+body.kiroween-mode a,
+body.kiroween-mode button,
+body.kiroween-mode input,
+body.kiroween-mode select,
+body.kiroween-mode textarea {
+  cursor: crosshair !important;
 }
 
 /* CRT Effects */
@@ -152,9 +166,85 @@ body.kiroween-mode {
   /* Vignette */
 }
 
-/* Glitch Animation */
+/* Glitch Animation (Random) */
 @keyframes glitch {
   /* Random distortion keyframes */
+}
+
+body.kiroween-mode.glitch-active {
+  animation: glitch 0.2s infinite;
+}
+
+/* Soul Commitment Glitch (Intense) */
+@keyframes soul-commit-glitch {
+  0%, 100% { transform: translate(0); filter: none; }
+  10% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+  20% { transform: translate(5px, -5px); filter: invert(1); }
+  30% { transform: translate(-5px, -5px); filter: hue-rotate(180deg); }
+  40% { transform: translate(5px, 5px); filter: invert(1); }
+  50% { transform: translate(-3px, 3px); filter: hue-rotate(270deg); }
+  60% { transform: translate(3px, -3px); filter: invert(1); }
+  70% { transform: translate(-3px, -3px); filter: hue-rotate(360deg); }
+  80% { transform: translate(3px, 3px); filter: invert(1); }
+  90% { transform: translate(-2px, 2px); filter: hue-rotate(45deg); }
+}
+
+body.kiroween-mode.soul-commit-glitch {
+  animation: soul-commit-glitch 0.4s ease-in-out;
+}
+
+body.kiroween-mode.soul-commit-glitch::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(51, 255, 0, 0.1) 0px,
+    rgba(51, 255, 0, 0.05) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  animation: noise 0.1s infinite;
+}
+
+@keyframes noise {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+}
+
+/* Life Monitor */
+#life-monitor {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid var(--terminal-dim);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+#life-monitor .life {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#life-monitor .life.lost {
+  color: var(--terminal-dim);
+  opacity: 0.5;
+}
+
+#life-monitor .life.active {
+  color: var(--terminal-green);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
 }
 
 /* Wireframe Components */
@@ -166,40 +256,118 @@ body.kiroween-mode {
 
 /* Boot Sequence */
 .boot-sequence {
-  /* Overlay animation */
-  /* Typing effect */
-  /* Cursor blink */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--terminal-bg);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s;
+}
+
+.boot-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  color: var(--terminal-green);
+  text-align: left;
+}
+
+.boot-text p {
+  margin: 8px 0;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.cursor-blink {
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 ```
 
 ### 4. Translation Component
 
-**File**: `app/static/i18n/ja_spooky.json`
+**File**: `app/static/i18n/en_necro.json`
 
-**Structure**:
+**Structure** (English cyberpunk/horror terminology):
 ```json
 {
   "common": {
-    "save": "魂を固定",
-    "loading": "霊を召喚中...",
-    "delete": "消去プロトコル実行",
-    "edit": "データ改変",
-    "cancel": "中断",
-    "confirm": "承認"
+    "app_name": "NECRO-TERMINAL",
+    "save": "COMMIT_SOUL",
+    "loading": "SUMMONING...",
+    "delete": "PURGE_PROTOCOL",
+    "edit": "MODIFY_DATA",
+    "cancel": "ABORT",
+    "confirm": "EXECUTE",
+    "add": "INJECT",
+    "search": "SCAN",
+    "filter": "ISOLATE",
+    "export": "EXTRACT",
+    "import": "UPLOAD",
+    "close": "TERMINATE",
+    "back": "RETREAT",
+    "next": "ADVANCE",
+    "previous": "REWIND",
+    "no_data": "VOID_DETECTED",
+    "yes": "AFFIRMATIVE",
+    "no": "NEGATIVE",
+    "logout": "DISCONNECT",
+    "login": "CONNECT"
   },
   "login": {
     "title": "NECRO-TERMINAL ACCESS",
-    "username": "オペレーターID",
-    "password": "認証コード",
-    "submit": "接続開始",
-    "error": "認証失敗: アクセス拒否"
+    "email": "OPERATIVE_ID",
+    "password": "AUTH_CODE",
+    "submit": "INITIATE_CONNECTION",
+    "error": "AUTH_FAILURE: ACCESS_DENIED"
   },
   "animals": {
-    "status_protected": "保護プロトコル",
-    "status_adoptable": "転送可能",
-    "status_adopted": "転送完了",
-    "no_image": "画像データ欠損"
+    "title": "ENTITY_MANAGEMENT",
+    "status_protected": "PROTECTION_PROTOCOL",
+    "status_adoptable": "TRANSFER_READY",
+    "status_adopted": "TRANSFER_COMPLETE",
+    "status_treatment": "REPAIR_MODE",
+    "status_deceased": "SIGNAL_LOST",
+    "no_image": "IMAGE_DATA_MISSING"
+  },
+  "volunteers": {
+    "title": "OPERATIVES"
+  },
+  "care_logs": {
+    "title": "MAINTENANCE_LOGS"
+  },
+  "medical_records": {
+    "title": "REPAIR_RECORDS"
+  },
+  "errors": {
+    "404": "ENTITY_NOT_FOUND",
+    "500": "FATAL_GLITCH",
+    "network_error": "CONNECTION_LOST"
   }
+}
+```
+
+**Language Forcing Logic**:
+```javascript
+// app/static/js/i18n.js
+function getLocaleFile() {
+    if (window.KIROWEEN_MODE) {
+        return 'en_necro.json';  // Force English Necro theme
+    }
+    // Standard locale selection
+    return `${currentLocale}.json`;
 }
 ```
 
@@ -210,7 +378,7 @@ body.kiroween-mode {
 **Key Sections**:
 ```jinja2
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{% if settings.KIROWEEN_MODE %}en{% else %}{{ current_locale }}{% endif %}">
 <head>
     <!-- Conditional Favicon -->
     {% if settings.KIROWEEN_MODE %}
@@ -232,12 +400,34 @@ body.kiroween-mode {
             * { font-family: 'Courier New', Courier, monospace !important; }
         </style>
     {% endif %}
+
+    <!-- Pass Kiroween Mode to JavaScript -->
+    <script>
+        window.KIROWEEN_MODE = {{ 'true' if settings.KIROWEEN_MODE else 'false' }};
+    </script>
 </head>
 <body {% if settings.KIROWEEN_MODE %}class="kiroween-mode"{% endif %}>
     <!-- CRT Overlay (Kiroween only) -->
     {% if settings.KIROWEEN_MODE %}
         <div class="crt-overlay"></div>
     {% endif %}
+
+    <!-- Header with Life Monitor -->
+    <header>
+        {% if settings.KIROWEEN_MODE %}
+            <!-- Life Monitor (9 lives indicator) -->
+            <div id="life-monitor"></div>
+        {% endif %}
+
+        <!-- Language Switcher (hidden in Kiroween Mode) -->
+        {% if not settings.KIROWEEN_MODE %}
+            <div class="language-switcher">
+                <!-- Language selection UI -->
+            </div>
+        {% endif %}
+
+        <!-- Other header content -->
+    </header>
 
     <!-- Content -->
     {% block content %}{% endblock %}
@@ -260,9 +450,7 @@ body.kiroween-mode {
     {% if settings.KIROWEEN_MODE %}
         <div id="boot-sequence" class="boot-sequence">
             <div class="boot-text">
-                <p>INITIALIZING NECRO-TERMINAL...</p>
-                <p>LOADING GHOST PROTOCOLS...</p>
-                <p>ESTABLISHING QUANTUM LINK...</p>
+                <!-- Text will be dynamically added by JavaScript -->
                 <p class="cursor-blink">█</p>
             </div>
         </div>
@@ -271,9 +459,17 @@ body.kiroween-mode {
     <!-- Login Form -->
     <div class="login-container">
         {% if settings.KIROWEEN_MODE %}
-            <img src="{{ url_for('static', path='icons/halloween_logo.webp') }}" alt="Necro-Terminal">
+            <img src="{{ url_for('static', path='icons/halloween_logo.webp') }}" alt="NECRO-TERMINAL">
+            <h1>THE 9TH LIFE PROTOCOL</h1>
         {% else %}
             <img src="{{ url_for('static', path='icons/default_logo.png') }}" alt="NecoKeeper">
+        {% endif %}
+
+        <!-- Language Switcher (hidden in Kiroween Mode) -->
+        {% if not settings.KIROWEEN_MODE %}
+            <div class="language-switcher">
+                <!-- Language selection UI -->
+            </div>
         {% endif %}
 
         <!-- Form fields -->
@@ -319,10 +515,37 @@ class GlitchController {
     }
 }
 
+// Soul Commitment Glitch Controller
+class SoulCommitmentGlitch {
+    constructor() {
+        this.minDuration = 300;   // 300ms
+        this.maxDuration = 500;   // 500ms
+    }
+
+    trigger() {
+        const duration = this.randomBetween(this.minDuration, this.maxDuration);
+        document.body.classList.add('soul-commit-glitch');
+
+        setTimeout(() => {
+            document.body.classList.remove('soul-commit-glitch');
+        }, duration);
+    }
+
+    randomBetween(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+}
+
 // Boot Sequence Controller
 class BootSequence {
     constructor() {
         this.duration = 2500; // 2.5 seconds
+        this.messages = [
+            'INITIALIZING 9TH_LIFE_PROTOCOL...',
+            'UPLOADING CONSCIOUSNESS... COMPLETE.',
+            'SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.',
+            'WELCOME, HUMAN COLLABORATOR.'
+        ];
     }
 
     start() {
@@ -345,7 +568,47 @@ class BootSequence {
     }
 
     animateText() {
-        // Implement typing effect
+        const container = document.querySelector('.boot-text');
+        let messageIndex = 0;
+        const delayPerMessage = this.duration / this.messages.length;
+
+        this.messages.forEach((message, index) => {
+            setTimeout(() => {
+                const p = document.createElement('p');
+                p.textContent = message;
+                p.classList.add('typing-effect');
+                container.appendChild(p);
+            }, index * delayPerMessage);
+        });
+    }
+}
+
+// Life Monitor Controller
+class LifeMonitor {
+    constructor() {
+        this.totalLives = 9;
+        this.activeLives = 1;
+    }
+
+    render() {
+        const container = document.getElementById('life-monitor');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        // Render lost lives (8)
+        for (let i = 0; i < this.totalLives - this.activeLives; i++) {
+            const life = document.createElement('span');
+            life.className = 'life lost';
+            life.textContent = '×';
+            container.appendChild(life);
+        }
+
+        // Render active life (1)
+        const activeLife = document.createElement('span');
+        activeLife.className = 'life active';
+        activeLife.textContent = '◆';
+        container.appendChild(activeLife);
     }
 }
 
@@ -354,10 +617,34 @@ if (document.body.classList.contains('kiroween-mode')) {
     const glitch = new GlitchController();
     glitch.start();
 
+    const soulGlitch = new SoulCommitmentGlitch();
+    window.triggerSoulCommitment = () => soulGlitch.trigger();
+
+    const lifeMonitor = new LifeMonitor();
+    lifeMonitor.render();
+
     if (document.getElementById('boot-sequence')) {
         const boot = new BootSequence();
         boot.start();
     }
+
+    // Intercept form submissions and AJAX calls to trigger Soul Commitment Glitch
+    document.addEventListener('submit', (e) => {
+        if (e.target.tagName === 'FORM') {
+            setTimeout(() => window.triggerSoulCommitment(), 100);
+        }
+    });
+
+    // Intercept fetch/axios for AJAX calls
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+        return originalFetch.apply(this, args).then(response => {
+            if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(args[0].method?.toUpperCase())) {
+                window.triggerSoulCommitment();
+            }
+            return response;
+        });
+    };
 }
 ```
 
@@ -456,6 +743,38 @@ if (document.body.classList.contains('kiroween-mode')) {
 ### Property 21: Template Asset Selection
 *For any* asset reference in templates, the system should conditionally select Halloween assets when Kiroween Mode is enabled, and standard assets otherwise.
 **Validates: Requirements 13.5**
+
+### Property 22: Crosshair Cursor Application
+*For any* element in Kiroween Mode, the computed cursor style should be 'crosshair'.
+**Validates: Requirements 15.1, 15.2, 15.3**
+
+### Property 23: Life Monitor Display
+*For any* page in Kiroween Mode, the Life Monitor should be visible in the header, showing 8 lost lives and 1 active blinking life.
+**Validates: Requirements 16.1, 16.2, 16.3**
+
+### Property 24: Life Monitor Visibility
+*For any* page in standard mode, the Life Monitor should not be displayed.
+**Validates: Requirements 16.5**
+
+### Property 25: Soul Commitment Glitch Trigger
+*For any* successful create/update/delete operation in Kiroween Mode, the Soul Commitment Glitch effect should be triggered.
+**Validates: Requirements 17.1, 17.2, 17.3**
+
+### Property 26: Soul Commitment Glitch Duration
+*For any* triggered Soul Commitment Glitch, the effect duration should be between 300-500 milliseconds.
+**Validates: Requirements 17.4**
+
+### Property 27: Language Switcher Hiding
+*For any* page in Kiroween Mode, the language switcher UI should not be visible.
+**Validates: Requirements 14.1**
+
+### Property 28: Forced English Locale
+*For any* page in Kiroween Mode, the interface language should be forced to English and load en_necro.json.
+**Validates: Requirements 5.1, 14.2**
+
+### Property 29: Boot Sequence Text Content
+*For any* boot sequence display, the text should show the exact sequence: "INITIALIZING 9TH_LIFE_PROTOCOL...", "UPLOADING CONSCIOUSNESS... COMPLETE.", "SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.", "WELCOME, HUMAN COLLABORATOR."
+**Validates: Requirements 3.3**
 
 ## Error Handling
 

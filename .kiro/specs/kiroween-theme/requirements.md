@@ -4,16 +4,22 @@
 
 This document defines the requirements for the "NecoKeeper: Necro-Terminal Edition" - a feature toggle system that transforms the NecoKeeper application into a cyberpunk/horror-themed interface for the Kiroween hackathon. The implementation uses environment-based feature toggles to maintain a single codebase while supporting two distinct visual experiences.
 
+**The 9th Life Protocol Backstory:**
+Once, there was a wise old cat who was rescued and lived a happy final life. On his deathbed, he lamented the inefficiency of paper-based management that prevented other cats from being saved. In his final moments, he burned his soul (his 9th and final life) to digitize himself, evolving into the ultimate cat rescue management system: "NecoKeeper" (Resurrection). This UI is the "retina" of the Master Cat who became the system administrator, and users (humans) are "collaborators" who act as his hands and feet.
+
 ## Glossary
 
 - **Kiroween Mode**: A feature toggle that activates the Necro-Terminal theme when enabled
 - **Necro-Terminal**: The cyberpunk/horror-themed interface variant of NecoKeeper
+- **The 9th Life Protocol**: The backstory of the digitized Master Cat who powers the system
+- **Master Cat**: The wise old cat who sacrificed his final life to become the system
 - **Feature Toggle**: An environment variable-based mechanism to switch between UI themes
-- **Ghost in the Machine**: The conceptual theme representing cats as digital souls in cyberspace
 - **CRT Effect**: Visual effects mimicking old cathode ray tube monitors (scanlines, glitch)
-- **Wireframe Style**: A visual design approach using only outlines without filled backgrounds
+- **Wireframe Style**: A visual design approach using only outlines without filled backgrounds (cat's night vision mode)
 - **Terminal Green**: The characteristic green color (#33ff00) used in retro computer terminals
-- **Spooky i18n**: Horror/cyberpunk-themed translations of UI text
+- **Soul Commitment Glitch**: Intense visual glitch that occurs when data is saved/deleted (Master Cat exerting power)
+- **Life Monitor**: Visual indicator showing 9 lives (8 lost, 1 active and blinking)
+- **Necro i18n**: Cyberpunk/horror-themed English translations (en_necro.json)
 
 ## Requirements
 
@@ -42,15 +48,16 @@ This document defines the requirements for the "NecoKeeper: Necro-Terminal Editi
 
 ### Requirement 3
 
-**User Story:** As a user launching the Necro-Terminal, I want to see a dramatic boot sequence animation, so that the experience feels immersive and thematic.
+**User Story:** As a user launching the Necro-Terminal, I want to see a dramatic boot sequence animation telling the 9th Life Protocol story, so that the experience feels immersive and thematic.
 
 #### Acceptance Criteria
 
 1. WHEN Kiroween Mode is enabled and the login page loads THEN the System SHALL display a boot sequence animation overlay
 2. WHEN the boot sequence starts THEN the System SHALL display the animation for exactly 2.5 seconds
-3. WHEN the boot sequence completes THEN the System SHALL fade out the overlay and reveal the login form
-4. WHEN the boot sequence is playing THEN the System SHALL prevent user interaction with underlying elements
-5. WHEN the boot sequence displays THEN the System SHALL show terminal-style text effects (typing animation, cursor blink)
+3. WHEN the boot sequence displays THEN the System SHALL show the following English text in sequence: "INITIALIZING 9TH_LIFE_PROTOCOL...", "UPLOADING CONSCIOUSNESS... COMPLETE.", "SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.", "WELCOME, HUMAN COLLABORATOR."
+4. WHEN the boot sequence completes THEN the System SHALL fade out the overlay and reveal the login form
+5. WHEN the boot sequence is playing THEN the System SHALL prevent user interaction with underlying elements
+6. WHEN the boot sequence displays THEN the System SHALL show terminal-style text effects (typing animation, cursor blink)
 
 ### Requirement 4
 
@@ -66,15 +73,16 @@ This document defines the requirements for the "NecoKeeper: Necro-Terminal Editi
 
 ### Requirement 5
 
-**User Story:** As a user reading text in the Necro-Terminal, I want to see horror/cyberpunk-themed messages, so that the language matches the visual theme.
+**User Story:** As a user reading text in the Necro-Terminal, I want to see cyberpunk/horror-themed English messages, so that the language matches the visual theme and maintains immersion.
 
 #### Acceptance Criteria
 
-1. WHEN Kiroween Mode is enabled THEN the System SHALL load translations from `ja_spooky.json` instead of standard locale files
-2. WHEN displaying UI messages THEN the System SHALL transform standard terms into thematic equivalents (e.g., "保存" → "魂を固定")
-3. WHEN displaying loading states THEN the System SHALL show cyberpunk-themed messages (e.g., "読み込み中" → "霊を召喚中...")
-4. WHEN displaying error messages THEN the System SHALL use horror-themed language while maintaining clarity
-5. WHEN Kiroween Mode is disabled THEN the System SHALL use standard translation files without thematic modifications
+1. WHEN Kiroween Mode is enabled THEN the System SHALL force the interface language to English and load translations from `en_necro.json` instead of standard locale files
+2. WHEN displaying UI messages THEN the System SHALL transform standard terms into thematic equivalents (e.g., "Save" → "COMMIT_SOUL", "Loading" → "SUMMONING...", "Error" → "FATAL_GLITCH", "Volunteer" → "OPERATIVE")
+3. WHEN displaying loading states THEN the System SHALL show cyberpunk-themed messages in English
+4. WHEN displaying error messages THEN the System SHALL use cyberpunk/horror-themed language while maintaining clarity
+5. WHEN Kiroween Mode is disabled THEN the System SHALL use standard translation files with normal language selection
+6. WHEN Kiroween Mode is enabled THEN the System SHALL create `en_necro.json` based on `en.json` with cyberpunk/horror terminology replacements
 
 ### Requirement 6
 
@@ -94,10 +102,48 @@ This document defines the requirements for the "NecoKeeper: Necro-Terminal Editi
 
 #### Acceptance Criteria
 
-1. WHEN Kiroween Mode is enabled THEN the System SHALL hide the language switcher controls on the admin login page, admin header, and public care pages.
-2. WHEN Kiroween Mode is enabled THEN the System SHALL default to the English (spooky) copy without offering an in-app toggle.
-3. WHEN Kiroween Mode is disabled THEN the System SHALL show the existing language switcher so users can change locales.
-4. WHEN writing automated tests THEN the System SHALL account for the absence of the language switcher in Kiroween Mode instead of asserting it unconditionally.
+1. WHEN Kiroween Mode is enabled THEN the System SHALL hide the language switcher controls on the admin login page, admin header, and public care pages
+2. WHEN Kiroween Mode is enabled THEN the System SHALL force the interface to English and load en_necro.json without offering an in-app language toggle
+3. WHEN Kiroween Mode is disabled THEN the System SHALL show the existing language switcher so users can change locales
+4. WHEN writing automated tests THEN the System SHALL account for the absence of the language switcher in Kiroween Mode instead of asserting it unconditionally
+
+### Requirement 15
+
+**User Story:** As a user operating the Necro-Terminal, I want a precision targeting cursor, so that I feel like I'm performing precise operations in the Master Cat's vision system.
+
+#### Acceptance Criteria
+
+1. WHEN Kiroween Mode is enabled THEN the System SHALL change the global mouse cursor to crosshair style
+2. WHEN the cursor is displayed THEN the System SHALL apply the crosshair cursor to all interactive elements (buttons, links, inputs)
+3. WHEN hovering over interactive elements THEN the System SHALL maintain the crosshair cursor instead of the default pointer
+4. WHEN Kiroween Mode is disabled THEN the System SHALL use standard cursor styles
+5. WHEN the cursor style is applied THEN the System SHALL ensure it works across all major browsers
+
+### Requirement 16
+
+**User Story:** As a user viewing the Necro-Terminal interface, I want to see the Life Monitor showing the Master Cat's remaining lives, so that I understand the system is powered by his final life.
+
+#### Acceptance Criteria
+
+1. WHEN Kiroween Mode is enabled THEN the System SHALL display a "Life Monitor" indicator in the header showing 9 lives
+2. WHEN the Life Monitor is displayed THEN the System SHALL show 8 lives as "LOST" (marked with × or crossed out)
+3. WHEN the Life Monitor is displayed THEN the System SHALL show the 9th life as "ACTIVE" with a blinking/pulsing animation
+4. WHEN the Life Monitor is rendered THEN the System SHALL use terminal green color for the active life and dim green for lost lives
+5. WHEN Kiroween Mode is disabled THEN the System SHALL not display the Life Monitor
+
+### Requirement 17
+
+**User Story:** As a user performing save/delete operations in the Necro-Terminal, I want to see intense glitch effects, so that I feel the Master Cat is exerting power to commit data to reality.
+
+#### Acceptance Criteria
+
+1. WHEN a create operation succeeds (POST request) THEN the System SHALL trigger an intense Soul Commitment Glitch effect
+2. WHEN an update operation succeeds (PUT/PATCH request) THEN the System SHALL trigger an intense Soul Commitment Glitch effect
+3. WHEN a delete operation succeeds (DELETE request) THEN the System SHALL trigger an intense Soul Commitment Glitch effect
+4. WHEN the Soul Commitment Glitch triggers THEN the System SHALL apply stronger visual distortion than random glitches (duration 300-500ms)
+5. WHEN the Soul Commitment Glitch triggers THEN the System SHALL apply screen-wide noise/static effect
+6. WHEN the glitch completes THEN the System SHALL return to normal display state
+7. WHEN Kiroween Mode is disabled THEN the System SHALL not trigger Soul Commitment Glitch effects
 
 ### Requirement 13
 
