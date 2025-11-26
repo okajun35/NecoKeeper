@@ -59,10 +59,15 @@ mypy:
 	@echo "✅ 型チェック完了"
 
 # 国際化翻訳ファイルをコンパイル
+# 注意: これはサーバーサイド（Jinja2）用のpo/moファイルをコンパイルします
+# クライアントサイド（JavaScript/i18next）用のJSONファイル（app/static/i18n/*.json）は
+# 直接使用されるため、コンパイル不要です
+# Kiroween Mode用のen_necro.jsonもJSONファイルなのでコンパイル不要です
 i18n-compile:
-	@echo "🌐 i18n翻訳ファイルをコンパイル中..."
+	@echo "🌐 i18n翻訳ファイルをコンパイル中（サーバーサイド用）..."
 	@pybabel compile -d app/locales
 	@echo "✅ i18n翻訳ファイルのコンパイル完了"
+	@echo "ℹ️  クライアントサイド用JSONファイル（app/static/i18n/*.json）はコンパイル不要です"
 
 # テスト実行（Pytest）
 test:

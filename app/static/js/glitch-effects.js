@@ -170,6 +170,120 @@ class BootSequence {
 }
 
 /**
+ * LifeMonitor - Displays the Master Cat's 9 lives indicator
+ *
+ * Shows 8 lost lives (×) and 1 active life (◆) with pulse animation.
+ * Requirements: 16.1, 16.2, 16.3, 16.4, 16.5
+ */
+class LifeMonitor {
+  constructor() {
+    // Total lives: 9 (Requirement 16.1)
+    this.totalLives = 9;
+    // Active lives: 1 (the 9th life) (Requirement 16.3)
+    this.activeLives = 1;
+    // Lost lives: 8 (Requirement 16.2)
+    this.lostLives = this.totalLives - this.activeLives;
+  }
+
+  /**
+   * Render the Life Monitor display
+   * Shows 8 lost lives (×) and 1 active life (◆)
+   * Requirements: 16.1, 16.2, 16.3
+   */
+  render() {
+    const container = document.getElementById('life-monitor');
+    if (!container) {
+      return;
+    }
+
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Render lost lives (8) - Requirement 16.2
+    for (let i = 0; i < this.lostLives; i++) {
+      const life = document.createElement('div');
+      life.className = 'life lost';
+
+      const shell = document.createElement('div');
+      shell.className = 'candle-shell';
+      life.appendChild(shell);
+
+      life.setAttribute('aria-label', 'Lost life');
+      container.appendChild(life);
+    }
+
+    // Render active life (1) - Requirement 16.3
+    const activeLife = document.createElement('div');
+    activeLife.className = 'life active';
+
+    const candleFill = document.createElement('div');
+    candleFill.className = 'candle-fill';
+    activeLife.appendChild(candleFill);
+
+    // Add flame element for the burning candle effect
+    const flame = document.createElement('div');
+    flame.className = 'flame';
+    activeLife.appendChild(flame);
+
+    activeLife.setAttribute('aria-label', 'Active life - burning');
+    container.appendChild(activeLife);
+  }
+}
+
+/**
+ * SoulCommitmentGlitch - Intense glitch effect for data operations
+ *
+ * Triggers an intense visual glitch when data is saved/deleted,
+ * representing the Master Cat exerting power to commit data to reality.
+ * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7
+ */
+class SoulCommitmentGlitch {
+  constructor() {
+    // Duration range: 300-500ms (Requirement 17.4)
+    this.minDuration = 300; // 300ms
+    this.maxDuration = 500; // 500ms
+    this.isActive = false;
+  }
+
+  /**
+   * Trigger the Soul Commitment Glitch effect
+   * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5
+   */
+  trigger() {
+    // Prevent overlapping glitches
+    if (this.isActive) {
+      return;
+    }
+
+    this.isActive = true;
+    const duration = this.randomBetween(this.minDuration, this.maxDuration);
+
+    // Use requestAnimationFrame for smooth rendering
+    requestAnimationFrame(() => {
+      document.body.classList.add('soul-commit-glitch');
+
+      // Remove glitch class after duration (Requirement 17.6)
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          document.body.classList.remove('soul-commit-glitch');
+          this.isActive = false;
+        });
+      }, duration);
+    });
+  }
+
+  /**
+   * Generate a random integer between min and max (inclusive)
+   * @param {number} min - Minimum value
+   * @param {number} max - Maximum value
+   * @returns {number} Random integer
+   */
+  randomBetween(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+}
+
+/**
  * Initialize glitch effects when page loads
  * Only runs in Kiroween Mode (when body has 'kiroween-mode' class)
  */
@@ -191,12 +305,60 @@ class BootSequence {
     const glitchController = new GlitchController();
     glitchController.start();
 
+    // Initialize Life Monitor (Requirement 16.5)
+    const lifeMonitorElement = document.getElementById('life-monitor');
+    if (lifeMonitorElement) {
+      const lifeMonitor = new LifeMonitor();
+      lifeMonitor.render();
+    }
+
     // Start boot sequence if on login page
     const bootSequenceElement = document.getElementById('boot-sequence');
     if (bootSequenceElement) {
       const bootSequence = new BootSequence();
       bootSequence.start();
     }
+
+    // Initialize Soul Commitment Glitch (Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7)
+    const soulGlitch = new SoulCommitmentGlitch();
+
+    // Expose global function for manual triggering (Requirement 17.7)
+    window.triggerSoulCommitment = function () {
+      soulGlitch.trigger();
+    };
+
+    // Add form submission event listener (Requirement 17.1)
+    document.addEventListener('submit', function (event) {
+      // Trigger glitch on form submission
+      // Use setTimeout to trigger after form is processed
+      setTimeout(() => {
+        soulGlitch.trigger();
+      }, 100);
+    });
+
+    // Intercept fetch() calls to trigger glitch on successful operations
+    // Requirements: 17.1, 17.2, 17.3
+    const originalFetch = window.fetch;
+    window.fetch = function (...args) {
+      return originalFetch
+        .apply(this, args)
+        .then(response => {
+          // Check if this is a successful data modification request
+          if (response.ok) {
+            const method = args[1]?.method?.toUpperCase() || 'GET';
+
+            // Trigger glitch for POST, PUT, PATCH, DELETE (Requirements 17.1, 17.2, 17.3)
+            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+              soulGlitch.trigger();
+            }
+          }
+          return response;
+        })
+        .catch(error => {
+          // Re-throw error to maintain normal error handling
+          throw error;
+        });
+    };
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {

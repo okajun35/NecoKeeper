@@ -52,11 +52,38 @@ body.kiroween-mode {
   font-size: var(--terminal-font-size-base);
   line-height: var(--terminal-line-height);
   overflow-x: hidden;
+  cursor: crosshair !important; /* Requirement 15.1 */
 }
 
 /* Force monospace font on all elements */
 body.kiroween-mode * {
   font-family: var(--terminal-font-family) !important;
+  cursor: crosshair !important; /* Requirement 15.2 */
+}
+
+/* ============================================
+   Crosshair Cursor (Requirement 15)
+   ============================================ */
+/* Ensure interactive elements also use crosshair */
+body.kiroween-mode a,
+body.kiroween-mode button,
+body.kiroween-mode input,
+body.kiroween-mode select,
+body.kiroween-mode textarea,
+body.kiroween-mode label {
+  cursor: crosshair !important;
+}
+
+/* Requirement 15: Precision Targeting Interface */
+body.kiroween-mode,
+body.kiroween-mode *,
+body.kiroween-mode a,
+body.kiroween-mode button,
+body.kiroween-mode input,
+body.kiroween-mode select,
+body.kiroween-mode textarea,
+body.kiroween-mode label {
+  cursor: crosshair !important;
 }
 
 /* ============================================
@@ -278,18 +305,6 @@ body.kiroween-mode input[type="radio"] {
   -webkit-appearance: none;
   width: 1.2rem;
   height: 1.2rem;
-  border: var(--terminal-border-width) solid var(--terminal-dim) !important;
-  background: transparent !important;
-  cursor: pointer;
-  position: relative;
-}
-
-body.kiroween-mode input[type="radio"] {
-  border-radius: 50%;
-}
-
-body.kiroween-mode input[type="checkbox"]:checked::before,
-body.kiroween-mode input[type="radio"]:checked::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -1668,6 +1683,15 @@ body.kiroween-mode #sidebar-close-button svg {
 }
 
 /* ============================================
+   PC Header Title Alignment
+   ============================================ */
+@media (min-width: 1024px) {
+  body.kiroween-mode header .flex-1 {
+    text-align: center !important;
+  }
+}
+
+/* ============================================
    Dashboard Card Images - Uniform Size
    ============================================ */
 /* Needs Care animal images - fixed size with aspect ratio */
@@ -1701,6 +1725,180 @@ body.kiroween-mode #recent-logs > div {
     height: 80px !important;
     min-width: 80px !important;
     max-width: 80px !important;
+  }
+}
+
+/* ============================================
+   Life Monitor (Requirement 16)
+   ============================================ */
+#life-monitor {
+  display: flex !important;
+  align-items: flex-end !important;
+  gap: 6px !important;
+  padding: 16px 12px 8px 12px !important; /* Increased top padding for flame */
+  border: 1px solid var(--terminal-dim) !important;
+  border-radius: 4px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  margin-left: auto !important; /* Header positioning */
+}
+
+.life {
+  position: relative !important;
+  width: 12px !important;
+  height: 24px !important;
+}
+
+/* Lost Life: Hollow rectangle */
+.life.lost .candle-shell {
+  width: 100% !important;
+  height: 100% !important;
+  border: 1px solid var(--terminal-dim) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Active Life: Filled candle */
+.life.active .candle-fill {
+  width: 100% !important;
+  height: 100% !important;
+  background: var(--terminal-green) !important;
+  box-shadow: 0 0 8px var(--terminal-glow) !important;
+  animation: candle-pulse 2s infinite ease-in-out !important;
+}
+
+/* Flame Effect */
+.life.active .flame {
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 6px !important;
+  height: 10px !important;
+  background: #ffffff !important;
+  border-radius: 50% 50% 20% 20% !important;
+  box-shadow:
+    0 0 4px #ffffff,
+    0 0 8px var(--terminal-green),
+    0 0 12px var(--terminal-green) !important;
+  animation: flame-flicker 0.1s infinite alternate !important;
+  margin-bottom: 2px !important;
+}
+
+@keyframes flame-flicker {
+  0% {
+    transform: translateX(-50%) scale(1) skewX(0deg);
+    opacity: 0.9;
+  }
+  25% {
+    transform: translateX(-50%) scale(1.1) skewX(-2deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(0.9) skewX(2deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(-50%) scale(1.05) skewX(-1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(0.95) skewX(1deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes candle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Mobile Responsive Styles for Life Monitor */
+@media (max-width: 640px) {
+  #life-monitor {
+    padding: 6px 4px 2px 4px !important;
+    gap: 1px !important;
+    border-radius: 2px !important;
+    margin: 0 8px !important; /* Adjust margin for mobile header */
+  }
+
+  .life {
+    width: 4px !important;
+    height: 8px !important;
+  }
+
+  .life.active .flame {
+    width: 2px !important;
+    height: 4px !important;
+    margin-bottom: 1px !important;
+    box-shadow:
+      0 0 2px #ffffff,
+      0 0 4px var(--terminal-green) !important;
+  }
+}
+
+/* ============================================
+   Soul Commitment Glitch (Requirement 17)
+   ============================================ */
+body.kiroween-mode.soul-commit-glitch {
+  animation: soul-commit-glitch 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite !important;
+}
+
+body.kiroween-mode.soul-commit-glitch::before {
+  content: "";
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: var(--terminal-bg);
+  opacity: 0.5;
+  z-index: 99999 !important;
+  pointer-events: none;
+  animation: noise 0.2s steps(3) infinite !important;
+}
+
+@keyframes soul-commit-glitch {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  20% {
+    transform: translate(-10px, 10px) skewX(10deg);
+    filter: hue-rotate(90deg) invert(0.2);
+  }
+  40% {
+    transform: translate(-10px, -10px) skewX(-10deg);
+    filter: hue-rotate(180deg) invert(0.4);
+  }
+  60% {
+    transform: translate(5px, 5px) skewX(5deg);
+    filter: hue-rotate(270deg) invert(0.6);
+  }
+  80% {
+    transform: translate(5px, -5px) skewX(-5deg);
+    filter: hue-rotate(360deg) invert(0.8);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes noise {
+  0% {
+    background-image: linear-gradient(transparent 50%, rgba(51, 255, 0, 0.5) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+  }
+  50% {
+    background-image: linear-gradient(transparent 50%, rgba(51, 255, 0, 0.5) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 4px, 6px 100%;
+  }
+  100% {
+    background-image: linear-gradient(transparent 50%, rgba(51, 255, 0, 0.5) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 3px, 4px 100%;
   }
 }
 

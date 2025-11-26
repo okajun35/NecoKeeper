@@ -96,9 +96,9 @@ Once, there was a wise old cat who was rescued and lived a happy final life. On 
 4. WHEN Kiroween Mode is disabled THEN the System SHALL display standard animal icons and images
 5. WHEN icons are displayed THEN the System SHALL resize images appropriately for their context (favicon: 32x32, logo: responsive, placeholder: profile size)
 
-### Requirement 14
+### Requirement 14: English-Only Immersive Experience
 
-**User Story:** As a user inside the Necro-Terminal, I want the experience to stay fully immersive in English, so that the Kiroween presentation does not expose the standard language switcher UI.
+**User Story:** As a user inside the Necro-Terminal, I want the experience to stay fully immersive in English with the standard language switcher hidden, so that the Kiroween presentation never breaks character.
 
 #### Acceptance Criteria
 
@@ -107,9 +107,9 @@ Once, there was a wise old cat who was rescued and lived a happy final life. On 
 3. WHEN Kiroween Mode is disabled THEN the System SHALL show the existing language switcher so users can change locales
 4. WHEN writing automated tests THEN the System SHALL account for the absence of the language switcher in Kiroween Mode instead of asserting it unconditionally
 
-### Requirement 15
+### Requirement 15: Precision Targeting Interface
 
-**User Story:** As a user operating the Necro-Terminal, I want a precision targeting cursor, so that I feel like I'm performing precise operations in the Master Cat's vision system.
+**User Story:** As a user operating the Necro-Terminal, I want a precision targeting crosshair cursor on every interactive surface, so that I feel like I'm performing operations inside the Master Cat's vision system.
 
 #### Acceptance Criteria
 
@@ -131,9 +131,9 @@ Once, there was a wise old cat who was rescued and lived a happy final life. On 
 4. WHEN the Life Monitor is rendered THEN the System SHALL use terminal green color for the active life and dim green for lost lives
 5. WHEN Kiroween Mode is disabled THEN the System SHALL not display the Life Monitor
 
-### Requirement 17
+### Requirement 17: Soul Commitment Glitch Feedback
 
-**User Story:** As a user performing save/delete operations in the Necro-Terminal, I want to see intense glitch effects, so that I feel the Master Cat is exerting power to commit data to reality.
+**User Story:** As a user performing save/delete operations in the Necro-Terminal, I want to see the Soul Commitment glitch as intense visual feedback, so that I feel the Master Cat is exerting power to commit data to reality.
 
 #### Acceptance Criteria
 

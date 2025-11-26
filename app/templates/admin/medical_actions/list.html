@@ -155,8 +155,12 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.currency_unit" data-i18n-ns="medical_actions">通貨単位</span> <span class="text-red-500">*</span></label>
                         <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            {% if settings.kiroween_mode %}
+                            <option value="USD" selected data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            {% else %}
                             <option value="JPY" data-i18n="modal.currency_jpy" data-i18n-ns="medical_actions">JPY (日本円)</option>
                             <option value="USD" data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            {% endif %}
                         </select>
                     </div>
                     <div>

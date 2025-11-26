@@ -83,6 +83,34 @@ The Kiroween Theme transforms NecoKeeper into "Necro-Terminal Edition" - a cyber
 └──────────────────────────────────────────┘
 ```
 
+## Immersive Experience Pillars
+
+These three user-facing effects carry the Kiroween presentation. They are implemented entirely through template/CSS/JS overrides so business logic stays untouched.
+
+| Feature | Description | Requirements | Tasks |
+| --- | --- | --- | --- |
+| English-only immersive experience | Forces locale to the Necro dictionary while removing the standard language switcher to keep the "Master Cat" narration unbroken. | 14.* (Language Lockdown), 5.* (Translations) | 7 (Necro Translation System), 16 (Language Switcher Hiding) |
+| Precision targeting interface | Applies a global crosshair cursor so every interaction feels like operating the retina targeting grid. | 15.* | 13 (Crosshair Cursor Implementation) |
+| Soul Commitment Glitch | Provides intense audiovisual feedback whenever data mutates, signaling the Master Cat committing a new reality. | 17.* | 15 (Soul Commitment Glitch Implementation) |
+
+### English-Only Immersive Experience
+
+- Locale forcing: `window.KIROWEEN_MODE` short-circuits i18n loading to `en_necro.json`.
+- Switcher removal: template blocks wrap the existing language selector with `{% if not settings.KIROWEEN_MODE %}` so the UI is absent in Kiroween Mode.
+- Translation tone: `en_necro.json` mirrors `en.json` keys but swaps values for cyberpunk terminology (see Translation Component).
+
+### Precision Targeting Interface
+
+- CSS enforces `cursor: crosshair !important` on `body.kiroween-mode` and all descendants (see CSS Theme Component).
+- Interactive affordances remain usable because Tailwind focus states stay intact; only the cursor icon changes.
+- Supports all major browsers by relying on the standard `crosshair` cursor keyword.
+
+### Soul Commitment Glitch Feedback
+
+- `SoulCommitmentGlitch` controller listens for form submissions and mutating fetch calls to add the `soul-commit-glitch` class.
+- CSS animation intensifies distortion (hue rotations, translation, static overlay) for 300–500ms.
+- `window.triggerSoulCommitment()` exposes a manual hook for future integrations (e.g., LiveView events) without coupling to business logic.
+
 ## Components and Interfaces
 
 ### 1. Configuration Component

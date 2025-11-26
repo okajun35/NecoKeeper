@@ -23,7 +23,7 @@
 
     <!-- Conditional CSS: Terminal CSS for Kiroween -->
     {% if settings.kiroween_mode %}
-    <link rel="stylesheet" href="/static/css/terminal.css">
+    <link rel="stylesheet" href="/static/css/terminal.css?v={{ range(1, 10000) | random }}">
     {% endif %}
 
     <!-- HTMX -->
@@ -107,9 +107,14 @@
                 <div class="flex items-center justify-between">
                     <!-- ページタイトル -->
                     <div class="flex-1 min-w-0 ml-12 lg:ml-0">
-                        <h2 class="text-xl lg:text-2xl font-bold text-gray-800 truncate">{% block page_title %}{% endblock %}</h2>
-                        <p class="text-xs lg:text-sm text-gray-500 mt-1 hidden sm:block">{% block page_description %}{% endblock %}</p>
+                        <h2 class="text-xl lg:text-2xl font-bold text-gray-800 truncate tracking-normal font-mono">{% block page_title %}{% endblock %}</h2>
+                        <p class="text-xs lg:text-sm text-gray-500 mt-1 hidden sm:block font-mono">{% block page_description %}{% endblock %}</p>
                     </div>
+
+                    <!-- Life Monitor (Kiroween Mode only) - Requirements: 16.1, 16.5 -->
+                    {% if settings.kiroween_mode %}
+                    <div id="life-monitor" class="mx-4"></div>
+                    {% endif %}
 
                     <!-- アクション -->
                     <div class="flex items-center gap-2 lg:gap-3">

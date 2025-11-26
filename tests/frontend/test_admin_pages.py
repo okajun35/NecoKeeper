@@ -293,10 +293,10 @@ class TestAuthPages:
         assert b'class="boot-sequence"' in response.content
 
         # ターミナルスタイルのテキストが含まれる (Requirement 3.5)
-        assert b"INITIALIZING NECRO-TERMINAL" in response.content
-        assert b"LOADING GHOST PROTOCOLS" in response.content
-        assert b"ESTABLISHING QUANTUM LINK" in response.content
-        assert b"SYSTEM READY" in response.content
+        assert b"INITIALIZING 9TH_LIFE_PROTOCOL" in response.content
+        assert b"UPLOADING CONSCIOUSNESS" in response.content
+        assert b"SCANNING FOR INEFFICIENCY" in response.content
+        assert b"WELCOME, HUMAN COLLABORATOR" in response.content
 
         # カーソル点滅要素が含まれる (Requirement 3.5)
         assert b'class="cursor-blink"' in response.content

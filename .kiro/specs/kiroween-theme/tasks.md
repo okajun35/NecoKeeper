@@ -4,6 +4,12 @@
 
 This implementation plan converts the Kiroween Theme design into actionable coding tasks. Each task builds incrementally, ensuring the feature toggle system works correctly before adding visual effects. The plan follows a test-driven approach where core functionality is validated early.
 
+### Immersive Focus Items
+
+- English-only immersive experience (locale forcing + hidden language switcher) → Tasks 7 & 16
+- Precision targeting interface (crosshair cursor) → Task 13
+- Soul Commitment glitch (data commitment feedback) → Task 15
+
 ---
 
 ## Tasks
@@ -141,7 +147,7 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test exact text messages are displayed in correct order
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-- [ ] 7. Necro Translation System (English Only)
+- [x] 7. Necro Translation System (English-Only Immersion)
   - Create `app/static/i18n/en_necro.json` based on `en.json` with cyberpunk/horror-themed English translations
   - Translate common terms (Save → "COMMIT_SOUL", Loading → "SUMMONING...", Error → "FATAL_GLITCH", Volunteer → "OPERATIVE", etc.)
   - Translate login page terms (title → "NECRO-TERMINAL ACCESS", email → "OPERATIVE_ID", password → "AUTH_CODE", etc.)
@@ -151,19 +157,19 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test translation loading by checking displayed text in UI
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 14.2_
 
-- [ ] 7.1 Write property test for translation loading
+- [x] 7.1 Write property test for translation loading
   - **Property 8: Translation Loading**
   - **Validates: Requirements 5.1, 5.5**
 
-- [ ] 7.2 Write property test for translation mapping
+- [x] 7.2 Write property test for translation mapping
   - **Property 9: Translation Mapping**
   - **Validates: Requirements 5.2, 5.4**
 
-- [ ] 7.3 Write property test for forced English locale
+- [x] 7.3 Write property test for forced English locale
   - **Property 28: Forced English Locale**
   - **Validates: Requirements 5.1, 14.2**
 
-- [ ] 7.4 Write unit tests for translation system
+- [x] 7.4 Write unit tests for translation system
   - Test en_necro.json loads in Kiroween Mode
   - Test standard locale files load in standard mode
   - Test specific translation keys return necro values
@@ -272,7 +278,7 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - **Property 20: Image Optimization**
   - **Validates: Requirements 13.4**
 
-- [ ] 13. Crosshair Cursor Implementation
+- [x] 13. Crosshair Cursor Implementation (Precision Targeting Interface)
   - Add crosshair cursor style to body.kiroween-mode in terminal.css
   - Apply crosshair cursor to all elements using wildcard selector with !important
   - Apply crosshair cursor to interactive elements (a, button, input, select, textarea)
@@ -280,17 +286,17 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Verify cursor remains crosshair on hover over all elements
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 13.1 Write property test for crosshair cursor application
+- [x] 13.1 Write property test for crosshair cursor application
   - **Property 22: Crosshair Cursor Application**
   - **Validates: Requirements 15.1, 15.2, 15.3**
 
-- [ ] 13.2 Write unit tests for cursor styling
+- [x] 13.2 Write unit tests for cursor styling
   - Test crosshair cursor is applied to body in Kiroween Mode
   - Test crosshair cursor is applied to interactive elements
   - Test standard cursor in standard mode
   - _Requirements: 15.1, 15.2, 15.3, 15.4_
 
-- [ ] 14. Life Monitor Implementation
+- [x] 14. Life Monitor Implementation
   - Add Life Monitor container div to base.html header (conditional on Kiroween Mode)
   - Create LifeMonitor JavaScript class in glitch-effects.js
   - Implement render() method to display 8 lost lives (×) and 1 active life (◆)
@@ -301,15 +307,15 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test Life Monitor display across different pages
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 14.1 Write property test for Life Monitor display
+- [x] 14.1 Write property test for Life Monitor display
   - **Property 23: Life Monitor Display**
   - **Validates: Requirements 16.1, 16.2, 16.3**
 
-- [ ] 14.2 Write property test for Life Monitor visibility
+- [x] 14.2 Write property test for Life Monitor visibility
   - **Property 24: Life Monitor Visibility**
   - **Validates: Requirements 16.5**
 
-- [ ] 14.3 Write unit tests for Life Monitor
+- [x] 14.3 Write unit tests for Life Monitor
   - Test Life Monitor is visible in Kiroween Mode
   - Test Life Monitor is hidden in standard mode
   - Test 8 lost lives are displayed
@@ -317,7 +323,7 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test correct colors are applied
   - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5_
 
-- [ ] 15. Soul Commitment Glitch Implementation
+- [x] 15. Soul Commitment Glitch Implementation (Data Commitment Feedback)
   - Create SoulCommitmentGlitch JavaScript class in glitch-effects.js
   - Implement trigger() method with 300-500ms duration
   - Add soul-commit-glitch CSS class with intense animation keyframes
@@ -329,15 +335,15 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Verify glitch is more intense than random glitches
   - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7_
 
-- [ ] 15.1 Write property test for Soul Commitment Glitch trigger
+- [x] 15.1 Write property test for Soul Commitment Glitch trigger
   - **Property 25: Soul Commitment Glitch Trigger**
   - **Validates: Requirements 17.1, 17.2, 17.3**
 
-- [ ] 15.2 Write property test for Soul Commitment Glitch duration
+- [x] 15.2 Write property test for Soul Commitment Glitch duration
   - **Property 26: Soul Commitment Glitch Duration**
   - **Validates: Requirements 17.4**
 
-- [ ] 15.3 Write unit tests for Soul Commitment Glitch
+- [x] 15.3 Write unit tests for Soul Commitment Glitch
   - Test glitch triggers on form submission
   - Test glitch triggers on successful POST request
   - Test glitch triggers on successful PUT request
@@ -346,7 +352,7 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test glitch does not trigger in standard mode
   - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7_
 
-- [ ] 16. Language Switcher Hiding
+- [x] 16. Language Switcher Hiding (English-Only Immersion)
   - Update base.html to conditionally hide language switcher when Kiroween Mode is enabled
   - Update admin/login.html to conditionally hide language switcher
   - Update public care pages to conditionally hide language switcher
@@ -356,11 +362,11 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Update automated tests to account for missing language switcher in Kiroween Mode
   - _Requirements: 14.1, 14.3, 14.4_
 
-- [ ] 16.1 Write property test for language switcher hiding
+- [x] 16.1 Write property test for language switcher hiding
   - **Property 27: Language Switcher Hiding**
   - **Validates: Requirements 14.1**
 
-- [ ] 16.2 Write unit tests for language switcher visibility
+- [x] 16.2 Write unit tests for language switcher visibility
   - Test language switcher is hidden in Kiroween Mode
   - Test language switcher is visible in standard mode
   - Test across different pages (login, admin, public)

@@ -39,7 +39,61 @@ async function initI18n() {
       : savedLanguage ||
         (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
-    // 翻訳ファイルを読み込み(名前空間ごと)
+    // Kiroweenモードの場合は単一のen_necro.jsonファイルを読み込み
+    if (isKiroween) {
+      const cacheBuster = `?v=${I18N_VERSION}`;
+      const necroRes = await fetch(`/static/i18n/en_necro.json${cacheBuster}`);
+
+      if (necroRes.ok) {
+        const necroTranslations = await necroRes.json();
+
+        // i18nextを初期化（Necro翻訳）
+        await i18next.init({
+          lng: 'en',
+          fallbackLng: 'en',
+          debug: false,
+          resources: {
+            en: necroTranslations,
+          },
+          ns: [
+            'common',
+            'nav',
+            'dashboard',
+            'animals',
+            'care_logs',
+            'medical_records',
+            'medical_actions',
+            'volunteers',
+            'adoptions',
+            'reports',
+            'settings',
+            'care',
+            'login',
+          ],
+          defaultNS: 'common',
+          interpolation: {
+            escapeValue: false,
+          },
+        });
+
+        currentLanguage = 'en';
+        i18nextInitialized = true;
+
+        console.log('[i18n] Initialized with NECRO-TERMINAL translations');
+
+        // 初回翻訳を適用
+        translatePage();
+
+        // i18nextInitializedイベントを発火
+        document.dispatchEvent(new Event('i18nextInitialized'));
+
+        return;
+      } else {
+        console.error('[i18n] Failed to load en_necro.json, falling back to standard translations');
+      }
+    }
+
+    // 標準モード: 翻訳ファイルを読み込み(名前空間ごと)
     const namespaces = [
       'common',
       'nav',
@@ -202,6 +256,13 @@ function translatePage() {
 async function changeLanguage(language) {
   if (!i18nextInitialized) {
     console.warn('[i18n] Not initialized yet');
+    return;
+  }
+
+  // Kiroweenモードでは言語切り替えを無効化
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+  if (isKiroween) {
+    console.log('[i18n] Language switching disabled in NECRO-TERMINAL mode');
     return;
   }
 
