@@ -1409,6 +1409,36 @@ body.kiroween-mode header svg {
   stroke: var(--terminal-green) !important;
 }
 
+/* ============================================
+   Header Alignment (Sidebar & Main)
+   ============================================ */
+/* Force both headers to have the same height to align borders */
+body.kiroween-mode #sidebar > div:first-child,
+body.kiroween-mode header {
+  min-height: 130px !important;
+  max-height: 130px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ensure main header content is centered */
+body.kiroween-mode header > div {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Ensure sidebar header content is centered but left-aligned */
+body.kiroween-mode #sidebar > div:first-child {
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  align-items: flex-start !important;
+}
+
 /* Main content area */
 body.kiroween-mode main {
   background: var(--terminal-bg) !important;
