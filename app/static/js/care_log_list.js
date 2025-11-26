@@ -8,15 +8,22 @@ const urlParams = new URLSearchParams(window.location.search);
 const animalId = urlParams.get('animal_id');
 
 const CARE_LOGS_NAMESPACE = 'care_logs';
-const TIME_SLOT_EMOJI = {
-  morning: '🌅',
-  noon: '☀️',
-  evening: '🌙',
-};
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+
+const TIME_SLOT_EMOJI = isKiroweenMode
+  ? {
+      morning: '🦇',
+      noon: '🎃',
+      evening: '👻',
+    }
+  : {
+      morning: '🌅',
+      noon: '☀️',
+      evening: '🌙',
+    };
 
 let careLogData = null;
 
-const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
 const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
   ? '/static/icons/halloween_logo_2.webp'
   : '/static/images/default.svg';

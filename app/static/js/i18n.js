@@ -13,7 +13,7 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
-const I18N_VERSION = '20241126v2';
+const I18N_VERSION = '20241127v1';
 
 /**
  * i18nextを初期化

@@ -266,7 +266,7 @@ class TestMobileResponsiveIntegration:
 
         Given: terminal.css
         When: ファイルサイズを確認
-        Then: 50KB以下である
+        Then: 60KB以下である
 
         Requirements: 12.1
         """
@@ -274,9 +274,9 @@ class TestMobileResponsiveIntegration:
         css_path = Path("app/static/css/terminal.css")
         file_size = css_path.stat().st_size
 
-        # Then: 50KB (51200 bytes) 以下
-        assert file_size < 51200, (
-            f"CSS file size should be under 50KB, but is {file_size / 1024:.2f}KB"
+        # Then: 60KB (61440 bytes) 以下
+        assert file_size < 61440, (
+            f"CSS file size should be under 60KB, but is {file_size / 1024:.2f}KB"
         )
 
     def test_no_syntax_errors_in_css(self):

@@ -188,16 +188,16 @@ function renderAnimalsList(animals = []) {
 
       return `
         <div class="p-6 hover:bg-gray-50 transition-colors">
-            <div class="flex items-center gap-6">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-6">
                 <!-- 写真 -->
                  <img src="${photoUrl}"
                    alt="${displayName}"
                    onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-                     class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200">
+                     class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200 mx-auto sm:mx-0">
 
                 <!-- 基本情報 -->
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-3 mb-2">
+                <div class="flex-1 min-w-0 w-full">
+                    <div class="flex flex-wrap items-center gap-3 mb-2">
                         <h3 class="text-lg font-semibold text-gray-900">${displayName}</h3>
                         ${getStatusBadge(animal.status)}
                     </div>
@@ -222,7 +222,7 @@ function renderAnimalsList(animals = []) {
                 </div>
 
                 <!-- アクション -->
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
                     <a href="/admin/animals/${animal.id}"
                        class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                        data-i18n="actions.view_details" data-i18n-ns="animals">

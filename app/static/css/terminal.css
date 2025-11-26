@@ -260,7 +260,7 @@ body.kiroween-mode input[type="date"],
 body.kiroween-mode input[type="time"],
 body.kiroween-mode textarea,
 body.kiroween-mode select {
-  background: transparent !important;
+  background: var(--terminal-bg) !important;
   color: var(--terminal-green) !important;
   border: var(--terminal-border-width) solid var(--terminal-dim) !important;
   border-radius: var(--terminal-border-radius) !important;
@@ -296,6 +296,17 @@ body.kiroween-mode input:hover,
 body.kiroween-mode textarea:hover,
 body.kiroween-mode select:hover {
   border-color: var(--terminal-green) !important;
+}
+
+/* Autofill fix for dark theme */
+body.kiroween-mode input:-webkit-autofill,
+body.kiroween-mode input:-webkit-autofill:hover,
+body.kiroween-mode input:-webkit-autofill:focus,
+body.kiroween-mode input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--terminal-bg) inset !important;
+    -webkit-text-fill-color: var(--terminal-green) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: var(--terminal-green) !important;
 }
 
 /* Checkbox and Radio Styles */

@@ -101,7 +101,7 @@
 
         .terminal-input {
             width: 100%;
-            background: transparent;
+            background: #000;
             border: 1px solid #33ff00;
             color: #33ff00;
             padding: 10px 12px;
@@ -113,6 +113,17 @@
         .terminal-input:focus {
             border-color: #66ff33;
             box-shadow: 0 0 5px rgba(51, 255, 0, 0.3);
+        }
+
+        /* Autofill fix for Chrome */
+        .terminal-input:-webkit-autofill,
+        .terminal-input:-webkit-autofill:hover,
+        .terminal-input:-webkit-autofill:focus,
+        .terminal-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #000 inset !important;
+            -webkit-text-fill-color: #33ff00 !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: #33ff00 !important;
         }
 
         .terminal-input::placeholder {

@@ -110,9 +110,9 @@
       "urination": "WASTE_FLUSH",
       "cleaning": "SANITIZATION",
       "not_recorded": "DATA_MISSING",
-      "morning": "CYCLE_ALPHA",
-      "noon": "CYCLE_BETA",
-      "evening": "CYCLE_GAMMA",
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA",
       "record": "INPUT_DATA"
     },
     "no_animals": "NO_ENTITIES_REQUIRE_ATTENTION",
@@ -208,7 +208,15 @@
       "delete_photo": "Purge Visual Data",
       "change_image": "Modify Image",
       "upload_new": "Upload New Image",
-      "select_from_gallery": "Select from Archive"
+      "select_from_gallery": "Select from Archive",
+      "qr_code": "SUMMON QR"
+    },
+    "modals": {
+      "qr_code": {
+        "title": "QR MATRIX",
+        "description": "SCAN TO ACCESS MAINTENANCE LOG PROTOCOL",
+        "link_text": "INITIATE MAINTENANCE LOG SEQUENCE"
+      }
     },
     "modal": {
       "profile_image": "Modify Profile Image",
@@ -269,9 +277,9 @@
       "created_at": "Initialization"
     },
     "time_slots": {
-      "morning": "CYCLE_ALPHA",
-      "noon": "CYCLE_BETA",
-      "evening": "CYCLE_GAMMA"
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA"
     },
     "appetite_levels": {
       "1": "1 (Consumption Failure)",
@@ -307,6 +315,41 @@
       "updated": "Maintenance log recalibrated",
       "deleted": "Maintenance log purged",
       "exported": "CSV extraction complete"
+    },
+    "public": {
+      "page_title": "Log Index",
+      "header_caption": "{{name}}'s Log Index",
+      "animal_photo_alt": "Entity Visual",
+      "error_heading": "FATAL_ERROR",
+      "success_heading": "✓ Log Committed",
+      "today_status_title": "Today's Status",
+      "daily_overview_title": "Last 7 Cycles",
+      "daily_overview_description": "Check log status for Alpha/Beta/Gamma cycles",
+      "daily_overview_hint": "Verify data integrity",
+      "daily_table": {
+        "date": "Timestamp"
+      },
+      "time_slots": {
+        "morning": "ALPHA",
+        "noon": "BETA",
+        "evening": "GAMMA"
+      },
+      "slot_status": {
+        "recorded": "LOGGED",
+        "missing": "MISSING"
+      },
+      "slot_chip": {
+        "recorded": "{{slot}}: LOGGED",
+        "missing": "{{slot}}: MISSING"
+      },
+      "today_badge": "TODAY",
+      "yesterday_badge": "YESTERDAY",
+      "latest_logs_title": "Latest Logs",
+      "latest_logs_description": "Ordered by timestamp",
+      "no_logs_message": "No logs detected",
+      "no_logs_hint": "Recent logs will appear here",
+      "add_record": "INITIATE LOG",
+      "view_all_status": "View All Entities Status"
     }
   },
   "medical_records": {
@@ -637,9 +680,9 @@
     "all_animals_status": {
       "title": "All Entities Status",
       "today": "Today",
-      "morning": "CYCLE_ALPHA",
-      "noon": "CYCLE_BETA",
-      "evening": "CYCLE_GAMMA",
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA",
       "not_recorded": "Not Logged",
       "record": "INPUT_DATA",
       "add_record": "Initialize Record",
