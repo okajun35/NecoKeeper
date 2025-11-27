@@ -89,6 +89,7 @@ def generate_qr_card_pdf(
         qr_code_base64=qr_code_base64,
         font_family=settings.pdf_font_family,
         base_url=base_url,
+        kiroween_mode=settings.kiroween_mode,
     )
 
     # PDFを生成
@@ -153,6 +154,7 @@ def generate_qr_card_grid_pdf(
         animals_with_qr=animals_with_qr,
         base_url=base_url,
         font_family=settings.pdf_font_family,
+        kiroween_mode=settings.kiroween_mode,
     )
 
     # PDFを生成

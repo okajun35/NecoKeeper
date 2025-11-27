@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from app.config import settings
 from app.models.animal import Animal
 
 
@@ -32,9 +33,10 @@ class TestQRCardEndpoint:
         )
 
         # Then
+        expected_filename = "necro_tag" if settings.kiroween_mode else "qr_card"
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/pdf"
-        assert "qr_card" in response.headers["content-disposition"]
+        assert expected_filename in response.headers["content-disposition"]
         assert response.content.startswith(b"%PDF")
 
     def test_generate_qr_card_unauthorized(
@@ -90,9 +92,12 @@ class TestQRCardGridEndpoint:
         )
 
         # Then
+        expected_filename = (
+            "necro_tags_grid" if settings.kiroween_mode else "qr_card_grid"
+        )
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/pdf"
-        assert "qr_card_grid" in response.headers["content-disposition"]
+        assert expected_filename in response.headers["content-disposition"]
         assert response.content.startswith(b"%PDF")
 
     def test_generate_qr_card_grid_exceeds_limit(
