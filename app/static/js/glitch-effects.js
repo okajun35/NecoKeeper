@@ -138,31 +138,23 @@ class BootSequence {
 
     // Animate text (typing effect) and get completion callback
     this.animateText(() => {
-      console.log('[BootSequence] 1. Text animation COMPLETE - starting flame surge');
+      console.log('[BootSequence] Text animation COMPLETE - triggering cooldown');
 
-      // Text complete - make flames surge violently using direct style manipulation
-      this.startFlameSurge();
+      // Trigger cooldown for the last flame
+      this.triggerCooldown();
 
-      // Wait 0.5s with surging flames, then start smoke fade
+      // Wait 1.0s (cooldown duration) before smoke fade
       setTimeout(() => {
-        console.log(
-          '[BootSequence] 2. Flame surge COMPLETE (0.5s elapsed) - stopping surge and starting smoke'
-        );
-
-        // Stop flame surge
-        this.stopFlameSurge();
-
+        console.log('[BootSequence] Starting smoke fade');
         // Add smoke fade effect class
-        console.log('[BootSequence] 3. Starting SMOKE FADE effect');
         overlay.classList.add('smoke-fade');
 
         // Remove overlay after smoke fade animation completes
         setTimeout(() => {
-          console.log('[BootSequence] 4. Smoke fade COMPLETE - hiding overlay');
           overlay.style.display = 'none';
           overlay.style.pointerEvents = 'none';
-        }, this.smokeFadeDuration); // 2 seconds smoke fade duration
-      }, 500); // Hold for 0.5s with surging flames
+        }, this.smokeFadeDuration);
+      }, 1000);
     });
   }
 
@@ -173,67 +165,83 @@ class BootSequence {
   startFlameSurge() {
     console.log('[FlameSurge] === STARTING FLAME SURGE ===');
 
-    // Get all lit candle flames (should be only the last one at this point)
+    // Add surging class to all active flames
     const flames = document.querySelectorAll('.boot-candle.candle-on .flame');
-    console.log('[FlameSurge] Found flames:', flames.length);
-
-    if (flames.length === 0) {
-      console.log('[FlameSurge] ERROR: No flames found! Checking all candles...');
-      const allCandles = document.querySelectorAll('.boot-candle');
-      console.log('[FlameSurge] Total candles:', allCandles.length);
-      allCandles.forEach((c, i) => {
-        console.log(
-          `[FlameSurge] Candle ${i}: classes="${c.className}", hasFlame=${!!c.querySelector('.flame')}`
-        );
-      });
-      return;
-    }
-
-    // Store original styles
-    this.flameOriginalStyles = [];
-    flames.forEach(flame => {
-      this.flameOriginalStyles.push({
-        transform: flame.style.transform,
-        height: flame.style.height,
-        boxShadow: flame.style.boxShadow,
-        opacity: flame.style.opacity,
-      });
-    });
+    flames.forEach(flame => flame.classList.add('surging'));
 
     // Animation parameters
     let frame = 0;
-    const maxFrames = 50; // 0.5 seconds at ~100fps
+    this.isCoolingDown = false;
+    this.cooldownProgress = 0;
 
-    console.log('[FlameSurge] Starting animation loop for', maxFrames, 'frames');
+    // Clear existing interval if any
+    if (this.flameSurgeInterval) {
+      clearInterval(this.flameSurgeInterval);
+    }
 
-    // Animation loop
+    // Animation loop - runs indefinitely until stopped
     this.flameSurgeInterval = setInterval(() => {
       frame++;
-      const progress = frame / maxFrames;
 
-      // Log every 10 frames
-      if (frame % 10 === 0) {
-        console.log(`[FlameSurge] Frame ${frame}/${maxFrames}`);
+      // Target only flames that are still marked as surging
+      const surgingFlames = document.querySelectorAll('.flame.surging');
+
+      if (surgingFlames.length === 0) {
+        return;
       }
 
-      flames.forEach((flame, index) => {
-        // Calculate animation values
-        const angle = progress * Math.PI * 8 + index * 0.5;
+      surgingFlames.forEach((flame, index) => {
+        let scaleY, scaleX, opacity, glowIntensity, skew;
 
-        // SURGE EFFECT: Vertical burst from the candle
-        // Scale: 1.0x to 3.0x (Vertical emphasis)
-        const surge = Math.abs(Math.sin(angle * 2)); // 0.0 to 1.0
-        const scaleY = 1.0 + surge * 2.0; // 1.0 to 3.0
-        const scaleX = 1.0 + Math.sin(angle * 3) * 0.2; // 0.8 to 1.2 (slight width variation)
+        if (this.isCoolingDown) {
+          // COOLDOWN MODE: Gradually return towards normal BUT NOT ALL THE WAY
+          // IMPROVEMENT 3: Don't stop. Keep breathing heavily.
 
-        // Skew: Minimal (vertical jet)
-        const skew = Math.sin(angle * 10) * 2; // -2 to 2 degrees (subtle flicker)
+          this.cooldownProgress += 0.015; // Slower cooldown (approx 1.5s)
+          if (this.cooldownProgress > 1) this.cooldownProgress = 1;
 
-        const opacity = 0.8 + Math.sin(angle * 5) * 0.2; // Rapid flickering
-        const glowIntensity = 20 + surge * 40; // Glow matches surge
+          const ease = this.cooldownProgress;
+
+          // Calculate animation values
+          const angle = frame * 0.2 + index * 0.5;
+
+          // Surge dampens but doesn't disappear completely
+          // It stays "nervous" (0.3 residual surge)
+          const rawSurge = Math.abs(Math.sin(angle * 2));
+          const residualSurge = rawSurge * 0.3;
+
+          // Interpolate surge influence: Full -> Residual
+          const currentSurgeEffect = rawSurge * (1 - ease) + residualSurge * ease;
+
+          // ScaleY: 3.5 (Max) -> 1.5 (Elevated, not 1.0)
+          // The flame remains larger than normal (1.5x) to show it's still "hot"
+          const targetBaseScale = 1.5;
+          const currentBaseScale = 1.0 * (1 - ease) + targetBaseScale * ease;
+
+          scaleY = currentBaseScale + currentSurgeEffect * 2.0;
+
+          // Width: 0.7 -> 0.9 (Still slightly narrow/tense)
+          const rawScaleX = 1.0 - rawSurge * 0.3;
+          scaleX = rawScaleX * (1 - ease) + 0.9 * ease;
+
+          skew = 0;
+          opacity = 0.9;
+          glowIntensity = (20 + rawSurge * 40) * (1 - ease) + 15 * ease;
+
+          // Note: We NEVER call stopFlameSurge() here.
+          // The animation loop continues until the overlay is removed.
+        } else {
+          // NORMAL SURGE MODE
+          const angle = frame * 0.2 + index * 0.5;
+          const surge = Math.abs(Math.sin(angle * 2));
+          scaleY = 1.0 + surge * 2.5;
+          scaleX = 1.0 - surge * 0.3;
+          skew = 0;
+          opacity = 0.8 + Math.sin(angle * 5) * 0.2;
+          glowIntensity = 20 + surge * 40;
+        }
 
         // Apply styles directly
-        // transform-origin: bottom center ensures flame grows UPWARD from the candle
         flame.style.setProperty('transform-origin', 'bottom center', 'important');
         flame.style.setProperty(
           'transform',
@@ -241,10 +249,8 @@ class BootSequence {
           'important'
         );
 
-        // Reset dimensions to base CSS values (let scale handle the size)
         flame.style.setProperty('width', '10px', 'important');
         flame.style.setProperty('height', '16px', 'important');
-
         flame.style.setProperty('opacity', opacity, 'important');
         flame.style.setProperty(
           'box-shadow',
@@ -256,13 +262,15 @@ class BootSequence {
           'important'
         );
       });
+    }, 20); // ~50fps
+  }
 
-      // Stop after 0.5 seconds
-      if (frame >= maxFrames) {
-        console.log('[FlameSurge] Animation loop COMPLETE');
-        clearInterval(this.flameSurgeInterval);
-      }
-    }, 10); // ~100fps for smooth animation
+  /**
+   * Trigger cooldown animation for remaining flames
+   */
+  triggerCooldown() {
+    console.log('[FlameSurge] Triggering cooldown...');
+    this.isCoolingDown = true;
   }
 
   /**
@@ -277,18 +285,19 @@ class BootSequence {
       console.log('[FlameSurge] Interval cleared');
     }
 
-    // Restore original styles
-    const flames = document.querySelectorAll('.boot-candle.candle-on .flame');
+    // Restore original styles for any remaining flames
+    const flames = document.querySelectorAll('.flame');
     console.log('[FlameSurge] Restoring styles for', flames.length, 'flames');
 
-    flames.forEach((flame, index) => {
-      if (this.flameOriginalStyles && this.flameOriginalStyles[index]) {
-        const original = this.flameOriginalStyles[index];
-        flame.style.transform = original.transform;
-        flame.style.height = original.height;
-        flame.style.boxShadow = original.boxShadow;
-        flame.style.opacity = original.opacity;
-      }
+    flames.forEach(flame => {
+      flame.classList.remove('surging');
+      // Reset styles to normal
+      flame.style.removeProperty('transform-origin');
+      flame.style.transform = 'translateX(-50%)';
+      flame.style.height = '16px';
+      flame.style.width = '10px';
+      flame.style.boxShadow = '0 0 10px #33ff00';
+      flame.style.opacity = '0.9';
     });
   }
 
@@ -326,6 +335,7 @@ class BootSequence {
 
   /**
    * Extinguish candles from left to right (Requirement 18.3, 18.4, 18.5, 18.6)
+   * Uses recursive timeout for accelerating effect
    */
   extinguishCandles() {
     const candles = document.querySelectorAll('.boot-candle');
@@ -334,21 +344,32 @@ class BootSequence {
     }
 
     let candleIndex = 0;
+    // Start slower to match text reading speed, then accelerate
+    let nextDelay = 600;
 
-    // Extinguish candles from left to right, leaving the last one lit (Requirement 18.3, 18.6)
-    const extinguishInterval = setInterval(() => {
+    const extinguishNext = () => {
       // Stop before the last candle (9th life remains lit) (Requirement 18.6)
       if (candleIndex >= this.totalCandles - 1) {
-        clearInterval(extinguishInterval);
         return;
       }
 
       const candle = candles[candleIndex];
       if (candle) {
-        // Apply flicker effect before extinguishing (Requirement 18.5)
+        // Step 1: Remove from surge loop immediately
+        const flame = candle.querySelector('.flame');
+        if (flame) {
+          flame.classList.remove('surging');
+
+          // IMPROVEMENT 1: No "return to normal".
+          // Instead, freeze at current high energy state, then flicker out violently.
+          // We do this by NOT resetting the transform/scale here.
+          // The CSS transition will handle the 'candle-off' state.
+        }
+
+        // Step 2: Apply flicker effect (Violent end)
         candle.classList.add('candle-flicker');
 
-        // After flicker animation (200ms), transition to OFF state with linear timing
+        // Quick extinguish (100ms) - "Snapped out"
         setTimeout(() => {
           candle.classList.remove('candle-flicker', 'candle-on');
           candle.classList.add('candle-off');
@@ -363,11 +384,22 @@ class BootSequence {
           const shell = document.createElement('div');
           shell.className = 'candle-shell';
           candle.appendChild(shell);
-        }, 200); // Flicker duration (linear timing)
+        }, 100);
       }
 
       candleIndex++;
-    }, this.candleExtinguishInterval); // 200ms interval (Requirement 18.4)
+
+      // IMPROVEMENT 2: Sync with text
+      // Accelerate less aggressively so it lasts through the text display
+      // 600 -> 480 -> 384 -> 307 -> 245 -> 196 -> 157 -> 125
+      nextDelay = Math.max(100, nextDelay * 0.8);
+
+      // Schedule next candle
+      setTimeout(extinguishNext, nextDelay);
+    };
+
+    // Start sequence
+    extinguishNext();
   }
 
   /**
@@ -400,6 +432,19 @@ class BootSequence {
         currentP = document.createElement('p');
         currentP.style.opacity = '1';
         container.appendChild(currentP);
+
+        // NEW LOGIC: Trigger surge when starting the second line ("UPLOADING...")
+        // This gives about 1 second of surge before extinguishing starts
+        if (currentLine === 1) {
+          console.log('[BootSequence] Starting flame surge (1s before extinguish)');
+          this.startFlameSurge();
+
+          // Schedule extinguish to start 1 second later
+          setTimeout(() => {
+            console.log('[BootSequence] Starting candle extinguish sequence');
+            this.extinguishCandles();
+          }, 1000);
+        }
       }
 
       // Add character
@@ -413,11 +458,6 @@ class BootSequence {
         // Line complete, move to next line
         currentLine++;
         currentChar = 0;
-
-        // Start extinguishing candles when "UPLOADING CONSCIOUSNESS..." appears (Requirement 18.3)
-        if (messages[currentLine - 1].includes('UPLOADING CONSCIOUSNESS')) {
-          this.extinguishCandles();
-        }
 
         if (currentLine < messages.length) {
           // Small pause between lines (200ms)
