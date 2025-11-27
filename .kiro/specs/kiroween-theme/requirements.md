@@ -59,6 +59,22 @@ Once, there was a wise old cat who was rescued and lived a happy final life. On 
 5. WHEN the boot sequence is playing THEN the System SHALL prevent user interaction with underlying elements
 6. WHEN the boot sequence displays THEN the System SHALL show terminal-style text effects (typing animation, cursor blink)
 
+### Requirement 18: 9 Candles Boot Animation (The Sacrifice)
+
+**User Story:** As a user viewing the boot sequence, I want to see a visual representation of the Master Cat's sacrifice through 9 candles being extinguished, so that I understand the story of the 9th Life Protocol.
+
+#### Acceptance Criteria
+
+1. WHEN the boot sequence starts THEN the System SHALL display 9 candle icons horizontally below the boot text
+2. WHEN the candles are initially displayed THEN the System SHALL show all 9 candles in the "ON" (lit) state with green flames
+3. WHEN the text "UPLOADING CONSCIOUSNESS..." appears THEN the System SHALL begin extinguishing candles from left to right
+4. WHEN extinguishing candles THEN the System SHALL turn off one candle approximately every 200 milliseconds
+5. WHEN a candle is extinguished THEN the System SHALL apply a brief flicker effect before transitioning to the "OFF" state
+6. WHEN the boot sequence completes THEN the System SHALL leave only the rightmost (9th) candle lit
+7. WHEN the final candle remains lit THEN the System SHALL display the text "WELCOME, HUMAN COLLABORATOR."
+8. WHEN the candles are displayed THEN the System SHALL use the same candle icon style as the header Life Monitor (wireframe for OFF, green flame for ON)
+9. WHEN the candles are displayed in the boot sequence THEN the System SHALL render them larger than the header candle icons for visual emphasis
+
 ### Requirement 4
 
 **User Story:** As a user interacting with the Necro-Terminal, I want to see CRT monitor effects, so that the interface feels like a retro computer terminal.

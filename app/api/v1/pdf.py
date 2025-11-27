@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.auth.permissions import require_permission
+from app.config import settings
 from app.database import get_db
 from app.models.user import User
 from app.services import pdf_service
@@ -98,12 +99,15 @@ async def generate_qr_card(
             base_url=request.base_url,
         )
 
+        filename = (
+            f"necro_tag_{request.animal_id}.pdf"
+            if settings.kiroween_mode
+            else f"qr_card_{request.animal_id}.pdf"
+        )
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={
-                "Content-Disposition": f"attachment; filename=qr_card_{request.animal_id}.pdf"
-            },
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
@@ -139,10 +143,13 @@ async def generate_qr_card_grid(
             base_url=request.base_url,
         )
 
+        filename = (
+            "necro_tags_grid.pdf" if settings.kiroween_mode else "qr_card_grid.pdf"
+        )
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=qr_card_grid.pdf"},
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except ValueError as e:
         if "10枚" in str(e):

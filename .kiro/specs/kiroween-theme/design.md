@@ -292,6 +292,7 @@ body.kiroween-mode.soul-commit-glitch::before {
   background: var(--terminal-bg);
   z-index: 10000;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: opacity 0.5s;
@@ -321,6 +322,75 @@ body.kiroween-mode.soul-commit-glitch::before {
 @keyframes blink {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0; }
+}
+
+/* 9 Candles Animation (The Sacrifice) */
+#boot-candles {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+.boot-candle {
+  font-size: 32px;  /* Larger than header candles */
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* Candle ON state (lit with green flame) */
+.boot-candle.candle-on {
+  filter: drop-shadow(0 0 8px var(--terminal-green))
+          drop-shadow(0 0 16px var(--terminal-glow));
+  opacity: 1;
+}
+
+/* Candle OFF state (extinguished, wireframe style) */
+.boot-candle.candle-off {
+  filter: grayscale(1) brightness(0.3);
+  opacity: 0.4;
+}
+
+/* Candle flicker effect before extinguishing */
+.boot-candle.candle-flicker {
+  animation: candleFlicker 0.1s ease-in-out 2;
+}
+
+@keyframes candleFlicker {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px var(--terminal-green));
+  }
+  25% {
+    opacity: 0.3;
+    filter: drop-shadow(0 0 2px var(--terminal-dim));
+  }
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 12px var(--terminal-green));
+  }
+  75% {
+    opacity: 0.2;
+    filter: drop-shadow(0 0 4px var(--terminal-dim));
+  }
+}
+
+/* Final candle (9th life) pulse animation */
+.boot-candle.candle-on:last-child {
+  animation: finalCandlePulse 1.5s infinite ease-in-out;
+}
+
+@keyframes finalCandlePulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px var(--terminal-green))
+            drop-shadow(0 0 16px var(--terminal-glow));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 16px var(--terminal-green))
+            drop-shadow(0 0 32px var(--terminal-glow));
+    transform: scale(1.1);
+  }
 }
 ```
 
@@ -564,10 +634,12 @@ class SoulCommitmentGlitch {
     }
 }
 
-// Boot Sequence Controller
+// Boot Sequence Controller (with 9 Candles Animation)
 class BootSequence {
     constructor() {
         this.duration = 2500; // 2.5 seconds
+        this.totalCandles = 9;
+        this.candleExtinguishInterval = 200; // 200ms per candle
         this.messages = [
             'INITIALIZING 9TH_LIFE_PROTOCOL...',
             'UPLOADING CONSCIOUSNESS... COMPLETE.',
@@ -583,7 +655,10 @@ class BootSequence {
         // Prevent interaction
         overlay.style.pointerEvents = 'all';
 
-        // Typing animation
+        // Initialize candles (all lit)
+        this.initializeCandles();
+
+        // Typing animation with candle synchronization
         this.animateText();
 
         // Fade out after duration
@@ -593,6 +668,47 @@ class BootSequence {
                 overlay.style.display = 'none';
             }, 500);
         }, this.duration);
+    }
+
+    initializeCandles() {
+        const container = document.getElementById('boot-candles');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        // Create 9 candles, all initially lit (ON state)
+        for (let i = 0; i < this.totalCandles; i++) {
+            const candle = document.createElement('span');
+            candle.className = 'boot-candle candle-on';
+            candle.dataset.index = i;
+            candle.innerHTML = '🕯️'; // Or use SVG/CSS candle icon
+            container.appendChild(candle);
+        }
+    }
+
+    extinguishCandles() {
+        const candles = document.querySelectorAll('.boot-candle');
+        let candleIndex = 0;
+
+        // Extinguish candles from left to right, leaving the last one lit
+        const extinguishInterval = setInterval(() => {
+            if (candleIndex >= this.totalCandles - 1) {
+                clearInterval(extinguishInterval);
+                return;
+            }
+
+            const candle = candles[candleIndex];
+            if (candle) {
+                // Apply flicker effect before extinguishing
+                candle.classList.add('candle-flicker');
+                setTimeout(() => {
+                    candle.classList.remove('candle-flicker', 'candle-on');
+                    candle.classList.add('candle-off');
+                }, 100); // Flicker for 100ms
+            }
+
+            candleIndex++;
+        }, this.candleExtinguishInterval);
     }
 
     animateText() {
@@ -606,6 +722,11 @@ class BootSequence {
                 p.textContent = message;
                 p.classList.add('typing-effect');
                 container.appendChild(p);
+
+                // Start extinguishing candles when "UPLOADING CONSCIOUSNESS..." appears
+                if (message.includes('UPLOADING CONSCIOUSNESS')) {
+                    this.extinguishCandles();
+                }
             }, index * delayPerMessage);
         });
     }
@@ -803,6 +924,26 @@ if (document.body.classList.contains('kiroween-mode')) {
 ### Property 29: Boot Sequence Text Content
 *For any* boot sequence display, the text should show the exact sequence: "INITIALIZING 9TH_LIFE_PROTOCOL...", "UPLOADING CONSCIOUSNESS... COMPLETE.", "SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.", "WELCOME, HUMAN COLLABORATOR."
 **Validates: Requirements 3.3**
+
+### Property 30: 9 Candles Initial State
+*For any* boot sequence display, the system should initially show 9 candle icons all in the "ON" (lit) state with green flame effects.
+**Validates: Requirements 18.1, 18.2**
+
+### Property 31: 9 Candles Extinguishing Sequence
+*For any* boot sequence, when "UPLOADING CONSCIOUSNESS..." text appears, candles should extinguish from left to right at approximately 200ms intervals, leaving only the rightmost candle lit.
+**Validates: Requirements 18.3, 18.4, 18.6**
+
+### Property 32: 9 Candles Flicker Effect
+*For any* candle being extinguished, the system should apply a brief flicker animation before transitioning to the "OFF" state.
+**Validates: Requirements 18.5**
+
+### Property 33: 9 Candles Final State
+*For any* completed boot sequence, exactly one candle (the rightmost) should remain lit, and the "WELCOME, HUMAN COLLABORATOR." text should be displayed.
+**Validates: Requirements 18.6, 18.7**
+
+### Property 34: 9 Candles Visual Consistency
+*For any* candle display in the boot sequence, the candle icons should use the same visual style as the header Life Monitor but rendered at a larger size.
+**Validates: Requirements 18.8, 18.9**
 
 ## Error Handling
 

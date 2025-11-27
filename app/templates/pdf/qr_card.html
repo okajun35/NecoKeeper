@@ -61,6 +61,38 @@
             margin-top: 3mm;
             line-height: 1.4;
         }
+
+        {% if kiroween_mode %}
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .card {
+            border: 2px solid #0f0;
+            background-color: #111;
+            padding: 5mm;
+            box-sizing: border-box;
+        }
+        .animal-name {
+            color: #f0f;
+            text-shadow: 1px 1px #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .animal-id {
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .instructions {
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        .animal-photo {
+            border-color: #f0f;
+            filter: grayscale(100%) contrast(120%);
+        }
+        {% endif %}
     </style>
 </head>
 <body>
@@ -68,19 +100,24 @@
         {% if photo_base64 %}
         <img src="data:image/jpeg;base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
         {% else %}
-        <div class="animal-photo" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-            <span style="color: #999;">写真なし</span>
+        <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#f0f0f0{% endif %}; display: flex; align-items: center; justify-content: center;">
+            <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %};">{% if kiroween_mode %}NO IMAGE{% else %}写真なし{% endif %}</span>
         </div>
         {% endif %}
 
         <div class="animal-name">{{ animal.name or '名前未設定' }}</div>
         <div class="animal-id">ID: {{ animal.id }}</div>
 
-        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code">
+        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code" {% if kiroween_mode %}style="border: 2px solid #0f0; padding: 2mm; background: white;"{% endif %}>
 
         <div class="instructions">
+            {% if kiroween_mode %}
+            SCAN QR CODE<br>
+            ENTER CARE LOG
+            {% else %}
             スマホでQRコードをスキャンして<br>
             世話記録を入力してください
+            {% endif %}
         </div>
     </div>
 </body>

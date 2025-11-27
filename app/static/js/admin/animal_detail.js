@@ -177,7 +177,18 @@ async function generateQRCard() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `qr_card_${animalId}.pdf`;
+
+    // Content-Dispositionヘッダーからファイル名を取得
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `qr_card_${animalId}.pdf`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);

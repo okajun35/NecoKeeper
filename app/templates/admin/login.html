@@ -244,15 +244,13 @@
     <!-- CRT Overlay (scanlines effect) -->
     <div class="crt-overlay"></div>
 
-    <!-- Boot Sequence Overlay (Requirement 3.1, 3.3) -->
+    <!-- Boot Sequence Overlay (Requirement 3.1, 3.3, 18) -->
     <div id="boot-sequence" class="boot-sequence">
-        <div class="boot-text">
-            <p>INITIALIZING 9TH_LIFE_PROTOCOL...</p>
-            <p>UPLOADING CONSCIOUSNESS... COMPLETE.</p>
-            <p>SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.</p>
-            <p>WELCOME, HUMAN COLLABORATOR.</p>
-            <p class="cursor-blink">█</p>
+        <div class="boot-text" id="boot-text-container">
+            <!-- Text will be added dynamically by JavaScript -->
         </div>
+        <!-- 9 Candles Animation (Requirement 18) - Below text -->
+        <div id="boot-candles"></div>
     </div>
 
     <div class="terminal-container">
