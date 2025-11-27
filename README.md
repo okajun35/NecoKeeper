@@ -15,6 +15,16 @@ NecoKeeperは、保護猫団体が日々の業務を効率的に管理するた�
 - 📊 **レポート**: 統計情報とレポート生成
 - 💾 **バックアップ**: 自動バックアップ機能
 
+### Kiroween Mode (Necro-Terminal Edition)
+
+サイバーパンクテーマを環境変数だけで切り替えできます。
+
+- `KIROWEEN_MODE=true` で**Necro-Terminal**テーマが有効化され、黒背景 + グリッチ演出 + 端末風フォントに切り替わります。
+- Faviconやプレースホルダー画像は `halloween_icon.webp` / `halloween_logo.webp` / `halloween_logo_2.webp` へ自動で差し替えられます。
+- Kiroween Mode中は没入感を優先するため言語切り替えUIを非表示にし、英語（Spooky翻訳）固定になります。
+- 通常テーマでは従来どおり日英切り替えボタンが表示されます。
+- 詳細仕様: `.kiro/specs/kiroween-theme/requirements.md`
+
 ## セットアップ
 
 ### 必要要件
@@ -119,6 +129,7 @@ cp .env.example .env
 | `COOKIE_SECURE` | Cookie Secureフラグ | `false` | **`true`** |
 | `COOKIE_SAMESITE` | Cookie SameSite属性 | `lax` | `lax` |
 | `COOKIE_MAX_AGE` | Cookie有効期限（秒） | `7200` | `7200` |
+| `KIROWEEN_MODE` | Necro-Terminalテーマを有効化 | `false` | 任意 (`true`で英語UI固定) |
 
 **DB パス設定**:
 - **ローカル開発**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（デフォルト）
@@ -372,6 +383,8 @@ git add .
 git commit -m "your message"
 git push
 ```
+
+> ℹ️ Kiroween Modeでテストを実行する場合は `.env` で `KIROWEEN_MODE=true` を設定してください。英語固定仕様に合わせてテストも切り替わるため、テーマごとの挙動差分を確認しやすくなります。
 
 **重要**: `make all`は**コミット前に必ず実行**してください。これにより以下が保証されます：
 - コード品質（Lint）

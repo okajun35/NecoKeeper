@@ -1,0 +1,15 @@
+/* Kiroween modal enhancements */
+body.kiroween-mode #modalForm,
+body.kiroween-mode .modal-overlay {background:rgba(0,0,0,.9);}
+body.kiroween-mode .modal {background:rgba(0,0,0,.95)!important;border:2px solid #1a8000!important;box-shadow:0 0 30px rgba(26,128,0,.7);}
+body.kiroween-mode .modal h2,
+body.kiroween-mode .modal label {color:#33ff00;}
+body.kiroween-mode input,
+body.kiroween-mode select,
+body.kiroween-mode textarea,
+body.kiroween-mode .modal input,
+body.kiroween-mode .modal select,
+body.kiroween-mode .modal textarea {background:#000;border:1px solid #33ff00;color:#33ff00;}
+body.kiroween-mode .modal button {border:1px solid #33ff00;color:#33ff00;background:transparent;}
+body.kiroween-mode .modal button:hover {background:#33ff00;color:#000;}
+body.kiroween-mode .modal .modal-content {background:transparent;}

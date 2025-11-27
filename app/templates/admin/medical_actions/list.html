@@ -6,6 +6,12 @@
 {% block page_title %}<span data-i18n="title" data-i18n-ns="medical_actions">診療行為マスター管理</span>{% endblock %}
 {% block page_description %}<span data-i18n="description" data-i18n-ns="medical_actions">診療行為（薬剤・ワクチン・検査）のマスターデータ管理</span>{% endblock %}
 
+{% block extra_head %}
+    {% if settings.kiroween_mode %}
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/kiroween_admin_modal.css') }}">
+    {% endif %}
+{% endblock %}
+
 {% block header_actions %}
 <button id="btnNewAction" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="new_button" data-i18n-ns="medical_actions">新規登録</span>
@@ -101,9 +107,9 @@
 </div>
 
 <!-- 新規登録/編集モーダル -->
-<div id="modalForm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="p-6">
+<div id="modalForm" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="modal bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="modal-content p-6">
             <h2 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4" data-i18n="modal.title_new" data-i18n-ns="medical_actions">診療行為マスター登録</h2>
 
             <form id="actionForm" class="space-y-4">
@@ -149,8 +155,12 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.currency_unit" data-i18n-ns="medical_actions">通貨単位</span> <span class="text-red-500">*</span></label>
                         <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            {% if settings.kiroween_mode %}
+                            <option value="USD" selected data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            {% else %}
                             <option value="JPY" data-i18n="modal.currency_jpy" data-i18n-ns="medical_actions">JPY (日本円)</option>
                             <option value="USD" data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            {% endif %}
                         </select>
                     </div>
                     <div>

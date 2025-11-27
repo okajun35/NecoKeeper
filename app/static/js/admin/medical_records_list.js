@@ -11,6 +11,49 @@ let filters = {
   start_date: null,
   end_date: null,
 };
+// Force English role labels when Kiroween terminal theme is active.
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
+const roleLabelFallbacks = {
+  管理者: 'Administrator',
+  獣医師: 'Veterinarian',
+  スタッフ: 'Staff',
+  閲覧専用: 'Read Only',
+  admin: 'Administrator',
+  staff: 'Staff',
+  vet: 'Veterinarian',
+  'read-only': 'Read Only',
+  read_only: 'Read Only',
+};
+
+const getRoleLabel = role => {
+  if (!role) {
+    return '';
+  }
+
+  if (!isKiroweenMode) {
+    return role;
+  }
+
+  if (roleLabelFallbacks[role]) {
+    return roleLabelFallbacks[role];
+  }
+
+  const normalized = typeof role === 'string' ? role.toLowerCase().replace(/\s+/g, '_') : role;
+  return roleLabelFallbacks[normalized] || role;
+};
+
+const formatVetDisplayName = name => {
+  if (!name) {
+    return '';
+  }
+
+  if (!isKiroweenMode) {
+    return name;
+  }
+
+  return roleLabelFallbacks[name] || name;
+};
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -80,6 +123,46 @@ function translateButtonTexts() {
   if (nextBtn) {
     nextBtn.textContent = window.i18n.t('pagination.next', { ns: 'common' });
   }
+
+  updateSelectDefaults();
+}
+
+function updateSelectDefaults() {
+  const allLabel =
+    window.i18n && window.i18n.t ? window.i18n.t('common.all', { ns: 'common' }) : 'すべて';
+  setDefaultOptionText('filterAnimal', 'All Cats', allLabel);
+  setDefaultOptionText('filterVet', 'All Vets', allLabel);
+}
+
+function setDefaultOptionText(selectId, kiroweenLabel, defaultLabel) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const option = select.querySelector('option[value=""]');
+  if (!option) return;
+  if (!option.dataset.originalI18nKey && option.getAttribute('data-i18n')) {
+    option.dataset.originalI18nKey = option.getAttribute('data-i18n');
+  }
+  if (!option.dataset.originalI18nNs && option.getAttribute('data-i18n-ns')) {
+    option.dataset.originalI18nNs = option.getAttribute('data-i18n-ns');
+  }
+
+  if (isKiroweenMode) {
+    option.textContent = kiroweenLabel;
+    if (option.dataset.originalI18nKey) {
+      option.removeAttribute('data-i18n');
+    }
+    if (option.dataset.originalI18nNs) {
+      option.removeAttribute('data-i18n-ns');
+    }
+  } else {
+    option.textContent = defaultLabel;
+    if (option.dataset.originalI18nKey) {
+      option.setAttribute('data-i18n', option.dataset.originalI18nKey);
+    }
+    if (option.dataset.originalI18nNs) {
+      option.setAttribute('data-i18n-ns', option.dataset.originalI18nNs);
+    }
+  }
 }
 
 // イベントリスナーの設定
@@ -145,7 +228,8 @@ async function loadVets() {
     data.items.forEach(user => {
       const option = document.createElement('option');
       option.value = user.id;
-      option.textContent = `${user.name} (${user.role})`;
+      const roleLabel = getRoleLabel(user.role) || user.role || '';
+      option.textContent = `${user.name} (${roleLabel})`;
       select.appendChild(option);
     });
 
@@ -238,12 +322,16 @@ function createMobileCard(record) {
     window.i18n && window.i18n.t ? window.i18n.t('temperature', { ns: 'medical_records' }) : '体温';
   const viewText =
     window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
+  const medicalActionLabel = fallbackText('Medical Action', '診療行為');
+  const billingLabel = fallbackText('Billing Amount', '請求価格');
+  const vetDisplayName =
+    formatVetDisplayName(record.vet_name) || (record.vet_id ? `ID: ${record.vet_id}` : '-');
 
   // 診療行為と投薬情報
   let medicalActionInfo = '';
   if (record.medical_action_name) {
     medicalActionInfo = `<div class="text-sm text-gray-600 mb-2">
-      <span class="text-gray-500">診療行為:</span> ${record.medical_action_name}
+      <span class="text-gray-500">${medicalActionLabel}:</span> ${record.medical_action_name}
       ${record.dosage ? ` (${record.dosage}${record.dosage_unit || ''})` : ''}
     </div>`;
   }
@@ -252,7 +340,7 @@ function createMobileCard(record) {
   let billingInfo = '';
   if (record.billing_amount) {
     billingInfo = `<div class="text-sm text-gray-600 mb-2">
-      <span class="text-gray-500">請求価格:</span> <span class="font-medium">¥${Number(record.billing_amount).toLocaleString()}</span>
+      <span class="text-gray-500">${billingLabel}:</span> <span class="font-medium">¥${Number(record.billing_amount).toLocaleString()}</span>
     </div>`;
   }
 
@@ -262,7 +350,7 @@ function createMobileCard(record) {
                 <p class="font-medium text-gray-900">${record.date}</p>
                 <p class="text-sm text-gray-600">${record.animal_name || 'ID: ' + record.animal_id}</p>
             </div>
-            <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${record.vet_name || 'ID: ' + record.vet_id}</span>
+          <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${vetDisplayName}</span>
         </div>
         <div class="grid grid-cols-2 gap-2 text-sm mb-3">
             <div><span class="text-gray-500">${weightLabel}:</span> ${record.weight ? record.weight + 'kg' : '-'}</div>
@@ -288,6 +376,8 @@ function createDesktopRow(record) {
   // 翻訳テキストを取得
   const viewText =
     window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
+  const vetDisplayName =
+    formatVetDisplayName(record.vet_name) || (record.vet_id ? `ID: ${record.vet_id}` : '-');
 
   // 診療行為と投薬情報
   let medicalActionText = '-';
@@ -306,7 +396,7 @@ function createDesktopRow(record) {
   row.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || 'ID: ' + record.animal_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.vet_name || 'ID: ' + record.vet_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${vetDisplayName}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight ? record.weight + 'kg' : '-'}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>

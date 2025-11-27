@@ -1,0 +1,760 @@
+{
+  "common": {
+    "app_name": "NECRO-TERMINAL",
+    "save": "COMMIT_SOUL",
+    "cancel": "ABORT",
+    "delete": "PURGE_PROTOCOL",
+    "edit": "MODIFY_DATA",
+    "add": "INJECT",
+    "search": "SCAN",
+    "filter": "ISOLATE",
+    "export": "EXTRACT",
+    "import": "UPLOAD",
+    "close": "TERMINATE",
+    "confirm": "EXECUTE",
+    "back": "RETREAT",
+    "next": "ADVANCE",
+    "previous": "REWIND",
+    "loading": "SUMMONING...",
+    "no_data": "VOID_DETECTED",
+    "required": "MANDATORY",
+    "optional": "AUXILIARY",
+    "yes": "AFFIRMATIVE",
+    "no": "NEGATIVE",
+    "all": "TOTAL_SCAN",
+    "none": "NULL_SET",
+    "select": "TARGET",
+    "clear": "WIPE",
+    "refresh": "RELOAD_MATRIX",
+    "download": "EXTRACT_DATA",
+    "upload": "INJECT_DATA",
+    "view": "OBSERVE",
+    "details": "DEEP_SCAN",
+    "list": "INDEX",
+    "new": "INITIALIZE",
+    "update": "RECALIBRATE",
+    "create": "MANIFEST",
+    "submit": "TRANSMIT",
+    "reset": "REBOOT",
+    "apply": "ENGAGE",
+    "actions": "OPERATIONS",
+    "status": "STATE",
+    "date": "TIMESTAMP",
+    "time": "CHRONOS",
+    "name": "DESIGNATION",
+    "description": "PROFILE",
+    "notes": "ANNOTATIONS",
+    "settings": "SYSTEM_CONFIG",
+    "logout": "DISCONNECT",
+    "login": "CONNECT",
+    "profile": "USER_PROFILE",
+    "help": "SUPPORT_PROTOCOL",
+    "about": "SYSTEM_INFO",
+    "version": "BUILD",
+    "language": "LOCALE",
+    "theme": "VISUAL_MODE",
+    "notifications": "ALERTS",
+    "dashboard": "COMMAND_CENTER",
+    "home": "BASE",
+    "menu": "NAVIGATION",
+    "more": "EXPAND",
+    "less": "COLLAPSE",
+    "show": "REVEAL",
+    "hide": "CONCEAL",
+    "enable": "ACTIVATE",
+    "disable": "DEACTIVATE",
+    "active": "ONLINE",
+    "inactive": "OFFLINE",
+    "total": "AGGREGATE",
+    "count": "TALLY",
+    "page": "SECTOR",
+    "per_page": "per sector",
+    "of": "of",
+    "to": "to",
+    "from": "from",
+    "items": "entities",
+    "records": "entries",
+    "dynamic": {
+      "appetite": "HUNGER_LVL",
+      "energy": "VITALITY",
+      "urination": "WASTE_FLUSH",
+      "cleaning": "SANITIZATION"
+    }
+  },
+  "nav": {
+    "dashboard": "COMMAND_CENTER",
+    "animals": "ENTITY_MANAGEMENT",
+    "care_logs": "MAINTENANCE_LOGS",
+    "medical_records": "REPAIR_RECORDS",
+    "adoptions": "TRANSFER_PROTOCOLS",
+    "volunteers": "OPERATIVES",
+    "reports": "DATA_ANALYSIS",
+    "settings": "SYSTEM_CONFIG",
+    "logout": "DISCONNECT"
+  },
+  "dashboard": {
+    "title": "COMMAND_CENTER",
+    "description": "System overview and operational status",
+    "stats": {
+      "protected": "PROTECTION_PROTOCOL",
+      "adoptable": "TRANSFER_READY",
+      "today_logs": "TODAYS_ENTRIES",
+      "volunteers": "ACTIVE_OPERATIVES"
+    },
+    "recent_logs": "RECENT_MAINTENANCE_LOGS",
+    "needs_care": "ENTITIES_REQUIRING_ATTENTION",
+    "no_logs": "NO_MAINTENANCE_LOGS_DETECTED",
+    "dynamic": {
+      "appetite": "HUNGER_LVL",
+      "energy": "VITALITY",
+      "urination": "WASTE_FLUSH",
+      "cleaning": "SANITIZATION",
+      "not_recorded": "DATA_MISSING",
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA",
+      "record": "INPUT_DATA"
+    },
+    "no_animals": "NO_ENTITIES_REQUIRE_ATTENTION",
+    "view_all": "Full Index"
+  },
+  "animals": {
+    "title": "ENTITY_MANAGEMENT",
+    "list_title": "Entity Index",
+    "detail_title": "Entity Profile",
+    "add_new": "Initialize New Entity",
+    "edit": "Modify Entity Data",
+    "delete_confirm": "Execute purge protocol for this entity?",
+    "search_placeholder": "Scan by designation, pattern, features...",
+    "filter_by_status": "Filter by state",
+    "description": "Manage rescued entity information",
+    "back_to_list": "Return to Index",
+    "loading": "SUMMONING...",
+    "no_data": "VOID_DETECTED",
+    "search": {
+      "label": "SCAN",
+      "placeholder": "Scan by designation, pattern, features...",
+      "advanced": "Deep Scan",
+      "clear": "WIPE"
+    },
+    "filter": {
+      "status": "STATE",
+      "gender": "Classification",
+      "age_min": "Age (Min)",
+      "age_max": "Age (Max)",
+      "rescue_date_from": "Rescue Timestamp (From)",
+      "rescue_date_to": "Rescue Timestamp (To)",
+      "ear_cut": "Ear Modification",
+      "collar": "Collar Status",
+      "page_size": "Entities per Sector",
+      "all": "TOTAL_SCAN",
+      "with": "Present",
+      "without": "Absent"
+    },
+    "fields": {
+      "id": "ENTITY_ID",
+      "name": "DESIGNATION",
+      "photo": "Visual_Data",
+      "pattern": "Pattern",
+      "tail_length": "Tail Configuration",
+      "collar": "Collar Status",
+      "age": "Age",
+      "gender": "Classification",
+      "ear_cut": "Ear Modification",
+      "features": "Characteristics",
+      "status": "STATE",
+      "protected_at": "Rescue Timestamp",
+      "created_at": "Initialization",
+      "updated_at": "Last Modified"
+    },
+    "status": {
+      "protected": "PROTECTION_PROTOCOL",
+      "treatment": "REPAIR_MODE",
+      "adoptable": "TRANSFER_READY",
+      "adopted": "TRANSFER_COMPLETE",
+      "deceased": "SIGNAL_LOST"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "unknown": "Unclassified"
+    },
+    "tail_length": {
+      "long": "Extended",
+      "short": "Compact",
+      "hooked": "Curved",
+      "none": "Absent"
+    },
+    "age_category": {
+      "kitten": "Juvenile",
+      "adult": "Mature",
+      "senior": "Veteran"
+    },
+    "tabs": {
+      "basic_info": "Core Data",
+      "care_logs": "Maintenance Logs",
+      "medical_records": "Repair Records",
+      "gallery": "Visual Archive",
+      "weight_chart": "Mass Analysis"
+    },
+    "actions": {
+      "view_details": "Deep Scan",
+      "edit_info": "Modify Data",
+      "change_status": "Alter State",
+      "update_status": "Recalibrate State",
+      "generate_qr": "Generate QR Matrix",
+      "generate_form": "Generate Paper Protocol",
+      "upload_photo": "Upload Visual Data",
+      "delete_photo": "Purge Visual Data",
+      "change_image": "Modify Image",
+      "upload_new": "Upload New Image",
+      "select_from_gallery": "Select from Archive",
+      "qr_code": "SUMMON QR"
+    },
+    "modals": {
+      "qr_code": {
+        "title": "QR MATRIX",
+        "description": "SCAN TO ACCESS MAINTENANCE LOG PROTOCOL",
+        "link_text": "INITIATE MAINTENANCE LOG SEQUENCE"
+      }
+    },
+    "modal": {
+      "profile_image": "Modify Profile Image",
+      "paper_form": "Generate Paper Protocol",
+      "select_year": "Year",
+      "select_month": "Month",
+      "confirm": "EXECUTE",
+      "upload_tab": "Upload New Image",
+      "gallery_tab": "Select from Archive",
+      "preview": "Preview",
+      "no_images": "No images in archive"
+    },
+    "form": {
+      "required": "MANDATORY",
+      "optional": "AUXILIARY",
+      "select_placeholder": "TARGET_SELECTION",
+      "file_input_hint": "PNG, JPG, GIF (Max 5MB)",
+      "profile_image": "Profile Image (Auxiliary)",
+      "profile_image_note": "* Visual data can be added/modified from archive after initialization"
+    },
+    "messages": {
+      "created": "Entity initialized successfully",
+      "updated": "Entity data recalibrated",
+      "deleted": "Entity purged from system",
+      "status_changed": "State altered successfully",
+      "photo_uploaded": "Visual data uploaded",
+      "photo_deleted": "Visual data purged",
+      "load_error": "FATAL_GLITCH: Data load failure"
+    },
+    "page_size": {
+      "20": "20 entities",
+      "50": "50 entities",
+      "100": "100 entities"
+    }
+  },
+  "care_logs": {
+    "title": "MAINTENANCE_LOGS",
+    "list_title": "Maintenance Log Index",
+    "description": "Manage all maintenance logs",
+    "detail_title": "Maintenance Log Profile",
+    "detail_description": "Detailed maintenance log information",
+    "add_new": "Initialize New Log",
+    "edit": "Modify Log",
+    "delete_confirm": "Execute purge protocol for this log?",
+    "export_csv": "Extract CSV",
+    "new_title": "New Maintenance Log Registration",
+    "fields": {
+      "id": "LOG_ID",
+      "animal": "Entity",
+      "recorder": "Operative",
+      "time_slot": "Time Sector",
+      "appetite": "Consumption Rate",
+      "energy": "Power Level",
+      "urination": "Waste Elimination",
+      "cleaning": "Sanitation",
+      "memo": "Annotations",
+      "log_date": "Log Timestamp",
+      "created_at": "Initialization"
+    },
+    "time_slots": {
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA"
+    },
+    "appetite_levels": {
+      "1": "1 (Consumption Failure)",
+      "2": "2 (Minimal)",
+      "3": "3 (Standard)",
+      "4": "4 (Optimal)",
+      "5": "5 (Maximum)"
+    },
+    "energy_levels": {
+      "1": "1 (Critical Low)",
+      "2": "2 (Below Standard)",
+      "3": "3 (Standard)",
+      "4": "4 (Above Standard)",
+      "5": "5 (Maximum Output)"
+    },
+    "urination_status": {
+      "yes": "AFFIRMATIVE",
+      "no": "NEGATIVE"
+    },
+    "cleaning_status": {
+      "done": "COMPLETE",
+      "not_done": "INCOMPLETE"
+    },
+    "filter": {
+      "by_animal": "Filter by entity",
+      "by_date": "Filter by timestamp",
+      "by_time_slot": "Filter by time sector",
+      "start_date": "Start Timestamp",
+      "end_date": "End Timestamp"
+    },
+    "messages": {
+      "created": "Maintenance log initialized",
+      "updated": "Maintenance log recalibrated",
+      "deleted": "Maintenance log purged",
+      "exported": "CSV extraction complete"
+    },
+    "public": {
+      "page_title": "Log Index",
+      "header_caption": "{{name}}'s Log Index",
+      "animal_photo_alt": "Entity Visual",
+      "error_heading": "FATAL_ERROR",
+      "success_heading": "✓ Log Committed",
+      "today_status_title": "Today's Status",
+      "daily_overview_title": "Last 7 Cycles",
+      "daily_overview_description": "Check log status for Alpha/Beta/Gamma cycles",
+      "daily_overview_hint": "Verify data integrity",
+      "daily_table": {
+        "date": "Timestamp"
+      },
+      "time_slots": {
+        "morning": "ALPHA",
+        "noon": "BETA",
+        "evening": "GAMMA"
+      },
+      "slot_status": {
+        "recorded": "LOGGED",
+        "missing": "MISSING"
+      },
+      "slot_chip": {
+        "recorded": "{{slot}}: LOGGED",
+        "missing": "{{slot}}: MISSING"
+      },
+      "today_badge": "TODAY",
+      "yesterday_badge": "YESTERDAY",
+      "latest_logs_title": "Latest Logs",
+      "latest_logs_description": "Ordered by timestamp",
+      "no_logs_message": "No logs detected",
+      "no_logs_hint": "Recent logs will appear here",
+      "add_record": "INITIATE LOG",
+      "view_all_status": "View All Entities Status"
+    }
+  },
+  "medical_records": {
+    "title": "REPAIR_RECORDS",
+    "list_title": "Repair Record Index",
+    "description": "Manage all repair records",
+    "detail_title": "Repair Record Profile",
+    "detail_description": "Detailed repair record information",
+    "add_new": "Initialize New Repair Record",
+    "edit": "Modify Repair Record",
+    "delete_confirm": "Execute purge protocol for this record?",
+    "fields": {
+      "id": "RECORD_ID",
+      "animal": "Entity",
+      "vet": "Repair Technician",
+      "date": "Timestamp",
+      "time_slot": "Time Sector",
+      "weight": "Mass",
+      "temperature": "Core Temperature",
+      "symptoms": "Anomalies",
+      "medical_action": "Repair Protocol",
+      "dosage": "Dosage",
+      "dosage_unit": "Unit",
+      "other": "Additional",
+      "comment": "Annotations",
+      "created_at": "Initialization",
+      "selling_price": "Billing Value"
+    },
+    "dosage_units": {
+      "tablet": "Tablet(s)",
+      "injection": "Injection(s)",
+      "times": "Cycle(s)",
+      "ml": "mL"
+    },
+    "filter": {
+      "by_animal": "Filter by entity",
+      "by_vet": "Filter by technician",
+      "by_date": "Filter by timestamp",
+      "start_date": "Start Timestamp",
+      "end_date": "End Timestamp"
+    },
+    "messages": {
+      "created": "Repair record initialized",
+      "updated": "Repair record recalibrated",
+      "deleted": "Repair record purged"
+    }
+  },
+  "medical_actions": {
+    "title": "Repair Protocol Master",
+    "list_title": "Repair Protocol Index",
+    "add_new": "Initialize New Protocol",
+    "edit": "Modify Protocol",
+    "delete_confirm": "Execute purge protocol?",
+    "new_button": "INITIALIZE_PROTOCOL",
+    "search": {
+      "label": "SCAN_PARAMETERS",
+      "placeholder": "Search by designation...",
+      "valid_on": "EFFECTIVE_DATE",
+      "currency": "CURRENCY_TYPE",
+      "all": "ALL_TYPES",
+      "button": "INITIATE_SCAN",
+      "clear": "RESET_PARAMS"
+    },
+    "table": {
+      "name": "PROTOCOL_DESIGNATION",
+      "period": "ACTIVE_PERIOD",
+      "cost_price": "RESOURCE_COST",
+      "selling_price": "EXCHANGE_VALUE",
+      "procedure_fee": "OPERATION_FEE",
+      "currency": "UNIT",
+      "actions": "COMMANDS"
+    },
+    "pagination": {
+      "info": "Sector {page} of {pages} ({total} entities)",
+      "prev": "PREVIOUS_SECTOR",
+      "next": "NEXT_SECTOR"
+    },
+    "buttons": {
+      "edit": "RECONFIGURE"
+    },
+    "modal": {
+      "title_new": "INITIALIZE_NEW_PROTOCOL",
+      "name": "PROTOCOL_DESIGNATION",
+      "valid_from": "ACTIVATION_DATE",
+      "valid_to": "EXPIRATION_DATE",
+      "valid_to_note": "Leave empty for indefinite duration",
+      "cost_price": "RESOURCE_COST",
+      "selling_price": "EXCHANGE_VALUE",
+      "procedure_fee": "OPERATION_FEE",
+      "currency_unit": "CURRENCY_UNIT",
+      "currency_jpy": "JPY (Credits)",
+      "currency_usd": "USD (Credits)",
+      "unit": "DOSAGE_UNIT",
+      "unit_placeholder": "Select unit...",
+      "unit_pill": "Tablet",
+      "unit_bottle": "Vial",
+      "unit_time": "Cycle",
+      "unit_ml": "Milliliter",
+      "unit_note": "Unit for inventory tracking",
+      "calculation_formula": "CALCULATION_ALGORITHM",
+      "calculation_note": "Exchange Value + Operation Fee",
+      "save": "COMMIT",
+      "cancel": "ABORT"
+    },
+    "fields": {
+      "id": "PROTOCOL_ID",
+      "name": "Protocol Designation",
+      "valid_from": "Valid From",
+      "valid_to": "Valid To",
+      "cost_price": "Cost Value",
+      "selling_price": "Billing Value",
+      "procedure_fee": "Procedure Fee",
+      "currency": "Currency",
+      "dosage_unit": "Dosage Unit",
+      "created_at": "Initialization"
+    },
+    "messages": {
+      "loading": "SUMMONING_DATA...",
+      "created": "Protocol initialized",
+      "updated": "Protocol recalibrated",
+      "deleted": "Protocol purged"
+    }
+  },
+  "adoptions": {
+    "title": "TRANSFER_PROTOCOLS",
+    "applicants_title": "Applicant Index",
+    "records_title": "Transfer Record Index",
+    "add_applicant": "Initialize New Applicant",
+    "add_record": "Initialize New Transfer Record",
+    "edit_applicant": "Modify Applicant Data",
+    "edit_record": "Modify Transfer Record",
+    "delete_confirm": "Execute purge protocol?",
+    "fields": {
+      "applicant": {
+        "id": "APPLICANT_ID",
+        "name": "Designation",
+        "contact": "Contact Protocol",
+        "address": "Location",
+        "family_structure": "Family Configuration",
+        "housing": "Housing Classification",
+        "experience": "Prior Experience",
+        "motivation": "Intent",
+        "status": "STATE",
+        "created_at": "Initialization"
+      },
+      "record": {
+        "id": "RECORD_ID",
+        "animal": "Entity",
+        "applicant": "Applicant",
+        "interview_date": "Interview Timestamp",
+        "interview_notes": "Interview Annotations",
+        "decision": "Verdict",
+        "adoption_date": "Transfer Timestamp",
+        "follow_up_date": "Follow-up Timestamp",
+        "follow_up_notes": "Follow-up Annotations",
+        "created_at": "Initialization"
+      }
+    },
+    "status": {
+      "pending": "PROCESSING",
+      "approved": "AUTHORIZED",
+      "rejected": "DENIED",
+      "adopted": "TRANSFERRED"
+    },
+    "decision": {
+      "pending": "PROCESSING",
+      "approved": "AUTHORIZED",
+      "rejected": "DENIED"
+    },
+    "messages": {
+      "applicant_created": "Applicant initialized",
+      "applicant_updated": "Applicant data recalibrated",
+      "applicant_deleted": "Applicant purged",
+      "record_created": "Transfer record initialized",
+      "record_updated": "Transfer record recalibrated",
+      "record_deleted": "Transfer record purged"
+    }
+  },
+  "volunteers": {
+    "title": "OPERATIVES",
+    "list_title": "Operative Index",
+    "add_new": "Initialize New Operative",
+    "edit": "Modify Operative Data",
+    "delete_confirm": "Execute purge protocol for this operative?",
+    "fields": {
+      "id": "OPERATIVE_ID",
+      "name": "Designation",
+      "contact": "Contact Protocol",
+      "affiliation": "Affiliation",
+      "status": "STATE",
+      "started_at": "Activation Timestamp",
+      "created_at": "Initialization"
+    },
+    "status": {
+      "active": "ONLINE",
+      "inactive": "OFFLINE"
+    },
+    "messages": {
+      "created": "Operative initialized",
+      "updated": "Operative data recalibrated",
+      "deleted": "Operative purged"
+    }
+  },
+  "reports": {
+    "title": "DATA_ANALYSIS",
+    "description": "Generate reports in PDF/CSV/Excel format",
+    "types": {
+      "daily": "Daily Analysis",
+      "weekly": "Weekly Analysis",
+      "monthly": "Monthly Analysis",
+      "individual": "Individual Analysis"
+    },
+    "fields": {
+      "report_type": "Analysis Type",
+      "start_date": "Start Timestamp",
+      "end_date": "End Timestamp",
+      "animal": "Entity (for individual analysis)",
+      "format": "Format"
+    },
+    "formats": {
+      "pdf": "PDF",
+      "csv": "CSV",
+      "excel": "Excel"
+    },
+    "actions": {
+      "generate": "Execute Analysis",
+      "download": "Extract Data"
+    },
+    "messages": {
+      "generated": "Analysis complete",
+      "error": "FATAL_GLITCH: Analysis failure"
+    }
+  },
+  "settings": {
+    "title": "SYSTEM_CONFIG",
+    "organization": {
+      "title": "Organization Data",
+      "name": "Organization Designation",
+      "address": "Location",
+      "phone": "Contact Number",
+      "email": "Email Protocol"
+    },
+    "image": {
+      "title": "Image Configuration",
+      "max_count": "Maximum Count",
+      "max_size": "Maximum File Size (MB)"
+    },
+    "language": {
+      "title": "Locale Configuration",
+      "current": "Current Locale",
+      "japanese": "日本語",
+      "english": "English"
+    },
+    "security": {
+      "title": "Security Configuration",
+      "session_timeout": "Session Timeout (hours)",
+      "max_login_attempts": "Maximum Connection Attempts"
+    },
+    "backup": {
+      "title": "Backup Configuration",
+      "auto_backup": "Auto Backup",
+      "retention_days": "Retention Days"
+    },
+    "messages": {
+      "saved": "Configuration committed",
+      "error": "FATAL_GLITCH: Configuration failure"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "NECRO-TERMINAL ACCESS",
+      "email": "OPERATIVE_ID",
+      "password": "AUTH_CODE",
+      "remember_me": "Maintain Session",
+      "forgot_password": "Auth Code Recovery?",
+      "submit": "INITIATE_CONNECTION",
+      "boot_sequence": {
+        "line1": "INITIALIZING 9TH_LIFE_PROTOCOL...",
+        "line2": "UPLOADING CONSCIOUSNESS... COMPLETE.",
+        "line3": "SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.",
+        "line4": "WELCOME, HUMAN COLLABORATOR."
+      }
+    },
+    "logout": {
+      "confirm": "Execute disconnect protocol?",
+      "success": "Disconnected successfully"
+    },
+    "messages": {
+      "login_success": "Connection established",
+      "login_failed": "CONNECTION_FAILURE",
+      "invalid_credentials": "Invalid operative ID or auth code",
+      "account_locked": "Account locked",
+      "session_expired": "Session terminated. Reconnection required",
+      "unauthorized": "ACCESS_DENIED: Insufficient permissions"
+    }
+  },
+  "public": {
+    "care_form": {
+      "title": "Maintenance Log Entry",
+      "description": "Scan QR matrix to enter maintenance log",
+      "select_animal": "Select Entity",
+      "select_volunteer": "Select Operative",
+      "time_slot": "Time Sector",
+      "appetite": "Consumption Rate",
+      "energy": "Power Level",
+      "urination": "Waste Elimination",
+      "cleaning": "Sanitation",
+      "memo": "Annotations",
+      "copy_last": "Copy Last Entry",
+      "submit": "COMMIT_LOG",
+      "messages": {
+        "saved": "Log committed successfully",
+        "offline_saved": "Saved offline. Will sync when connection restored",
+        "sync_pending": "Sync pending",
+        "syncing": "Syncing...",
+        "synced": "Synced",
+        "error": "FATAL_GLITCH: Log commit failure"
+      }
+    },
+    "care_log_list": {
+      "title": "Maintenance Log Index",
+      "today_status": "Today's Status",
+      "recent_logs": "Recent 7 Days",
+      "no_logs": "No logs detected",
+      "view_details": "Deep Scan",
+      "back_to_form": "Return to Form"
+    },
+    "all_animals_status": {
+      "title": "All Entities Status",
+      "today": "Today",
+      "morning": "ALPHA",
+      "noon": "BETA",
+      "evening": "GAMMA",
+      "not_recorded": "Not Logged",
+      "record": "INPUT_DATA",
+      "add_record": "Initialize Record",
+      "view_logs": "View Logs"
+    }
+  },
+  "errors": {
+    "400": "INVALID_REQUEST",
+    "401": "AUTH_REQUIRED",
+    "403": "ACCESS_DENIED",
+    "404": "ENTITY_NOT_FOUND",
+    "500": "FATAL_GLITCH",
+    "network_error": "CONNECTION_LOST",
+    "validation_error": "VALIDATION_FAILURE",
+    "required_field": "This field is mandatory",
+    "invalid_email": "Invalid email format",
+    "invalid_date": "Invalid timestamp format",
+    "invalid_number": "Numeric value required",
+    "file_too_large": "File size exceeds limit",
+    "invalid_file_type": "File type not supported",
+    "upload_failed": "Upload failure",
+    "delete_failed": "Purge failure",
+    "update_failed": "Recalibration failure",
+    "create_failed": "Initialization failure",
+    "unknown_error": "UNKNOWN_GLITCH"
+  },
+  "validation": {
+    "required": "{{field}} is mandatory",
+    "min_length": "{{field}} must be at least {{min}} characters",
+    "max_length": "{{field}} must be at most {{max}} characters",
+    "min_value": "{{field}} must be at least {{min}}",
+    "max_value": "{{field}} must be at most {{max}}",
+    "invalid_format": "{{field}} format is invalid",
+    "email": "Valid email address required",
+    "url": "Valid URL required",
+    "date": "Valid timestamp required",
+    "number": "Numeric value required",
+    "integer": "Integer value required",
+    "positive": "Positive value required"
+  },
+  "pagination": {
+    "previous": "REWIND",
+    "next": "ADVANCE",
+    "first": "First",
+    "last": "Last",
+    "page": "Sector",
+    "of": "of",
+    "showing": "Displaying",
+    "to": "to",
+    "from": "from",
+    "items": "entities",
+    "per_page": "per sector",
+    "no_results": "VOID_DETECTED"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "this_week": "This Week",
+    "last_week": "Last Week",
+    "this_month": "This Month",
+    "last_month": "Last Month",
+    "this_year": "This Year",
+    "last_year": "Last Year",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "years": "years",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds",
+    "ago": "ago",
+    "from_now": "from now"
+  }
+}

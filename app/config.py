@@ -157,6 +157,13 @@ class Settings(BaseSettings):
         default=None, description="Automation API用の固定API Key"
     )
 
+    # Kiroween Theme設定
+    kiroween_mode: bool = Field(
+        default=False,
+        description="Kiroween Mode（Necro-Terminal Theme）の有効化。"
+        "Trueの場合、サイバーパンク/ホラーテーマのUIが適用されます。",
+    )
+
     @property
     def is_automation_api_secure(self) -> bool:
         """

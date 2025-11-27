@@ -286,7 +286,7 @@ def get_display_image(db: Session, animal_id: int) -> str:
     優先順位:
     1. プロフィール画像（animal.photo）
     2. 画像ギャラリーの1枚目（作成日時降順）
-    3. デフォルト画像
+    3. デフォルト画像（Kiroween Modeの場合はHalloween画像）
 
     Args:
         db: データベースセッション
@@ -300,6 +300,10 @@ def get_display_image(db: Session, animal_id: int) -> str:
         >>> print(image_path)
         '/media/animals/1/profile.jpg'
     """
+    from app.config import get_settings
+
+    settings = get_settings()
+
     try:
         animal = get_animal(db, animal_id)
 
@@ -316,7 +320,9 @@ def get_display_image(db: Session, animal_id: int) -> str:
         if images:
             return f"/media/{images[0].image_path}"
 
-        # 3. デフォルト画像
+        # 3. デフォルト画像（Kiroween Modeの場合はHalloween画像）
+        if settings.kiroween_mode:
+            return "/static/icons/halloween_logo_2.webp"
         return "/static/images/default-cat.svg"
 
     except HTTPException:

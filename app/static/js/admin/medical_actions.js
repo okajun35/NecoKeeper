@@ -253,9 +253,9 @@ async function handleSubmit(e) {
     name: document.getElementById('name').value,
     valid_from: document.getElementById('validFrom').value,
     valid_to: document.getElementById('validTo').value || null,
-    cost_price: parseFloat(document.getElementById('costPrice').value),
-    selling_price: parseFloat(document.getElementById('sellingPrice').value),
-    procedure_fee: parseFloat(document.getElementById('procedureFee').value),
+    cost_price: parseFloat(document.getElementById('costPrice').value) || 0,
+    selling_price: parseFloat(document.getElementById('sellingPrice').value) || 0,
+    procedure_fee: parseFloat(document.getElementById('procedureFee').value) || 0,
     currency: document.getElementById('currency').value,
     unit: document.getElementById('unit').value || null,
   };

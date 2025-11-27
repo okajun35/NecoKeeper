@@ -130,7 +130,12 @@
     "cat_image": "猫の画像",
     "profile_image": "プロフィール画像",
     "load_error": "画像の読み込みに失敗しました",
-    "fetch_error": "画像の取得に失敗しました"
+    "fetch_error": "画像の取得に失敗しました",
+    "upload_success": "画像をアップロードしました",
+    "upload_failed": "画像のアップロードに失敗しました",
+    "delete_confirm": "この画像を削除しますか？",
+    "delete_failed": "画像の削除に失敗しました",
+    "delete_success": "画像を削除しました"
   },
   "weight_chart": {
     "empty": "体重データがありません",
@@ -171,6 +176,9 @@
     "gallery": "画像ギャラリーを読み込み中...",
     "weight_chart": "体重推移グラフを読み込み中..."
   },
+  "status_text": {
+    "uploading": "アップロード中..."
+  },
   "modals": {
     "profile_image": {
       "title": "プロフィール画像を変更",
@@ -189,6 +197,11 @@
     "month_label": "月",
     "generate": "出力"
   },
+  "errors": {
+    "file_size_limit": "ファイルサイズは5MB以下にしてください",
+    "upload_failed": "アップロードに失敗しました",
+    "profile_image_set_failed": "プロフィール画像の設定に失敗しました"
+  },
   "messages": {
     "created": "猫を登録しました",
     "updated": "猫情報を更新しました",
@@ -196,6 +209,7 @@
     "status_changed": "ステータスを変更しました",
     "photo_uploaded": "写真をアップロードしました",
     "photo_deleted": "写真を削除しました",
+    "profile_image_updated": "プロフィール画像を更新しました",
     "load_failed": "猫一覧の読み込みに失敗しました",
     "id_missing": "猫IDが指定されていません",
     "load_error": "猫情報の読み込みに失敗しました"

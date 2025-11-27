@@ -2,13 +2,67 @@
  * 診療記録登録ページのJavaScript
  */
 
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
+  applyKiroweenPlaceholders();
   loadAnimals();
   loadVets();
   loadMedicalActions();
   setupFormValidation();
+
+  window.addEventListener('languageChanged', () => {
+    applyKiroweenPlaceholders();
+  });
 });
+
+function applyKiroweenPlaceholders() {
+  const placeholderConfigs = [
+    { id: 'animalId', english: 'Select a Cat' },
+    { id: 'vetId', english: 'Select a Veterinarian' },
+    { id: 'timeSlot', english: 'Select a Time Slot' },
+    { id: 'medicalActionId', english: 'Select a Medical Action' },
+  ];
+
+  placeholderConfigs.forEach(config => setSelectPlaceholder(config));
+}
+
+function setSelectPlaceholder({ id, english }) {
+  const select = document.getElementById(id);
+  if (!select) return;
+
+  const option = select.querySelector('option[value=""]');
+  if (!option) return;
+
+  if (!option.dataset.originalText) {
+    option.dataset.originalText = option.textContent;
+  }
+  if (!option.dataset.originalI18nKey && option.getAttribute('data-i18n')) {
+    option.dataset.originalI18nKey = option.getAttribute('data-i18n');
+  }
+  if (!option.dataset.originalI18nNs && option.getAttribute('data-i18n-ns')) {
+    option.dataset.originalI18nNs = option.getAttribute('data-i18n-ns');
+  }
+
+  if (isKiroweenMode) {
+    option.textContent = english;
+    if (option.dataset.originalI18nKey) {
+      option.removeAttribute('data-i18n');
+    }
+    if (option.dataset.originalI18nNs) {
+      option.removeAttribute('data-i18n-ns');
+    }
+  } else {
+    option.textContent = option.dataset.originalText || option.textContent;
+    if (option.dataset.originalI18nKey) {
+      option.setAttribute('data-i18n', option.dataset.originalI18nKey);
+    }
+    if (option.dataset.originalI18nNs) {
+      option.setAttribute('data-i18n-ns', option.dataset.originalI18nNs);
+    }
+  }
+}
 
 // 猫一覧を読み込み（譲渡済みを除く）
 async function loadAnimals() {

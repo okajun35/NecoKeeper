@@ -8,6 +8,8 @@
 let currentPage = 1;
 let currentFilters = {};
 let animals = [];
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -76,7 +78,7 @@ async function loadAnimals() {
     });
 
     if (!response.ok) {
-      throw new Error('猫一覧の取得に失敗しました');
+      throw new Error(fallbackText('Failed to load cat list.', '猫一覧の取得に失敗しました'));
     }
 
     const data = await response.json();
@@ -84,7 +86,7 @@ async function loadAnimals() {
 
     // ドロップダウンに追加
     const select = document.getElementById('filterAnimal');
-    select.innerHTML = '<option value="">すべての猫</option>';
+    select.innerHTML = `<option value="">${fallbackText('All Cats', 'すべての猫')}</option>`;
 
     animals.forEach(animal => {
       const option = document.createElement('option');
@@ -128,7 +130,7 @@ async function loadDailyView() {
     });
 
     if (!response.ok) {
-      throw new Error('世話記録の取得に失敗しました');
+      throw new Error(fallbackText('Failed to load care logs.', '世話記録の取得に失敗しました'));
     }
 
     const data = await response.json();
@@ -136,7 +138,7 @@ async function loadDailyView() {
     updatePagination(data);
   } catch (error) {
     console.error('世話記録の読み込みエラー:', error);
-    showError('世話記録の取得に失敗しました');
+    showError(fallbackText('Failed to load care logs.', '世話記録の取得に失敗しました'));
   } finally {
     hideLoading();
   }
@@ -153,9 +155,12 @@ function renderDailyView(data) {
   mobileList.innerHTML = '';
 
   if (data.items.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">記録がありません</td></tr>';
-    mobileList.innerHTML = '<div class="p-8 text-center text-gray-500">記録がありません</div>';
+    const emptyMessage = fallbackText('No records found.', '記録がありません');
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="px-6 py-8 text-center text-gray-500">${emptyMessage}</td>
+      </tr>`;
+    mobileList.innerHTML = `<div class="p-8 text-center text-gray-500">${emptyMessage}</div>`;
     return;
   }
 
@@ -210,6 +215,12 @@ function createDailyCard(item) {
   const card = document.createElement('div');
   card.className = 'p-4';
 
+  const timeSlotLabels = {
+    morning: fallbackText('Morning', '朝'),
+    noon: fallbackText('Noon', '昼'),
+    evening: fallbackText('Evening', '夕'),
+  };
+
   card.innerHTML = `
         <div class="flex justify-between items-start mb-3">
             <div>
@@ -219,15 +230,15 @@ function createDailyCard(item) {
         </div>
         <div class="grid grid-cols-3 gap-4">
             <div class="text-center">
-                <div class="text-xs text-gray-500 mb-1">朝</div>
+          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.morning}</div>
                 <div id="morning-${item.date}-${item.animal_id}"></div>
             </div>
             <div class="text-center">
-                <div class="text-xs text-gray-500 mb-1">昼</div>
+          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.noon}</div>
                 <div id="noon-${item.date}-${item.animal_id}"></div>
             </div>
             <div class="text-center">
-                <div class="text-xs text-gray-500 mb-1">夕</div>
+          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.evening}</div>
                 <div id="evening-${item.date}-${item.animal_id}"></div>
             </div>
         </div>
@@ -256,13 +267,15 @@ function createRecordLink(item, timeSlot) {
     link.textContent = '○';
     link.href = `/admin/care-logs/${record.log_id}`;
     link.className += ' text-green-600';
-    link.title = `食欲: ${record.appetite}, 元気: ${record.energy}`;
+    const appetiteLabel = fallbackText('Appetite', '食欲');
+    const energyLabel = fallbackText('Energy', '元気');
+    link.title = `${appetiteLabel}: ${record.appetite}, ${energyLabel}: ${record.energy}`;
   } else {
     // 記録なし: × → 新規登録画面
     link.textContent = '×';
     link.href = `/admin/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
     link.className += ' text-red-600';
-    link.title = '記録を追加';
+    link.title = fallbackText('Add record', '記録を追加');
   }
 
   return link;
@@ -281,7 +294,7 @@ function updatePagination(data) {
   document.getElementById('paginationInfo').innerHTML = `
         <span class="font-medium">${start}</span> -
         <span class="font-medium">${end}</span> /
-        <span class="font-medium">${total}</span> 件
+        <span class="font-medium">${total}</span> ${fallbackText('items', '件')}
     `;
 
   // ボタンの有効/無効
@@ -342,7 +355,7 @@ async function exportCsv() {
     });
 
     if (!response.ok) {
-      throw new Error('CSVエクスポートに失敗しました');
+      throw new Error(fallbackText('Failed to export CSV.', 'CSVエクスポートに失敗しました'));
     }
 
     const blob = await response.blob();
@@ -356,7 +369,7 @@ async function exportCsv() {
     document.body.removeChild(a);
   } catch (error) {
     console.error('CSVエクスポートエラー:', error);
-    showError('CSVエクスポートに失敗しました');
+    showError(fallbackText('Failed to export CSV.', 'CSVエクスポートに失敗しました'));
   }
 }
 

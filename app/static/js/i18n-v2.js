@@ -35,6 +35,39 @@ async function initI18n() {
       savedLanguage ||
       (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
+    // Kiroween Mode Check
+    const isKiroween = document.body.classList.contains('kiroween-mode');
+
+    if (isKiroween) {
+      // In Kiroween mode, we force English and load the Necro dictionary
+      // We bypass the standard backend for the initial load to ensure overrides
+      try {
+        const response = await fetch('/static/i18n/en_necro.json');
+        const necroResources = await response.json();
+
+        await i18next.init({
+          lng: 'en',
+          resources: {
+            en: necroResources,
+          },
+          debug: false,
+          ns: ['common', 'nav', 'dashboard', 'animals', 'care_logs', 'medical_records'],
+          defaultNS: 'common',
+          interpolation: { escapeValue: false },
+        });
+
+        currentLanguage = 'en';
+        i18nextInitialized = true;
+        console.log('[i18n] Kiroween Mode: Necro-English loaded');
+
+        translatePage();
+        return; // Skip standard initialization
+      } catch (e) {
+        console.error('[i18n] Failed to load Necro dictionary:', e);
+        // Fallback to standard init if failed
+      }
+    }
+
     // i18next-http-backend を使用（CDN経由）
     await i18next.use(i18nextHttpBackend).init({
       lng: defaultLanguage,

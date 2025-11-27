@@ -13,6 +13,11 @@ from app.main import app
 from app.models.animal import Animal
 
 
+def is_kiroween_mode_html(html: str) -> bool:
+    """HTML出力からKiroweenテーマかどうかを判定"""
+    return "kiroween-mode" in html or "NECRO-TERMINAL" in html
+
+
 @pytest.fixture
 def client() -> TestClient:
     """テスト用クライアント"""
@@ -69,9 +74,12 @@ class TestPublicCareI18n:
         assert response.status_code == 200
         html = response.text
 
-        # 言語切り替えボタンの確認
-        assert 'id="language-switcher"' in html
-        assert 'class="language-text"' in html
+        # 言語切り替えボタンの確認（Kiroween Modeは英語固定のため非表示）
+        if is_kiroween_mode_html(html):
+            assert 'id="language-switcher"' not in html
+        else:
+            assert 'id="language-switcher"' in html
+            assert 'class="language-text"' in html
 
     def test_care_form_page_has_button_translations(
         self, test_client: TestClient, test_animal: Animal
@@ -200,8 +208,11 @@ class TestPublicCareLogListI18n:
         )
         assert response.status_code == 200
         html = response.text
-        assert 'id="language-switcher"' in html
-        assert 'class="language-text"' in html
+        if is_kiroween_mode_html(html):
+            assert 'id="language-switcher"' not in html
+        else:
+            assert 'id="language-switcher"' in html
+            assert 'class="language-text"' in html
 
     def test_care_log_list_page_has_i18n_attributes(
         self, test_client: TestClient, test_animal: Animal

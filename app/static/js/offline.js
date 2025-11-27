@@ -4,6 +4,42 @@
  * IndexedDBを使用したオフライン保存と同期機能
  */
 
+const getOfflineBody = () => (typeof document !== 'undefined' ? document.body : null);
+const isOfflineKiroweenMode = () => Boolean(getOfflineBody()?.classList.contains('kiroween-mode'));
+const renderOfflineTemplate = (template, options = {}) => {
+  if (typeof template !== 'string') return template;
+  if (!template.includes('{{')) return template;
+  return template.replace(/{{(\w+)}}/g, (_, key) => options[key] ?? '');
+};
+const OFFLINE_FALLBACKS = {
+  statusOnline: {
+    en: '✓ Online',
+    ja: '✓ オンライン',
+  },
+  statusOffline: {
+    en: '⚠ Offline (entries sync automatically)',
+    ja: '⚠ オフライン（記録は一時保存されます）',
+  },
+  syncInProgress: {
+    en: '🔄 Syncing... ({{count}} entries)',
+    ja: '🔄 同期中... ({{count}}件)',
+  },
+  syncComplete: {
+    en: '✓ Sync complete ({{count}} entries)',
+    ja: '✓ 同期完了 ({{count}}件)',
+  },
+  syncError: {
+    en: '✗ Sync error',
+    ja: '✗ 同期エラー',
+  },
+};
+
+const getOfflineFallback = key => {
+  const entry = OFFLINE_FALLBACKS[key];
+  if (!entry) return '';
+  return isOfflineKiroweenMode() ? entry.en : entry.ja;
+};
+
 class OfflineManager {
   constructor() {
     this.dbName = 'NecoKeeperDB';
@@ -97,13 +133,13 @@ class OfflineManager {
     if (isOnline) {
       statusElement.innerHTML = `
                 <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
-                    ${this.translate('status_online', '✓ オンライン')}
+                    ${this.translate('status_online', getOfflineFallback('statusOnline'))}
                 </div>
             `;
     } else {
       statusElement.innerHTML = `
                 <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-2 rounded-lg text-sm">
-                    ${this.translate('status_offline', '⚠ オフライン（記録は一時保存されます）')}
+                    ${this.translate('status_offline', getOfflineFallback('statusOffline'))}
                 </div>
             `;
     }
@@ -248,14 +284,14 @@ class OfflineManager {
       case 'syncing':
         statusElement.innerHTML = `
                     <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm">
-                        ${this.translate('sync_in_progress', '🔄 同期中... ({{count}}件)', { count })}
+                        ${this.translate('sync_in_progress', getOfflineFallback('syncInProgress'), { count })}
                     </div>
                 `;
         break;
       case 'complete':
         statusElement.innerHTML = `
                     <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
-                        ${this.translate('sync_complete', '✓ 同期完了 ({{count}}件)', { count })}
+                        ${this.translate('sync_complete', getOfflineFallback('syncComplete'), { count })}
                     </div>
                 `;
         setTimeout(() => {
@@ -265,7 +301,7 @@ class OfflineManager {
       case 'error':
         statusElement.innerHTML = `
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
-                        ${this.translate('sync_error', '✗ 同期エラー')}
+                        ${this.translate('sync_error', getOfflineFallback('syncError'))}
                     </div>
                 `;
         break;
@@ -344,14 +380,17 @@ class OfflineManager {
 
   translate(key, fallback, options = {}) {
     const namespacedKey = `care:${key}`;
-    if (window.i18n && typeof window.i18n.t === 'function') {
+    const shouldForceFallback =
+      isOfflineKiroweenMode() && typeof fallback === 'string' && fallback.length > 0;
+
+    if (!shouldForceFallback && window.i18n && typeof window.i18n.t === 'function') {
       const translation = window.i18n.t(namespacedKey, options);
       if (translation && translation !== namespacedKey) {
         return translation;
       }
     }
-    if (typeof fallback === 'string' && Object.keys(options).length > 0) {
-      return fallback.replace(/{{(\w+)}}/g, (_, match) => options[match] ?? '');
+    if (typeof fallback === 'string') {
+      return renderOfflineTemplate(fallback, options) || key;
     }
     return fallback ?? key;
   }

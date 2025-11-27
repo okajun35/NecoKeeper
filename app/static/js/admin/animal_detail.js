@@ -2,6 +2,11 @@
  * 猫詳細ページのJavaScript
  */
 
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
+  ? '/static/icons/halloween_logo_2.webp'
+  : '/static/images/default.svg';
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
@@ -136,6 +141,8 @@ function setupQRCardGeneration() {
 async function generateQRCard() {
   const generateBtn = document.getElementById('generateQRCardBtn');
   const originalText = generateBtn.innerHTML;
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+  const loadingText = isKiroween ? 'GENERATING...' : '生成中...';
 
   try {
     // ボタンをローディング状態に
@@ -145,7 +152,7 @@ async function generateQRCard() {
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <span>生成中...</span>
+      <span>${loadingText}</span>
     `;
 
     // API呼び出し
@@ -176,7 +183,7 @@ async function generateQRCard() {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showToast('QRカードを生成しました', 'success');
+    showToast(isKiroween ? 'QR CARD GENERATED' : 'QRカードを生成しました', 'success');
   } catch (error) {
     console.error('Error generating QR card:', error);
     showToast('error', error.message);
@@ -200,10 +207,12 @@ function setupPaperFormGeneration() {
 
   // 年のオプションを生成（現在年の前後2年）
   const currentYear = new Date().getFullYear();
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+
   for (let year = currentYear - 2; year <= currentYear + 2; year++) {
     const option = document.createElement('option');
     option.value = year;
-    option.textContent = `${year}年`;
+    option.textContent = isKiroween ? `${year}` : `${year}年`;
     if (year === currentYear) {
       option.selected = true;
     }
@@ -246,6 +255,8 @@ function setupPaperFormGeneration() {
 async function generatePaperForm(year, month) {
   const generateBtn = document.getElementById('generatePaperFormBtn');
   const originalText = generateBtn.innerHTML;
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+  const loadingText = isKiroween ? 'GENERATING...' : '生成中...';
 
   try {
     // ボタンをローディング状態に
@@ -255,7 +266,7 @@ async function generatePaperForm(year, month) {
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <span>生成中...</span>
+      <span>${loadingText}</span>
     `;
 
     // API呼び出し
@@ -288,7 +299,10 @@ async function generatePaperForm(year, month) {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showToast(`${year}年${month}月の紙記録フォームを生成しました`, 'success');
+    const message = isKiroween
+      ? `PAPER FORM GENERATED FOR ${year}-${month.toString().padStart(2, '0')}`
+      : `${year}年${month}月の紙記録フォームを生成しました`;
+    showToast(message, 'success');
   } catch (error) {
     console.error('Error generating paper form:', error);
     showToast('error', error.message);
@@ -473,18 +487,28 @@ async function loadGallery() {
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
     `;
 
+    const locale = window.i18next?.language === 'en' ? 'en-US' : 'ja-JP';
+
     images.forEach(image => {
       // 画像パスに/media/プレフィックスを追加
       const imageSrc = image.image_path.startsWith('/')
         ? image.image_path
         : `/media/${image.image_path}`;
-      const imageAlt = image.description || translate('gallery.cat_image', { ns: 'animals' });
+      const rawDescription = (image.description || '').trim();
+      const displayDescription =
+        rawDescription === 'プロフィール画像'
+          ? translate('gallery.profile_image', {
+              ns: 'animals',
+              defaultValue: rawDescription || 'プロフィール画像',
+            })
+          : rawDescription;
+      const imageAlt = displayDescription || translate('gallery.cat_image', { ns: 'animals' });
 
       html += `
         <div class="relative group">
           <img src="${imageSrc}"
                alt="${imageAlt}"
-               onerror="this.onerror=null; this.src='/static/images/default.svg';"
+              onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
                class="w-full h-48 object-cover rounded-lg cursor-pointer"
                onclick="openImageModal('${imageSrc}', '${imageAlt}')">
           <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -494,8 +518,8 @@ async function loadGallery() {
               </svg>
             </button>
           </div>
-          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${new Date(image.taken_at).toLocaleDateString('ja-JP')}</p>` : ''}
-          ${image.description ? `<p class="text-xs text-gray-600 mt-1 truncate">${image.description}</p>` : ''}
+          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${new Date(image.taken_at).toLocaleDateString(locale)}</p>` : ''}
+          ${displayDescription ? `<p class="text-xs text-gray-600 mt-1 truncate">${displayDescription}</p>` : ''}
         </div>
       `;
     });
@@ -537,21 +561,22 @@ async function uploadImage(file) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || '画像のアップロードに失敗しました');
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.detail || translate('gallery.upload_failed', { ns: 'animals' }));
     }
 
-    showToast('画像をアップロードしました', 'success');
+    showToast(translate('gallery.upload_success', { ns: 'animals' }), 'success');
     loadGallery();
   } catch (error) {
     console.error('Error uploading image:', error);
-    showToast('error', error.message);
+    showToast(error.message, 'error');
   }
 }
 
 // 画像を削除
 async function deleteImage(imageId) {
-  if (!confirm('この画像を削除しますか？')) {
+  const confirmMessage = translate('gallery.delete_confirm', { ns: 'animals' });
+  if (!confirmAction(confirmMessage)) {
     return;
   }
 
@@ -564,14 +589,14 @@ async function deleteImage(imageId) {
     });
 
     if (!response.ok) {
-      throw new Error('画像の削除に失敗しました');
+      throw new Error(translate('gallery.delete_failed', { ns: 'animals' }));
     }
 
-    showToast('画像を削除しました', 'success');
+    showToast(translate('gallery.delete_success', { ns: 'animals' }), 'success');
     loadGallery();
   } catch (error) {
     console.error('Error deleting image:', error);
-    showToast('error', error.message);
+    showToast(error.message, 'error');
   }
 }
 
@@ -593,7 +618,7 @@ function openImageModal(imagePath, description) {
       </button>
       <img src="${imagePath}"
            alt="${description}"
-           onerror="this.onerror=null; this.src='/static/images/default.svg';"
+          onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
            class="max-w-full max-h-screen object-contain rounded-lg">
       ${description ? `<p class="text-white text-center mt-2">${description}</p>` : ''}
     </div>
@@ -843,8 +868,10 @@ function setupProfileImageChange() {
 
     if (window.i18n && typeof window.i18n.translateElement === 'function') {
       window.i18n.translateElement(fileNameText);
+    } else if (typeof translate === 'function') {
+      fileNameText.textContent = translate('file_input.empty', { ns: 'common' });
     } else {
-      fileNameText.textContent = '選択されていません';
+      fileNameText.textContent = 'No file selected';
     }
 
     fileNameText.classList.add('text-gray-500');
@@ -929,7 +956,7 @@ function setupProfileImageChange() {
 
     // ファイルサイズチェック（5MB）
     if (file.size > 5 * 1024 * 1024) {
-      showToast('ファイルサイズは5MB以下にしてください', 'error');
+      showToast(translate('errors.file_size_limit', { ns: 'animals' }), 'error');
       fileInput.value = '';
       previewContainer.classList.add('hidden');
       uploadBtn.disabled = true;
@@ -961,7 +988,8 @@ function setupProfileImageChange() {
     if (!file) return;
 
     uploadBtn.disabled = true;
-    uploadBtn.textContent = 'アップロード中...';
+    const originalUploadText = uploadBtn.textContent;
+    uploadBtn.textContent = translate('status_text.uploading', { ns: 'animals' });
 
     try {
       const formData = new FormData();
@@ -977,7 +1005,7 @@ function setupProfileImageChange() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.detail || 'アップロードに失敗しました');
+        throw new Error(error.detail || translate('errors.upload_failed', { ns: 'animals' }));
       }
 
       const result = await response.json();
@@ -985,14 +1013,14 @@ function setupProfileImageChange() {
       // プロフィール画像を更新
       document.getElementById('animalPhoto').src = result.image_path;
 
-      showToast('プロフィール画像を更新しました', 'success');
+      showToast(translate('messages.profile_image_updated', { ns: 'animals' }), 'success');
       closeModal();
     } catch (error) {
       console.error('Error uploading image:', error);
       showToast(error.message, 'error');
     } finally {
       uploadBtn.disabled = false;
-      uploadBtn.textContent = 'アップロード';
+      uploadBtn.textContent = originalUploadText;
     }
   });
 }
@@ -1001,6 +1029,10 @@ function setupProfileImageChange() {
 async function loadGalleryImages() {
   const grid = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
+  const selectLabel =
+    typeof translate === 'function'
+      ? translate('select', { ns: 'common', defaultValue: 'Select' })
+      : 'Select';
 
   try {
     const response = await fetch(
@@ -1013,7 +1045,7 @@ async function loadGalleryImages() {
     );
 
     if (!response.ok) {
-      throw new Error('画像の読み込みに失敗しました');
+      throw new Error(translate('gallery.load_error', { ns: 'animals' }));
     }
 
     const images = await response.json();
@@ -1036,7 +1068,7 @@ async function loadGalleryImages() {
                alt="${image.description || ''}"
                class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-indigo-600 transition-colors">
           <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
-            <span class="text-white opacity-0 group-hover:opacity-100 font-medium">選択</span>
+            <span class="text-white opacity-0 group-hover:opacity-100 font-medium">${selectLabel}</span>
           </div>
         </div>
       `
@@ -1064,7 +1096,9 @@ async function selectGalleryImage(imageId, imagePath) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'プロフィール画像の設定に失敗しました');
+      throw new Error(
+        error.detail || translate('errors.profile_image_set_failed', { ns: 'animals' })
+      );
     }
 
     const result = await response.json();
@@ -1072,7 +1106,7 @@ async function selectGalleryImage(imageId, imagePath) {
     // プロフィール画像を更新
     document.getElementById('animalPhoto').src = result.image_path;
 
-    showToast('プロフィール画像を更新しました', 'success');
+    showToast(translate('messages.profile_image_updated', { ns: 'animals' }), 'success');
 
     // モーダルを閉じる
     document.getElementById('profileImageModal').classList.add('hidden');

@@ -5,18 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="保護猫の世話記録を簡単に入力できるアプリ">
     <meta name="theme-color" content="#4f46e5">
+
+    <!-- Conditional Favicon: Kiroween Mode uses Halloween icon -->
+    {% if settings.kiroween_mode %}
+    <link rel="icon" type="image/webp" href="/static/icons/halloween_icon.webp">
+    {% else %}
+    <link rel="icon" type="image/png" href="/static/icons/default_icon.png">
+    {% endif %}
+
     <title {% block title_attributes %}{% endblock %}>{% block title %}NecoKeeper{% endblock %}</title>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/static/manifest.json">
+    <!-- PWA Manifest (Dynamic) -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Legacy static manifest for clients expecting /static/manifest.json -->
+    <link rel="prefetch" href="/static/manifest.json" data-legacy-manifest="true">
 
     <!-- Apple Touch Icon -->
+    {% if settings.kiroween_mode %}
+    <link rel="apple-touch-icon" href="/static/icons/halloween_icon.webp">
+    {% else %}
     <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    {% endif %}
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="NecoKeeper">
 
+    <!-- Tailwind (always) + Terminal CSS when Kiroween -->
     <script src="https://cdn.tailwindcss.com"></script>
+    {% if settings.kiroween_mode %}
+    <link rel="stylesheet" href="/static/css/terminal.css">
+    {% endif %}
 
     <!-- i18next for internationalization -->
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
@@ -27,6 +45,15 @@
     <script src="/static/js/offline.js"></script>
 
     {% block extra_head %}{% endblock %}
+
+    <!-- Conditional Monospace Font Override for Kiroween Mode -->
+    {% if settings.kiroween_mode %}
+    <style>
+        * {
+            font-family: 'Courier New', Courier, monospace !important;
+        }
+    </style>
+    {% endif %}
 
     <style>
         /* カスタムスタイル */
@@ -103,7 +130,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
     {% block content %}{% endblock %}
 
     {% block extra_scripts %}{% endblock %}

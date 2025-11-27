@@ -9,8 +9,17 @@
 const urlParams = new URLSearchParams(window.location.search);
 const animalId = urlParams.get('animal_id');
 
+const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
+  ? '/static/icons/halloween_logo_2.webp'
+  : '/static/images/default.svg';
+const OFFLINE_SAVE_FALLBACK = isKiroweenMode
+  ? 'Saved offline. It will auto-sync once you are back online.'
+  : '記録を一時保存しました（オンライン時に自動同期されます）';
+const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
+
 if (!animalId) {
-  showError('猫のIDが指定されていません');
+  showError(fallbackText('Animal ID is missing.', '猫のIDが指定されていません'));
 }
 
 // 記録日に今日の日付を設定
@@ -28,24 +37,32 @@ const REQUIRED_FIELD_CONFIG = [
   { id: 'volunteer', key: 'recorder' },
 ];
 
+function renderCareTemplate(template, options = {}) {
+  if (typeof template !== 'string') return template;
+  if (!template.includes('{{')) return template;
+  return template.replace(/{{(\w+)}}/g, (_, k) => options[k] ?? '');
+}
+
 function translateCare(key, fallback = '', options = {}) {
   const namespacedKey = `${CARE_NAMESPACE}:${key}`;
-  if (window.i18n && typeof window.i18n.t === 'function') {
+  const shouldForceFallback = isKiroweenMode && typeof fallback === 'string' && fallback.length > 0;
+
+  if (!shouldForceFallback && window.i18n && typeof window.i18n.t === 'function') {
     const translation = window.i18n.t(namespacedKey, options);
     if (translation && translation !== namespacedKey) {
       return translation;
     }
   }
 
-  if (typeof fallback === 'string' && fallback.includes('{{') && options) {
-    return fallback.replace(/{{(\w+)}}/g, (_, k) => options[k] ?? '');
+  if (typeof fallback === 'string') {
+    return renderCareTemplate(fallback, options) || key;
   }
 
   return fallback || key;
 }
 
 function updatePageTitle() {
-  const localizedTitle = translateCare('title', '世話記録入力');
+  const localizedTitle = translateCare('title', isKiroweenMode ? 'Care Log Entry' : '世話記録入力');
   document.title = `${localizedTitle}${PAGE_TITLE_SUFFIX}`;
 }
 
@@ -157,9 +174,13 @@ function validateForm() {
 
     if (isMissing) {
       const fieldLabel = translateCare(field.key, field.key);
-      const fieldMessage = translateCare('validation_required', '{{field}}は必須です', {
-        field: fieldLabel,
-      });
+      const fieldMessage = translateCare(
+        'validation_required',
+        fallbackText('{{field}} is required.', '{{field}}は必須です'),
+        {
+          field: fieldLabel,
+        }
+      );
       missingFields.push({ id: field.id, label: fieldLabel, message: fieldMessage });
       setFieldErrorState(field.id, true, fieldMessage);
     } else {
@@ -171,11 +192,21 @@ function validateForm() {
     const summaryMessageParts = [
       translateCare(
         'save_validation_error',
-        '未入力または不正な項目があります。赤枠の欄を確認してください。'
+        fallbackText(
+          'Some fields are missing or invalid. Please review the highlighted sections.',
+          '未入力または不正な項目があります。赤枠の欄を確認してください。'
+        )
       ),
-      translateCare('validation_missing_fields', '以下の必須項目が未入力です: {{fields}}', {
-        fields: missingFields.map(field => field.label).join(', '),
-      }),
+      translateCare(
+        'validation_missing_fields',
+        fallbackText(
+          'Missing required fields: {{fields}}',
+          '以下の必須項目が未入力です: {{fields}}'
+        ),
+        {
+          fields: missingFields.map(field => field.label).join(', '),
+        }
+      ),
     ];
 
     return {
@@ -194,8 +225,8 @@ function setSubmitButtonState(isLoading) {
 
   submitBtn.disabled = isLoading;
   submitBtn.textContent = isLoading
-    ? translateCare('saving', '保存中...')
-    : translateCare('save', '保存');
+    ? translateCare('saving', fallbackText('Saving...', '保存中...'))
+    : translateCare('save', fallbackText('Save', '保存'));
 }
 
 /**
@@ -204,19 +235,23 @@ function setSubmitButtonState(isLoading) {
 async function loadAnimalInfo() {
   try {
     const response = await fetch(`${API_BASE}/animals/${animalId}`);
-    if (!response.ok) throw new Error('猫情報の取得に失敗しました');
+    if (!response.ok)
+      throw new Error(
+        fallbackText('Failed to load cat information.', '猫情報の取得に失敗しました')
+      );
 
     const animal = await response.json();
-    document.getElementById('animalName').textContent = animal.name || '名前未設定';
+    document.getElementById('animalName').textContent =
+      animal.name || fallbackText('No name set', '名前未設定');
 
     // 画像のフォールバック処理
     const photoElement = document.getElementById('animalPhoto');
     const photoUrl =
-      animal.photo && animal.photo.trim() !== '' ? animal.photo : '/static/images/default.svg';
+      animal.photo && animal.photo.trim() !== '' ? animal.photo : DEFAULT_IMAGE_PLACEHOLDER;
     photoElement.src = photoUrl;
     photoElement.onerror = function () {
       this.onerror = null; // 無限ループ防止
-      this.src = '/static/images/default.svg';
+      this.src = DEFAULT_IMAGE_PLACEHOLDER;
     };
   } catch (error) {
     showError(error.message);
@@ -229,7 +264,10 @@ async function loadAnimalInfo() {
 async function loadVolunteers() {
   try {
     const response = await fetch(`${API_BASE}/volunteers`);
-    if (!response.ok) throw new Error('ボランティア一覧の取得に失敗しました');
+    if (!response.ok)
+      throw new Error(
+        fallbackText('Failed to load volunteer list.', 'ボランティア一覧の取得に失敗しました')
+      );
 
     const volunteers = await response.json();
     const select = document.getElementById('volunteer');
@@ -282,16 +320,37 @@ async function copyLastValues() {
     const response = await fetch(`${API_BASE}/care-logs/latest/${animalId}`);
     if (!response.ok) {
       if (response.status === 404) {
-        showSuccess(translateCare('copy_no_data', '前回の記録がありません（初回記録です）'));
+        showSuccess(
+          translateCare(
+            'copy_no_data',
+            fallbackText(
+              'No previous records found (first entry).',
+              '前回の記録がありません（初回記録です）'
+            )
+          )
+        );
         return;
       }
-      throw new Error(translateCare('copy_failure', '前回値の取得に失敗しました'));
+      throw new Error(
+        translateCare(
+          'copy_failure',
+          fallbackText('Failed to load previous values.', '前回値の取得に失敗しました')
+        )
+      );
     }
 
     const lastLog = await response.json();
 
     if (!lastLog) {
-      showSuccess(translateCare('copy_no_data', '前回の記録がありません（初回記録です）'));
+      showSuccess(
+        translateCare(
+          'copy_no_data',
+          fallbackText(
+            'No previous records found (first entry).',
+            '前回の記録がありません（初回記録です）'
+          )
+        )
+      );
       return;
     }
 
@@ -329,9 +388,19 @@ async function copyLastValues() {
 
     // メモはコピーしない（毎回異なる可能性が高いため）
 
-    showSuccess(translateCare('copy_success', '前回値をコピーしました'));
+    showSuccess(
+      translateCare(
+        'copy_success',
+        fallbackText('Copied previous values.', '前回値をコピーしました')
+      )
+    );
   } catch (error) {
-    const message = error?.message || translateCare('copy_failure', '前回値の取得に失敗しました');
+    const message =
+      error?.message ||
+      translateCare(
+        'copy_failure',
+        fallbackText('Failed to load previous values.', '前回値の取得に失敗しました')
+      );
     showError(message);
   }
 }
@@ -410,11 +479,8 @@ async function handleSubmit(e) {
     const result = await window.offlineManager.saveCareLog(formData);
 
     const successMessage = result.online
-      ? translateCare('save_success_online', '記録を保存しました')
-      : translateCare(
-          'save_success_offline',
-          '記録を一時保存しました（オンライン時に自動同期されます）'
-        );
+      ? translateCare('save_success_online', fallbackText('Record saved.', '記録を保存しました'))
+      : translateCare('save_success_offline', OFFLINE_SAVE_FALLBACK);
     showToast(successMessage);
 
     // フォームをリセット
@@ -424,7 +490,10 @@ async function handleSubmit(e) {
   } catch (error) {
     const fallbackMessage = translateCare(
       'error_api_failed',
-      '送信に失敗しました。時間をおいて再度お試しください。'
+      fallbackText(
+        'Submission failed. Please try again later.',
+        '送信に失敗しました。時間をおいて再度お試しください。'
+      )
     );
     showError(error?.message || fallbackMessage);
   } finally {

@@ -13,7 +13,7 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
-const I18N_VERSION = '20241121v4';
+const I18N_VERSION = '20241127v1';
 
 /**
  * i18nextを初期化
@@ -26,14 +26,74 @@ async function initI18n() {
   }
 
   try {
+    // Kiroweenモードかどうかを判定
+    const isKiroween = document.body.classList.contains('kiroween-mode');
+
     // 保存された言語設定を取得、なければブラウザ言語を使用
     const savedLanguage = localStorage.getItem('language');
     const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
-    const defaultLanguage =
-      savedLanguage ||
-      (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
-    // 翻訳ファイルを読み込み(名前空間ごと)
+    // Kiroweenモードの場合は強制的に英語、それ以外は保存された設定またはブラウザ言語
+    const defaultLanguage = isKiroween
+      ? 'en'
+      : savedLanguage ||
+        (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
+
+    // Kiroweenモードの場合は単一のen_necro.jsonファイルを読み込み
+    if (isKiroween) {
+      const cacheBuster = `?v=${I18N_VERSION}`;
+      const necroRes = await fetch(`/static/i18n/en_necro.json${cacheBuster}`);
+
+      if (necroRes.ok) {
+        const necroTranslations = await necroRes.json();
+
+        // i18nextを初期化（Necro翻訳）
+        await i18next.init({
+          lng: 'en',
+          fallbackLng: 'en',
+          debug: false,
+          resources: {
+            en: necroTranslations,
+          },
+          ns: [
+            'common',
+            'nav',
+            'dashboard',
+            'animals',
+            'care_logs',
+            'medical_records',
+            'medical_actions',
+            'volunteers',
+            'adoptions',
+            'reports',
+            'settings',
+            'care',
+            'login',
+          ],
+          defaultNS: 'common',
+          interpolation: {
+            escapeValue: false,
+          },
+        });
+
+        currentLanguage = 'en';
+        i18nextInitialized = true;
+
+        console.log('[i18n] Initialized with NECRO-TERMINAL translations');
+
+        // 初回翻訳を適用
+        translatePage();
+
+        // i18nextInitializedイベントを発火
+        document.dispatchEvent(new Event('i18nextInitialized'));
+
+        return;
+      } else {
+        console.error('[i18n] Failed to load en_necro.json, falling back to standard translations');
+      }
+    }
+
+    // 標準モード: 翻訳ファイルを読み込み(名前空間ごと)
     const namespaces = [
       'common',
       'nav',
@@ -196,6 +256,13 @@ function translatePage() {
 async function changeLanguage(language) {
   if (!i18nextInitialized) {
     console.warn('[i18n] Not initialized yet');
+    return;
+  }
+
+  // Kiroweenモードでは言語切り替えを無効化
+  const isKiroween = document.body.classList.contains('kiroween-mode');
+  if (isKiroween) {
+    console.log('[i18n] Language switching disabled in NECRO-TERMINAL mode');
     return;
   }
 

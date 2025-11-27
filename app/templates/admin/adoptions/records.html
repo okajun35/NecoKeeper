@@ -4,6 +4,12 @@
 {% block page_title %}<span data-i18n="adoptions:records.title" data-i18n-ns="adoptions">譲渡記録管理</span>{% endblock %}
 {% block page_description %}<span data-i18n="adoptions:records.description" data-i18n-ns="adoptions">面談記録と譲渡記録の管理</span>{% endblock %}
 
+{% block extra_head %}
+    {% if settings.kiroween_mode %}
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/kiroween_admin_modal.css') }}">
+    {% endif %}
+{% endblock %}
+
 {% block header_actions %}
 <button id="newRecordBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="adoptions:records.buttons.new_interview" data-i18n-ns="adoptions">面談記録登録</span>
@@ -87,101 +93,105 @@
 </div>
 
 <!-- 面談記録モーダル -->
-<div id="interviewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="interviewModalTitle" class="text-lg font-medium text-gray-900">面談記録登録</h3>
-            <button id="closeInterviewModal" class="text-gray-400 hover:text-gray-600">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+<div id="interviewModal" class="modal-overlay hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="modal relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="interviewModalTitle" class="text-lg font-medium text-gray-900">面談記録登録</h3>
+                <button id="closeInterviewModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="interviewForm" class="space-y-4">
+                <input type="hidden" id="recordId">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.animal" data-i18n-ns="adoptions">猫</span> <span class="text-red-500">*</span></label>
+                    <select id="animalId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="" data-i18n="common:messages.please_select" data-i18n-ns="common">選択してください</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.applicant" data-i18n-ns="adoptions">里親希望者</span> <span class="text-red-500">*</span></label>
+                    <select id="applicantId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="" data-i18n="common:messages.please_select" data-i18n-ns="common">選択してください</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.interview_date" data-i18n-ns="adoptions">面談日</label>
+                    <input type="date" id="interviewDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.interview_note" data-i18n-ns="adoptions">面談内容</label>
+                    <textarea id="interviewNote" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.decision" data-i18n-ns="adoptions">判定結果</label>
+                    <select id="decision" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="pending" data-i18n="adoptions:records.decision.pending" data-i18n-ns="adoptions">審査中</option>
+                        <option value="approved" data-i18n="adoptions:records.decision.approved" data-i18n-ns="adoptions">承認済み</option>
+                        <option value="rejected" data-i18n="adoptions:records.decision.rejected" data-i18n-ns="adoptions">不承認</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="common:buttons.save" data-i18n-ns="common">
+                        保存
+                    </button>
+                    <button type="button" id="cancelInterviewBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common:buttons.cancel" data-i18n-ns="common">
+                        キャンセル
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <form id="interviewForm" class="space-y-4">
-            <input type="hidden" id="recordId">
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.animal" data-i18n-ns="adoptions">猫</span> <span class="text-red-500">*</span></label>
-                <select id="animalId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="" data-i18n="common:messages.please_select" data-i18n-ns="common">選択してください</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.applicant" data-i18n-ns="adoptions">里親希望者</span> <span class="text-red-500">*</span></label>
-                <select id="applicantId" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="" data-i18n="common:messages.please_select" data-i18n-ns="common">選択してください</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.interview_date" data-i18n-ns="adoptions">面談日</label>
-                <input type="date" id="interviewDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.interview_note" data-i18n-ns="adoptions">面談内容</label>
-                <textarea id="interviewNote" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="adoptions:records.fields.decision" data-i18n-ns="adoptions">判定結果</label>
-                <select id="decision" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    <option value="pending" data-i18n="adoptions:records.decision.pending" data-i18n-ns="adoptions">審査中</option>
-                    <option value="approved" data-i18n="adoptions:records.decision.approved" data-i18n-ns="adoptions">承認済み</option>
-                    <option value="rejected" data-i18n="adoptions:records.decision.rejected" data-i18n-ns="adoptions">不承認</option>
-                </select>
-            </div>
-
-            <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="common:buttons.save" data-i18n-ns="common">
-                    保存
-                </button>
-                <button type="button" id="cancelInterviewBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common:buttons.cancel" data-i18n-ns="common">
-                    キャンセル
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 
 <!-- 譲渡完了モーダル -->
-<div id="adoptionModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-lg bg-white">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium text-gray-900" data-i18n="adoptions:records.modal.adoption_complete" data-i18n-ns="adoptions">譲渡完了</h3>
-            <button id="closeAdoptionModal" class="text-gray-400 hover:text-gray-600">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+<div id="adoptionModal" class="modal-overlay hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="modal relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-lg bg-white">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900" data-i18n="adoptions:records.modal.adoption_complete" data-i18n-ns="adoptions">譲渡完了</h3>
+                <button id="closeAdoptionModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="adoptionForm" class="space-y-4">
+                <input type="hidden" id="adoptAnimalId">
+                <input type="hidden" id="adoptApplicantId">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.adoption_date" data-i18n-ns="adoptions">譲渡日</span> <span class="text-red-500">*</span></label>
+                    <input type="date" id="adoptionDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p class="text-sm text-yellow-800" data-i18n="adoptions:records.messages.adoption_warning" data-i18n-ns="adoptions">
+                        ⚠️ 譲渡完了すると、猫のステータスが「譲渡済み」に変更されます。
+                    </p>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="adoptions:records.buttons.complete_adoption" data-i18n-ns="adoptions">
+                        譲渡完了
+                    </button>
+                    <button type="button" id="cancelAdoptionBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common:buttons.cancel" data-i18n-ns="common">
+                        キャンセル
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <form id="adoptionForm" class="space-y-4">
-            <input type="hidden" id="adoptAnimalId">
-            <input type="hidden" id="adoptApplicantId">
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="adoptions:records.fields.adoption_date" data-i18n-ns="adoptions">譲渡日</span> <span class="text-red-500">*</span></label>
-                <input type="date" id="adoptionDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p class="text-sm text-yellow-800" data-i18n="adoptions:records.messages.adoption_warning" data-i18n-ns="adoptions">
-                    ⚠️ 譲渡完了すると、猫のステータスが「譲渡済み」に変更されます。
-                </p>
-            </div>
-
-            <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="adoptions:records.buttons.complete_adoption" data-i18n-ns="adoptions">
-                    譲渡完了
-                </button>
-                <button type="button" id="cancelAdoptionBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="common:buttons.cancel" data-i18n-ns="common">
-                    キャンセル
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 

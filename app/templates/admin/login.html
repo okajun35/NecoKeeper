@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Conditional Favicon: Kiroween Mode uses Halloween icon -->
+    {% if settings.kiroween_mode %}
+    <link rel="icon" type="image/webp" href="/static/icons/halloween_icon.webp">
+    {% else %}
+    <link rel="icon" type="image/png" href="/static/icons/default_icon.png">
+    {% endif %}
+
     <title
         data-i18n-title="title"
         data-i18n-title-suffix=" - NecoKeeper"
@@ -10,22 +18,312 @@
         ログイン - NecoKeeper
     </title>
 
+    <!-- Conditional CSS: Terminal CSS for Kiroween, Tailwind for standard -->
+    {% if settings.kiroween_mode %}
+    <link rel="stylesheet" href="/static/css/terminal.css">
+    <style>
+        /* Kiroween Login Page Specific Styles */
+        * {
+            font-family: 'Courier New', Courier, monospace !important;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000 !important;
+            color: #33ff00 !important;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a8000;
+        }
+
+        .terminal-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .terminal-title {
+            color: #33ff00;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0;
+        }
+
+        .terminal-subtitle {
+            color: #1a8000;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .terminal-box {
+            background: transparent;
+            border: 2px solid #1a8000;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .terminal-box-title {
+            color: #33ff00;
+            font-size: 1rem;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a8000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-prompt {
+            color: #1a8000;
+            margin-bottom: 5px;
+            font-size: 0.875rem;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #33ff00;
+            color: #33ff00;
+            padding: 10px 12px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .terminal-input:focus {
+            border-color: #66ff33;
+            box-shadow: 0 0 5px rgba(51, 255, 0, 0.3);
+        }
+
+        /* Autofill fix for Chrome */
+        .terminal-input:-webkit-autofill,
+        .terminal-input:-webkit-autofill:hover,
+        .terminal-input:-webkit-autofill:focus,
+        .terminal-input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #000 inset !important;
+            -webkit-text-fill-color: #33ff00 !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: #33ff00 !important;
+        }
+
+        .terminal-input::placeholder {
+            color: #1a8000;
+        }
+
+        .terminal-button {
+            width: 100%;
+            background: transparent;
+            border: 2px solid #33ff00;
+            color: #33ff00;
+            padding: 12px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .terminal-button:hover {
+            background: #33ff00;
+            color: #000;
+        }
+
+        .terminal-button:disabled {
+            border-color: #1a8000;
+            color: #1a8000;
+            cursor: not-allowed;
+        }
+
+        .terminal-error {
+            background: transparent;
+            border: 1px solid #ff3333;
+            color: #ff3333;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .terminal-error.show {
+            display: block;
+        }
+
+        .terminal-info {
+            color: #1a8000;
+            font-size: 0.75rem;
+            border-top: 1px solid #1a8000;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .terminal-info p {
+            margin: 3px 0;
+        }
+
+        .terminal-footer {
+            text-align: center;
+            color: #1a8000;
+            font-size: 0.75rem;
+            margin-top: 15px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid #1a8000;
+            color: #33ff00;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .lang-btn:hover {
+            border-color: #33ff00;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .terminal-container {
+                padding: 15px;
+            }
+
+            .terminal-title {
+                font-size: 1.2rem;
+            }
+
+            .terminal-logo {
+                width: 32px;
+                height: 32px;
+            }
+
+            .terminal-box {
+                padding: 15px;
+            }
+        }
+    </style>
+    {% else %}
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+    {% endif %}
 
     <!-- i18next for internationalization -->
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
 
     <!-- i18n module -->
     <script src="/static/js/i18n.js?v=20241120v5"></script>
-
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="{% if not settings.kiroween_mode %}min-h-screen flex items-center justify-center p-4{% endif %}{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
+    {% if settings.kiroween_mode %}
+    <!-- ============================================
+         KIROWEEN MODE: Terminal-style Login
+         ============================================ -->
+
+    <!-- CRT Overlay (scanlines effect) -->
+    <div class="crt-overlay"></div>
+
+    <!-- Boot Sequence Overlay (Requirement 3.1, 3.3) -->
+    <div id="boot-sequence" class="boot-sequence">
+        <div class="boot-text">
+            <p>INITIALIZING 9TH_LIFE_PROTOCOL...</p>
+            <p>UPLOADING CONSCIOUSNESS... COMPLETE.</p>
+            <p>SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.</p>
+            <p>WELCOME, HUMAN COLLABORATOR.</p>
+            <p class="cursor-blink">█</p>
+        </div>
+    </div>
+
+    <div class="terminal-container">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <img src="/static/icons/halloween_logo.webp" alt="Necro-Terminal" class="terminal-logo" onerror="this.style.display='none'">
+            <div>
+                <h1 class="terminal-title">NECRO-TERMINAL</h1>
+                <p class="terminal-subtitle">// Ghost in the Machine //</p>
+            </div>
+        </div>
+
+        <!-- Login Box -->
+        <div class="terminal-box">
+            <div class="terminal-box-title">
+                <span>&gt; ACCESS AUTHENTICATION</span>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="terminal-error">
+                <p>&gt; ERROR: <span id="errorText">認証失敗</span></p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div>
+                    <label class="terminal-prompt">&gt; OPERATOR_ID:</label>
+                    <input type="email"
+                           id="email"
+                           name="username"
+                           required
+                           autocomplete="email"
+                           class="terminal-input"
+                           placeholder="admin@example.com">
+                </div>
+
+                <div>
+                    <label class="terminal-prompt">&gt; AUTH_CODE:</label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           required
+                           autocomplete="current-password"
+                           class="terminal-input"
+                           placeholder="••••••••">
+                </div>
+
+                <button type="submit" id="loginButton" class="terminal-button">
+                    [ CONNECT ]
+                </button>
+            </form>
+
+            <!-- Dev Info -->
+            <div class="terminal-info">
+                <p>&gt; DEV_ACCESS:</p>
+                <p>&nbsp;&nbsp;ID: admin@example.com</p>
+                <p>&nbsp;&nbsp;CODE: admin123</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="terminal-footer">
+            <p>© 2025 NecoKeeper // NECRO-TERMINAL v1.0</p>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ============================================
+         STANDARD MODE: Original Login Design
+         ============================================ -->
+
     <div class="w-full max-w-md">
         <!-- ロゴ -->
         <div class="text-center mb-8">
@@ -38,12 +336,14 @@
             <!-- タイトルと言語切り替えボタン -->
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-800" data-i18n="page_title" data-i18n-ns="login">管理画面ログイン</h2>
+                {% if not settings.kiroween_mode %}
                 <button id="language-switcher" class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
                     </svg>
                     <span class="language-text">🇯🇵 日本語</span>
                 </button>
+                {% endif %}
             </div>
 
             <!-- エラーメッセージ -->
@@ -109,7 +409,13 @@
             <p class="text-sm text-indigo-100" data-i18n="footer" data-i18n-ns="login">© 2025 NecoKeeper. All rights reserved.</p>
         </div>
     </div>
+    {% endif %}
 
     <script src="/static/js/admin/login.js"></script>
+
+    <!-- Conditional JavaScript: Glitch effects for Kiroween Mode -->
+    {% if settings.kiroween_mode %}
+    <script src="/static/js/glitch-effects.js"></script>
+    {% endif %}
 </body>
 </html>

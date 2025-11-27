@@ -191,7 +191,8 @@
       "delete_photo": "写真を削除",
       "change_image": "画像を変更",
       "upload_new": "新しい画像をアップロード",
-      "select_from_gallery": "ギャラリーから選択"
+      "select_from_gallery": "ギャラリーから選択",
+      "qr_code": "QR"
     },
     "modal": {
       "profile_image": "プロフィール画像を変更",

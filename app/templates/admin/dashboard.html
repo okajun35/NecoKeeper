@@ -12,63 +12,51 @@
     <!-- 統計カード -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         <!-- 保護中の猫 -->
-        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.protected" data-i18n-ns="dashboard">保護中</p>
-                    <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-protected">-</p>
-                </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
+        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.protected" data-i18n-ns="dashboard">保護中</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                {% if settings.kiroween_mode %}
+                <img src="/static/icons/halloween_icon.webp" class="w-6 h-6 object-contain" alt="Protected">
+                {% else %}
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {% endif %}
             </div>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-protected">-</p>
         </div>
 
         <!-- 譲渡可能 -->
-        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.adoptable" data-i18n-ns="dashboard">譲渡可能</p>
-                    <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-adoptable">-</p>
-                </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.adoptable" data-i18n-ns="dashboard">譲渡可能</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
             </div>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-adoptable">-</p>
         </div>
 
         <!-- 今日の記録 -->
-        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.today_logs" data-i18n-ns="dashboard">今日の記録</p>
-                    <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-today-logs">-</p>
-                </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
+        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.today_logs" data-i18n-ns="dashboard">今日の記録</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
             </div>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-today-logs">-</p>
         </div>
 
         <!-- アクティブボランティア -->
-        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs lg:text-sm font-medium text-gray-600" data-i18n="stats.volunteers" data-i18n-ns="dashboard">ボランティア</p>
-                    <p class="text-2xl lg:text-3xl font-bold text-gray-900 mt-1 lg:mt-2" id="stat-volunteers">-</p>
-                </div>
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                </div>
+        <div class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.volunteers" data-i18n-ns="dashboard">ボランティア</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
             </div>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-volunteers">-</p>
         </div>
     </div>
 

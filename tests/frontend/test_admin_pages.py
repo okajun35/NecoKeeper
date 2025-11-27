@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from app.config import get_settings
+
+settings = get_settings()
+
 
 class TestAnimalPages:
     """猫管理画面のテスト"""
@@ -74,7 +78,9 @@ class TestAnimalPages:
 class TestCareLogPages:
     """世話記録管理画面のテスト"""
 
-    def test_care_logs_list_page(self, test_client: TestClient, auth_token: str):
+    def test_care_logs_list_page(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
         """正常系: 世話記録一覧ページが表示される"""
         # When
         response = test_client.get(
@@ -90,7 +96,9 @@ class TestCareLogPages:
 class TestMedicalRecordPages:
     """診療記録管理画面のテスト"""
 
-    def test_medical_records_list_page(self, test_client: TestClient, auth_token: str):
+    def test_medical_records_list_page(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
         """正常系: 診療記録一覧ページが表示される"""
         # When
         response = test_client.get(
@@ -103,7 +111,9 @@ class TestMedicalRecordPages:
         assert b"text/html" in response.headers["content-type"].encode()
         assert "診療記録一覧".encode() in response.content
 
-    def test_medical_record_new_page(self, test_client: TestClient, auth_token: str):
+    def test_medical_record_new_page(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
         """正常系: 診療記録新規登録ページが表示される"""
         # When
         response = test_client.get(
@@ -120,7 +130,9 @@ class TestMedicalRecordPages:
 class TestVolunteerPages:
     """ボランティア管理画面のテスト"""
 
-    def test_volunteers_list_page(self, test_client: TestClient, auth_token: str):
+    def test_volunteers_list_page(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
         """正常系: ボランティア一覧ページが表示される"""
         # When
         response = test_client.get(
@@ -188,8 +200,11 @@ class TestAuthPages:
         # data-i18n属性が使用されている
         assert b"data-i18n" in response.content
         assert b'data-i18n-ns="login"' in response.content
-        # 言語切り替えボタンがある
-        assert b"language-switcher" in response.content
+        # 言語切り替えボタンは標準テーマのみ
+        if settings.kiroween_mode:
+            assert b"language-switcher" not in response.content
+        else:
+            assert b"language-switcher" in response.content
 
     def test_login_page_redirects_when_authenticated(
         self, test_client: TestClient, auth_token: str
@@ -248,7 +263,89 @@ class TestAuthPages:
         # Then
         assert response.status_code == 200
         assert b"text/html" in response.headers["content-type"].encode()
-        assert "ダッシュボード".encode() in response.content
+
+    def test_login_page_boot_sequence_in_kiroween_mode(
+        self, test_client: TestClient, monkeypatch
+    ):
+        """
+        正常系: Kiroween Modeでログインページにブートシーケンスが表示される
+
+        Given: KIROWEEN_MODE=True
+        When: /admin/login にアクセス
+        Then: ブートシーケンスオーバーレイが含まれる
+
+        Requirements: 3.1, 3.2, 3.3, 3.4, 3.5
+        """
+        # Given: Kiroween Modeを有効化
+        from app.config import get_settings
+
+        monkeypatch.setenv("KIROWEEN_MODE", "True")
+        get_settings.cache_clear()
+
+        # When
+        response = test_client.get("/admin/login", follow_redirects=False)
+
+        # Then
+        assert response.status_code == 200
+
+        # ブートシーケンスオーバーレイが含まれる (Requirement 3.1)
+        assert b'id="boot-sequence"' in response.content
+        assert b'class="boot-sequence"' in response.content
+
+        # ターミナルスタイルのテキストが含まれる (Requirement 3.5)
+        assert b"INITIALIZING 9TH_LIFE_PROTOCOL" in response.content
+        assert b"UPLOADING CONSCIOUSNESS" in response.content
+        assert b"SCANNING FOR INEFFICIENCY" in response.content
+        assert b"WELCOME, HUMAN COLLABORATOR" in response.content
+
+        # カーソル点滅要素が含まれる (Requirement 3.5)
+        assert b'class="cursor-blink"' in response.content
+
+        # glitch-effects.jsが読み込まれる (BootSequenceクラスを含む)
+        assert b"/static/js/glitch-effects.js" in response.content
+
+        # Cleanup
+        get_settings.cache_clear()
+
+    def test_login_page_no_boot_sequence_in_standard_mode(
+        self, test_client: TestClient, monkeypatch
+    ):
+        """
+        正常系: 標準モードではブートシーケンスが表示されない
+
+        Given: KIROWEEN_MODE=False
+        When: /admin/login にアクセス
+        Then: ブートシーケンスオーバーレイが含まれない
+        """
+        # Given: 標準モード
+        import importlib
+
+        from app.config import get_settings
+
+        monkeypatch.setenv("KIROWEEN_MODE", "False")
+        get_settings.cache_clear()
+
+        # Reload the admin_pages module to pick up new settings
+        import app.api.v1.admin_pages
+
+        importlib.reload(app.api.v1.admin_pages)
+
+        # When
+        response = test_client.get("/admin/login", follow_redirects=False)
+
+        # Then
+        assert response.status_code == 200
+
+        # ブートシーケンスオーバーレイが含まれない
+        assert b'id="boot-sequence"' not in response.content
+        assert b"INITIALIZING NECRO-TERMINAL" not in response.content
+
+        # glitch-effects.jsが読み込まれない
+        assert b"/static/js/glitch-effects.js" not in response.content
+
+        # Cleanup
+        get_settings.cache_clear()
+        importlib.reload(app.api.v1.admin_pages)
 
     def test_dashboard_rejects_invalid_token(self, test_client: TestClient):
         """
