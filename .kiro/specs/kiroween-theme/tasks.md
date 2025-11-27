@@ -134,7 +134,7 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Initialize boot sequence on login page load when Kiroween Mode is enabled
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 12.5_
 
-- [ ] 6.1 Write property test for boot sequence text content
+- [x] 6.1 Write property test for boot sequence text content
   - **Property 29: Boot Sequence Text Content**
   - **Validates: Requirements 3.3**
 
@@ -146,6 +146,47 @@ This implementation plan converts the Kiroween Theme design into actionable codi
   - Test pointer events are blocked during sequence
   - Test exact text messages are displayed in correct order
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+- [x] 6.3 Implement 9 Candles Boot Animation (The Sacrifice)
+  - Add `#boot-candles` container div below boot text in login.html
+  - Create 9 candle icons using the same style as header Life Monitor (larger size)
+  - Initialize all 9 candles in "ON" (lit) state with green flame effect
+  - Update BootSequence JavaScript class to manage candle state
+  - Implement `initializeCandles()` method to create 9 lit candles
+  - Implement `extinguishCandles()` method to turn off candles left-to-right
+  - Trigger candle extinguishing when "UPLOADING CONSCIOUSNESS..." text appears
+  - Implement 200ms interval between each candle extinguishing
+  - Add flicker animation before each candle transitions to "OFF" state
+  - Leave only the rightmost (9th) candle lit at the end
+  - Add CSS styles for candle-on, candle-off, and candle-flicker states
+  - Ensure final candle has pulse animation matching header Life Monitor
+  - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.9_
+
+- [ ] 6.4 Write property test for 9 Candles initial state
+  - **Property 30: 9 Candles Initial State**
+  - **Validates: Requirements 18.1, 18.2**
+
+- [ ] 6.5 Write property test for 9 Candles extinguishing sequence
+  - **Property 31: 9 Candles Extinguishing Sequence**
+  - **Validates: Requirements 18.3, 18.4, 18.6**
+
+- [ ] 6.6 Write property test for 9 Candles flicker effect
+  - **Property 32: 9 Candles Flicker Effect**
+  - **Validates: Requirements 18.5**
+
+- [ ] 6.7 Write property test for 9 Candles final state
+  - **Property 33: 9 Candles Final State**
+  - **Validates: Requirements 18.6, 18.7**
+
+- [ ] 6.8 Write unit tests for 9 Candles animation
+  - Test 9 candles are displayed in boot sequence
+  - Test all candles start in "ON" state
+  - Test candles extinguish from left to right
+  - Test extinguishing interval is approximately 200ms
+  - Test flicker effect is applied before extinguishing
+  - Test only rightmost candle remains lit at end
+  - Test candle size is larger than header candles
+  - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.9_
 
 - [x] 7. Necro Translation System (English-Only Immersion)
   - Create `app/static/i18n/en_necro.json` based on `en.json` with cyberpunk/horror-themed English translations

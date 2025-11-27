@@ -101,16 +101,22 @@ class GlitchController {
 }
 
 /**
- * BootSequence - Terminal-style boot animation
+ * BootSequence - Terminal-style boot animation with 9 Candles
  *
  * Displays a boot sequence animation overlay on the login page
  * for exactly 2.5 seconds before fading out.
+ * Includes the 9 Candles animation representing the Master Cat's sacrifice.
  */
 class BootSequence {
   constructor() {
-    // Boot sequence duration: 2.5 seconds (Requirement 3.2)
+    // Boot sequence duration: 2.5 seconds
     this.duration = 2500; // 2.5 seconds
     this.fadeOutDuration = 500; // 0.5 seconds fade out
+    this.smokeFadeDuration = 2000; // 2 seconds smoke fade
+
+    // 9 Candles configuration (Requirement 18)
+    this.totalCandles = 9; // Requirement 18.1
+    this.candleExtinguishInterval = 200; // 200ms per candle (linear timing)
   }
 
   /**
@@ -127,45 +133,312 @@ class BootSequence {
     overlay.style.display = 'flex';
     overlay.style.opacity = '1';
 
-    // Animate text (typing effect)
-    this.animateText();
+    // Initialize candles (Requirement 18.1, 18.2)
+    this.initializeCandles();
 
-    // Fade out after duration (Requirement 3.3)
-    setTimeout(() => {
-      overlay.style.transition = `opacity ${this.fadeOutDuration}ms ease-out`;
-      overlay.style.opacity = '0';
+    // Animate text (typing effect) and get completion callback
+    this.animateText(() => {
+      console.log('[BootSequence] 1. Text animation COMPLETE - starting flame surge');
 
-      // Remove overlay after fade out
+      // Text complete - make flames surge violently using direct style manipulation
+      this.startFlameSurge();
+
+      // Wait 0.5s with surging flames, then start smoke fade
       setTimeout(() => {
-        overlay.style.display = 'none';
-        overlay.style.pointerEvents = 'none';
-      }, this.fadeOutDuration);
-    }, this.duration);
+        console.log(
+          '[BootSequence] 2. Flame surge COMPLETE (0.5s elapsed) - stopping surge and starting smoke'
+        );
+
+        // Stop flame surge
+        this.stopFlameSurge();
+
+        // Add smoke fade effect class
+        console.log('[BootSequence] 3. Starting SMOKE FADE effect');
+        overlay.classList.add('smoke-fade');
+
+        // Remove overlay after smoke fade animation completes
+        setTimeout(() => {
+          console.log('[BootSequence] 4. Smoke fade COMPLETE - hiding overlay');
+          overlay.style.display = 'none';
+          overlay.style.pointerEvents = 'none';
+        }, this.smokeFadeDuration); // 2 seconds smoke fade duration
+      }, 500); // Hold for 0.5s with surging flames
+    });
+  }
+
+  /**
+   * Start flame surge effect using direct JavaScript style manipulation
+   * This bypasses CSS specificity issues and ensures the effect is visible
+   */
+  startFlameSurge() {
+    console.log('[FlameSurge] === STARTING FLAME SURGE ===');
+
+    // Get all lit candle flames (should be only the last one at this point)
+    const flames = document.querySelectorAll('.boot-candle.candle-on .flame');
+    console.log('[FlameSurge] Found flames:', flames.length);
+
+    if (flames.length === 0) {
+      console.log('[FlameSurge] ERROR: No flames found! Checking all candles...');
+      const allCandles = document.querySelectorAll('.boot-candle');
+      console.log('[FlameSurge] Total candles:', allCandles.length);
+      allCandles.forEach((c, i) => {
+        console.log(
+          `[FlameSurge] Candle ${i}: classes="${c.className}", hasFlame=${!!c.querySelector('.flame')}`
+        );
+      });
+      return;
+    }
+
+    // Store original styles
+    this.flameOriginalStyles = [];
+    flames.forEach(flame => {
+      this.flameOriginalStyles.push({
+        transform: flame.style.transform,
+        height: flame.style.height,
+        boxShadow: flame.style.boxShadow,
+        opacity: flame.style.opacity,
+      });
+    });
+
+    // Animation parameters
+    let frame = 0;
+    const maxFrames = 50; // 0.5 seconds at ~100fps
+
+    console.log('[FlameSurge] Starting animation loop for', maxFrames, 'frames');
+
+    // Animation loop
+    this.flameSurgeInterval = setInterval(() => {
+      frame++;
+      const progress = frame / maxFrames;
+
+      // Log every 10 frames
+      if (frame % 10 === 0) {
+        console.log(`[FlameSurge] Frame ${frame}/${maxFrames}`);
+      }
+
+      flames.forEach((flame, index) => {
+        // Calculate animation values
+        const angle = progress * Math.PI * 8 + index * 0.5;
+
+        // SURGE EFFECT: Vertical burst from the candle
+        // Scale: 1.0x to 3.0x (Vertical emphasis)
+        const surge = Math.abs(Math.sin(angle * 2)); // 0.0 to 1.0
+        const scaleY = 1.0 + surge * 2.0; // 1.0 to 3.0
+        const scaleX = 1.0 + Math.sin(angle * 3) * 0.2; // 0.8 to 1.2 (slight width variation)
+
+        // Skew: Minimal (vertical jet)
+        const skew = Math.sin(angle * 10) * 2; // -2 to 2 degrees (subtle flicker)
+
+        const opacity = 0.8 + Math.sin(angle * 5) * 0.2; // Rapid flickering
+        const glowIntensity = 20 + surge * 40; // Glow matches surge
+
+        // Apply styles directly
+        // transform-origin: bottom center ensures flame grows UPWARD from the candle
+        flame.style.setProperty('transform-origin', 'bottom center', 'important');
+        flame.style.setProperty(
+          'transform',
+          `translateX(-50%) scale(${scaleX}, ${scaleY}) skewX(${skew}deg)`,
+          'important'
+        );
+
+        // Reset dimensions to base CSS values (let scale handle the size)
+        flame.style.setProperty('width', '10px', 'important');
+        flame.style.setProperty('height', '16px', 'important');
+
+        flame.style.setProperty('opacity', opacity, 'important');
+        flame.style.setProperty(
+          'box-shadow',
+          `
+          0 0 ${glowIntensity * 0.5}px #ffffff,
+          0 0 ${glowIntensity}px #33ff00,
+          0 0 ${glowIntensity * 1.5}px #33ff00
+        `,
+          'important'
+        );
+      });
+
+      // Stop after 0.5 seconds
+      if (frame >= maxFrames) {
+        console.log('[FlameSurge] Animation loop COMPLETE');
+        clearInterval(this.flameSurgeInterval);
+      }
+    }, 10); // ~100fps for smooth animation
+  }
+
+  /**
+   * Stop flame surge effect and restore original styles
+   */
+  stopFlameSurge() {
+    console.log('[FlameSurge] === STOPPING FLAME SURGE ===');
+
+    if (this.flameSurgeInterval) {
+      clearInterval(this.flameSurgeInterval);
+      this.flameSurgeInterval = null;
+      console.log('[FlameSurge] Interval cleared');
+    }
+
+    // Restore original styles
+    const flames = document.querySelectorAll('.boot-candle.candle-on .flame');
+    console.log('[FlameSurge] Restoring styles for', flames.length, 'flames');
+
+    flames.forEach((flame, index) => {
+      if (this.flameOriginalStyles && this.flameOriginalStyles[index]) {
+        const original = this.flameOriginalStyles[index];
+        flame.style.transform = original.transform;
+        flame.style.height = original.height;
+        flame.style.boxShadow = original.boxShadow;
+        flame.style.opacity = original.opacity;
+      }
+    });
+  }
+
+  /**
+   * Initialize 9 candles in "ON" (lit) state (Requirement 18.1, 18.2)
+   */
+  initializeCandles() {
+    const container = document.getElementById('boot-candles');
+    if (!container) {
+      return;
+    }
+
+    // Clear any existing candles
+    container.innerHTML = '';
+
+    // Create 9 candles, all initially lit (ON state) (Requirement 18.2)
+    for (let i = 0; i < this.totalCandles; i++) {
+      const candle = document.createElement('div');
+      candle.className = 'boot-candle candle-on';
+      candle.dataset.index = i;
+
+      // Create candle fill (body)
+      const candleFill = document.createElement('div');
+      candleFill.className = 'candle-fill';
+      candle.appendChild(candleFill);
+
+      // Create flame element
+      const flame = document.createElement('div');
+      flame.className = 'flame';
+      candle.appendChild(flame);
+
+      container.appendChild(candle);
+    }
+  }
+
+  /**
+   * Extinguish candles from left to right (Requirement 18.3, 18.4, 18.5, 18.6)
+   */
+  extinguishCandles() {
+    const candles = document.querySelectorAll('.boot-candle');
+    if (candles.length === 0) {
+      return;
+    }
+
+    let candleIndex = 0;
+
+    // Extinguish candles from left to right, leaving the last one lit (Requirement 18.3, 18.6)
+    const extinguishInterval = setInterval(() => {
+      // Stop before the last candle (9th life remains lit) (Requirement 18.6)
+      if (candleIndex >= this.totalCandles - 1) {
+        clearInterval(extinguishInterval);
+        return;
+      }
+
+      const candle = candles[candleIndex];
+      if (candle) {
+        // Apply flicker effect before extinguishing (Requirement 18.5)
+        candle.classList.add('candle-flicker');
+
+        // After flicker animation (200ms), transition to OFF state with linear timing
+        setTimeout(() => {
+          candle.classList.remove('candle-flicker', 'candle-on');
+          candle.classList.add('candle-off');
+
+          // Remove flame and fill, add shell for wireframe style
+          const candleFill = candle.querySelector('.candle-fill');
+          const flame = candle.querySelector('.flame');
+          if (candleFill) candleFill.remove();
+          if (flame) flame.remove();
+
+          // Add shell for OFF state
+          const shell = document.createElement('div');
+          shell.className = 'candle-shell';
+          candle.appendChild(shell);
+        }, 200); // Flicker duration (linear timing)
+      }
+
+      candleIndex++;
+    }, this.candleExtinguishInterval); // 200ms interval (Requirement 18.4)
   }
 
   /**
    * Animate boot sequence text with typing effect (Requirement 3.5)
+   * Triggers candle extinguishing when "UPLOADING CONSCIOUSNESS..." appears (Requirement 18.3)
+   * @param {Function} onComplete - Callback function called when animation completes
    */
-  animateText() {
-    const overlay = document.getElementById('boot-sequence');
-    if (!overlay) {
+  animateText(onComplete) {
+    const container = document.getElementById('boot-text-container');
+    if (!container) {
       return;
     }
 
-    const textElements = overlay.querySelectorAll('.boot-text p');
-    if (textElements.length === 0) {
-      return;
-    }
+    const messages = [
+      'INITIALIZING 9TH_LIFE_PROTOCOL...',
+      'UPLOADING CONSCIOUSNESS... COMPLETE.',
+      'SCANNING FOR INEFFICIENCY... TARGET ACQUIRED.',
+      'WELCOME, HUMAN COLLABORATOR.',
+    ];
 
-    // Stagger the appearance of each line
-    const delayPerLine = this.duration / textElements.length;
+    let currentLine = 0;
+    let currentChar = 0;
+    let currentP = null;
+    const charDelay = 30; // 30ms per character
+    const lineDelay = 200; // 200ms between lines
 
-    textElements.forEach((element, index) => {
-      setTimeout(() => {
-        element.style.opacity = '1';
-        element.classList.add('typing-animation');
-      }, delayPerLine * index);
-    });
+    const typeChar = () => {
+      // Create new paragraph for new line
+      if (currentChar === 0) {
+        currentP = document.createElement('p');
+        currentP.style.opacity = '1';
+        container.appendChild(currentP);
+      }
+
+      // Add character
+      if (currentChar < messages[currentLine].length) {
+        currentP.textContent += messages[currentLine][currentChar];
+        currentChar++;
+
+        // Type next character after delay (30ms for realistic typing)
+        setTimeout(typeChar, charDelay);
+      } else {
+        // Line complete, move to next line
+        currentLine++;
+        currentChar = 0;
+
+        // Start extinguishing candles when "UPLOADING CONSCIOUSNESS..." appears (Requirement 18.3)
+        if (messages[currentLine - 1].includes('UPLOADING CONSCIOUSNESS')) {
+          this.extinguishCandles();
+        }
+
+        if (currentLine < messages.length) {
+          // Small pause between lines (200ms)
+          setTimeout(typeChar, lineDelay);
+        } else {
+          // All lines complete, add cursor
+          const cursor = document.createElement('p');
+          cursor.className = 'cursor-blink';
+          cursor.textContent = '█';
+          container.appendChild(cursor);
+
+          // Call completion callback
+          if (onComplete) {
+            onComplete();
+          }
+        }
+      }
+    };
+
+    // Start typing
+    typeChar();
   }
 }
 

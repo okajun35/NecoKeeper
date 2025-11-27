@@ -1136,6 +1136,7 @@ body.kiroween-mode *:focus-visible {
   background: var(--terminal-bg);
   color: var(--terminal-green);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 10000;
@@ -1192,6 +1193,69 @@ body.kiroween-mode *:focus-visible {
   }
 }
 
+/* Smoke fade out animation - rises like smoke with gentle sway (2 seconds) */
+.boot-sequence.smoke-fade {
+  animation: smokeFade 2s linear forwards;
+}
+
+@keyframes smokeFade {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+  }
+  10% {
+    opacity: 0.95;
+    filter: blur(0.5px);
+    transform: translateY(-20px) translateX(3px) scale(1.05) rotate(0.5deg);
+  }
+  20% {
+    opacity: 0.88;
+    filter: blur(1px);
+    transform: translateY(-40px) translateX(-4px) scale(1.1) rotate(-0.8deg);
+  }
+  30% {
+    opacity: 0.9;
+    filter: blur(2px);
+    transform: translateY(-60px) translateX(5px) scale(1.15) rotate(1deg);
+  }
+  40% {
+    opacity: 0.72;
+    filter: blur(3px);
+    transform: translateY(-80px) translateX(-6px) scale(1.2) rotate(-1.2deg);
+  }
+  50% {
+    opacity: 0.68;
+    filter: blur(5px) drop-shadow(10px 0 5px rgba(51, 255, 0, 0.3));
+    transform: translateY(-100px) translateX(7px) scale(1.3) rotate(1.5deg);
+  }
+  60% {
+    opacity: 0.55;
+    filter: blur(7px) drop-shadow(12px 3px 6px rgba(51, 255, 0, 0.25)) drop-shadow(-12px 3px 6px rgba(51, 255, 0, 0.25));
+    transform: translateY(-120px) translateX(-8px) scale(1.4) rotate(-1.8deg);
+  }
+  70% {
+    opacity: 0.38;
+    filter: blur(10px) drop-shadow(15px 5px 8px rgba(51, 255, 0, 0.2)) drop-shadow(-15px 5px 8px rgba(51, 255, 0, 0.2));
+    transform: translateY(-140px) translateX(9px) scale(1.5) rotate(2deg);
+  }
+  80% {
+    opacity: 0.22;
+    filter: blur(13px) drop-shadow(18px 8px 10px rgba(51, 255, 0, 0.15)) drop-shadow(-18px 8px 10px rgba(51, 255, 0, 0.15));
+    transform: translateY(-160px) translateX(-10px) scale(1.6) rotate(-2.2deg);
+  }
+  90% {
+    opacity: 0.12;
+    filter: blur(16px) drop-shadow(20px 10px 12px rgba(51, 255, 0, 0.1)) drop-shadow(-20px 10px 12px rgba(51, 255, 0, 0.1));
+    transform: translateY(-180px) translateX(8px) scale(1.7) rotate(2.5deg);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(20px) drop-shadow(22px 12px 15px rgba(51, 255, 0, 0.05)) drop-shadow(-22px 12px 15px rgba(51, 255, 0, 0.05));
+    transform: translateY(-200px) translateX(-5px) scale(1.8) rotate(-2deg);
+  }
+}
+
 /* Responsive boot sequence for mobile */
 @media (max-width: 768px) {
   .boot-text {
@@ -1203,6 +1267,226 @@ body.kiroween-mode *:focus-visible {
 @media (max-width: 480px) {
   .boot-text {
     font-size: 0.8rem;
+  }
+}
+
+/* ============================================
+   9 Candles Boot Animation (The Sacrifice)
+   ============================================
+   Requirements: 18.1, 18.2, 18.3, 18.4, 18.5, 18.6, 18.7, 18.8, 18.9
+   ============================================ */
+
+/* Candles container - horizontal layout below boot text */
+#boot-candles {
+  display: flex !important;
+  align-items: flex-end !important;
+  gap: 16px !important;
+  margin-top: 32px !important;
+  justify-content: center !important;
+  padding: 16px 12px 8px 12px !important;
+}
+
+/* Individual candle - larger than header candles (Requirement 18.8, 18.9) */
+.boot-candle {
+  position: relative !important;
+  width: 20px !important;
+  height: 40px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Candle ON state - lit with green flame (Requirement 18.2) */
+.boot-candle.candle-on .candle-fill {
+  width: 100% !important;
+  height: 100% !important;
+  background: var(--terminal-green) !important;
+  box-shadow: 0 0 12px var(--terminal-glow) !important;
+}
+
+/* Flame effect for lit candles (Requirement 18.2) */
+.boot-candle.candle-on .flame {
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 10px !important;
+  height: 16px !important;
+  background: #ffffff !important;
+  border-radius: 50% 50% 20% 20% !important;
+  box-shadow:
+    0 0 6px #ffffff,
+    0 0 12px var(--terminal-green),
+    0 0 18px var(--terminal-green) !important;
+  animation: boot-flame-flicker 0.15s infinite alternate !important;
+  margin-bottom: 3px !important;
+}
+
+/* Flame flicker animation for lit candles */
+@keyframes boot-flame-flicker {
+  0% {
+    transform: translateX(-50%) scale(1) skewX(0deg);
+    opacity: 0.9;
+  }
+  25% {
+    transform: translateX(-50%) scale(1.1) skewX(-3deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(0.9) skewX(3deg);
+    opacity: 0.85;
+  }
+  75% {
+    transform: translateX(-50%) scale(1.05) skewX(-2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(0.95) skewX(2deg);
+    opacity: 0.9;
+  }
+}
+
+/* Candle OFF state - extinguished, wireframe style (Requirement 18.5) */
+.boot-candle.candle-off .candle-shell {
+  width: 100% !important;
+  height: 100% !important;
+  border: 2px solid var(--terminal-dim) !important;
+  background: transparent !important;
+  opacity: 0.4 !important;
+}
+
+/* Candle flicker effect before extinguishing (Requirement 18.5) - Linear timing */
+.boot-candle.candle-flicker .candle-fill {
+  animation: boot-candle-flicker 0.2s linear 1 !important;
+}
+
+.boot-candle.candle-flicker .flame {
+  animation: boot-flame-dying 0.2s linear 1 !important;
+}
+
+/* Flicker animation for candle body */
+@keyframes boot-candle-flicker {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 12px var(--terminal-glow);
+  }
+  25% {
+    opacity: 0.3;
+    box-shadow: 0 0 4px var(--terminal-dim);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 16px var(--terminal-glow);
+  }
+  75% {
+    opacity: 0.2;
+    box-shadow: 0 0 2px var(--terminal-dim);
+  }
+}
+
+/* Dying flame animation during flicker */
+@keyframes boot-flame-dying {
+  0%, 100% {
+    opacity: 1;
+    height: 16px;
+    box-shadow:
+      0 0 6px #ffffff,
+      0 0 12px var(--terminal-green),
+      0 0 18px var(--terminal-green);
+  }
+  25% {
+    opacity: 0.3;
+    height: 6px;
+    box-shadow:
+      0 0 2px #ffffff,
+      0 0 4px var(--terminal-dim);
+  }
+  50% {
+    opacity: 0.8;
+    height: 20px;
+    box-shadow:
+      0 0 8px #ffffff,
+      0 0 16px var(--terminal-green),
+      0 0 24px var(--terminal-green);
+  }
+  75% {
+    opacity: 0.2;
+    height: 4px;
+    box-shadow:
+      0 0 1px #ffffff,
+      0 0 2px var(--terminal-dim);
+  }
+}
+
+/* Final candle (9th life) - pulse animation (Requirement 18.7) */
+.boot-candle.candle-on:last-child .candle-fill {
+  animation: boot-final-candle-pulse 1.5s infinite ease-in-out !important;
+}
+
+.boot-candle.candle-on:last-child .flame {
+  animation: boot-final-flame-pulse 1.5s infinite ease-in-out !important;
+}
+
+/* Final candle pulse animation */
+@keyframes boot-final-candle-pulse {
+  0%, 100% {
+    box-shadow: 0 0 12px var(--terminal-glow);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--terminal-glow);
+    transform: scale(1.05);
+  }
+}
+
+/* Final flame pulse animation */
+@keyframes boot-final-flame-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 6px #ffffff,
+      0 0 12px var(--terminal-green),
+      0 0 18px var(--terminal-green);
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 10px #ffffff,
+      0 0 20px var(--terminal-green),
+      0 0 30px var(--terminal-green);
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 768px) {
+  #boot-candles {
+    gap: 12px !important;
+    margin-top: 24px !important;
+  }
+
+  .boot-candle {
+    width: 16px !important;
+    height: 32px !important;
+  }
+
+  .boot-candle.candle-on .flame {
+    width: 8px !important;
+    height: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #boot-candles {
+    gap: 8px !important;
+    margin-top: 20px !important;
+  }
+
+  .boot-candle {
+    width: 12px !important;
+    height: 24px !important;
+  }
+
+  .boot-candle.candle-on .flame {
+    width: 6px !important;
+    height: 10px !important;
   }
 }
 
@@ -2025,3 +2309,128 @@ body.kiroween-mode.soul-commit-glitch::before {
 /* ============================================
    End of Necro-Terminal Theme
    ============================================ */
+
+
+/* ============================================
+   Flame Surge Effect (Text Complete → Smoke)
+   ============================================
+   When text display completes, all candle flames
+   surge violently for 0.5 seconds before smoke effect.
+   ============================================ */
+
+/* Intense flame surge during the 0.5s hold period */
+#boot-candles.flames-surge .boot-candle.candle-on .flame {
+  animation: boot-flame-surge 0.08s infinite alternate !important;
+  width: 10px !important;
+}
+
+/* Candle body also pulses during surge */
+#boot-candles.flames-surge .boot-candle.candle-on .candle-fill {
+  animation: boot-candle-surge 0.15s infinite alternate !important;
+}
+
+@keyframes boot-candle-surge {
+  0% {
+    box-shadow: 0 0 20px var(--terminal-glow) !important;
+    transform: scale(1.1) !important;
+  }
+  50% {
+    box-shadow: 0 0 30px var(--terminal-glow) !important;
+    transform: scale(1.15) !important;
+  }
+  100% {
+    box-shadow: 0 0 25px var(--terminal-glow) !important;
+    transform: scale(1.12) !important;
+  }
+}
+
+@keyframes boot-flame-surge {
+  0% {
+    transform: translateX(-50%) scale(2) skewX(-15deg) !important;
+    opacity: 1 !important;
+    height: 32px !important;
+    box-shadow:
+      0 0 20px #ffffff,
+      0 0 40px var(--terminal-green),
+      0 0 60px var(--terminal-green) !important;
+  }
+  25% {
+    transform: translateX(-60%) scale(2.5) skewX(20deg) !important;
+    opacity: 0.95 !important;
+    height: 40px !important;
+    box-shadow:
+      0 0 25px #ffffff,
+      0 0 50px var(--terminal-green),
+      0 0 75px var(--terminal-green) !important;
+  }
+  50% {
+    transform: translateX(-40%) scale(1.8) skewX(-25deg) !important;
+    opacity: 1 !important;
+    height: 28px !important;
+    box-shadow:
+      0 0 18px #ffffff,
+      0 0 36px var(--terminal-green),
+      0 0 54px var(--terminal-green) !important;
+  }
+  75% {
+    transform: translateX(-65%) scale(2.8) skewX(18deg) !important;
+    opacity: 0.9 !important;
+    height: 45px !important;
+    box-shadow:
+      0 0 30px #ffffff,
+      0 0 60px var(--terminal-green),
+      0 0 90px var(--terminal-green) !important;
+  }
+  100% {
+    transform: translateX(-35%) scale(2.2) skewX(-22deg) !important;
+    opacity: 1 !important;
+    height: 35px !important;
+    box-shadow:
+      0 0 22px #ffffff,
+      0 0 44px var(--terminal-green),
+      0 0 66px var(--terminal-green) !important;
+  }
+}
+
+/* Mobile responsive flame surge */
+@media (max-width: 768px) {
+  #boot-candles.flames-surge .boot-candle.candle-on .flame {
+    animation: boot-flame-surge-mobile 0.1s infinite alternate !important;
+  }
+
+  @keyframes boot-flame-surge-mobile {
+    0% {
+      transform: translateX(-50%) scale(1.5) skewX(-10deg);
+      height: 18px;
+    }
+    50% {
+      transform: translateX(-55%) scale(1.8) skewX(15deg);
+      height: 22px;
+    }
+    100% {
+      transform: translateX(-45%) scale(1.3) skewX(-20deg);
+      height: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  #boot-candles.flames-surge .boot-candle.candle-on .flame {
+    animation: boot-flame-surge-small 0.1s infinite alternate !important;
+  }
+
+  @keyframes boot-flame-surge-small {
+    0% {
+      transform: translateX(-50%) scale(1.5) skewX(-10deg);
+      height: 15px;
+    }
+    50% {
+      transform: translateX(-55%) scale(1.8) skewX(15deg);
+      height: 18px;
+    }
+    100% {
+      transform: translateX(-45%) scale(1.3) skewX(-20deg);
+      height: 12px;
+    }
+  }
+}
