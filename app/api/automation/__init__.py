@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.automation import animals, care_logs
+from app.api.automation import animals, care_logs, pdf
 from app.auth.api_key import get_automation_api_key
 
 # Automation APIルーター
@@ -82,6 +82,7 @@ router = APIRouter(
 # サブルーターを登録
 router.include_router(animals.router)
 router.include_router(care_logs.router)
+router.include_router(pdf.router)
 
 
 # テスト用エンドポイント（開発時のみ）

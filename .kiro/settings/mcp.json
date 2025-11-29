@@ -39,6 +39,16 @@
         "press_key",
         "press_key"
       ]
+    },
+    "necokeeper": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "cd $(pwd) && source .venv/bin/activate && set -a && source .env && set +a && python -m app.mcp"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": ["register_cat", "generate_qr", "upload_cat_image"]
     }
   }
 }

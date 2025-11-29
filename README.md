@@ -303,6 +303,136 @@ docker rmi necokeeper
 - Persistent Disk（データ永続化）
 - 常時稼働
 
+## MCP（Model Context Protocol）統合
+
+NecoKeeperは、Kiro IDEのMCP（Model Context Protocol）に対応しており、AIアシスタント（Claude）から直接猫の管理操作を行えます。
+
+### 利用可能なMCPツール
+
+1. **register_cat** - 猫の登録
+2. **upload_cat_image** - 猫の画像アップロード
+3. **generate_qr** - QRコード付きPDFの生成
+
+### セットアップ手順
+
+#### 1. Automation API Keyの生成
+
+```bash
+# 32文字以上のランダムなAPI Keyを生成
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+#### 2. 環境変数の設定
+
+`.env`ファイルに以下を追加：
+
+```bash
+# Automation API設定
+ENABLE_AUTOMATION_API=true
+AUTOMATION_API_KEY=<生成したAPI Key>
+
+# MCP用（Kiroが参照）
+NECOKEEPER_API_URL=http://localhost:8000
+```
+
+#### 3. uvのインストール（推奨）
+
+MCPサーバーは`uvx`を使用して起動します。`uv`がインストールされていない場合は、以下の手順でインストールしてください。
+
+**Linux/macOS:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+インストール後、シェルを再起動してください。
+
+#### 4. Kiro IDE設定
+
+`.kiro/settings/mcp.json`は既に設定済みです。環境変数は`.env`ファイルから自動的に読み込まれます。
+
+```json
+{
+  "mcpServers": {
+    "necokeeper": {
+      "command": "bash",
+      "args": ["-c", "cd $(pwd) && source .venv/bin/activate && set -a && source .env && set +a && python -m app.mcp"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": ["register_cat", "generate_qr", "upload_cat_image"]
+    }
+  }
+}
+```
+
+**重要**:
+- `$(pwd)`を使用することで、どのディレクトリからでも動作します（環境非依存）
+- `.env`ファイルから環境変数を読み込むため、API Keyがコミットされません
+- `.kiro/settings/mcp.json`にはAPI Keyを直接記載しないでください（Gitにコミットされます）
+
+#### 5. NecoKeeper APIの起動
+
+```bash
+# 仮想環境をアクティベート
+source .venv/bin/activate  # Linux/macOS
+# または
+.venv\Scripts\activate  # Windows
+
+# APIサーバーを起動
+uvicorn app.main:app --reload
+```
+
+#### 6. Kiro IDEでMCPサーバーを再起動
+
+Kiroのコマンドパレットから「MCP: Restart Servers」を実行するか、Kiroを再起動してください。
+
+### 使用例
+
+Kiro IDEのチャットで以下のように指示できます：
+
+```
+「たまという名前のメス猫を登録してください。三毛猫で、2歳くらいです。」
+```
+
+```
+「たま（ID: 15）の画像をアップロードしてください。パスは tmp/images/cat.jpg です」
+```
+
+```
+「たまのQRコードPDFを生成してください」
+```
+
+### トラブルシューティング
+
+#### MCPサーバーが起動しない
+
+1. 環境変数が正しく設定されているか確認：
+   ```bash
+   echo $AUTOMATION_API_KEY
+   ```
+
+2. NecoKeeper APIが起動しているか確認：
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+3. MCPサーバーのログを確認：
+   ```bash
+   tail -f logs/mcp-server.log
+   ```
+
+#### 認証エラー
+
+- `.env`ファイルの`AUTOMATION_API_KEY`が正しいか確認
+- `ENABLE_AUTOMATION_API=true`が設定されているか確認
+- NecoKeeper APIを再起動
+
+詳細は `app/mcp/README.md` を参照してください。
+
 ## 開発
 
 ### プロジェクト構造
