@@ -147,9 +147,9 @@ class TestGetAutomationApiKey:
         self, test_db: Session, monkeypatch
     ):
         """
-        異常系: API Key未設定（環境変数なし）で503エラー
+        異常系: API Key未設定（空文字列）で503エラー
 
-        Given: Automation APIが有効だが、API Keyが環境変数に設定されていない
+        Given: Automation APIが有効だが、API Keyが空文字列
         When: get_automation_api_keyを呼び出す
         Then: 503 Service Unavailableエラーが発生する
 
@@ -160,7 +160,8 @@ class TestGetAutomationApiKey:
         from app.config import get_settings
 
         monkeypatch.setenv("ENABLE_AUTOMATION_API", "true")
-        monkeypatch.delenv("AUTOMATION_API_KEY", raising=False)
+        # 空文字列を設定してAPI Keyが未設定の状態をシミュレート
+        monkeypatch.setenv("AUTOMATION_API_KEY", "")
 
         get_settings.cache_clear()
 
@@ -427,8 +428,8 @@ class TestConfigValidation:
         正常系: Automation API無効の場合はAPI Key検証をスキップ
 
         Given: Automation APIが無効
-        When: API Keyが設定されていない
-        Then: エラーが発生しない
+        When: API Keyが空文字列で設定されている
+        Then: エラーが発生しない（APIが無効なので検証されない）
 
         Requirements: 2.3
         """
@@ -436,7 +437,8 @@ class TestConfigValidation:
         from app.config import get_settings
 
         monkeypatch.setenv("ENABLE_AUTOMATION_API", "false")
-        monkeypatch.delenv("AUTOMATION_API_KEY", raising=False)
+        # 空文字列を設定（delenvは.envファイルからの値が残る場合がある）
+        monkeypatch.setenv("AUTOMATION_API_KEY", "")
 
         get_settings.cache_clear()
 
@@ -445,7 +447,8 @@ class TestConfigValidation:
 
         # Then
         assert settings.enable_automation_api is False
-        assert settings.automation_api_key is None
+        # Note: automation_api_keyは空文字列でも値として保持される（Noneではない）
+        # APIが無効の場合、キーの有無は問わない
         assert settings.is_automation_api_secure is True  # 無効なので常にTrue
 
         # クリーンアップ

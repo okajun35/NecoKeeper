@@ -183,6 +183,14 @@ async def upload_image(
         db.commit()
         db.refresh(animal_image)
 
+        # 最初の画像の場合、プロフィール画像として設定
+        if current_count == 0 and not animal.photo:
+            animal.photo = relative_path
+            db.commit()
+            logger.info(
+                f"プロフィール画像を設定しました: animal_id={animal_id}, path={relative_path}"
+            )
+
         logger.info(
             f"画像をアップロードしました: animal_id={animal_id}, image_id={animal_image.id}"
         )
