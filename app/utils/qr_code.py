@@ -109,11 +109,11 @@ def generate_animal_qr_url(base_url: str, animal_id: int) -> str:
     Example:
         >>> url = generate_animal_qr_url("https://necokeeper.example.com", 123)
         >>> print(url)
-        https://necokeeper.example.com/public/care/123
+        https://necokeeper.example.com/public/care?animal_id=123
     """
     # URLの末尾のスラッシュを削除
     base_url = base_url.rstrip("/")
-    return f"{base_url}/public/care/{animal_id}"
+    return f"{base_url}/public/care?animal_id={animal_id}"
 
 
 def generate_animal_qr_code(
