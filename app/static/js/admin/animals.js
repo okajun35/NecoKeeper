@@ -179,8 +179,11 @@ function renderAnimalsList(animals = []) {
 
   container.innerHTML = animals
     .map(animal => {
-      const photoUrl =
-        animal.photo && animal.photo.trim() !== '' ? animal.photo : DEFAULT_IMAGE_PLACEHOLDER;
+      // photoパスに/media/プレフィックスを追加（既に/で始まる場合は追加しない）
+      let photoUrl = DEFAULT_IMAGE_PLACEHOLDER;
+      if (animal.photo && animal.photo.trim() !== '') {
+        photoUrl = animal.photo.startsWith('/') ? animal.photo : `/media/${animal.photo}`;
+      }
       const displayName =
         animal.name && animal.name.trim() !== ''
           ? animal.name
