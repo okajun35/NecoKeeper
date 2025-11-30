@@ -84,7 +84,7 @@ class TestGenerateAnimalQRURL:
         url = qr_code.generate_animal_qr_url(base_url, animal_id)
 
         # Then
-        assert url == "https://necokeeper.example.com/public/care/123"
+        assert url == "https://necokeeper.example.com/public/care?animal_id=123"
 
     def test_generate_animal_qr_url_with_trailing_slash(self):
         """正常系: 末尾のスラッシュを削除してURLを生成できる"""
@@ -96,7 +96,7 @@ class TestGenerateAnimalQRURL:
         url = qr_code.generate_animal_qr_url(base_url, animal_id)
 
         # Then
-        assert url == "https://necokeeper.example.com/public/care/123"
+        assert url == "https://necokeeper.example.com/public/care?animal_id=123"
 
 
 class TestGenerateAnimalQRCode:
