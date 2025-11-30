@@ -1,0 +1,18 @@
+{
+  "enabled": false,
+  "name": "Care Log Auto Registration (File Created) - EXPERIMENTAL",
+  "description": "[DISABLED] This hook was created as an experiment to test automatic registration on file creation. However, Kiro's fileCreated event does not fire for files created by internal tools (fsWrite, executeBash, cp command, etc.). Only fires when user manually creates/saves files in the editor. Kept for reference purposes. For working registration, use 'Care Log Data Registration' hook (fileEdited + askAgent) instead.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "tmp/json/auto_*.json"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "PYTHONPATH=. python scripts/hooks/register_care_logs.py {{file_path}}"
+  },
+  "workspaceFolderName": "NecoKeeper",
+  "shortName": "register_care_logs_auto"
+}

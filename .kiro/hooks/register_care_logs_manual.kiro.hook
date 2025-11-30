@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Register Care Logs (Manual)",
+  "description": "Manually register care log data to the NecoKeeper database. Right-click on a JSON file in tmp/json/ and select this hook to register it.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "PYTHONPATH=. python scripts/hooks/register_care_logs.py {{file_path}}"
+  },
+  "workspaceFolderName": "NecoKeeper",
+  "shortName": "register_care_logs_manual"
+}
