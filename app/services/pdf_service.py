@@ -36,6 +36,7 @@ def generate_qr_card_pdf(
     db: Session,
     animal_id: int,
     base_url: str | None = None,
+    locale: str = "ja",
 ) -> bytes:
     """
     QRカードPDFを生成（A6サイズ）
@@ -44,6 +45,7 @@ def generate_qr_card_pdf(
         db: データベースセッション
         animal_id: 猫のID
         base_url: ベースURL（省略時は設定から取得）
+        locale: ロケール（ja/en）
 
     Returns:
         bytes: 生成されたPDFのバイト列
@@ -90,6 +92,7 @@ def generate_qr_card_pdf(
         font_family=settings.pdf_font_family,
         base_url=base_url,
         kiroween_mode=settings.kiroween_mode,
+        locale=locale,
     )
 
     # PDFを生成
@@ -103,6 +106,7 @@ def generate_qr_card_grid_pdf(
     db: Session,
     animal_ids: list[int],
     base_url: str | None = None,
+    locale: str = "ja",
 ) -> bytes:
     """
     面付けQRカードPDFを生成（A4サイズ、2×5枚）
@@ -111,6 +115,7 @@ def generate_qr_card_grid_pdf(
         db: データベースセッション
         animal_ids: 猫のIDリスト（最大10個）
         base_url: ベースURL（省略時は設定から取得）
+        locale: ロケール（ja/en）
 
     Returns:
         bytes: 生成されたPDFのバイト列
@@ -155,6 +160,7 @@ def generate_qr_card_grid_pdf(
         base_url=base_url,
         font_family=settings.pdf_font_family,
         kiroween_mode=settings.kiroween_mode,
+        locale=locale,
     )
 
     # PDFを生成

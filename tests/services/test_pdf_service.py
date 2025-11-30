@@ -42,6 +42,42 @@ class TestGenerateQRCardPDF:
                 base_url="https://test.example.com",
             )
 
+    def test_generate_qr_card_pdf_with_japanese_locale(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 日本語ロケールでQRカードPDFを生成できる"""
+        # When
+        pdf_bytes = pdf_service.generate_qr_card_pdf(
+            db=test_db,
+            animal_id=test_animal.id,
+            base_url="https://test.example.com",
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_qr_card_pdf_with_english_locale(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 英語ロケールでQRカードPDFを生成できる"""
+        # When
+        pdf_bytes = pdf_service.generate_qr_card_pdf(
+            db=test_db,
+            animal_id=test_animal.id,
+            base_url="https://test.example.com",
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")
+
 
 class TestGenerateQRCardGridPDF:
     """面付けQRカードPDF生成のテスト"""
@@ -108,6 +144,48 @@ class TestGenerateQRCardGridPDF:
                 animal_ids=[99999],
                 base_url="https://test.example.com",
             )
+
+    def test_generate_qr_card_grid_pdf_with_japanese_locale(
+        self, test_db: Session, test_animals_bulk: list[Animal]
+    ):
+        """正常系: 日本語ロケールで面付けQRカードPDFを生成できる"""
+        # Given
+        animal_ids = [animal.id for animal in test_animals_bulk[:3]]
+
+        # When
+        pdf_bytes = pdf_service.generate_qr_card_grid_pdf(
+            db=test_db,
+            animal_ids=animal_ids,
+            base_url="https://test.example.com",
+            locale="ja",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_qr_card_grid_pdf_with_english_locale(
+        self, test_db: Session, test_animals_bulk: list[Animal]
+    ):
+        """正常系: 英語ロケールで面付けQRカードPDFを生成できる"""
+        # Given
+        animal_ids = [animal.id for animal in test_animals_bulk[:3]]
+
+        # When
+        pdf_bytes = pdf_service.generate_qr_card_grid_pdf(
+            db=test_db,
+            animal_ids=animal_ids,
+            base_url="https://test.example.com",
+            locale="en",
+        )
+
+        # Then
+        assert pdf_bytes is not None
+        assert isinstance(pdf_bytes, bytes)
+        assert len(pdf_bytes) > 0
+        assert pdf_bytes.startswith(b"%PDF")
 
 
 class TestGeneratePaperFormPDF:

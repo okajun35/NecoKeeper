@@ -6,32 +6,39 @@
     <style>
         @page {
             size: A6 portrait;
-            margin: 5mm;
+            margin: 3mm;
+            background: white;
         }
 
         body {
             font-family: {{ font_family }}, 'Noto Sans CJK JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
             margin: 0;
-            padding: 5mm;
+            padding: 2mm;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             height: 100%;
+            background: white;
         }
 
         .card {
             text-align: center;
             width: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 4mm;
+            box-sizing: border-box;
         }
 
         .animal-photo {
-            width: 30mm;
-            height: 30mm;
+            width: 32mm;
+            height: 32mm;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 50%;
             margin: 0 auto 3mm auto;
-            border: 2px solid #333;
+            border: 2px solid #ccc;
             display: block;
         }
 
@@ -42,55 +49,100 @@
             color: #333;
         }
 
-        .animal-id {
+        .animal-info {
             font-size: 9pt;
-            color: #666;
-            margin-bottom: 5mm;
+            color: #555;
+            margin-bottom: 2mm;
+        }
+
+        .animal-info .gender-icon {
+            font-size: 10pt;
+        }
+
+        .animal-id {
+            font-size: 8pt;
+            color: #888;
+            margin-bottom: 2mm;
+        }
+
+        .animal-status {
+            display: inline-block;
+            font-size: 8pt;
+            font-weight: bold;
+            color: white;
+            background-color: #4CAF50;
+            padding: 1mm 3mm;
+            border-radius: 3px;
+            margin-bottom: 3mm;
+        }
+
+        .animal-status.adoptable {
+            background-color: #FF9800;
+        }
+
+        .animal-status.adopted {
+            background-color: #9E9E9E;
+        }
+
+        .animal-status.treatment {
+            background-color: #F44336;
         }
 
         .qr-code {
-            width: 60mm;
-            height: 60mm;
+            width: 52mm;
+            height: 52mm;
             margin: 0 auto;
             display: block;
+            background: white;
+            padding: 1mm;
         }
 
         .instructions {
             font-size: 7pt;
-            color: #666;
-            margin-top: 3mm;
-            line-height: 1.4;
+            color: #555;
+            margin-top: 2mm;
+            line-height: 1.3;
         }
 
+        /* Kiroween Mode - カード内だけで適用 */
         {% if kiroween_mode %}
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: 'Courier New', Courier, monospace;
-        }
         .card {
             border: 2px solid #0f0;
             background-color: #111;
-            padding: 5mm;
-            box-sizing: border-box;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .animal-photo {
+            border-color: #f0f;
+            filter: grayscale(100%) contrast(120%);
+            box-shadow: 0 0 8px #f0f;
         }
         .animal-name {
             color: #f0f;
             text-shadow: 1px 1px #0f0;
             font-family: 'Courier New', Courier, monospace;
         }
+        .animal-info {
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
         .animal-id {
             color: #0f0;
             font-family: 'Courier New', Courier, monospace;
+        }
+        .animal-status {
+            background-color: #0f0;
+            color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+        }
+        .qr-code {
+            border: 2px solid #0f0;
+            background: white;
         }
         .instructions {
             color: #0f0;
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
-        }
-        .animal-photo {
-            border-color: #f0f;
-            filter: grayscale(100%) contrast(120%);
         }
         {% endif %}
     </style>
@@ -100,23 +152,39 @@
         {% if photo_base64 %}
         <img src="data:image/jpeg;base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
         {% else %}
-        <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#f0f0f0{% endif %}; display: flex; align-items: center; justify-content: center;">
-            <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %};">{% if kiroween_mode %}NO IMAGE{% else %}写真なし{% endif %}</span>
+        <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#e0e0e0{% endif %}; display: flex; align-items: center; justify-content: center;">
+            <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %}; font-size: 7pt;">{% if kiroween_mode %}NO IMG{% elif locale == 'en' %}No Photo{% else %}写真なし{% endif %}</span>
         </div>
         {% endif %}
 
-        <div class="animal-name">{{ animal.name or '名前未設定' }}</div>
+        <div class="animal-name">{{ animal.name or ('No Name' if locale == 'en' else '名前未設定') }}</div>
+
+        <div class="animal-info">
+            <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
+            {% if locale == 'en' %}
+                {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
+            {% else %}
+                {{ animal.age or '年齢不明' }}
+            {% endif %}
+        </div>
+
+        <div class="animal-status {% if animal.status == '譲渡可能' or animal.status == '里親募集中' %}adoptable{% elif animal.status == '譲渡済み' %}adopted{% elif animal.status == '治療中' %}treatment{% endif %}">
+            {% if kiroween_mode or locale == 'en' %}
+                {% if animal.status == '保護中' %}PROTECTED{% elif animal.status == '譲渡可能' or animal.status == '里親募集中' %}ADOPTABLE{% elif animal.status == '譲渡済み' %}ADOPTED{% elif animal.status == '治療中' %}TREATMENT{% else %}{{ animal.status }}{% endif %}
+            {% else %}
+                {{ animal.status or '保護中' }}
+            {% endif %}
+        </div>
+
         <div class="animal-id">ID: {{ animal.id }}</div>
 
-        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code" {% if kiroween_mode %}style="border: 2px solid #0f0; padding: 2mm; background: white;"{% endif %}>
+        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="qr-code">
 
         <div class="instructions">
-            {% if kiroween_mode %}
-            SCAN QR CODE<br>
-            ENTER CARE LOG
+            {% if kiroween_mode or locale == 'en' %}
+            SCAN QR CODE / ENTER CARE LOG
             {% else %}
-            スマホでQRコードをスキャンして<br>
-            世話記録を入力してください
+            スマホでQRコードをスキャンして世話記録を入力
             {% endif %}
         </div>
     </div>
