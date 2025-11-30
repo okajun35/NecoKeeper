@@ -78,10 +78,13 @@ function updateAnimalInfo(data) {
 
   const photoElement = document.getElementById('animalPhoto');
   if (photoElement) {
-    const photoUrl =
-      data.animal_photo && data.animal_photo.trim() !== ''
+    // photoパスに/media/プレフィックスを追加（既に/で始まる場合は追加しない）
+    let photoUrl = DEFAULT_IMAGE_PLACEHOLDER;
+    if (data.animal_photo && data.animal_photo.trim() !== '') {
+      photoUrl = data.animal_photo.startsWith('/')
         ? data.animal_photo
-        : DEFAULT_IMAGE_PLACEHOLDER;
+        : `/media/${data.animal_photo}`;
+    }
     photoElement.src = photoUrl;
     photoElement.onerror = function handleImageError() {
       photoElement.onerror = null;

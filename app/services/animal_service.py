@@ -309,6 +309,9 @@ def get_display_image(db: Session, animal_id: int) -> str:
 
         # 1. プロフィール画像が設定されている場合
         if animal.photo:
+            # photoが相対パスの場合は/media/プレフィックスを追加
+            if not animal.photo.startswith("/"):
+                return f"/media/{animal.photo}"
             return animal.photo
 
         # 2. 画像ギャラリーの1枚目を取得

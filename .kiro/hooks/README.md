@@ -1,5 +1,17 @@
 # Kiro Hooks Configuration
 
+このディレクトリには、NecoKeeperプロジェクトの開発・運用を自動化するKiroフック設定が含まれています。
+
+## 📚 ドキュメント
+
+- **[完全ガイド](./HOOKS_GUIDE.md)** - 全フックの詳細な説明と使用方法
+- **[クイックリファレンス](./QUICK_REFERENCE.md)** - よく使うコマンドとワークフローのチートシート
+- **[OCRワークフロー](#overview)** - OCRケアログインポートの詳細（このファイル）
+
+---
+
+## OCR Care Log Import Workflow
+
 This directory contains Kiro Hook configurations for automating the OCR care log import workflow.
 
 ## Overview

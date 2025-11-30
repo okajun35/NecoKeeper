@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Pre-Commit Quality Gate",
+  "description": "コミット前の品質チェック。Lint、Format、型チェック、テストを一括実行してコード品質を保証します。右クリックまたはコマンドパレットから実行してください。",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "コミット前の品質チェックを実行します。\n\n以下の手順で全チェックを実施してください：\n\n## 1. 変更ファイルの確認\n```bash\ngit status --short\n```\n変更されたファイルをリストアップして、主な変更内容を要約してください。\n\n## 2. 品質チェック実行\n```bash\nmake all\n```\n\nこのコマンドは以下を順番に実行します：\n- Lint（Ruff check）\n- Format（Ruff format）\n- 型チェック（Mypy）\n- テスト実行（Pytest）\n- Prettier（JavaScript/JSON/YAML）\n\n## 3. 結果の分析\n\n### ✅ 全てパスした場合\n```\n✅ 品質チェック完了\n\n全てのチェックがパスしました。コミット可能です。\n\n推奨コミットメッセージ:\ngit commit -m \"<type>(<scope>): <subject>\"\n\n例:\n- feat(api): 新しいエンドポイントを追加\n- fix(ui): ログインフォームのバリデーションを修正\n- refactor(service): 型ヒントをモダンな構文に更新\n- test(mcp): MCPツールのテストを追加\n```\n\n### ❌ エラーがある場合\n各エラーについて：\n1. エラーの種類を特定（Lint/Format/Mypy/Test）\n2. 具体的なエラー内容を説明\n3. 修正方法を提案\n4. 必要に応じて自動修正を実行\n\n**Lint/Formatエラー**: 自動修正可能な場合は `make format` を再実行\n**Mypyエラー**: 型ヒントの追加・修正を提案\n**Testエラー**: 失敗したテストの原因を分析して修正案を提示\n\n## 4. カバレッジ確認\n\nテストが全てパスした場合、カバレッジを確認：\n```bash\npytest --cov=app --cov-report=term-missing | grep TOTAL\n```\n\n- カバレッジが70%以上: ✅ 目標達成\n- カバレッジが70%未満: ⚠️ 改善推奨（ただしコミットは可能）\n\n## 5. 最終確認\n\n以下を確認してください：\n- [ ] 全てのテストがパス\n- [ ] Lint/Formatエラーなし\n- [ ] 型チェックエラーなし\n- [ ] 機密情報（パスワード、APIキーなど）が含まれていない\n- [ ] デバッグ用のprint文やconsole.logが残っていない\n- [ ] コミットメッセージが適切\n\n全て確認できたら「✅ コミット準備完了」と報告してください。"
+  },
+  "workspaceFolderName": "NecoKeeper",
+  "shortName": "pre_commit_quality_gate"
+}
