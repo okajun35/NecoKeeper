@@ -266,3 +266,156 @@ class TestUploadAnimalImageAutomation:
         # Then: 画像パスがWebP形式
         data = response.json()
         assert data["image_path"].endswith(".webp")
+
+    def test_first_image_sets_profile_photo(
+        self,
+        test_client: TestClient,
+        test_db: Session,
+        automation_api_key: str,
+    ):
+        """正常系: 最初にアップロードした画像がプロフィール画像として設定される"""
+        # Given: プロフィール画像なしの新しい猫を作成
+        new_animal = Animal(
+            name="プロフィール画像テスト猫",
+            pattern="キジトラ",
+            tail_length="長い",
+            age="成猫",
+            gender="male",
+            photo=None,  # プロフィール画像なし
+        )
+        test_db.add(new_animal)
+        test_db.commit()
+        test_db.refresh(new_animal)
+
+        # Given: プロフィール画像がNoneであることを確認
+        assert new_animal.photo is None
+
+        # Given: 有効な画像ファイルを作成
+        image = Image.new("RGB", (100, 100), color="red")
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, format="JPEG")
+        image_bytes.seek(0)
+
+        # When: 画像をアップロード
+        response = test_client.post(
+            f"/api/automation/animals/{new_animal.id}/images",
+            files={"file": ("profile.jpg", image_bytes, "image/jpeg")},
+            headers={"X-Automation-Key": automation_api_key},
+        )
+
+        # Then: 201 Created が返される
+        assert response.status_code == status.HTTP_201_CREATED
+        uploaded_path = response.json()["image_path"]
+
+        # Then: 猫のプロフィール画像が設定される
+        test_db.refresh(new_animal)
+        assert new_animal.photo is not None
+        assert new_animal.photo == uploaded_path
+
+        # クリーンアップ
+        test_db.delete(new_animal)
+        test_db.commit()
+
+    def test_second_image_does_not_change_profile_photo(
+        self,
+        test_client: TestClient,
+        test_db: Session,
+        automation_api_key: str,
+    ):
+        """正常系: 2枚目以降の画像はプロフィール画像を変更しない"""
+        # Given: プロフィール画像なしの新しい猫を作成
+        new_animal = Animal(
+            name="複数画像テスト猫",
+            pattern="三毛",
+            tail_length="短い",
+            age="子猫",
+            gender="female",
+            photo=None,
+        )
+        test_db.add(new_animal)
+        test_db.commit()
+        test_db.refresh(new_animal)
+
+        # Given: 1枚目の画像をアップロード
+        image1 = Image.new("RGB", (100, 100), color="red")
+        image1_bytes = io.BytesIO()
+        image1.save(image1_bytes, format="JPEG")
+        image1_bytes.seek(0)
+
+        response1 = test_client.post(
+            f"/api/automation/animals/{new_animal.id}/images",
+            files={"file": ("first.jpg", image1_bytes, "image/jpeg")},
+            headers={"X-Automation-Key": automation_api_key},
+        )
+        assert response1.status_code == status.HTTP_201_CREATED
+        first_image_path = response1.json()["image_path"]
+
+        # Then: プロフィール画像が1枚目に設定される
+        test_db.refresh(new_animal)
+        assert new_animal.photo == first_image_path
+
+        # When: 2枚目の画像をアップロード
+        image2 = Image.new("RGB", (100, 100), color="blue")
+        image2_bytes = io.BytesIO()
+        image2.save(image2_bytes, format="JPEG")
+        image2_bytes.seek(0)
+
+        response2 = test_client.post(
+            f"/api/automation/animals/{new_animal.id}/images",
+            files={"file": ("second.jpg", image2_bytes, "image/jpeg")},
+            headers={"X-Automation-Key": automation_api_key},
+        )
+        assert response2.status_code == status.HTTP_201_CREATED
+
+        # Then: プロフィール画像は変更されない（1枚目のまま）
+        test_db.refresh(new_animal)
+        assert new_animal.photo == first_image_path
+
+        # クリーンアップ
+        test_db.delete(new_animal)
+        test_db.commit()
+
+    def test_upload_image_preserves_existing_profile_photo(
+        self,
+        test_client: TestClient,
+        test_db: Session,
+        automation_api_key: str,
+    ):
+        """正常系: 既存のプロフィール画像がある場合は上書きしない"""
+        # Given: 既にプロフィール画像が設定されている猫を作成
+        existing_photo_path = "animals/existing/profile.jpg"
+        new_animal = Animal(
+            name="既存プロフィール画像テスト猫",
+            pattern="黒猫",
+            tail_length="長い",
+            age="成猫",
+            gender="male",
+            photo=existing_photo_path,  # 既存のプロフィール画像
+        )
+        test_db.add(new_animal)
+        test_db.commit()
+        test_db.refresh(new_animal)
+
+        # Given: 有効な画像ファイルを作成
+        image = Image.new("RGB", (100, 100), color="green")
+        image_bytes = io.BytesIO()
+        image.save(image_bytes, format="JPEG")
+        image_bytes.seek(0)
+
+        # When: 画像をアップロード
+        response = test_client.post(
+            f"/api/automation/animals/{new_animal.id}/images",
+            files={"file": ("new.jpg", image_bytes, "image/jpeg")},
+            headers={"X-Automation-Key": automation_api_key},
+        )
+
+        # Then: 201 Created が返される
+        assert response.status_code == status.HTTP_201_CREATED
+
+        # Then: 既存のプロフィール画像は変更されない
+        test_db.refresh(new_animal)
+        assert new_animal.photo == existing_photo_path
+
+        # クリーンアップ
+        test_db.delete(new_animal)
+        test_db.commit()

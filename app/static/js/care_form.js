@@ -244,10 +244,12 @@ async function loadAnimalInfo() {
     document.getElementById('animalName').textContent =
       animal.name || fallbackText('No name set', '名前未設定');
 
-    // 画像のフォールバック処理
+    // 画像のフォールバック処理（photoパスに/media/プレフィックスを追加）
     const photoElement = document.getElementById('animalPhoto');
-    const photoUrl =
-      animal.photo && animal.photo.trim() !== '' ? animal.photo : DEFAULT_IMAGE_PLACEHOLDER;
+    let photoUrl = DEFAULT_IMAGE_PLACEHOLDER;
+    if (animal.photo && animal.photo.trim() !== '') {
+      photoUrl = animal.photo.startsWith('/') ? animal.photo : `/media/${animal.photo}`;
+    }
     photoElement.src = photoUrl;
     photoElement.onerror = function () {
       this.onerror = null; // 無限ループ防止
