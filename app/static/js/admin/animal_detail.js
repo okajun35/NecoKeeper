@@ -156,6 +156,8 @@ async function generateQRCard() {
     `;
 
     // API呼び出し
+    const currentLocale =
+      window.i18n?.getCurrentLanguage?.() || localStorage.getItem('language') || 'ja';
     const response = await fetch('/api/v1/pdf/qr-card', {
       method: 'POST',
       headers: {
@@ -164,6 +166,7 @@ async function generateQRCard() {
       },
       body: JSON.stringify({
         animal_id: animalId,
+        locale: currentLocale,
       }),
     });
 

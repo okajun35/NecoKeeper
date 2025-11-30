@@ -29,6 +29,7 @@ class QRCardRequest(BaseModel):
 
     animal_id: int = Field(..., description="猫のID")
     base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
 
 
 class QRCardGridRequest(BaseModel):
@@ -41,6 +42,7 @@ class QRCardGridRequest(BaseModel):
         max_length=10,
     )
     base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
 
 
 class PaperFormRequest(BaseModel):
@@ -97,6 +99,7 @@ async def generate_qr_card(
             db=db,
             animal_id=request.animal_id,
             base_url=request.base_url,
+            locale=request.locale,
         )
 
         filename = (
@@ -141,6 +144,7 @@ async def generate_qr_card_grid(
             db=db,
             animal_ids=request.animal_ids,
             base_url=request.base_url,
+            locale=request.locale,
         )
 
         filename = (
