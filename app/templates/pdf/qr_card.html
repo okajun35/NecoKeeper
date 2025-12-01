@@ -160,10 +160,11 @@
         <div class="animal-name">{{ animal.name or ('No Name' if locale == 'en' else '名前未設定') }}</div>
 
         <div class="animal-info">
-            <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
             {% if locale == 'en' %}
-                {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
+                <span class="gender-icon">{% if animal.gender == 'male' %}Male{% elif animal.gender == 'female' %}Female{% else %}Unknown{% endif %}</span>
+                / {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
             {% else %}
+                <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
                 {{ animal.age or '年齢不明' }}
             {% endif %}
         </div>

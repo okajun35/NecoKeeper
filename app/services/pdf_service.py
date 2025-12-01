@@ -77,8 +77,16 @@ def generate_qr_card_pdf(
     if animal.photo:
         try:
             # photoパスから実際のファイルパスを構築
-            # media/ プレフィックスを追加
-            photo_path = Path("media") / animal.photo.lstrip("/")
+            # DBに /media/animals/... と保存されている場合と animals/... の場合の両方に対応
+            photo_path_str = animal.photo.lstrip("/")
+
+            # /media/ で始まる場合は、そのまま使用
+            if photo_path_str.startswith("media/"):
+                photo_path = Path(photo_path_str)
+            else:
+                # media/ プレフィックスを追加
+                photo_path = Path("media") / photo_path_str
+
             if photo_path.exists():
                 photo_bytes = photo_path.read_bytes()
                 photo_base64 = base64.b64encode(photo_bytes).decode("utf-8")
