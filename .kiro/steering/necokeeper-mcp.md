@@ -48,9 +48,38 @@ Claude: register_catツールを呼び出し、以下のパラメータで登録
 - age: "成猫"
 ```
 
-### 2. generate_qr - QRコード付きPDFの生成
+### 2. generate_qr_card - 単一QRカードPDFの生成
 
-**用途**: 登録済みの猫のQRコード付きPDFを生成する
+**用途**: 登録済みの猫の単一QRカード付きPDF（A6サイズ）を生成する
+
+**必須パラメータ**:
+- `animal_id`: 猫のID（整数）
+
+**戻り値**:
+```json
+{
+  "pdf_path": "/path/to/NecoKeeper/tmp/qr/qr_card_42.pdf",
+  "animal_id": 42
+}
+```
+
+**使用例**:
+```
+ユーザー: "たまのQRカードを生成してください"
+
+Claude: generate_qr_cardツールを呼び出し、animal_id=42でPDFを生成
+```
+
+**注意点**:
+- PDFは`tmp/qr/qr_card_{animal_id}.pdf`に保存される
+- A6サイズの単一QRカード
+- 猫の写真、名前、ID、QRコードが含まれる
+- ディレクトリが存在しない場合は自動作成される
+- 既存のPDFは上書きされる
+
+### 3. generate_qr - QRコードグリッドPDFの生成
+
+**用途**: 登録済みの複数の猫のQRコード付きPDF（A4サイズ、2×5枚）を生成する
 
 **必須パラメータ**:
 - `animal_id`: 猫のID（整数）
@@ -65,17 +94,19 @@ Claude: register_catツールを呼び出し、以下のパラメータで登録
 
 **使用例**:
 ```
-ユーザー: "たまのQRコードを生成してください"
+ユーザー: "たまのQRコードグリッドを生成してください"
 
 Claude: generate_qrツールを呼び出し、animal_id=42でPDFを生成
 ```
 
 **注意点**:
 - PDFは`tmp/qr/qr_{animal_id}.pdf`に保存される
+- A4サイズの面付けPDF（2×5枚、最大10枚）
+- 複数の猫のQRカードを一度に印刷できる
 - ディレクトリが存在しない場合は自動作成される
 - 既存のPDFは上書きされる
 
-### 3. upload_cat_image - 猫の画像アップロード
+### 4. upload_cat_image - 猫の画像アップロード
 
 **用途**: 登録済みの猫のプロフィール画像をアップロードする
 
@@ -116,8 +147,8 @@ Claude: upload_cat_imageツールを呼び出し、画像をアップロード
 2. ユーザー: "ミケの写真をアップロードしてください。/path/to/mike.jpg"
    → Claude: upload_cat_imageで画像アップロード
 
-3. ユーザー: "ミケのQRコードを作ってください"
-   → Claude: generate_qrでPDF生成
+3. ユーザー: "ミケのQRカードを作ってください"
+   → Claude: generate_qr_cardでPDF生成（A6サイズ、単一カード）
 ```
 
 ### シナリオ2: 複数の猫を一括登録
@@ -151,6 +182,7 @@ MCPツールは以下のAutomation APIエンドポイントを使用：
 | ツール | エンドポイント | メソッド |
 |--------|--------------|----------|
 | register_cat | `/api/automation/animals` | POST |
+| generate_qr_card | `/api/automation/pdf/qr-card` | POST |
 | generate_qr | `/api/automation/pdf/qr-card-grid` | POST |
 | upload_cat_image | `/api/automation/animals/{id}/images` | POST |
 
@@ -235,10 +267,11 @@ app/mcp/
 ├── api_client.py        # Automation API クライアント
 ├── server.py            # MCPサーバー（FastMCP）
 ├── error_handler.py     # エラーハンドリング
-├── tools/               # ツール実装
-│   ├── register_cat.py  # 猫登録ツール
-│   ├── generate_qr.py   # QR生成ツール
-│   └── upload_image.py  # 画像アップロードツール
+├── tools/                  # ツール実装
+│   ├── register_cat.py     # 猫登録ツール
+│   ├── generate_qr_card.py # 単一QRカード生成ツール
+│   ├── generate_qr.py      # QRグリッド生成ツール
+│   └── upload_image.py     # 画像アップロードツール
 └── README.md            # 詳細ドキュメント
 ```
 
@@ -283,5 +316,16 @@ NecoKeeper MCPツールを使用することで、Claudeは自然言語で猫の
 
 ---
 
-**最終更新**: 2024-11-29
-**バージョン**: 1.0.0
+**最終更新**: 2024-12-02
+**バージョン**: 1.1.0
+
+## 変更履歴
+
+### v1.1.0 (2024-12-02)
+- ✨ `generate_qr_card`ツールを追加（単一QRカード、A6サイズ）
+- 🐛 画像パス処理を修正（`media/`プレフィックスの問題を解決）
+- 📝 `generate_qr`を`generate_qr`（グリッド）と`generate_qr_card`（単一）に分離
+
+### v1.0.0 (2024-11-29)
+- 🎉 初回リリース
+- ✨ `register_cat`、`generate_qr`、`upload_cat_image`ツールを実装

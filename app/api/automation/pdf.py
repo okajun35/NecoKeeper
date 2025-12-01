@@ -23,6 +23,102 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.post(
+    "/pdf/qr-card",
+    summary="単一QRカードPDFを生成（Automation API）",
+    description="""
+    単一QRカードPDFを生成します（Automation API専用）。
+
+    このエンドポイントは、Kiro Hook、MCP、自動化スクリプトからの
+    QRカードPDF生成に使用されます。API Key認証が必要です。
+
+    1匹の猫のQRカードをA6サイズのPDFで生成します。
+
+    **認証**: X-Automation-Key ヘッダーでAPI Keyを送信
+
+    **Requirements**: 2.2
+    """,
+    responses={
+        status.HTTP_200_OK: {
+            "description": "PDFが正常に生成されました",
+            "content": {"application/pdf": {"example": "PDF binary data"}},
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "description": "指定された猫が存在しません",
+            "content": {
+                "application/json": {"example": {"detail": "猫ID 999 が見つかりません"}}
+            },
+        },
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "description": "サーバーエラーが発生しました",
+            "content": {
+                "application/json": {"example": {"detail": "PDF生成に失敗しました"}}
+            },
+        },
+    },
+)
+async def generate_qr_card_automation(
+    request: QRCardRequest,
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    単一QRカードPDFを生成（Automation API）
+
+    Args:
+        request: QRカード生成リクエスト
+        db: データベースセッション
+
+    Returns:
+        Response: 生成されたPDF（application/pdf）
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+    """
+    try:
+        pdf_bytes = pdf_service.generate_qr_card_pdf(
+            db=db,
+            animal_id=request.animal_id,
+            base_url=request.base_url,
+            locale=request.locale,
+        )
+
+        logger.info(
+            f"Automation API: 単一QRカードPDFを生成しました - "
+            f"animal_id={request.animal_id}"
+        )
+
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=qr_card_{request.animal_id}.pdf"
+            },
+        )
+    except ValueError as e:
+        logger.warning(
+            f"Automation API: QRカード生成失敗（猫が見つからない） - "
+            f"animal_id={request.animal_id}, error={e}"
+        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except Exception as e:
+        logger.error(
+            f"Automation API: QRカード生成失敗 - "
+            f"animal_id={request.animal_id}, error={e}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="PDF生成に失敗しました",
+        ) from e
+
+
+class QRCardRequest(BaseModel):
+    """単一QRカード生成リクエスト"""
+
+    animal_id: int = Field(..., description="猫のID", gt=0)
+    base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
+
+
 class QRCardGridRequest(BaseModel):
     """面付けQRカード生成リクエスト"""
 

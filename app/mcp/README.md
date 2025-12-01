@@ -7,7 +7,8 @@ This directory contains the Model Context Protocol (MCP) server implementation f
 The MCP server enables Claude (running on AWS Kiro) to interact with NecoKeeper through structured tool calls. It provides tools for:
 
 - **register_cat**: Register new cat profiles with natural language
-- **generate_qr**: Generate QR code PDFs for registered cats
+- **generate_qr_card**: Generate single QR card PDF (A6 size) for a registered cat
+- **generate_qr**: Generate QR code grid PDF (A4 size, 2x5 layout) for multiple cats
 - **upload_cat_image**: Upload profile images for cats
 
 ## Table of Contents
@@ -186,9 +187,28 @@ Register a new cat profile in NecoKeeper.
 }
 ```
 
-### 2. generate_qr
+### 2. generate_qr_card
 
-Generate a QR code PDF for a registered cat.
+Generate a single QR card PDF (A6 size) for a registered cat.
+
+**Parameters**:
+- `animal_id` (required): Cat's ID from registration
+
+**Returns**:
+```json
+{
+  "pdf_path": "/path/to/NecoKeeper/tmp/qr/qr_card_42.pdf",
+  "animal_id": 42
+}
+```
+
+**Notes**:
+- A6 size PDF with cat photo, name, ID, and QR code
+- Saved to `tmp/qr/qr_card_{animal_id}.pdf`
+
+### 3. generate_qr
+
+Generate a QR code grid PDF (A4 size, 2x5 layout) for multiple cats.
 
 **Parameters**:
 - `animal_id` (required): Cat's ID from registration
@@ -201,7 +221,12 @@ Generate a QR code PDF for a registered cat.
 }
 ```
 
-### 3. upload_cat_image
+**Notes**:
+- A4 size PDF with up to 10 QR cards (2x5 grid)
+- Saved to `tmp/qr/qr_{animal_id}.pdf`
+- Useful for printing multiple cards at once
+
+### 4. upload_cat_image
 
 Upload a profile image for a registered cat.
 
@@ -261,33 +286,34 @@ Claude: "I've successfully registered Tama (ID: 42) in the system.
         Her public profile is available at: http://localhost:8000/public/care?animal_id=42"
 ```
 
-**Step 5: Generate QR code**
+**Step 5: Generate QR card**
 
 ```
-User: "Great! Now generate a QR code for Tama."
+User: "Great! Now generate a QR card for Tama."
 ```
 
-Claude invokes `generate_qr`:
+Claude invokes `generate_qr_card`:
 ```json
 {
   "animal_id": 42
 }
 ```
 
-**Step 6: QR Code Generated**
+**Step 6: QR Card Generated**
 
 ```json
 {
-  "pdf_path": "/home/user/NecoKeeper/tmp/qr/qr_42.pdf",
+  "pdf_path": "/home/user/NecoKeeper/tmp/qr/qr_card_42.pdf",
   "animal_id": 42
 }
 ```
 
 ```
-Claude: "I've generated a QR code PDF for Tama at:
-        /home/user/NecoKeeper/tmp/qr/qr_42.pdf
+Claude: "I've generated a QR card PDF for Tama at:
+        /home/user/NecoKeeper/tmp/qr/qr_card_42.pdf
 
-        You can print this QR code to allow volunteers to log care records for Tama."
+        This is an A6 size card with Tama's photo, name, and QR code.
+        You can print this card to allow volunteers to log care records for Tama."
 ```
 
 **Step 7: Upload an image (optional)**
