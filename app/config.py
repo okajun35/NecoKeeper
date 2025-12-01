@@ -6,6 +6,7 @@ Pydantic Settingsを使用して環境変数の検証と型変換を行います
 """
 
 import os
+from datetime import datetime
 from functools import lru_cache
 from typing import Any, Literal
 
@@ -163,6 +164,24 @@ class Settings(BaseSettings):
         description="Kiroween Mode（Necro-Terminal Theme）の有効化。"
         "Trueの場合、サイバーパンク/ホラーテーマのUIが適用されます。",
     )
+
+    # 静的ファイルキャッシュバスティング設定
+    @property
+    def static_version(self) -> str:
+        """
+        静的ファイルのキャッシュバスティング用バージョン文字列
+
+        サーバー起動時のタイムスタンプを使用して、サーバー再起動時に
+        自動的にブラウザキャッシュを無効化します。
+
+        Returns:
+            str: YYYYMMDDHHMMフォーマットのバージョン文字列
+
+        Example:
+            <script src="/static/js/app.js?v={{ settings.static_version }}"></script>
+            # → /static/js/app.js?v=202412011430
+        """
+        return datetime.now().strftime("%Y%m%d%H%M")
 
     @property
     def is_automation_api_secure(self) -> bool:

@@ -13,7 +13,9 @@
 // i18nextの初期化状態
 let i18nextInitialized = false;
 let currentLanguage = 'ja';
-const I18N_VERSION = '20241127v1';
+// バージョンはHTMLのscriptタグから取得（例: /static/js/i18n.js?v=202412011430）
+const I18N_VERSION =
+  new URLSearchParams(document.currentScript?.src.split('?')[1] || '').get('v') || 'dev';
 
 /**
  * i18nextを初期化
