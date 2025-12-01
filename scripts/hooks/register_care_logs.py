@@ -28,6 +28,30 @@ Example:
 Environment Variables:
     NECOKEEPER_API_URL: Base URL of NecoKeeper API (default: http://localhost:8000)
     AUTOMATION_API_KEY: API Key for Automation API authentication (required)
+
+JSON Format:
+    入力JSONは以下の形式の配列である必要があります:
+
+    [
+      {
+        "animal_id": 6,              # 必須: 猫ID（整数）
+        "recorder_name": "David",    # 必須: 記録者名（文字列、最大100文字）
+        "log_date": "2025-11-20",    # 必須: 記録日（YYYY-MM-DD形式）
+        "time_slot": "morning",      # 必須: 時点（"morning", "noon", "evening" のみ）
+        "appetite": 5,               # 任意: 食欲（1-5、デフォルト3）
+        "energy": 5,                 # 任意: 元気（1-5、デフォルト3）
+        "urination": true,           # 任意: 排尿有無（true/false、デフォルトfalse）
+        "cleaning": false,           # 任意: 清掃済み（true/false、デフォルトfalse）
+        "memo": null,                # 任意: メモ（文字列またはnull）
+        "from_paper": true,          # 任意: 紙記録からの転記（true/false、デフォルトfalse）
+        "device_tag": "OCR-Import"   # 任意: デバイスタグ（文字列、最大100文字）
+      }
+    ]
+
+    注意事項:
+    - time_slot は必ず "morning", "noon", "evening" のいずれかを使用
+    - "afternoon" は無効（"noon" を使用してください）
+    - appetite, energy は 1（悪い）〜 5（良い）の5段階評価
 """
 
 from __future__ import annotations
@@ -39,6 +63,10 @@ from pathlib import Path
 from typing import Any
 
 import requests
+from dotenv import load_dotenv
+
+# .envファイルを読み込む
+load_dotenv()
 
 from scripts.utils.logging_config import setup_ocr_logger
 

@@ -48,7 +48,7 @@
       ],
       "env": {},
       "disabled": false,
-      "autoApprove": ["register_cat", "generate_qr", "upload_cat_image"]
+      "autoApprove": ["register_cat", "generate_qr", "generate_qr_card", "upload_cat_image"]
     }
   }
 }
