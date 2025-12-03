@@ -197,7 +197,7 @@ async def get_care_log(
     care_log_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
-) -> CareLog:
+) -> CareLogResponse:
     """
     世話記録の詳細を取得
 
@@ -223,7 +223,7 @@ async def update_care_log(
     care_log_data: CareLogUpdate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("care:write"))],
-) -> CareLog:
+) -> CareLogResponse:
     """
     世話記録を更新
 
