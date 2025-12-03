@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_date, get_jst_now
 
 if TYPE_CHECKING:
     from app.models.animal import Animal
@@ -77,8 +77,8 @@ class CareLog(Base):
     log_date: Mapped[date] = mapped_column(
         Date,
         nullable=False,
-        server_default=func.current_date(),
-        comment="記録日（年月日）",
+        default=get_jst_date,
+        comment="記録日（年月日、JST）",
     )
 
     time_slot: Mapped[str] = mapped_column(
@@ -144,16 +144,16 @@ class CareLog(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        comment="記録日時",
+        default=get_jst_now,
+        comment="記録日時（JST）",
     )
 
     last_updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="最終更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="最終更新日時（JST）",
     )
 
     last_updated_by: Mapped[int | None] = mapped_column(

@@ -11,9 +11,9 @@ from decimal import Decimal
 
 from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_now
 
 
 class MedicalAction(Base):
@@ -102,22 +102,22 @@ class MedicalAction(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        comment="作成日時",
+        default=get_jst_now,
+        comment="作成日時（JST）",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="更新日時（JST）",
     )
 
     last_updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="最終更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="最終更新日時（JST）",
     )
 
     last_updated_by: Mapped[int | None] = mapped_column(

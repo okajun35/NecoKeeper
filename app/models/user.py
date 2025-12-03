@@ -10,9 +10,9 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_now
 
 
 class User(Base):
@@ -87,16 +87,16 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        comment="作成日時",
+        default=get_jst_now,
+        comment="作成日時（JST）",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="更新日時（JST）",
     )
 
     # インデックス定義
@@ -123,9 +123,11 @@ class User(Base):
         Returns:
             bool: ロックされている場合True
         """
+        from app.utils.timezone import get_jst_now
+
         if self.locked_until is None:
             return False
-        return datetime.now() < self.locked_until
+        return get_jst_now() < self.locked_until
 
     def reset_failed_login(self) -> None:
         """ログイン失敗回数をリセット"""

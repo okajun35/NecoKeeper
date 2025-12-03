@@ -10,9 +10,9 @@ from datetime import date, datetime
 
 from sqlalchemy import Date, DateTime, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_date, get_jst_now
 
 
 class Volunteer(Base):
@@ -61,22 +61,22 @@ class Volunteer(Base):
     started_at: Mapped[date] = mapped_column(
         Date,
         nullable=False,
-        server_default=func.current_date(),
-        comment="活動開始日",
+        default=get_jst_date,
+        comment="活動開始日（JST）",
     )
 
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        comment="作成日時",
+        default=get_jst_now,
+        comment="作成日時（JST）",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="更新日時（JST）",
     )
 
     # インデックス定義
