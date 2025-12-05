@@ -59,7 +59,7 @@ def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
         ) from e
 
 
-def get_care_log(db: Session, care_log_id: int) -> CareLog:
+def get_care_log(db: Session, care_log_id: int) -> CareLogResponse:
     """
     世話記録の詳細を取得
 
@@ -68,7 +68,7 @@ def get_care_log(db: Session, care_log_id: int) -> CareLog:
         care_log_id: 世話記録ID
 
     Returns:
-        CareLog: 世話記録
+        CareLogResponse: 世話記録（猫の名前を含む）
 
     Raises:
         HTTPException: 世話記録が見つからない場合
@@ -83,7 +83,33 @@ def get_care_log(db: Session, care_log_id: int) -> CareLog:
                 detail=f"ID {care_log_id} の世話記録が見つかりません",
             )
 
-        return care_log
+        # 猫名を取得
+        animal_name = None
+        if care_log.animal:
+            animal_name = care_log.animal.name or f"ID:{care_log.animal_id}"
+
+        # CareLogResponseを作成
+        return CareLogResponse(
+            id=care_log.id,
+            animal_id=care_log.animal_id,
+            animal_name=animal_name,
+            recorder_id=care_log.recorder_id,
+            recorder_name=care_log.recorder_name,
+            log_date=care_log.log_date,
+            time_slot=care_log.time_slot,
+            appetite=care_log.appetite,
+            energy=care_log.energy,
+            urination=care_log.urination,
+            cleaning=care_log.cleaning,
+            memo=care_log.memo,
+            from_paper=care_log.from_paper,
+            ip_address=care_log.ip_address,
+            user_agent=care_log.user_agent,
+            device_tag=care_log.device_tag,
+            created_at=care_log.created_at,
+            last_updated_at=care_log.last_updated_at,
+            last_updated_by=care_log.last_updated_by,
+        )
 
     except HTTPException:
         raise
@@ -97,7 +123,7 @@ def get_care_log(db: Session, care_log_id: int) -> CareLog:
 
 def update_care_log(
     db: Session, care_log_id: int, care_log_data: CareLogUpdate, user_id: int
-) -> CareLog:
+) -> CareLogResponse:
     """
     世話記録を更新
 
@@ -108,13 +134,21 @@ def update_care_log(
         user_id: 更新者のユーザーID
 
     Returns:
-        CareLog: 更新された世話記録
+        CareLogResponse: 更新された世話記録（猫の名前を含む）
 
     Raises:
         HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
     """
     try:
-        care_log = get_care_log(db, care_log_id)
+        # CareLogオブジェクトを直接取得
+        care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+
+        if not care_log:
+            logger.warning(f"世話記録が見つかりません: ID={care_log_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {care_log_id} の世話記録が見つかりません",
+            )
 
         # 世話記録を更新
         update_dict = care_log_data.model_dump(exclude_unset=True)
@@ -128,7 +162,33 @@ def update_care_log(
         db.refresh(care_log)
 
         logger.info(f"世話記録を更新しました: ID={care_log_id}")
-        return care_log
+
+        # 猫名を取得してCareLogResponseを返す
+        animal_name = None
+        if care_log.animal:
+            animal_name = care_log.animal.name or f"ID:{care_log.animal_id}"
+
+        return CareLogResponse(
+            id=care_log.id,
+            animal_id=care_log.animal_id,
+            animal_name=animal_name,
+            recorder_id=care_log.recorder_id,
+            recorder_name=care_log.recorder_name,
+            log_date=care_log.log_date,
+            time_slot=care_log.time_slot,
+            appetite=care_log.appetite,
+            energy=care_log.energy,
+            urination=care_log.urination,
+            cleaning=care_log.cleaning,
+            memo=care_log.memo,
+            from_paper=care_log.from_paper,
+            ip_address=care_log.ip_address,
+            user_agent=care_log.user_agent,
+            device_tag=care_log.device_tag,
+            created_at=care_log.created_at,
+            last_updated_at=care_log.last_updated_at,
+            last_updated_by=care_log.last_updated_by,
+        )
 
     except HTTPException:
         raise

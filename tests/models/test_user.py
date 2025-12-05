@@ -4,7 +4,7 @@ Userモデルの単体テスト
 ユーザー認証とセキュリティ関連のビジネスルールをテストします。
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 from sqlalchemy.orm import Session
@@ -85,11 +85,13 @@ class TestUserModel:
 
     def test_user_is_locked_when_locked(self, test_db: Session):
         """ロックされているユーザーのis_locked()がTrueを返すことを確認"""
+        from app.utils.timezone import get_jst_now
+
         user = User(
             email="user2@example.com",
             password_hash="hashed_password",
             name="ユーザー2",
-            locked_until=datetime.now() + timedelta(minutes=15),
+            locked_until=get_jst_now() + timedelta(minutes=15),
         )
 
         test_db.add(user)
@@ -99,11 +101,13 @@ class TestUserModel:
 
     def test_user_is_locked_when_lock_expired(self, test_db: Session):
         """ロック期限が切れたユーザーのis_locked()がFalseを返すことを確認"""
+        from app.utils.timezone import get_jst_now
+
         user = User(
             email="user3@example.com",
             password_hash="hashed_password",
             name="ユーザー3",
-            locked_until=datetime.now() - timedelta(minutes=1),
+            locked_until=get_jst_now() - timedelta(minutes=1),
         )
 
         test_db.add(user)
@@ -113,12 +117,14 @@ class TestUserModel:
 
     def test_user_reset_failed_login(self, test_db: Session):
         """reset_failed_login()がログイン失敗回数をリセットすることを確認"""
+        from app.utils.timezone import get_jst_now
+
         user = User(
             email="user4@example.com",
             password_hash="hashed_password",
             name="ユーザー4",
             failed_login_count=5,
-            locked_until=datetime.now() + timedelta(minutes=15),
+            locked_until=get_jst_now() + timedelta(minutes=15),
         )
 
         test_db.add(user)
