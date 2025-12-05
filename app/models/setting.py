@@ -10,9 +10,9 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_now
 
 
 class Setting(Base):
@@ -50,15 +50,15 @@ class Setting(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        comment="作成日時",
+        default=get_jst_now,
+        comment="作成日時（JST）",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="更新日時（JST）",
     )
 
     # インデックス定義

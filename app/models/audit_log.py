@@ -10,9 +10,9 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_now
 
 
 class AuditLog(Base):
@@ -78,8 +78,8 @@ class AuditLog(Base):
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        comment="操作日時",
+        default=get_jst_now,
+        comment="操作日時（JST）",
     )
 
     # インデックス定義

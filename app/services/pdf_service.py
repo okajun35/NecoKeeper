@@ -73,13 +73,34 @@ def generate_qr_card_pdf(
 
     # 写真をbase64エンコード
     photo_base64 = None
+    photo_mime_type = "image/jpeg"  # デフォルト
     if animal.photo:
         try:
             # photoパスから実際のファイルパスを構築
-            photo_path = Path(animal.photo.lstrip("/"))
+            # DBに /media/animals/... と保存されている場合と animals/... の場合の両方に対応
+            photo_path_str = animal.photo.lstrip("/")
+
+            # /media/ で始まる場合は、そのまま使用
+            if photo_path_str.startswith("media/"):
+                photo_path = Path(photo_path_str)
+            else:
+                # media/ プレフィックスを追加
+                photo_path = Path("media") / photo_path_str
+
             if photo_path.exists():
                 photo_bytes = photo_path.read_bytes()
                 photo_base64 = base64.b64encode(photo_bytes).decode("utf-8")
+
+                # 拡張子からMIMEタイプを判定
+                suffix = photo_path.suffix.lower()
+                if suffix == ".png":
+                    photo_mime_type = "image/png"
+                elif suffix == ".webp":
+                    photo_mime_type = "image/webp"
+                elif suffix == ".gif":
+                    photo_mime_type = "image/gif"
+                else:
+                    photo_mime_type = "image/jpeg"
         except Exception as e:
             print(f"写真の読み込みに失敗: {e}")
 
@@ -88,6 +109,7 @@ def generate_qr_card_pdf(
     html_content = template.render(
         animal=animal,
         photo_base64=photo_base64,
+        photo_mime_type=photo_mime_type,
         qr_code_base64=qr_code_base64,
         font_family=settings.pdf_font_family,
         base_url=base_url,

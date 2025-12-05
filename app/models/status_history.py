@@ -10,9 +10,9 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_now
 
 
 class StatusHistory(Base):
@@ -66,8 +66,8 @@ class StatusHistory(Base):
 
     changed_at: Mapped[datetime] = mapped_column(
         DateTime,
-        server_default=func.now(),
-        comment="変更日時",
+        default=get_jst_now,
+        comment="変更日時（JST）",
     )
 
     # インデックス定義

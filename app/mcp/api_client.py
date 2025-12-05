@@ -142,9 +142,51 @@ class NecoKeeperAPIClient:
                 f"Network error while communicating with NecoKeeper API: {exc}"
             ) from exc
 
+    async def generate_qr_card_pdf(self, animal_id: int) -> bytes:
+        """
+        Generate single QR card PDF for an animal (A6 size)
+
+        Args:
+            animal_id: Animal ID to generate QR card for
+
+        Returns:
+            bytes: PDF file content
+
+        Raises:
+            httpx.HTTPStatusError: For HTTP 4xx/5xx responses
+            httpx.ConnectError: For connection failures
+            httpx.TimeoutException: For request timeouts
+            httpx.NetworkError: For network-level errors
+        """
+        try:
+            response = await self.client.post(
+                "/api/automation/pdf/qr-card", json={"animal_id": animal_id}
+            )
+            response.raise_for_status()
+            content: bytes = response.content
+            return content
+
+        except httpx.HTTPStatusError as exc:
+            self._handle_http_status_error(exc)
+            raise
+
+        except httpx.ConnectError as exc:
+            raise ConnectionError(
+                f"Failed to connect to NecoKeeper API at {self.config.api_url}. "
+                f"Please ensure the server is running."
+            ) from exc
+
+        except httpx.TimeoutException as exc:
+            raise TimeoutError(f"Request to NecoKeeper API timed out: {exc}") from exc
+
+        except httpx.NetworkError as exc:
+            raise ConnectionError(
+                f"Network error while communicating with NecoKeeper API: {exc}"
+            ) from exc
+
     async def generate_qr_pdf(self, animal_ids: list[int]) -> bytes:
         """
-        Generate QR code PDF for animals
+        Generate QR code grid PDF for multiple animals (A4 size, 2x5 layout)
 
         Args:
             animal_ids: List of animal IDs to include in the PDF

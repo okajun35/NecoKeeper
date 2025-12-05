@@ -18,7 +18,12 @@ from fastmcp import FastMCP
 from app.mcp.api_client import NecoKeeperAPIClient
 from app.mcp.config import MCPConfig
 from app.mcp.error_handler import configure_logging
-from app.mcp.tools import register_cat_tool, register_qr_tool, register_upload_tool
+from app.mcp.tools import (
+    register_cat_tool,
+    register_qr_card_tool,
+    register_qr_tool,
+    register_upload_tool,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +81,8 @@ class MCPServer:
             name="NecoKeeper MCP Server",
             instructions=(
                 "NecoKeeper MCP Server provides tools for managing cat shelter data. "
-                "Use register_cat to add new cats, generate_qr to create QR code PDFs, "
-                "and upload_cat_image to add profile images."
+                "Use register_cat to add new cats, generate_qr_card to create single QR card PDF (A6), "
+                "generate_qr to create QR code grid PDF (A4, 2x5), and upload_cat_image to add profile images."
             ),
         )
 
@@ -91,9 +96,10 @@ class MCPServer:
         """
         Register all MCP tools
 
-        Registers the three main tools with the FastMCP server:
+        Registers the four main tools with the FastMCP server:
         - register_cat: Register new cat profiles
-        - generate_qr: Generate QR code PDFs
+        - generate_qr_card: Generate single QR card PDF (A6)
+        - generate_qr: Generate QR code grid PDF (A4, 2x5)
         - upload_cat_image: Upload cat profile images
 
         Requirements 4.4: Return list of all registered tools with schemas
@@ -104,6 +110,11 @@ class MCPServer:
         # Requirements 1.1: Expose register_cat tool
         register_cat_tool(self.mcp, self.api_client)
         logger.info("Registered tool: register_cat")
+
+        # Register generate_qr_card tool
+        # Requirements 2.1: Expose generate_qr_card tool
+        register_qr_card_tool(self.mcp, self.api_client)
+        logger.info("Registered tool: generate_qr_card")
 
         # Register generate_qr tool
         # Requirements 2.1: Expose generate_qr tool

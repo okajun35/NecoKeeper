@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Date, DateTime, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 
 from app.database import Base
+from app.utils.timezone import get_jst_date, get_jst_now
 
 if TYPE_CHECKING:
     from app.models.care_log import CareLog
@@ -105,24 +105,24 @@ class Animal(Base):
     protected_at: Mapped[date] = mapped_column(
         Date,
         nullable=False,
-        server_default=func.current_date(),
-        comment="保護日",
+        default=get_jst_date,
+        comment="保護日（JST）",
     )
 
     # タイムスタンプ
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        comment="作成日時",
+        default=get_jst_now,
+        comment="作成日時（JST）",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時",
+        default=get_jst_now,
+        onupdate=get_jst_now,
+        comment="更新日時（JST）",
     )
 
     # リレーションシップ

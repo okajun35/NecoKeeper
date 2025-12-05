@@ -150,7 +150,7 @@
 <body>
     <div class="card">
         {% if photo_base64 %}
-        <img src="data:image/jpeg;base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
+        <img src="data:{{ photo_mime_type }};base64,{{ photo_base64 }}" alt="{{ animal.name }}" class="animal-photo">
         {% else %}
         <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#e0e0e0{% endif %}; display: flex; align-items: center; justify-content: center;">
             <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %}; font-size: 7pt;">{% if kiroween_mode %}NO IMG{% elif locale == 'en' %}No Photo{% else %}写真なし{% endif %}</span>
@@ -160,10 +160,11 @@
         <div class="animal-name">{{ animal.name or ('No Name' if locale == 'en' else '名前未設定') }}</div>
 
         <div class="animal-info">
-            <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
             {% if locale == 'en' %}
-                {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
+                <span class="gender-icon">{% if animal.gender == 'male' %}Male{% elif animal.gender == 'female' %}Female{% else %}Unknown{% endif %}</span>
+                / {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
             {% else %}
+                <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
                 {{ animal.age or '年齢不明' }}
             {% endif %}
         </div>

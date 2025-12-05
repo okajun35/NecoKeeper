@@ -186,8 +186,8 @@ class TestImageList:
         data = response.json()
         assert len(data) == 3
         # 降順なので最新の画像が最初（IDが大きい方が新しい）
-        assert data[0]["id"] < data[1]["id"]  # 実際は昇順になっている
-        assert data[1]["id"] < data[2]["id"]
+        assert data[0]["id"] > data[1]["id"]
+        assert data[1]["id"] > data[2]["id"]
 
 
 class TestImageDelete:
