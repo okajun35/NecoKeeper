@@ -23,6 +23,26 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+class QRCardRequest(BaseModel):
+    """単一QRカード生成リクエスト"""
+
+    animal_id: int = Field(..., description="猫のID", gt=0)
+    base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
+    locale: str = Field("ja", description="ロケール（ja/en）")
+
+
+class QRCardGridRequest(BaseModel):
+    """面付けQRカード生成リクエスト"""
+
+    animal_ids: list[int] = Field(
+        ...,
+        description="猫のIDリスト（最大10個）",
+        min_length=1,
+        max_length=10,
+    )
+    base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
+
+
 @router.post(
     "/pdf/qr-card",
     summary="単一QRカードPDFを生成（Automation API）",
@@ -109,26 +129,6 @@ async def generate_qr_card_automation(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="PDF生成に失敗しました",
         ) from e
-
-
-class QRCardRequest(BaseModel):
-    """単一QRカード生成リクエスト"""
-
-    animal_id: int = Field(..., description="猫のID", gt=0)
-    base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
-    locale: str = Field("ja", description="ロケール（ja/en）")
-
-
-class QRCardGridRequest(BaseModel):
-    """面付けQRカード生成リクエスト"""
-
-    animal_ids: list[int] = Field(
-        ...,
-        description="猫のIDリスト（最大10個）",
-        min_length=1,
-        max_length=10,
-    )
-    base_url: str | None = Field(None, description="ベースURL（省略時は設定から取得）")
 
 
 @router.post(
