@@ -19,6 +19,46 @@ const I18N_VERSION =
 const SERVER_DEFAULT_LANGUAGE =
   typeof window !== 'undefined' && window.DEFAULT_LANGUAGE ? window.DEFAULT_LANGUAGE : null;
 
+function revealI18n() {
+  const body = document.body;
+  if (!body || !body.classList.contains('i18n-hidden')) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    body.style.transition = '';
+    body.style.opacity = '';
+    body.style.display = '';
+    body.style.visibility = '';
+  };
+
+  // Start hidden, then fade in after i18n is ready
+  body.style.display = 'block';
+  body.style.visibility = 'hidden';
+  body.style.opacity = '0';
+  body.classList.remove('i18n-hidden');
+
+  if (prefersReducedMotion) {
+    cleanup();
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    body.style.transition = 'opacity 150ms ease-out';
+    body.style.visibility = 'visible';
+    requestAnimationFrame(() => {
+      body.style.opacity = '1';
+    });
+  });
+
+  body.addEventListener('transitionend', cleanup, { once: true });
+  setTimeout(cleanup, 250);
+}
+
 /**
  * i18nextを初期化
  *
@@ -92,6 +132,8 @@ async function initI18n() {
 
         // 初回翻訳を適用
         translatePage();
+
+        revealI18n();
 
         // i18nextInitializedイベントを発火
         document.dispatchEvent(new Event('i18nextInitialized'));
@@ -168,6 +210,8 @@ async function initI18n() {
     // 初回翻訳を適用
     translatePage();
 
+    revealI18n();
+
     // i18nextInitializedイベントを発火
     document.dispatchEvent(new Event('i18nextInitialized'));
 
@@ -177,6 +221,7 @@ async function initI18n() {
     console.error('[i18n] Initialization failed:', error);
     // フォールバック: 日本語のまま続行
     i18nextInitialized = true;
+    revealI18n();
   }
 }
 

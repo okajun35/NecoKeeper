@@ -54,6 +54,9 @@
 
     <style>
         /* カスタムスタイル */
+        .i18n-hidden {
+            display: none;
+        }
         .sidebar-link {
             display: flex;
             align-items: center;
@@ -94,7 +97,7 @@
 
     {% block extra_styles %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
+<body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %} i18n-hidden">
     <!-- CRT Overlay (Kiroween Mode only) -->
     {% if settings.kiroween_mode %}
     <div class="crt-overlay"></div>

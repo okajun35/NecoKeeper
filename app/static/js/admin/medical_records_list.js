@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // i18nが初期化されたら翻訳を適用
       translateButtonTexts();
+      updateDateInputLocale();
       loadAnimals();
       loadVets();
       loadMedicalRecords();
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 言語変更イベントをリッスン
       window.addEventListener('languageChanged', () => {
         translateButtonTexts();
+        updateDateInputLocale();
         // ページネーション情報の再表示（データは保持）
         const info = document.getElementById('paginationInfo');
         if (info && info.textContent) {
@@ -128,10 +130,26 @@ function translateButtonTexts() {
 }
 
 function updateSelectDefaults() {
-  const allLabel =
-    window.i18n && window.i18n.t ? window.i18n.t('common.all', { ns: 'common' }) : 'すべて';
+  const allLabel = window.i18n && window.i18n.t ? window.i18n.t('all', { ns: 'common' }) : 'すべて';
   setDefaultOptionText('filterAnimal', 'All Cats', allLabel);
   setDefaultOptionText('filterVet', 'All Vets', allLabel);
+}
+
+function updateDateInputLocale() {
+  const lang =
+    (window.i18n && window.i18n.getCurrentLanguage && window.i18n.getCurrentLanguage()) ||
+    document.documentElement.lang ||
+    'ja';
+
+  ['filterStartDate', 'filterEndDate'].forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    input.type = 'date';
+    input.setAttribute('lang', lang);
+    input.removeAttribute('placeholder');
+    input.removeAttribute('inputmode');
+    input.removeAttribute('pattern');
+  });
 }
 
 function setDefaultOptionText(selectId, kiroweenLabel, defaultLabel) {

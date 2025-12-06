@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAnimals();
   loadDailyView();
   setupEventListeners();
+
+  // 言語切り替えで「すべての猫」を現在の言語に再設定
+  window.addEventListener('languageChanged', () => {
+    updateAllCatsOption();
+  });
 });
 
 /**
@@ -86,7 +91,8 @@ async function loadAnimals() {
 
     // ドロップダウンに追加
     const select = document.getElementById('filterAnimal');
-    select.innerHTML = `<option value="">${fallbackText('All Cats', 'すべての猫')}</option>`;
+    select.innerHTML = '';
+    select.appendChild(createAllCatsOption());
 
     animals.forEach(animal => {
       const option = document.createElement('option');
@@ -96,6 +102,36 @@ async function loadAnimals() {
     });
   } catch (error) {
     console.error('猫一覧の読み込みエラー:', error);
+  }
+}
+
+function createAllCatsOption() {
+  const option = document.createElement('option');
+  option.value = '';
+  option.setAttribute('data-i18n', 'filter.all_cats');
+  option.setAttribute('data-i18n-ns', 'care_logs');
+  option.textContent = getAllCatsLabel();
+  return option;
+}
+
+function getAllCatsLabel() {
+  const translated =
+    (window.i18n && window.i18n.t
+      ? window.i18n.t('filter.all_cats', {
+          ns: 'care_logs',
+          defaultValue: null,
+        })
+      : null) || null;
+
+  return translated || fallbackText('All Cats', 'すべての猫');
+}
+
+function updateAllCatsOption() {
+  const select = document.getElementById('filterAnimal');
+  if (!select) return;
+  const first = select.querySelector('option[value=""]');
+  if (first) {
+    first.textContent = getAllCatsLabel();
   }
 }
 

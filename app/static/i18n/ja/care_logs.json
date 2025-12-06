@@ -55,7 +55,8 @@
     "by_date": "日付で絞り込み",
     "by_time_slot": "時点で絞り込み",
     "start_date": "開始日",
-    "end_date": "終了日"
+    "end_date": "終了日",
+    "all_cats": "すべての猫"
   },
   "messages": {
     "created": "世話記録を登録しました",

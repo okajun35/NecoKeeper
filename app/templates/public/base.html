@@ -60,6 +60,9 @@
 
     <style>
         /* カスタムスタイル */
+        .i18n-hidden {
+            display: none;
+        }
         .rating-button {
             transition: all 0.2s;
         }
@@ -134,7 +137,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
+<body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %} i18n-hidden">
     {% block content %}{% endblock %}
 
     {% block extra_scripts %}{% endblock %}
