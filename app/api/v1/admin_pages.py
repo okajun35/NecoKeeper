@@ -14,12 +14,14 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 from starlette.responses import Response
 
 from app.auth.dependencies import (
     get_current_user_optional,
 )
 from app.config import get_settings
+from app.database import get_db
 from app.models.user import User
 
 router = APIRouter(prefix="/admin", tags=["admin-pages"])
@@ -159,6 +161,7 @@ async def animal_detail_page(
     request: Request,
     animal_id: int,
     current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
 ) -> Response:
     """
     猫詳細ページを表示（認証必須）
@@ -180,31 +183,26 @@ async def animal_detail_page(
     if not current_user:
         return RedirectResponse(url="/admin/login", status_code=302)
 
-    from app.database import SessionLocal
     from app.models.animal import Animal
     from app.services import animal_service
 
-    db = SessionLocal()
-    try:
-        animal = db.query(Animal).filter(Animal.id == animal_id).first()
-        if not animal:
-            # 猫が見つからない場合は一覧ページにリダイレクト
-            return RedirectResponse(url="/admin/animals", status_code=302)
+    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+    if not animal:
+        # 猫が見つからない場合は一覧ページにリダイレクト
+        return RedirectResponse(url="/admin/animals", status_code=302)
 
-        # 表示用の画像パスを取得
-        display_image = animal_service.get_display_image(db, animal_id)
+    # 表示用の画像パスを取得
+    display_image = animal_service.get_display_image(db, animal_id)
 
-        return templates.TemplateResponse(
-            "admin/animals/detail.html",
-            {
-                "request": request,
-                "animal": animal,
-                "display_image": display_image,
-                "settings": settings,
-            },
-        )
-    finally:
-        db.close()
+    return templates.TemplateResponse(
+        "admin/animals/detail.html",
+        {
+            "request": request,
+            "animal": animal,
+            "display_image": display_image,
+            "settings": settings,
+        },
+    )
 
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
