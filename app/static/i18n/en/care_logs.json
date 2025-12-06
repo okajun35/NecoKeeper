@@ -55,7 +55,8 @@
     "by_date": "Filter by date",
     "by_time_slot": "Filter by time slot",
     "start_date": "Start date",
-    "end_date": "End date"
+    "end_date": "End date",
+    "all_cats": "All Cats"
   },
   "messages": {
     "created": "Care log created successfully",

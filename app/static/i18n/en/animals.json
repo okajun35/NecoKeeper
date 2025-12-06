@@ -201,7 +201,11 @@
   "errors": {
     "file_size_limit": "File size must be 5MB or less",
     "upload_failed": "Failed to upload",
-    "profile_image_set_failed": "Failed to set profile image"
+    "profile_image_set_failed": "Failed to set profile image",
+    "basic_info_update_failed": "Failed to update basic info",
+    "status_update_failed": "Failed to update status",
+    "qr_generation_failed": "Failed to generate QR card",
+    "paper_form_generation_failed": "Failed to generate paper form"
   },
   "messages": {
     "created": "Cat registered successfully",
@@ -213,7 +217,10 @@
     "profile_image_updated": "Profile image updated",
     "load_failed": "Failed to load the cat list",
     "id_missing": "Cat ID is not specified",
-    "load_error": "Failed to load cat information"
+    "load_error": "Failed to load cat information",
+    "basic_info_updated": "Basic info updated",
+    "qr_generated": "QR card generated",
+    "paper_form_generated": "Generated paper form for {{year}}-{{month}}"
   },
   "buttons": {
     "register": "Register",

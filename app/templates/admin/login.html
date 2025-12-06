@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{ settings.default_language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -232,8 +232,11 @@
     <!-- i18next for internationalization -->
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
 
+    <script>
+        window.DEFAULT_LANGUAGE = "{{ settings.default_language }}";
+    </script>
     <!-- i18n module -->
-    <script src="/static/js/i18n.js?v=20241120v5"></script>
+    <script src="/static/js/i18n.js?v={{ settings.static_version }}"></script>
 </head>
 <body class="{% if not settings.kiroween_mode %}min-h-screen flex items-center justify-center p-4{% endif %}{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
     {% if settings.kiroween_mode %}

@@ -16,6 +16,48 @@ let currentLanguage = 'ja';
 // バージョンはHTMLのscriptタグから取得（例: /static/js/i18n.js?v=202412011430）
 const I18N_VERSION =
   new URLSearchParams(document.currentScript?.src.split('?')[1] || '').get('v') || 'dev';
+const SERVER_DEFAULT_LANGUAGE =
+  typeof window !== 'undefined' && window.DEFAULT_LANGUAGE ? window.DEFAULT_LANGUAGE : null;
+
+function revealI18n() {
+  const body = document.body;
+  if (!body || !body.classList.contains('i18n-hidden')) {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    body.style.transition = '';
+    body.style.opacity = '';
+    body.style.display = '';
+    body.style.visibility = '';
+  };
+
+  // Start hidden, then fade in after i18n is ready
+  body.style.display = 'block';
+  body.style.visibility = 'hidden';
+  body.style.opacity = '0';
+  body.classList.remove('i18n-hidden');
+
+  if (prefersReducedMotion) {
+    cleanup();
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    body.style.transition = 'opacity 150ms ease-out';
+    body.style.visibility = 'visible';
+    requestAnimationFrame(() => {
+      body.style.opacity = '1';
+    });
+  });
+
+  body.addEventListener('transitionend', cleanup, { once: true });
+  setTimeout(cleanup, 250);
+}
 
 /**
  * i18nextを初期化
@@ -31,14 +73,19 @@ async function initI18n() {
     // Kiroweenモードかどうかを判定
     const isKiroween = document.body.classList.contains('kiroween-mode');
 
-    // 保存された言語設定を取得、なければブラウザ言語を使用
+    // 保存された言語設定を取得、なければサーバー既定→ブラウザ言語を使用
     const savedLanguage = localStorage.getItem('language');
     const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
+    const serverDefaultLanguage =
+      SERVER_DEFAULT_LANGUAGE === 'ja' || SERVER_DEFAULT_LANGUAGE === 'en'
+        ? SERVER_DEFAULT_LANGUAGE
+        : null;
 
     // Kiroweenモードの場合は強制的に英語、それ以外は保存された設定またはブラウザ言語
     const defaultLanguage = isKiroween
       ? 'en'
       : savedLanguage ||
+        serverDefaultLanguage ||
         (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
     // Kiroweenモードの場合は単一のen_necro.jsonファイルを読み込み
@@ -85,6 +132,8 @@ async function initI18n() {
 
         // 初回翻訳を適用
         translatePage();
+
+        revealI18n();
 
         // i18nextInitializedイベントを発火
         document.dispatchEvent(new Event('i18nextInitialized'));
@@ -153,12 +202,15 @@ async function initI18n() {
 
     currentLanguage = defaultLanguage;
     i18nextInitialized = true;
+    updateDocumentLanguage();
 
     console.log(`[i18n] Initialized with language: ${currentLanguage}`);
     console.log(`[i18n] Loaded namespaces:`, namespaces);
 
     // 初回翻訳を適用
     translatePage();
+
+    revealI18n();
 
     // i18nextInitializedイベントを発火
     document.dispatchEvent(new Event('i18nextInitialized'));
@@ -169,6 +221,7 @@ async function initI18n() {
     console.error('[i18n] Initialization failed:', error);
     // フォールバック: 日本語のまま続行
     i18nextInitialized = true;
+    revealI18n();
   }
 }
 
@@ -180,6 +233,8 @@ function translatePage() {
     console.warn('[i18n] Not initialized yet');
     return;
   }
+
+  updateDocumentLanguage();
 
   // data-i18n属性を持つ要素を翻訳
   document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -250,6 +305,12 @@ function translatePage() {
   console.log(`[i18n] Page translated to: ${currentLanguage}`);
 }
 
+function updateDocumentLanguage() {
+  if (document?.documentElement) {
+    document.documentElement.setAttribute('lang', currentLanguage);
+  }
+}
+
 /**
  * 言語を切り替え
  *
@@ -276,6 +337,8 @@ async function changeLanguage(language) {
   try {
     await i18next.changeLanguage(language);
     currentLanguage = language;
+
+    updateDocumentLanguage();
 
     // ローカルストレージに保存
     localStorage.setItem('language', language);

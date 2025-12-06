@@ -107,13 +107,22 @@ async function updateBasicInfo() {
     });
 
     if (!response.ok) {
-      throw new Error('基本情報の更新に失敗しました');
+      const errorMessage = isKiroweenMode
+        ? 'FAILED TO UPDATE BASIC INFO'
+        : translate('errors.basic_info_update_failed', { ns: 'animals' });
+      throw new Error(errorMessage);
     }
 
-    showToast('基本情報を更新しました', 'success');
+    const successMessage = isKiroweenMode
+      ? 'BASIC INFO UPDATED'
+      : translate('messages.basic_info_updated', { ns: 'animals' });
+    showToast(successMessage, 'success');
   } catch (error) {
     console.error('Error updating basic info:', error);
-    showToast('error', error.message);
+    const fallbackMessage = isKiroweenMode
+      ? 'FAILED TO UPDATE BASIC INFO'
+      : translate('errors.basic_info_update_failed', { ns: 'animals' });
+    showToast(error.message || fallbackMessage, 'error');
   }
 }
 
@@ -172,7 +181,12 @@ async function generateQRCard() {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'QRカードの生成に失敗しました');
+      const errorMessage =
+        error.detail ||
+        (isKiroween
+          ? 'FAILED TO GENERATE QR CARD'
+          : translate('errors.qr_generation_failed', { ns: 'animals' }));
+      throw new Error(errorMessage);
     }
 
     // PDFをダウンロード
@@ -197,10 +211,16 @@ async function generateQRCard() {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
-    showToast(isKiroween ? 'QR CARD GENERATED' : 'QRカードを生成しました', 'success');
+    const successMessage = isKiroween
+      ? 'QR CARD GENERATED'
+      : translate('messages.qr_generated', { ns: 'animals' });
+    showToast(successMessage, 'success');
   } catch (error) {
     console.error('Error generating QR card:', error);
-    showToast('error', error.message);
+    const fallbackMessage = isKiroween
+      ? 'FAILED TO GENERATE QR CARD'
+      : translate('errors.qr_generation_failed', { ns: 'animals' });
+    showToast(error.message || fallbackMessage, 'error');
   } finally {
     // ボタンを元に戻す
     generateBtn.disabled = false;
@@ -299,7 +319,12 @@ async function generatePaperForm(year, month) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || '紙記録フォームの生成に失敗しました');
+      const errorMessage =
+        error.detail ||
+        (isKiroween
+          ? 'FAILED TO GENERATE PAPER FORM'
+          : translate('errors.paper_form_generation_failed', { ns: 'animals' }));
+      throw new Error(errorMessage);
     }
 
     // PDFをダウンロード
@@ -313,13 +338,17 @@ async function generatePaperForm(year, month) {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
+    const monthText = month.toString().padStart(2, '0');
     const message = isKiroween
-      ? `PAPER FORM GENERATED FOR ${year}-${month.toString().padStart(2, '0')}`
-      : `${year}年${month}月の紙記録フォームを生成しました`;
+      ? `PAPER FORM GENERATED FOR ${year}-${monthText}`
+      : translate('messages.paper_form_generated', { ns: 'animals', year, month: monthText });
     showToast(message, 'success');
   } catch (error) {
     console.error('Error generating paper form:', error);
-    showToast('error', error.message);
+    const fallbackMessage = isKiroween
+      ? 'FAILED TO GENERATE PAPER FORM'
+      : translate('errors.paper_form_generation_failed', { ns: 'animals' });
+    showToast(error.message || fallbackMessage, 'error');
   } finally {
     // ボタンを元に戻す
     generateBtn.disabled = false;
@@ -342,13 +371,22 @@ async function updateStatus() {
     });
 
     if (!response.ok) {
-      throw new Error('ステータスの更新に失敗しました');
+      const errorMessage = isKiroweenMode
+        ? 'FAILED TO UPDATE STATUS'
+        : translate('errors.status_update_failed', { ns: 'animals' });
+      throw new Error(errorMessage);
     }
 
-    showToast('ステータスを更新しました', 'success');
+    const successMessage = isKiroweenMode
+      ? 'STATUS UPDATED'
+      : translate('messages.status_changed', { ns: 'animals' });
+    showToast(successMessage, 'success');
   } catch (error) {
     console.error('Error updating status:', error);
-    showToast('error', error.message);
+    const fallbackMessage = isKiroweenMode
+      ? 'FAILED TO UPDATE STATUS'
+      : translate('errors.status_update_failed', { ns: 'animals' });
+    showToast(error.message || fallbackMessage, 'error');
   }
 }
 
