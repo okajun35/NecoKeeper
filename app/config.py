@@ -23,7 +23,10 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
     )
 
     # アプリケーション基本設定
@@ -32,6 +35,9 @@ class Settings(BaseSettings):
     debug: bool = Field(default=False, description="デバッグモード")
     environment: Literal["development", "staging", "production"] = Field(
         default="development", description="実行環境"
+    )
+    default_language: Literal["ja", "en"] = Field(
+        default="ja", description="既定の表示言語（ja/en）"
     )
 
     # サーバー設定
@@ -73,9 +79,13 @@ class Settings(BaseSettings):
     )
 
     # ログ設定
-    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = Field(
-        default="INFO", description="ログレベル"
-    )
+    log_level: Literal[
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL",
+    ] = Field(default="INFO", description="ログレベル")
     log_file: str = Field(default="./logs/app.log", description="ログファイルパス")
     log_max_bytes: int = Field(
         default=10 * 1024 * 1024,  # 10MB
@@ -178,7 +188,9 @@ class Settings(BaseSettings):
             str: YYYYMMDDHHMMフォーマットのバージョン文字列
 
         Example:
-            <script src="/static/js/app.js?v={{ settings.static_version }}"></script>
+            <script
+                src="/static/js/app.js?v={{ settings.static_version }}"
+            ></script>
             # → /static/js/app.js?v=202412011430
         """
         return datetime.now().strftime("%Y%m%d%H%M")
@@ -196,7 +208,8 @@ class Settings(BaseSettings):
 
         Example:
             settings = get_settings()
-            if settings.enable_automation_api and not settings.is_automation_api_secure:
+            is_secure = settings.is_automation_api_secure
+            if settings.enable_automation_api and not is_secure:
                 raise ValueError("Automation API Key is not secure")
         """
         if not self.enable_automation_api:
@@ -267,10 +280,13 @@ class Settings(BaseSettings):
             )
 
         # 本番環境では32文字以上を要求
-        if self.environment == "production" and len(self.automation_api_key) < 32:
+        is_prod = self.environment == "production"
+        has_short_key = len(self.automation_api_key) < 32
+        if is_prod and has_short_key:
             raise ValueError(
-                "AUTOMATION_API_KEY must be at least 32 characters in production. "
-                'Generate a secure key with: python -c "import secrets; print(secrets.token_urlsafe(32))"'
+                "AUTOMATION_API_KEY must be at least 32 characters "
+                "in production. Generate a secure key with: "
+                "python -c 'import secrets; print(secrets.token_urlsafe(32))'"
             )
 
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{ settings.default_language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,6 +35,9 @@
     <!-- i18next for internationalization -->
     <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/i18next.min.js"></script>
 
+    <script>
+        window.DEFAULT_LANGUAGE = "{{ settings.default_language }}";
+    </script>
     <!-- i18n module (with namespaces support) -->
     <script src="/static/js/i18n.js?v={{ settings.static_version }}"></script>
 
@@ -87,8 +90,9 @@
                 max-width: 80px;
             }
         }
-        {% block extra_styles %}{% endblock %}
     </style>
+
+    {% block extra_styles %}{% endblock %}
 </head>
 <body class="bg-gray-50 min-h-screen{% if settings.kiroween_mode %} kiroween-mode{% endif %}">
     <!-- CRT Overlay (Kiroween Mode only) -->

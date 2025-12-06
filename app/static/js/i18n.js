@@ -16,6 +16,8 @@ let currentLanguage = 'ja';
 // バージョンはHTMLのscriptタグから取得（例: /static/js/i18n.js?v=202412011430）
 const I18N_VERSION =
   new URLSearchParams(document.currentScript?.src.split('?')[1] || '').get('v') || 'dev';
+const SERVER_DEFAULT_LANGUAGE =
+  typeof window !== 'undefined' && window.DEFAULT_LANGUAGE ? window.DEFAULT_LANGUAGE : null;
 
 /**
  * i18nextを初期化
@@ -31,14 +33,19 @@ async function initI18n() {
     // Kiroweenモードかどうかを判定
     const isKiroween = document.body.classList.contains('kiroween-mode');
 
-    // 保存された言語設定を取得、なければブラウザ言語を使用
+    // 保存された言語設定を取得、なければサーバー既定→ブラウザ言語を使用
     const savedLanguage = localStorage.getItem('language');
     const browserLanguage = navigator.language.split('-')[0]; // 'ja-JP' -> 'ja'
+    const serverDefaultLanguage =
+      SERVER_DEFAULT_LANGUAGE === 'ja' || SERVER_DEFAULT_LANGUAGE === 'en'
+        ? SERVER_DEFAULT_LANGUAGE
+        : null;
 
     // Kiroweenモードの場合は強制的に英語、それ以外は保存された設定またはブラウザ言語
     const defaultLanguage = isKiroween
       ? 'en'
       : savedLanguage ||
+        serverDefaultLanguage ||
         (browserLanguage === 'ja' || browserLanguage === 'en' ? browserLanguage : 'ja');
 
     // Kiroweenモードの場合は単一のen_necro.jsonファイルを読み込み
@@ -153,6 +160,7 @@ async function initI18n() {
 
     currentLanguage = defaultLanguage;
     i18nextInitialized = true;
+    updateDocumentLanguage();
 
     console.log(`[i18n] Initialized with language: ${currentLanguage}`);
     console.log(`[i18n] Loaded namespaces:`, namespaces);
@@ -180,6 +188,8 @@ function translatePage() {
     console.warn('[i18n] Not initialized yet');
     return;
   }
+
+  updateDocumentLanguage();
 
   // data-i18n属性を持つ要素を翻訳
   document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -250,6 +260,12 @@ function translatePage() {
   console.log(`[i18n] Page translated to: ${currentLanguage}`);
 }
 
+function updateDocumentLanguage() {
+  if (document?.documentElement) {
+    document.documentElement.setAttribute('lang', currentLanguage);
+  }
+}
+
 /**
  * 言語を切り替え
  *
@@ -276,6 +292,8 @@ async function changeLanguage(language) {
   try {
     await i18next.changeLanguage(language);
     currentLanguage = language;
+
+    updateDocumentLanguage();
 
     // ローカルストレージに保存
     localStorage.setItem('language', language);

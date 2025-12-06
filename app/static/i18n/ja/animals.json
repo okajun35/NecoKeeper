@@ -200,7 +200,11 @@
   "errors": {
     "file_size_limit": "ファイルサイズは5MB以下にしてください",
     "upload_failed": "アップロードに失敗しました",
-    "profile_image_set_failed": "プロフィール画像の設定に失敗しました"
+    "profile_image_set_failed": "プロフィール画像の設定に失敗しました",
+    "basic_info_update_failed": "基本情報の更新に失敗しました",
+    "status_update_failed": "ステータスの更新に失敗しました",
+    "qr_generation_failed": "QRカードの生成に失敗しました",
+    "paper_form_generation_failed": "紙記録フォームの生成に失敗しました"
   },
   "messages": {
     "created": "猫を登録しました",
@@ -212,7 +216,10 @@
     "profile_image_updated": "プロフィール画像を更新しました",
     "load_failed": "猫一覧の読み込みに失敗しました",
     "id_missing": "猫IDが指定されていません",
-    "load_error": "猫情報の読み込みに失敗しました"
+    "load_error": "猫情報の読み込みに失敗しました",
+    "basic_info_updated": "基本情報を更新しました",
+    "qr_generated": "QRカードを生成しました",
+    "paper_form_generated": "{{year}}年{{month}}月の紙記録フォームを生成しました"
   },
   "buttons": {
     "register": "登録",
