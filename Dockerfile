@@ -83,9 +83,12 @@ COPY scripts/init_db.sh /app/scripts/init_db.sh
 #    chmod 777 /tmp/data /tmp/media /tmp/backups /tmp/logs && \
 #    chmod +x /app/scripts/init_db.sh
 
+RUN chmod +x /app/scripts/init_db.sh
+
 # 非rootユーザーの作成（セキュリティ）
-RUN useradd -m -u 1000 necokeeper && \
-   chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
+#RUN useradd -m -u 1000 necokeeper && \
+#   chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
+RUN useradd -m -u 1000 necokeeper
 
 # 非rootユーザーに切り替え
 USER necokeeper
