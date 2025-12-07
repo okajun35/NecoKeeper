@@ -1,0 +1,5 @@
+# NecoKeeper - Hackathon Demo Site
+# Prevent all search engine crawlers from indexing this site
+
+User-agent: *
+Disallow: /

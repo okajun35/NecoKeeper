@@ -12,7 +12,12 @@ from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -128,21 +133,31 @@ if Path("app/static").exists():
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
-# ルートエンドポイント
-@app.get("/", tags=["Root"])
-async def root() -> dict[str, str | None]:
+# ルートエンドポイント - ランディングページ
+@app.get("/", response_class=HTMLResponse, tags=["Root"])
+async def root(request: Request) -> HTMLResponse:
     """
-    ルートエンドポイント
+    ルートエンドポイント - 公開ランディングページ
 
-    アプリケーションの基本情報を返します。
+    ハッカソン訪問者向けのプロジェクト紹介ページ。
+    認証不要で、プロジェクトの概要、機能、デモを紹介。
     """
-    return {
-        "app_name": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.environment,
-        "status": "running",
-        "docs_url": "/docs" if settings.debug else None,
-    }
+    from pathlib import Path
+
+    from fastapi.templating import Jinja2Templates
+
+    templates_dir = Path(__file__).parent / "templates"
+    templates = Jinja2Templates(directory=str(templates_dir))
+
+    return templates.TemplateResponse(
+        "public/landing.html",
+        {
+            "request": request,
+            "settings": settings,
+            "github_url": settings.github_repo_url,
+            "demo_video_url": f"https://www.youtube.com/embed/{settings.demo_video_id}",
+        },
+    )
 
 
 # ヘルスチェックエンドポイント
@@ -159,6 +174,27 @@ async def health_check() -> dict[str, str]:
         "app_name": settings.app_name,
         "version": settings.app_version,
     }
+
+
+# robots.txt エンドポイント（検索エンジンクローラー制御）
+@app.get("/robots.txt", tags=["SEO"])
+async def robots_txt() -> PlainTextResponse:
+    """
+    robots.txt エンドポイント
+
+    ハッカソンデモサイトのため、すべての検索エンジンクローラーを
+    ブロックします。本番環境では適切に設定してください。
+
+    Returns:
+        PlainTextResponse: robots.txt の内容
+    """
+    content = """# NecoKeeper - Hackathon Demo Site
+# Prevent all search engine crawlers from indexing this site
+
+User-agent: *
+Disallow: /
+"""
+    return PlainTextResponse(content=content, media_type="text/plain")
 
 
 # PWA Manifest エンドポイント（動的生成）
