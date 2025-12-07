@@ -88,7 +88,8 @@ RUN chmod +x /app/scripts/init_db.sh
 # 非rootユーザーの作成（セキュリティ）
 #RUN useradd -m -u 1000 necokeeper && \
 #   chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
-RUN useradd -m -u 1000 necokeeper
+RUN useradd -m -u 1000 necokeeper && \
+   chown -R necokeeper:necokeeper /app
 
 # 非rootユーザーに切り替え
 USER necokeeper
