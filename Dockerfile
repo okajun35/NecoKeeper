@@ -75,7 +75,7 @@ COPY alembic.ini .
 # COPY data ./data
 
 # 初期化スクリプトをコピー（パーミッション設定前）
-#COPY scripts/init_db.sh /app/scripts/init_db.sh
+COPY scripts/init_db.sh /app/scripts/init_db.sh
 
 # エフェメラルディレクトリの作成（Free Plan用）
 # 注意: これらのディレクトリは再デプロイで消える
@@ -84,8 +84,8 @@ COPY alembic.ini .
 #    chmod +x /app/scripts/init_db.sh
 
 # 非rootユーザーの作成（セキュリティ）
-# RUN useradd -m -u 1000 necokeeper && \
-#    chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
+RUN useradd -m -u 1000 necokeeper && \
+   chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
 
 # 非rootユーザーに切り替え
 USER necokeeper
@@ -105,8 +105,8 @@ ENV PYTHONUNBUFFERED=1 \
 EXPOSE 8000
 
 # ヘルスチェック設定
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"
+#HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+#    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"
 
 # 起動コマンド（自動初期化付き）
 # Renderの$PORT環境変数を使用（デフォルト8000）
