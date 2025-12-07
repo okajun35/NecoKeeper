@@ -2,15 +2,15 @@
 
 ## Overview
 
-Automation APIは、Kiro Hook、MCP、自動化スクリプト専用のAPIエンドポイントです。ユーザー認証（OAuth2）とは完全に分離された固定API Key認証を採用し、セキュリティを保ちながら自動化を実現します。
+Automation API is a dedicated API endpoint for Kiro Hook, MCP, and automation scripts. It adopts fixed API Key authentication completely separated from user authentication (OAuth2) to achieve automation while maintaining security.
 
-**Context7参照**: `/fastapi/fastapi` - APIRouter with dependencies, APIKeyHeader, Security
+**Context7 Reference**: `/fastapi/fastapi` - APIRouter with dependencies, APIKeyHeader, Security
 
 ---
 
 ## Architecture
 
-### システムアーキテクチャ
+### System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ Automation APIは、Kiro Hook、MCP、自動化スクリプト専用のAPIエン
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 認証フロー比較
+### Authentication Flow Comparison
 
 #### User-Facing API (OAuth2)
 
@@ -103,72 +103,72 @@ Automation APIは、Kiro Hook、MCP、自動化スクリプト専用のAPIエン
 
 ## Component Design
 
-### 1. API Key認証モジュール
+### 1. API Key Authentication Module
 
-**ファイル**: `app/auth/api_key.py`
+**File**: `app/auth/api_key.py`
 
-**責務**:
-- API Keyの検証
-- 環境変数からのAPI Key読み込み
-- エラーハンドリング
+**Responsibilities**:
+- API Key validation
+- API Key loading from environment variables
+- Error handling
 
-**依存関係**:
+**Dependencies**:
 - `fastapi.security.APIKeyHeader`
 - `app.config.Settings`
 
-**公開インターフェース**:
+**Public Interface**:
 ```python
 async def get_automation_api_key(
     api_key: str | None = Security(automation_api_key_header)
 ) -> str:
-    """API Keyを検証して返す"""
+    """Validate and return API Key"""
 
 async def verify_automation_api_key_optional(
     api_key: str | None = Security(automation_api_key_header)
 ) -> str | None:
-    """API Keyをオプショナルで検証"""
+    """Optionally validate API Key"""
 ```
 
-**エラーレスポンス**:
-- 401 Unauthorized: API Key未設定
-- 403 Forbidden: API Key無効
-- 503 Service Unavailable: Automation API無効
+**Error Responses**:
+- 401 Unauthorized: API Key not set
+- 403 Forbidden: Invalid API Key
+- 503 Service Unavailable: Automation API disabled
 
-### 2. 設定管理モジュール
+### 2. Configuration Management Module
 
-**ファイル**: `app/config.py`
+**File**: `app/config.py`
 
-**追加設定**:
+**Additional Settings**:
 ```python
 class Settings(BaseSettings):
-    # Automation API設定
+    # Automation API settings
     enable_automation_api: bool = False
     automation_api_key: str | None = None
 
     @property
     def is_automation_api_secure(self) -> bool:
-        """セキュリティ検証"""
+        """Security validation"""
 ```
 
-**バリデーション**:
-- 本番環境: API Key必須、32文字以上
-- 開発環境: API Key任意
+**Validation**:
+- Production: API Key required, 32+ characters
+- Development: API Key optional
 
-### 3. Automation APIルーター
+### 3. Automation API Router
 
-**ファイル**: `app/api/automation/__init__.py`
+**File**: `app/api/automation/__init__.py`
 
-**責務**:
-- ルーター設定
-- 共通認証の適用
-- エラーレスポンス定義
+**Responsibilities**:
+- Router configuration
+- Common authentication application
+- Error response definition
 
-**設定**:
+**Configuration**:
 ```python
 router = APIRouter(
     prefix="/automation",
     tags=["automation"],
-    dependencies=[Depends(get_automation_api_key)],  # 全エンドポイントで認証
+    dependencies=[Depends(get_automation_api_key)],  # Auth for all endpoints
     responses={
         401: {"description": "Unauthorized"},
         403: {"description": "Forbidden"},
@@ -177,34 +177,34 @@ router = APIRouter(
 )
 ```
 
-### 4. 猫登録Automation API
+### 4. Cat Registration Automation API
 
-**ファイル**: `app/api/automation/animals.py`
+**File**: `app/api/automation/animals.py`
 
-**エンドポイント**:
-- `POST /api/automation/animals` - 猫登録
-- `GET /api/automation/animals/{animal_id}` - 猫情報取得
+**Endpoints**:
+- `POST /api/automation/animals` - Cat registration
+- `GET /api/automation/animals/{animal_id}` - Get cat information
 
-**特徴**:
-- `recorder_id=None` で自動化を示す
-- ビジネスロジックは既存サービスを再利用
+**Features**:
+- `recorder_id=None` indicates automation
+- Reuses existing business logic services
 
-### 5. 世話記録登録Automation API
+### 5. Care Log Registration Automation API
 
-**ファイル**: `app/api/automation/care_logs.py`
+**File**: `app/api/automation/care_logs.py`
 
-**エンドポイント**:
-- `POST /api/automation/care-logs` - 世話記録登録
+**Endpoints**:
+- `POST /api/automation/care-logs` - Care log registration
 
-**特徴**:
-- `recorder_name`, `from_paper`, `device_tag` をリクエストから受け取る
-- OCR Import用に最適化
+**Features**:
+- Accepts `recorder_name`, `from_paper`, `device_tag` from request
+- Optimized for OCR Import
 
 ---
 
 ## Data Flow
 
-### 世話記録登録フロー（OCR Import）
+### Care Log Registration Flow (OCR Import)
 
 ```
 ┌──────────────┐
@@ -248,7 +248,7 @@ router = APIRouter(
 │ Database: care_log table                     │
 │ - animal_id: 12                               │
 │ - log_date: 2025-11-24                        │
-│ - recorder_name: "OCR自動取込"                │
+│ - recorder_name: "OCR Auto Import"           │
 │ - from_paper: true                            │
 │ - device_tag: "OCR-Import"                    │
 │ - recorder_id: null (automation indicator)    │
@@ -259,39 +259,39 @@ router = APIRouter(
 
 ## Security Design
 
-### API Key管理
+### API Key Management
 
-**生成**:
+**Generation**:
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-**保存**:
-- 環境変数: `AUTOMATION_API_KEY`
-- `.env`ファイル（gitignore済み）
-- 本番環境: Render Dashboard等で設定
+**Storage**:
+- Environment variable: `AUTOMATION_API_KEY`
+- `.env` file (gitignored)
+- Production: Set via Render Dashboard, etc.
 
-**送信**:
-- HTTPヘッダー: `X-Automation-Key: ${API_KEY}`
-- HTTPS必須（本番環境）
+**Transmission**:
+- HTTP Header: `X-Automation-Key: ${API_KEY}`
+- HTTPS required (production)
 
-### セキュリティ境界
+### Security Boundaries
 
-**分離ポイント**:
-1. **エンドポイント分離**: `/api/v1/*` vs `/api/automation/*`
-2. **認証方式分離**: OAuth2 vs API Key
-3. **権限分離**: ユーザーロール vs 限定操作
-4. **監査分離**: user_id vs recorder_id=None
+**Separation Points**:
+1. **Endpoint Separation**: `/api/v1/*` vs `/api/automation/*`
+2. **Authentication Separation**: OAuth2 vs API Key
+3. **Permission Separation**: User roles vs Limited operations
+4. **Audit Separation**: user_id vs recorder_id=None
 
-**攻撃対策**:
-- API Key漏洩: 環境変数で管理、コードに含めない
-- Brute Force: Rate Limiting（オプション）
-- MITM: HTTPS必須（本番環境）
-- 権限昇格: Automation APIは限定操作のみ
+**Attack Mitigation**:
+- API Key Leakage: Manage via environment variables, not in code
+- Brute Force: Rate Limiting (optional)
+- MITM: HTTPS required (production)
+- Privilege Escalation: Automation API limited operations only
 
-### 監査ログ
+### Audit Logs
 
-**ユーザー操作**:
+**User Operations**:
 ```json
 {
   "action": "create_care_log",
@@ -301,12 +301,12 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 }
 ```
 
-**自動化操作**:
+**Automation Operations**:
 ```json
 {
   "action": "create_care_log",
   "recorder_id": null,
-  "recorder_name": "OCR自動取込",
+  "recorder_name": "OCR Auto Import",
   "device_tag": "OCR-Import",
   "from_paper": true,
   "timestamp": "2025-11-24T10:00:00Z"
@@ -327,9 +327,9 @@ X-Automation-Key: xK7mP9nQ2wR5tY8uI1oP4aS6dF3gH0jK9lZ2xC5vB7nM4qW1eR3tY6uI8oP0aS
 Content-Type: application/json
 
 {
-  "name": "たま",
-  "pattern": "キジトラ",
-  "status": "保護中",
+  "name": "Tama",
+  "pattern": "Tabby",
+  "status": "Under Protection",
   "gender": "male",
   "estimated_age": 2
 }
@@ -339,9 +339,9 @@ Content-Type: application/json
 ```json
 {
   "id": 13,
-  "name": "たま",
-  "pattern": "キジトラ",
-  "status": "保護中",
+  "name": "Tama",
+  "pattern": "Tabby",
+  "status": "Under Protection",
   "gender": "male",
   "estimated_age": 2,
   "created_at": "2025-11-24T10:00:00Z"
@@ -365,8 +365,8 @@ Content-Type: application/json
   "energy": 5,
   "urination": true,
   "cleaning": false,
-  "memo": "排便: あり, 嘔吐: なし, 投薬: なし",
-  "recorder_name": "OCR自動取込",
+  "memo": "Defecation: Yes, Vomiting: No, Medication: No",
+  "recorder_name": "OCR Auto Import",
   "from_paper": true,
   "device_tag": "OCR-Import"
 }
@@ -383,8 +383,8 @@ Content-Type: application/json
   "energy": 5,
   "urination": true,
   "cleaning": false,
-  "memo": "排便: あり, 嘔吐: なし, 投薬: なし",
-  "recorder_name": "OCR自動取込",
+  "memo": "Defecation: Yes, Vomiting: No, Medication: No",
+  "recorder_name": "OCR Auto Import",
   "recorder_id": null,
   "from_paper": true,
   "device_tag": "OCR-Import",
@@ -419,109 +419,109 @@ Content-Type: application/json
 
 ## Testing Strategy
 
-### ユニットテスト
+### Unit Tests
 
-**API Key認証**:
+**API Key Authentication**:
 ```python
 def test_valid_api_key():
-    """有効なAPI Keyで認証成功"""
+    """Authentication succeeds with valid API Key"""
 
 def test_invalid_api_key():
-    """無効なAPI Keyで403エラー"""
+    """403 error with invalid API Key"""
 
 def test_missing_api_key():
-    """API Key未設定で401エラー"""
+    """401 error when API Key not set"""
 
 def test_disabled_automation_api():
-    """Automation API無効で503エラー"""
+    """503 error when Automation API disabled"""
 ```
 
-**エンドポイント**:
+**Endpoints**:
 ```python
 def test_create_animal_automation():
-    """猫登録成功"""
+    """Cat registration succeeds"""
 
 def test_create_care_log_automation():
-    """世話記録登録成功"""
+    """Care log registration succeeds"""
 
 def test_automation_api_without_auth():
-    """認証なしで401エラー"""
+    """401 error without authentication"""
 ```
 
-### 統合テスト
+### Integration Tests
 
 ```python
 def test_ocr_import_workflow():
-    """OCR Import全体フロー"""
-    # 1. JSONファイル作成
-    # 2. Kiro Hook実行
-    # 3. Automation API呼び出し
-    # 4. データベース確認
+    """Complete OCR Import flow"""
+    # 1. Create JSON file
+    # 2. Execute Kiro Hook
+    # 3. Call Automation API
+    # 4. Verify database
 ```
 
-### セキュリティテスト
+### Security Tests
 
 ```python
 def test_api_key_isolation():
-    """API KeyでユーザーAPIにアクセスできないこと"""
+    """Cannot access user API with API Key"""
 
 def test_oauth2_isolation():
-    """OAuth2でAutomation APIにアクセスできないこと"""
+    """Cannot access Automation API with OAuth2"""
 
 def test_production_api_key_validation():
-    """本番環境でAPI Key長さ検証"""
+    """Validate API Key length in production"""
 ```
 
 ---
 
 ## Deployment Considerations
 
-### 環境変数設定
+### Environment Variable Configuration
 
-**開発環境**:
+**Development**:
 ```bash
 ENABLE_AUTOMATION_API=true
 AUTOMATION_API_KEY=dev-test-key-not-for-production
 ```
 
-**本番環境（Render）**:
+**Production (Render)**:
 ```bash
 ENABLE_AUTOMATION_API=true
-AUTOMATION_API_KEY=<32文字以上のランダム文字列>
+AUTOMATION_API_KEY=<random string 32+ characters>
 ```
 
-### セキュリティチェックリスト
+### Security Checklist
 
-- [ ] API Keyが32文字以上
-- [ ] API Keyが環境変数で管理
-- [ ] HTTPS接続（本番環境）
-- [ ] Rate Limiting設定（オプション）
-- [ ] 監査ログ有効化
-- [ ] エラーメッセージに機密情報なし
+- [ ] API Key is 32+ characters
+- [ ] API Key managed via environment variables
+- [ ] HTTPS connection (production)
+- [ ] Rate Limiting configured (optional)
+- [ ] Audit logs enabled
+- [ ] No sensitive info in error messages
 
 ---
 
 ## Migration Path
 
-### Phase 1: 実装（POC）
-- API Key認証モジュール
-- Automation APIルーター
-- 世話記録登録エンドポイント
-- Kiro Hook更新
+### Phase 1: Implementation (POC)
+- API Key authentication module
+- Automation API router
+- Care log registration endpoint
+- Kiro Hook update
 
-### Phase 2: 拡張（本番移行）
-- 猫登録エンドポイント
+### Phase 2: Extension (Production Migration)
+- Cat registration endpoint
 - Rate Limiting
-- 詳細な監査ログ
-- API使用統計
+- Detailed audit logs
+- API usage statistics
 
-### Phase 3: 最適化（運用）
+### Phase 3: Optimization (Operations)
 - API Key rotation
-- 複数API Key対応
+- Multiple API Key support
 - Scope-based permissions
-- Webhook通知
+- Webhook notifications
 
 ---
 
-**最終更新**: 2025-11-24
-**Context7参照**: `/fastapi/fastapi` - APIRouter, Security, APIKeyHeader
+**Last Updated**: 2025-11-24
+**Context7 Reference**: `/fastapi/fastapi` - APIRouter, Security, APIKeyHeader

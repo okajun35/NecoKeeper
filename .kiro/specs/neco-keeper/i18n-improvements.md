@@ -1,70 +1,71 @@
-# 多言語化（i18n）改善提案
+# i18n Improvement Proposals
 
-## Context7調査結果に基づくベストプラクティス
+## Best Practices Based on Context7 Research
 
-### 📚 参照ライブラリ
+### 📚 Referenced Libraries
 - **i18next** (Benchmark Score: 95.9) - `/websites/i18next`
 - **FastAPI** (Benchmark Score: 85.2) - `/websites/fastapi_tiangolo`
 - **Babel** - `/websites/babel_pocoo-en`
 
 ---
 
-## 🔍 現在の実装の問題点
+## 🔍 Current Issues
 
-### 1. **フロントエンド（JavaScript/i18next）**
+### 1. **Frontend (JavaScript / i18next)**
 
-#### ❌ 問題点
-1. **翻訳ファイルの一括読み込み**
-   - 全ての翻訳を初期化時に読み込んでいる
-   - 大規模アプリケーションではパフォーマンス問題
+#### ❌ Issues
+1. **Eager loading of all translation files**
+  - All translations are loaded at initialization.
+  - This can cause performance problems in large applications.
 
-2. **名前空間（Namespace）未使用**
-   - 全翻訳が単一の`translation`名前空間
-   - モジュール分割ができない
+2. **No namespaces in use**
+  - All translations live in a single ``translation`` namespace.
+  - Hard to split by module.
 
-3. **バックエンド連携なし**
-   - i18next-http-backendを使用していない
-   - サーバーサイドレンダリング（SSR）非対応
+3. **No backend integration**
+  - ``i18next-http-backend`` is not used.
+  - No support for server-side rendering (SSR).
 
-4. **キャッシュ戦略なし**
-   - LocalStorageキャッシュ未実装
-   - 毎回ネットワークリクエスト
+4. **No caching strategy**
+  - No LocalStorage cache.
+  - A network request is made every time.
 
-5. **タイトル翻訳の実装が不完全**
-   - `data-i18n-title`属性の処理が追加されたが、ページタイトル（`<title>`タグ）の翻訳が未実装
+5. **Incomplete title translation**
+  - Handling for ``data-i18n-title`` exists, but translation of the
+    actual page ``<title>`` tag is not fully wired.
 
-### 2. **バックエンド（FastAPI/Python）**
+### 2. **Backend (FastAPI / Python)**
 
-#### ❌ 問題点
-1. **Babel未使用**
-   - 標準的なPython i18nライブラリ（Babel）を使用していない
-   - Gettext形式（.po/.mo）非対応
+#### ❌ Issues
+1. **Babel not used**
+  - Standard Python i18n library (Babel) is not used.
+  - No support for Gettext format (.po/.mo).
 
-2. **Jinja2統合が不完全**
-   - テンプレートでの翻訳関数が手動実装
-   - Babel Jinja2拡張機能未使用
+2. **Incomplete Jinja2 integration**
+  - Translation helpers in templates are hand-implemented.
+  - Babel Jinja2 extension is not used.
 
-3. **遅延評価（Lazy Evaluation）なし**
-   - リクエストコンテキスト外での翻訳不可
-   - メール送信などで問題
+3. **No lazy evaluation**
+  - Cannot translate outside of request context.
+  - Causes problems for things like email sending.
 
-4. **複数形（Pluralization）未対応**
-   - `ngettext`関数なし
-   - 数量に応じた翻訳不可
+4. **No pluralization support**
+  - No ``ngettext`` function.
+  - Cannot translate strings depending on counts.
 
-5. **言語検出の優先順位が不適切**
-   - クエリパラメータが最優先（セキュリティリスク）
-   - 標準的な順序: Cookie → Accept-Language → Default
+5. **Suboptimal language detection priority**
+  - Query parameter is prioritized (security risk).
+  - Standard order should be: Cookie → Accept-Language → Default.
 
 ---
 
-## ✅ 改善提案
+## ✅ Improvement Proposals
 
-### Phase 1: フロントエンド改善（i18next）
+### Phase 1: Frontend Improvements (i18next)
 
-#### 1.1 名前空間（Namespace）の導入
+#### 1.1 Introduce namespaces
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```javascript
 // 複数の名前空間で翻訳を整理
 i18next.init({
@@ -84,14 +85,14 @@ i18next.t('save', { ns: 'common' }); // 共通の「保存」
 i18next.t('title', { ns: 'dashboard' }); // ダッシュボードのタイトル
 ```
 
-**メリット:**
-- 翻訳ファイルの論理的な分割
-- 遅延読み込み（Lazy Loading）が可能
-- 大規模アプリケーションでのスケーラビリティ
+**Benefits:**
+- Logical separation of translation files.
+- Enables lazy loading.
+- Better scalability for large applications.
 
-#### 1.2 HTTP Backend + LocalStorage キャッシュ
+#### 1.2 HTTP backend + LocalStorage cache
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```javascript
 import ChainedBackend from 'i18next-chained-backend';
 import LocalStorageBackend from 'i18next-localstorage-backend';
@@ -115,14 +116,14 @@ i18next
   });
 ```
 
-**メリット:**
-- オフライン対応
-- パフォーマンス向上（キャッシュヒット時）
-- バージョン管理による更新制御
+**Benefits:**
+- Works offline.
+- Better performance when cache hits.
+- Version-based control over updates.
 
-#### 1.3 遅延読み込み（Lazy Loading）
+#### 1.3 Lazy loading
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```javascript
 import resourcesToBackend from 'i18next-resources-to-backend';
 
@@ -140,14 +141,14 @@ i18next
 i18next.loadNamespaces(['dashboard', 'animals']);
 ```
 
-**メリット:**
-- 初期読み込み時間の短縮
-- 必要な翻訳のみ読み込み
-- Webpack/Viteでのコード分割
+**Benefits:**
+- Shorter initial load time.
+- Only load translations that are needed.
+- Better code splitting with Webpack / Vite.
 
-#### 1.4 ページタイトル翻訳の完全実装
+#### 1.4 Fully implement page title translation
 
-**現在の問題:**
+**Current problem:**
 ```javascript
 // i18n.jsに追加されたが、実際には動作していない
 const titleElement = document.querySelector('title');
@@ -159,7 +160,7 @@ if (titleElement && titleElement.hasAttribute('data-i18n-title')) {
 }
 ```
 
-**改善案:**
+**Improved version:**
 ```javascript
 function translatePage() {
   // ... 既存のコード ...
@@ -184,11 +185,11 @@ function translatePage() {
 
 ---
 
-### Phase 2: バックエンド改善（FastAPI + Babel）
+### Phase 2: Backend Improvements (FastAPI + Babel)
 
-#### 2.1 Babel統合
+#### 2.1 Integrate Babel
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```python
 # babel.cfg
 [python: **.py]
@@ -204,7 +205,7 @@ input_file = "app/locales/messages.pot"
 output_dir = "app/locales"
 ```
 
-**翻訳ファイル生成:**
+**Generating translation files:**
 ```bash
 # 1. 翻訳可能な文字列を抽出
 pybabel extract -F babel.cfg -o app/locales/messages.pot .
@@ -217,9 +218,9 @@ pybabel init -i app/locales/messages.pot -d app/locales -l en
 pybabel compile -d app/locales
 ```
 
-#### 2.2 Jinja2 Babel拡張
+#### 2.2 Jinja2 Babel extension
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```python
 from babel.support import Translations
 from jinja2 import Environment
@@ -235,9 +236,9 @@ def setup_jinja2_i18n(env: Environment, locale: str):
 # {{ ngettext('%(num)d cat', '%(num)d cats', count) }}
 ```
 
-#### 2.3 遅延評価（Lazy Translation）
+#### 2.3 Lazy translation
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```python
 from babel.support import LazyProxy
 
@@ -245,18 +246,18 @@ def lazy_gettext(string: str) -> LazyProxy:
     """遅延評価翻訳"""
     return LazyProxy(lambda: get_current_translation().gettext(string))
 
-# 使用例（リクエストコンテキスト外）
+# Example usage (outside request context)
 EMAIL_SUBJECT = lazy_gettext("Welcome to NecoKeeper")
 
-# 実際の評価はリクエスト時
+# Actual evaluation happens at request time
 def send_email(user):
     subject = str(EMAIL_SUBJECT)  # この時点で翻訳
     ...
 ```
 
-#### 2.4 FastAPI依存性注入
+#### 2.4 FastAPI dependency injection
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```python
 from fastapi import Depends, Header, Request
 from typing import Annotated
@@ -265,29 +266,29 @@ def get_locale(
     request: Request,
     accept_language: Annotated[str | None, Header()] = None
 ) -> str:
-    """リクエストから言語を検出"""
+    """Detect language from the request."""
     # 1. Cookie
     if lang := request.cookies.get("language"):
         if lang in ("ja", "en"):
             return lang
 
-    # 2. Accept-Language ヘッダー
+    # 2. Accept-Language header
     if accept_language:
         for lang in accept_language.split(","):
             code = lang.split(";")[0].split("-")[0].strip()
             if code in ("ja", "en"):
                 return code
 
-    # 3. デフォルト
+    # 3. Default
     return "ja"
 
 def get_translations(
     locale: Annotated[str, Depends(get_locale)]
 ) -> Translations:
-    """翻訳カタログを取得"""
+    """Get translation catalog."""
     return Translations.load('app/locales', [locale])
 
-# エンドポイントで使用
+# Usage in an endpoint
 @router.get("/animals")
 async def get_animals(
     translations: Annotated[Translations, Depends(get_translations)]
@@ -296,9 +297,9 @@ async def get_animals(
     return {"message": _("Animals list")}
 ```
 
-#### 2.5 複数形対応
+#### 2.5 Pluralization support
 
-**ベストプラクティス（Context7）:**
+**Best practice (from Context7):**
 ```python
 # .po ファイル
 msgid "%(count)d cat"
@@ -321,9 +322,9 @@ message = ngettext(
 
 ---
 
-### Phase 3: ファイル構造の改善
+### Phase 3: File Structure Improvements
 
-#### 3.1 推奨ディレクトリ構造
+#### 3.1 Recommended directory structure
 
 ```
 app/
@@ -357,9 +358,9 @@ app/
     └── i18n_helper.py          # 既存（削除または統合）
 ```
 
-#### 3.2 翻訳ファイルの分割
+#### 3.2 Split translation files
 
-**現在:** 単一の巨大なJSONファイル（800+キー）
+**Current:** Single large JSON file (800+ keys)
 ```json
 // app/static/i18n/ja.json (800+ keys)
 {
@@ -370,7 +371,7 @@ app/
 }
 ```
 
-**改善後:** 名前空間ごとに分割
+**After improvement:** Split by namespace
 ```json
 // app/static/i18n/ja/common.json
 {
@@ -392,11 +393,11 @@ app/
 
 ---
 
-### Phase 4: Tailwind CSS多言語対応
+### Phase 4: Tailwind CSS and Multilingual Support
 
-#### 4.1 RTL（右から左）言語対応
+#### 4.1 RTL (right-to-left) language support
 
-**ベストプラクティス:**
+**Best practice:**
 ```javascript
 // tailwind.config.js
 module.exports = {

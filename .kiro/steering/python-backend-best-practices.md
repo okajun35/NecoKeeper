@@ -2,12 +2,12 @@
 inclusion: always
 ---
 
-# Python バックエンド開発ベストプラクティス
+# Python Backend Development Best Practices
 
-このドキュメントは、NecoKeeperプロジェクトにおけるPythonバックエンド開発（FastAPI、SQLAlchemy、Alembic、Pytest）のベストプラクティスを定義します。
-すべてのコード作成・修正時にこれらのルールに従ってください。
+This document defines best practices for Python backend development (FastAPI, SQLAlchemy, Alembic, Pytest) in the NecoKeeper project.
+Follow these rules when creating or modifying code.
 
-**Context7参照**:
+**Context7 References**:
 - `/zhanymkanov/fastapi-best-practices` (Trust Score: 8.8)
 - `/fastapi/fastapi` (Trust Score: 9.9)
 - `/websites/python_3_15` (Trust Score: 7.5)
@@ -19,47 +19,47 @@ inclusion: always
 
 ---
 
-## 🔧 必須実行項目
+## 🔧 Required Actions
 
-### 1. コードフォーマット
-**すべてのPythonファイル作成・修正後、必ずRuffでフォーマットを実行すること**
+### 1. Code Formatting
+**Always run Ruff formatting after creating or modifying any Python file**
 
 ```bash
-# Lintチェックと自動修正
+# Lint check and auto-fix
 ruff check . --fix
 
-# コードフォーマット
+# Code formatting
 ruff format .
 ```
 
-### 2. テスト実行とカバレッジ測定
-**すべてのコード変更後、Pytestを実施してすべてのテストケースがPassするまでテストを修正・実施すること**
+### 2. Test Execution and Coverage Measurement
+**After all code changes, run Pytest and fix/run tests until all test cases pass**
 
-**カバレッジ目標**:
-- **サービス層**: 80%以上
-- **API層**: 70%以上
-- **全体**: 70%以上（最終的に80%を目指す）
+**Coverage Goals**:
+- **Service Layer**: 80%+
+- **API Layer**: 70%+
+- **Overall**: 70%+ (aiming for 80% eventually)
 
 ```bash
-# すべてのテストを実行（カバレッジ付き）
+# Run all tests with coverage
 python -m pytest --cov=app --cov-report=html --cov-report=term-missing
 
-# カバレッジ閾値チェック（70%未満で失敗）
+# Coverage threshold check (fail if below 70%)
 python -m pytest --cov=app --cov-report=term-missing --cov-fail-under=70
 
-# 詳細出力
+# Verbose output
 python -m pytest -v --cov=app
 
-# 特定のテストファイルのみ
+# Specific test file only
 python -m pytest tests/test_specific.py --cov=app
 
-# HTMLレポートをブラウザで確認
+# View HTML report in browser
 # Linux: xdg-open htmlcov/index.html
 # macOS: open htmlcov/index.html
 # Windows: start htmlcov/index.html
 ```
 
-**カバレッジ設定（pyproject.toml）**:
+**Coverage configuration (pyproject.toml)**:
 ```toml
 [tool.pytest.ini_options]
 addopts = [
@@ -88,70 +88,70 @@ exclude_lines = [
 ]
 ```
 
-### 3. 非推奨ライブラリの検証
-**warningで非推奨のライブラリが表示された場合、Context7を使用して代替ライブラリを検証すること**
+### 3. Deprecated Library Verification
+**When deprecated library warnings appear, use Context7 to verify alternative libraries**
 
 ```python
-# 非推奨の警告が出た場合の対応手順:
-# 1. Context7で最新のライブラリを検索
-# 2. Trust Scoreが高い(8.0以上)ライブラリを選択
-# 3. 最新バージョンのドキュメントを確認
-# 4. 移行パスを確認して実装
+# Steps when deprecation warnings appear:
+# 1. Search for latest library in Context7
+# 2. Select library with high Trust Score (8.0+)
+# 3. Check latest version documentation
+# 4. Verify migration path and implement
 ```
 
-### 4. テストカバレッジとDDD/TDD原則
+### 4. Test Coverage and DDD/TDD Principles
 
-**DDD（Domain-Driven Design）とTDD（Test-Driven Development）の観点**:
+**From DDD (Domain-Driven Design) and TDD (Test-Driven Development) Perspective**:
 
-#### テストカバレッジの優先順位（t-wada準拠）
+#### Test Coverage Priority (t-wada Compliant)
 
-1. **ドメイン層（最優先）**: 90%以上
-   - ビジネスルールの検証
-   - エンティティの不変条件
-   - 値オブジェクトの検証
-   - ドメインサービスのロジック
+1. **Domain Layer (Highest Priority)**: 90%+
+   - Business rule validation
+   - Entity invariants
+   - Value object validation
+   - Domain service logic
 
-2. **アプリケーション層（高優先）**: 80%以上
-   - ユースケースの実行フロー
-   - サービス層のビジネスロジック
-   - トランザクション境界
+2. **Application Layer (High Priority)**: 80%+
+   - Use case execution flow
+   - Service layer business logic
+   - Transaction boundaries
 
-3. **インフラ層（中優先）**: 70%以上
-   - リポジトリの永続化ロジック
-   - 外部サービス連携
+3. **Infrastructure Layer (Medium Priority)**: 70%+
+   - Repository persistence logic
+   - External service integration
 
-4. **プレゼンテーション層（低優先）**: 60%以上
-   - APIエンドポイント
-   - リクエスト/レスポンス変換
+4. **Presentation Layer (Low Priority)**: 60%+
+   - API endpoints
+   - Request/response transformation
 
-#### カバレッジ73%での開発継続判断
+#### Development Continuation Decision at 73% Coverage
 
-**✅ 開発を継続してよい条件**:
-- ドメイン層（models/）のカバレッジが80%以上
-- サービス層（services/）の主要ユースケースがテスト済み
-- 既存機能の回帰テストが整備されている
-- 新機能開発時にテストファーストで進める
+**✅ Conditions to Continue Development**:
+- Domain layer (models/) coverage is 80%+
+- Service layer (services/) main use cases are tested
+- Regression tests for existing features are in place
+- New features developed test-first
 
-**⚠️ 改善が必要な条件**:
-- サービス層のカバレッジが50%未満（現在36%のファイルあり）
-- ドメインロジックのテストが不足
-- エッジケースのテストが未実装
+**⚠️ Conditions Requiring Improvement**:
+- Service layer coverage below 50% (currently 36% in some files)
+- Domain logic tests insufficient
+- Edge case tests not implemented
 
-**現在の状況（73.48%）**:
-- ✅ ドメイン層（models/）: 高カバレッジ（90%以上）
-- ⚠️ サービス層（services/）: 改善必要（36-68%）
-- ✅ 認証層（auth/）: 良好（75-95%）
-- ❌ ユーティリティ層（utils/image.py）: 未テスト（0%）
+**Current Status (73.48%)**:
+- ✅ Domain Layer (models/): High coverage (90%+)
+- ⚠️ Service Layer (services/): Needs improvement (36-68%)
+- ✅ Auth Layer (auth/): Good (75-95%)
+- ❌ Utility Layer (utils/image.py): Untested (0%)
 
-**推奨アクション**:
-1. **Phase 5実装前に**: `app/services/animal_service.py`（36%）のテストを追加
-2. **Phase 5実装時に**: 新機能はテストファーストで開発
-3. **Phase 5完了後に**: `app/utils/image.py`（0%）のテストを追加
-4. **継続的に**: 各Phase完了時にカバレッジ70%以上を維持
+**Recommended Actions**:
+1. **Before Phase 5**: Add tests for `app/services/animal_service.py` (36%)
+2. **During Phase 5**: Develop new features test-first
+3. **After Phase 5**: Add tests for `app/utils/image.py` (0%)
+4. **Continuously**: Maintain 70%+ coverage at each Phase completion
 
-**テストファースト開発の原則**:
+**Test-First Development Principles**:
 ```python
-# 1. Red: 失敗するテストを書く
+# 1. Red: Write a failing test
 def test_create_image_gallery():
     # Given
     animal_id = 1
@@ -164,14 +164,14 @@ def test_create_image_gallery():
     assert result.success is True
     assert result.image_id is not None
 
-# 2. Green: テストをパスする最小限のコードを書く
+# 2. Green: Write minimal code to pass
 def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
-    # 最小限の実装
+    # Minimal implementation
     return UploadResult(success=True, image_id=1)
 
-# 3. Refactor: コードを改善
+# 3. Refactor: Improve the code
 def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
-    # リファクタリング後の実装
+    # Implementation after refactoring
     validated_data = validate_image(image_data)
     saved_path = save_to_storage(validated_data)
     return UploadResult(success=True, image_id=saved_path.id)
@@ -179,111 +179,111 @@ def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
 
 ---
 
-## 📁 プロジェクト構造
+## 📁 Project Structure
 
 ```
 app/
-├── api/           # APIエンドポイント
-│   └── v1/        # APIバージョン管理
-├── models/        # SQLAlchemyモデル
-├── schemas/       # Pydanticスキーマ
-├── services/      # ビジネスロジック
-├── auth/          # 認証・認可
-├── utils/         # ユーティリティ関数
-├── config.py      # 設定管理
-├── database.py    # データベース接続
-└── main.py        # アプリケーションエントリーポイント
+├── api/           # API endpoints
+│   └── v1/        # API versioning
+├── models/        # SQLAlchemy models
+├── schemas/       # Pydantic schemas
+├── services/      # Business logic
+├── auth/          # Authentication & authorization
+├── utils/         # Utility functions
+├── config.py      # Configuration management
+├── database.py    # Database connection
+└── main.py        # Application entry point
 
-tests/             # テストコード
-├── conftest.py    # Pytestフィクスチャ
-├── api/           # APIテスト
-├── models/        # モデルテスト
-└── services/      # サービステスト
+tests/             # Test code
+├── conftest.py    # Pytest fixtures
+├── api/           # API tests
+├── models/        # Model tests
+└── services/      # Service tests
 ```
 
 ---
 
-## 🐍 Python コーディング規約
+## 🐍 Python Coding Conventions
 
-### インポート順序
-**標準ライブラリ → サードパーティ → ローカルモジュールの順**
+### Import Order
+**Standard library → Third-party → Local modules**
 
 ```python
-# 標準ライブラリ
+# Standard library
 import os
 import sys
 from datetime import datetime
 from typing import Optional
 
-# サードパーティ
+# Third-party
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-# ローカルモジュール
+# Local modules
 from app.database import get_db
 from app.models.user import User
 ```
 
-### 型ヒント
-**すべての関数に型ヒントを付けること**
+### Type hints
+**Add type hints to all functions**
 
-**Context7参照**: `/python/typing` (Trust Score: 8.9), `/python/mypy` (Trust Score: 8.9)
+**Context7 reference**: `/python/typing` (Trust Score: 8.9), `/python/mypy` (Trust Score: 8.9)
 
 ```python
-from __future__ import annotations  # 前方参照を有効化
+from __future__ import annotations  # Enable forward references
 
 from collections.abc import Iterator, Callable
 from sqlalchemy.orm import Session
 
-# ✅ 推奨: collections.abcを使用
+# ✅ Recommended: use collections.abc
 def get_user(db: Session, user_id: int) -> User | None:
-    """ユーザーを取得"""
+    """Get a user"""
     return db.query(User).filter(User.id == user_id).first()
 
-# ✅ 推奨: X | None 構文（Python 3.10+）
+# ✅ Recommended: X | None syntax (Python 3.10+)
 async def create_item(
     item_data: ItemCreate,
     db: Session = Depends(get_db)
 ) -> Item:
-    """アイテムを作成"""
+    """Create an item"""
     item = Item(**item_data.model_dump())
     db.add(item)
     db.commit()
     db.refresh(item)
     return item
 
-# ✅ 推奨: 明示的な型注釈（空のコレクション）
+# ✅ Recommended: explicit type annotations (empty collections)
 def process_items() -> list[Item]:
-    """アイテムを処理"""
-    items: list[Item] = []  # 明示的な型注釈
+    """Process items"""
+    items: list[Item] = []  # Explicit type annotation
     for i in range(10):
         items.append(Item(id=i))
     return items
 
-# ✅ 推奨: Callable型ヒント
+# ✅ Recommended: Callable type hints
 def register_callback(
     callback: Callable[[str], int]
 ) -> None:
-    """コールバックを登録"""
+    """Register a callback"""
     pass
 
-# ✅ 推奨: Generator型ヒント
+# ✅ Recommended: Generator type hints
 def generate_numbers(n: int) -> Iterator[int]:
-    """数値を生成"""
+    """Generate numbers"""
     i = 0
     while i < n:
         yield i
         i += 1
 
-# ❌ 非推奨: typing モジュールの型
+# ❌ Not recommended: types from typing module
 # from typing import Optional, List, Dict
 # def get_user(db: Session, user_id: int) -> Optional[User]:
 #     pass
 ```
 
-### コンテキストマネージャー
-**ファイル操作は必ずwith文を使用**
+### Context managers
+**Always use with statement for file operations**
 
 ```python
 # Good
@@ -296,19 +296,19 @@ content = f.read()
 f.close()
 ```
 
-### Docstring
-**すべての関数・クラスにDocstringを記述**
+### Docstrings
+**Write Docstrings for all functions and classes**
 
 ```python
 def calculate_total(items: list[Item]) -> Decimal:
     """
-    アイテムの合計金額を計算
+    Calculate total price of items.
 
     Args:
-        items: アイテムのリスト
+        items: List of items
 
     Returns:
-        Decimal: 合計金額
+        Decimal: Total price
 
     Example:
         >>> items = [Item(price=100), Item(price=200)]
@@ -320,15 +320,15 @@ def calculate_total(items: list[Item]) -> Decimal:
 
 ---
 
-## 🚀 FastAPI ベストプラクティス
+## 🚀 FastAPI Best Practices
 
-### 1. 依存性注入の活用
+### 1. Utilizing Dependency Injection
 
 ```python
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-# データベースセッション
+# Database session
 def get_db() -> Session:
     db = SessionLocal()
     try:
@@ -336,15 +336,15 @@ def get_db() -> Session:
     finally:
         db.close()
 
-# 認証
+# Authentication
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ) -> User:
-    # トークン検証ロジック
+    # Token verification logic
     return user
 
-# エンドポイントで使用
+# Usage in endpoint
 @app.get("/items/")
 async def read_items(
     db: Session = Depends(get_db),
@@ -353,29 +353,29 @@ async def read_items(
     return db.query(Item).all()
 ```
 
-### 2. Pydanticスキーマの分離
+### 2. Separation of Pydantic schemas
 
 ```python
 # schemas/item.py
 from pydantic import BaseModel, Field
 
 class ItemBase(BaseModel):
-    """共通フィールド"""
+    """Common fields"""
     name: str = Field(..., max_length=100)
     description: str | None = None
 
 class ItemCreate(ItemBase):
-    """作成用スキーマ"""
+    """Schema for creation"""
     price: Decimal = Field(..., gt=0)
 
 class ItemUpdate(BaseModel):
-    """更新用スキーマ（全フィールド任意）"""
+    """Schema for update (all fields optional)"""
     name: str | None = None
     description: str | None = None
     price: Decimal | None = None
 
 class ItemResponse(ItemBase):
-    """レスポンススキーマ"""
+    """Response schema"""
     id: int
     price: Decimal
     created_at: datetime
@@ -383,15 +383,15 @@ class ItemResponse(ItemBase):
     model_config = {"from_attributes": True}
 ```
 
-### 3. ビジネスロジックの分離
+### 3. Separation of business logic
 
 ```python
 # services/item_service.py
 def create_item(db: Session, item_data: ItemCreate) -> Item:
     """
-    アイテムを作成
+    Create an item.
 
-    ビジネスロジックはサービス層に配置
+    Business logic is placed in the service layer.
     """
     item = Item(**item_data.model_dump())
     db.add(item)
@@ -407,45 +407,45 @@ async def create_item_endpoint(
     current_user: User = Depends(get_current_user)
 ):
     """
-    エンドポイントはルーティングのみ
-    ビジネスロジックはサービス層に委譲
+    Endpoint handles routing only.
+    Business logic is delegated to the service layer.
     """
     return create_item(db, item_data)
 ```
 
-### 4. 適切なHTTPステータスコード
+### 4. Appropriate HTTP status codes
 
 ```python
 from fastapi import status
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_item(...):
-    """作成: 201 Created"""
+    """Create: 201 Created"""
     pass
 
 @router.get("/{id}")
 async def get_item(...):
-    """取得: 200 OK"""
+    """Retrieve: 200 OK"""
     pass
 
 @router.put("/{id}")
 async def update_item(...):
-    """更新: 200 OK"""
+    """Update: 200 OK"""
     pass
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_item(...):
-    """削除: 204 No Content"""
+    """Delete: 204 No Content"""
     pass
 ```
 
-### 5. エラーハンドリング
+### 5. Error handling
 
 ```python
 from fastapi import HTTPException, status
 
 def get_item(db: Session, item_id: int) -> Item:
-    """アイテムを取得"""
+    """Get an item"""
     item = db.query(Item).filter(Item.id == item_id).first()
     if not item:
         raise HTTPException(
@@ -457,13 +457,13 @@ def get_item(db: Session, item_id: int) -> Item:
 
 ---
 
-## 🗄️ SQLAlchemy ベストプラクティス
+## 🗄️ SQLAlchemy Best Practices
 
-**Context7参照**: `/sqlalchemy/sqlalchemy` (Code Snippets: 2830)
+**Context7 Reference**: `/sqlalchemy/sqlalchemy` (Code Snippets: 2830)
 
-### 1. モダンなDeclarative Mapping
+### 1. Modern Declarative Mapping
 
-**推奨: Mapped と mapped_column を使用**
+**Recommended: use Mapped and mapped_column**
 
 ```python
 from sqlalchemy import String, Integer, DateTime, func
@@ -484,63 +484,63 @@ class User(Base):
         DateTime,
         server_default=func.now()
     )
-    # オプショナルフィールドはOptional型を使用
+    # For optional fields, use Optional type
     description: Mapped[Optional[str]] = mapped_column(String(500))
 ```
 
-### 2. コネクションとトランザクション管理
+### 2. Connection and transaction management
 
-**コンテキストマネージャーを使用**
+**Use context managers**
 
 ```python
 from sqlalchemy import create_engine
 
 engine = create_engine("postgresql://user:pass@localhost/db")
 
-# 推奨: コンテキストマネージャーでトランザクション管理
+# Recommended: manage transactions with context managers
 with engine.begin() as conn:
     conn.execute(table.insert(), parameters)
     result = conn.execute(table.select())
     conn.execute(table.update(), parameters)
 ```
 
-### 3. パフォーマンス最適化
+### 3. Performance optimization
 
-**特定のカラムのみを選択**
+**Select only specific columns**
 
 ```python
 from sqlalchemy import select
 
-# ✅ 推奨: 必要なカラムのみ選択
+# ✅ Recommended: select only required columns
 stmt = select(User.id, User.name)
 result = session.execute(stmt)
 
-# ❌ 非推奨: 全カラム取得（不要な場合）
+# ❌ Not recommended: selecting all columns when not needed
 stmt = select(User)
 ```
 
-**キャッシュを活用した繰り返しクエリ**
+**Repeated queries with cache utilization**
 
 ```python
 def run_my_statement(connection, parameter):
-    """SQLコンパイルキャッシュを活用"""
+    """Use SQL compilation cache"""
     stmt = select(table)
     stmt = stmt.where(table.c.col == parameter)
     stmt = stmt.order_by(table.c.id)
     return connection.execute(stmt)
 ```
 
-### 4. リレーションシップのJOIN
+### 4. Relationship JOIN
 
-**推奨されるJOINパターン**
+**Recommended JOIN patterns**
 
 ```python
 from sqlalchemy.orm import Session
 
-# ✅ 推奨: リレーションシップを直接指定
+# ✅ Recommended: specify relationship directly
 q = session.query(User).join(User.addresses).filter(Address.email_address == "ed@foo.com")
 
-# ✅ 推奨: ターゲットを明示的に指定
+# ✅ Recommended: specify target explicitly
 q = (
     session.query(User)
     .join(Address, User.addresses)
@@ -548,11 +548,11 @@ q = (
 )
 ```
 
-### 5. テーブル・カラム命名規則
+### 5. Table and column naming conventions
 
 ```python
-# lower_case_snake を使用
-# テーブル名は単数形
+# Use lower_case_snake
+# Table names are singular
 class User(Base):
     __tablename__ = "user"
 
@@ -568,7 +568,7 @@ class User(Base):
         onupdate=func.now()
     )
 
-# 関連テーブルはモジュールプレフィックス
+# Related tables use module prefix
 class PaymentAccount(Base):
     __tablename__ = "payment_account"
 
@@ -576,7 +576,7 @@ class PaymentBill(Base):
     __tablename__ = "payment_bill"
 ```
 
-### 6. インデックス命名規則
+### 6. Index naming conventions
 
 ```python
 from sqlalchemy import MetaData
@@ -594,11 +594,11 @@ metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
 
 ---
 
-## 🧪 Pytest ベストプラクティス
+## 🧪 Pytest Best Practices
 
-**Context7参照**: `/pytest-dev/pytest` (Trust Score: 9.5)
+**Context7 Reference**: `/pytest-dev/pytest` (Trust Score: 9.5)
 
-### 1. 基本的なパラメータ化テスト
+### 1. Basic parameterized tests
 
 ```python
 import pytest
@@ -608,36 +608,36 @@ import pytest
     [
         ("3+5", 8),
         ("2+4", 6),
-        pytest.param("6*9", 42, marks=pytest.mark.xfail),  # 期待される失敗
+        pytest.param("6*9", 42, marks=pytest.mark.xfail),  # Expected failure
     ],
 )
 def test_eval(test_input, expected):
     assert eval(test_input) == expected
 ```
 
-### 2. フィクスチャのパラメータ化
+### 2. Fixture parameterization
 
 ```python
 import pytest
 
 @pytest.fixture(params=[0, 1], ids=["spam", "ham"])
 def data_set(request):
-    """パラメータ化されたフィクスチャ"""
+    """Parameterized fixture"""
     return request.param
 
 def test_data(data_set):
-    """data_setは0と1で2回実行される"""
+    """data_set runs twice, with 0 and 1"""
     pass
 ```
 
-### 3. スコープ付きフィクスチャ
+### 3. Scoped fixtures
 
 ```python
 import pytest
 
 @pytest.fixture(scope="module", params=["mod1", "mod2"])
 def modarg(request):
-    """モジュールスコープのフィクスチャ"""
+    """Module-scoped fixture"""
     param = request.param
     print(f"  SETUP modarg {param}")
     yield param
@@ -645,41 +645,41 @@ def modarg(request):
 
 @pytest.fixture(scope="function", params=[1, 2])
 def otherarg(request):
-    """関数スコープのフィクスチャ"""
+    """Function-scoped fixture"""
     param = request.param
     print(f"  SETUP otherarg {param}")
     yield param
     print(f"  TEARDOWN otherarg {param}")
 
 def test_example(modarg, otherarg):
-    """複数のスコープを持つフィクスチャを使用"""
+    """Use fixtures with multiple scopes"""
     print(f"  RUN test with modarg {modarg} and otherarg {otherarg}")
 ```
 
-### 4. 間接的なパラメータ化
+### 4. Indirect parameterization
 
 ```python
 import pytest
 
 @pytest.fixture
 def fixt(request):
-    """フィクスチャでパラメータを処理"""
+    """Process parameters in fixture"""
     return request.param * 3
 
 @pytest.mark.parametrize("fixt", ["a", "b"], indirect=True)
 def test_indirect(fixt):
-    """フィクスチャを通じてパラメータを渡す"""
+    """Pass parameters via fixture"""
     assert len(fixt) == 3
 ```
 
-### 5. クラスレベルのパラメータ化
+### 5. Class-level parameterization
 
 ```python
 import pytest
 
 @pytest.mark.parametrize("n,expected", [(1, 2), (3, 4)])
 class TestClass:
-    """クラス全体にパラメータを適用"""
+    """Apply parameters to the entire class"""
 
     def test_simple_case(self, n, expected):
         assert n + 1 == expected
@@ -688,12 +688,12 @@ class TestClass:
         assert (n * 1) + 1 == expected
 ```
 
-### 6. モジュールレベルのパラメータ化
+### 6. Module-level parameterization
 
 ```python
 import pytest
 
-# モジュール全体にパラメータを適用
+# Apply parameters to the entire module
 pytestmark = pytest.mark.parametrize("n,expected", [(1, 2), (3, 4)])
 
 class TestClass:
@@ -704,7 +704,7 @@ class TestClass:
         assert (n * 1) + 1 == expected
 ```
 
-### 7. フィクスチャのオーバーライド
+### 7. Overriding fixtures
 
 ```python
 # conftest.py
@@ -717,7 +717,7 @@ def parametrized_username(request):
 # test_something.py
 @pytest.fixture
 def parametrized_username():
-    """特定のテストモジュールでフィクスチャをオーバーライド"""
+    """Override fixture in a specific test module"""
     return 'overridden-username'
 
 def test_username(parametrized_username):
@@ -733,13 +733,13 @@ from app.main import app
 client = TestClient(app)
 
 def test_read_main():
-    """メインエンドポイントのテスト"""
+    """Test main endpoint"""
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"msg": "Hello World"}
 
 def test_create_item():
-    """アイテム作成のテスト"""
+    """Test item creation"""
     response = client.post(
         "/items/",
         json={"name": "Test Item", "price": 100}
@@ -750,7 +750,7 @@ def test_create_item():
     assert "id" in data
 ```
 
-### 9. 非同期テスト
+### 9. Asynchronous tests
 
 ```python
 import pytest
@@ -758,7 +758,7 @@ from httpx import AsyncClient, ASGITransport
 
 @pytest.mark.anyio
 async def test_async_endpoint():
-    """非同期エンドポイントのテスト"""
+    """Test asynchronous endpoint"""
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
@@ -767,7 +767,7 @@ async def test_async_endpoint():
         assert response.status_code == 200
 ```
 
-### 10. データベーステスト用フィクスチャ
+### 10. Fixtures for database tests
 
 ```python
 # conftest.py
@@ -777,7 +777,7 @@ from sqlalchemy.orm import sessionmaker
 
 @pytest.fixture(scope="function")
 def test_db():
-    """テスト用データベースセッション"""
+    """Database session for tests"""
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(bind=engine)
@@ -789,7 +789,7 @@ def test_db():
 
 @pytest.fixture
 def auth_token(test_client):
-    """認証トークンを取得"""
+    """Obtain authentication token"""
     response = test_client.post(
         "/auth/token",
         data={"username": "test@example.com", "password": "password"}
@@ -799,13 +799,13 @@ def auth_token(test_client):
 
 ---
 
-## 🔍 Mypy 型チェック設定
+## 🔍 Mypy Type Checking Configuration
 
-**Context7参照**: `/python/mypy` (Trust Score: 8.9)
+**Context7 Reference**: `/python/mypy` (Trust Score: 8.9)
 
-### 1. mypy.ini設定ファイル
+### 1. mypy.ini configuration file
 
-**Strict モードの推奨設定**
+**Recommended strict-mode settings**
 
 ```ini
 # mypy.ini
@@ -826,10 +826,10 @@ disallow_untyped_defs = True
 no_implicit_reexport = True
 extra_checks = True
 
-# プラグイン
+# Plugins
 plugins = pydantic.mypy, sqlalchemy.ext.mypy.plugin
 
-# 除外パターン
+# Exclude patterns
 exclude = (?x)(
     ^\.venv/
     | ^venv/
@@ -837,30 +837,30 @@ exclude = (?x)(
     | ^dist/
   )
 
-# サードパーティライブラリの型スタブがない場合
+# When third-party libraries have no type stubs
 [mypy-some_untyped_library.*]
 ignore_missing_imports = True
 ```
 
-### 2. 型チェックの実行
+### 2. Running type checks
 
 ```bash
-# すべてのファイルをチェック
+# Check all files
 mypy .
 
-# 特定のディレクトリをチェック
+# Check a specific directory
 mypy app/
 
-# Strict モードで実行
+# Run in strict mode
 mypy --strict app/
 
-# レポート生成
+# Generate HTML report
 mypy --html-report ./mypy-report app/
 ```
 
-### 3. 型ヒントのベストプラクティス
+### 3. Best practices for type hints
 
-**モダンな型ヒント構文**
+**Modern type hint syntax**
 
 ```python
 from __future__ import annotations
@@ -868,19 +868,19 @@ from __future__ import annotations
 from collections.abc import Sequence, Mapping, Callable
 from typing import Protocol, TypeVar
 
-# ✅ 推奨: collections.abc を使用
+# ✅ Recommended: use collections.abc
 def process_items(items: Sequence[str]) -> list[int]:
     return [len(item) for item in items]
 
-# ✅ 推奨: X | None 構文
+# ✅ Recommended: X | None syntax
 def find_user(user_id: int) -> User | None:
     return db.query(User).get(user_id)
 
-# ✅ 推奨: Union型は | で表現
+# ✅ Recommended: express Union types with |
 def parse_value(value: str | int | float) -> float:
     return float(value)
 
-# ✅ 推奨: Protocol を使用した構造的サブタイピング
+# ✅ Recommended: use Protocol for structural subtyping
 class Closeable(Protocol):
     def close(self) -> None: ...
 
@@ -888,29 +888,29 @@ def close_all(items: Sequence[Closeable]) -> None:
     for item in items:
         item.close()
 
-# ✅ 推奨: TypeVar でジェネリック型を定義
+# ✅ Recommended: define generics with TypeVar
 T = TypeVar('T')
 
 def first(items: Sequence[T]) -> T | None:
     return items[0] if items else None
 ```
 
-**空のコレクションの型注釈**
+**Type annotations for empty collections**
 
 ```python
-# ✅ 推奨: 明示的な型注釈
+# ✅ Recommended: explicit type annotations
 items: list[str] = []
 mapping: dict[str, int] = {}
 
-# ❌ 非推奨: 型注釈なし（Mypyが推論できない）
-# items = []  # Mypyエラー
+# ❌ Not recommended: no type annotation (Mypy cannot infer)
+# items = []  # Mypy error
 ```
 
 ---
 
-## ⚙️ 設定管理
+## ⚙️ Configuration Management
 
-### Pydantic Settingsの使用
+### Using Pydantic Settings
 
 ```python
 # config.py
@@ -918,7 +918,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    """アプリケーション設定"""
+    """Application settings"""
     app_name: str = "NecoKeeper"
     debug: bool = False
     secret_key: str
@@ -930,14 +930,14 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """設定インスタンスを取得（キャッシュ付き）"""
+    """Get settings instance (with cache)"""
     return Settings()
 
-# 使用例
+# Usage example
 settings = get_settings()
 ```
 
-### テスト時の設定オーバーライド
+### Overriding settings in tests
 
 ```python
 def get_settings_override():
@@ -951,27 +951,27 @@ app.dependency_overrides[get_settings] = get_settings_override
 
 ---
 
-## 📝 Alembic マイグレーションベストプラクティス
+## 📝 Alembic Migration Best Practices
 
-**Context7参照**: `/sqlalchemy/alembic` (Code Snippets: 363)
+**Context7 Reference**: `/sqlalchemy/alembic` (Code Snippets: 363)
 
-### 1. 命名規則の設定
+### 1. Naming conventions
 
-**alembic.ini設定**
+**alembic.ini configuration**
 
 ```ini
 # alembic.ini
 [alembic]
 script_location = alembic
 
-# マイグレーションファイル名テンプレート
+# Migration file name template
 file_template = %%(year)d%%(month).2d%%(day).2d_%%(hour).2d%%(minute).2d_%%(slug)s
 
-# または日付のみ
+# Or date only
 # file_template = %%(year)d-%%(month).2d-%%(day).2d_%%(slug)s
 ```
 
-**MetaData命名規則の統合**
+**Integrating MetaData naming conventions**
 
 ```python
 # models.py
@@ -998,47 +998,47 @@ def run_migrations_online():
     )
 ```
 
-### 2. マイグレーション命名のベストプラクティス
+### 2. Best practices for migration naming
 
 ```bash
-# ✅ 良い例: 説明的で実行可能な名前
+# ✅ Good examples: descriptive and actionable names
 alembic revision -m "create_user_table"
 alembic revision -m "add_email_index_to_users"
 alembic revision -m "add_created_at_to_posts"
 alembic revision -m "remove_deprecated_status_column"
 
-# ❌ 悪い例: 曖昧な名前
+# ❌ Bad examples: ambiguous names
 alembic revision -m "update"
 alembic revision -m "fix"
 alembic revision -m "changes"
 ```
 
-### 3. 制約の作成と削除
+### 3. Creating and dropping constraints
 
-**命名規則を使用した制約操作**
+**Constraint operations with naming conventions**
 
 ```python
 def upgrade():
-    """制約を作成（命名規則が自動適用される）"""
+    """Create constraint (naming convention applied automatically)"""
     op.create_unique_constraint(
-        op.f('uq_const_x'),  # op.f()で明示的に名前を指定
+        op.f('uq_const_x'),  # Explicitly specify name with op.f()
         'some_table',
         'x'
     )
 
 def downgrade():
-    """制約を削除"""
+    """Drop constraint"""
     op.drop_constraint("some_check_const", "t1", type_="check")
 
-    # または命名規則をバイパス
+    # Or bypass naming convention
     op.drop_constraint(op.f("some_check_const"), "t1", type_="check")
 ```
 
-**バッチ操作での命名規則**
+**Naming conventions with batch operations**
 
 ```python
 def upgrade():
-    """バッチ操作で外部キーを削除"""
+    """Drop foreign key with batch operation"""
     naming_convention = {
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
     }
@@ -1050,18 +1050,18 @@ def upgrade():
         )
 ```
 
-### 4. スキーマ管理
+### 4. Schema management
 
-**include_nameフックの設定**
+**Configuring include_name hook**
 
 ```python
 # env.py
 def include_name(name, type_, parent_names):
-    """スキーマとテーブルの包含を制御"""
+    """Control inclusion of schemas and tables"""
     if type_ == "schema":
         return name in [None, "schema_one", "schema_two"]
     elif type_ == "table":
-        # schema_qualified_table_nameを直接使用
+        # Use schema_qualified_table_name directly
         return (
             parent_names["schema_qualified_table_name"] in
             target_metadata.tables
@@ -1076,29 +1076,29 @@ context.configure(
 )
 ```
 
-### 5. マイグレーションのベストプラクティス
+### 5. Migration best practices
 
-1. **静的マイグレーション**: 動的なデータ操作は避ける
-2. **リバート可能**: 必ずdowngrade関数を実装
-3. **説明的な名前**: マイグレーションの内容が分かる名前を付ける
-4. **命名規則の一貫性**: MetaDataの命名規則をAlembicと統合
-5. **バッチ操作**: 大規模テーブルでは適切にバッチ操作を使用
+1. **Static migrations**: avoid dynamic data manipulation
+2. **Reversible**: always implement a downgrade function
+3. **Descriptive names**: use names that describe the migration
+4. **Consistent naming**: unify MetaData naming conventions with Alembic
+5. **Batch operations**: use batch operations appropriately for large tables
 
 ---
 
-## 🔒 セキュリティ
+## 🔒 Security
 
-### パスワードハッシュ化
+### Password Hashing
 
 ```python
 from argon2 import PasswordHasher
 
 ph = PasswordHasher()
 
-# ハッシュ化
+# Hashing
 hashed = ph.hash("password123")
 
-# 検証
+# Verification
 try:
     ph.verify(hashed, "password123")
     print("Valid password")
@@ -1106,14 +1106,14 @@ except:
     print("Invalid password")
 ```
 
-### JWT認証
+### JWT authentication
 
 ```python
 from datetime import datetime, timedelta
 import jwt
 
 def create_access_token(data: dict) -> str:
-    """JWTトークンを生成"""
+    """Generate a JWT access token"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(hours=2)
     to_encode.update({"exp": expire})
@@ -1122,25 +1122,25 @@ def create_access_token(data: dict) -> str:
 
 ---
 
-## 📊 パフォーマンス
+## 📊 Performance
 
-### N+1問題の回避
+### Avoiding N+1 Problem
 
 ```python
-# Bad: N+1問題
+# Bad: N+1 query problem
 users = db.query(User).all()
 for user in users:
-    print(user.posts)  # 各ユーザーごとにクエリ実行
+    print(user.posts)  # Executes a query per user
 
-# Good: Eager Loading
+# Good: eager loading
 from sqlalchemy.orm import joinedload
 
 users = db.query(User).options(joinedload(User.posts)).all()
 for user in users:
-    print(user.posts)  # 1回のクエリで取得
+    print(user.posts)  # Fetched with a single query
 ```
 
-### ページネーション
+### Pagination
 
 ```python
 def get_items(
@@ -1148,104 +1148,104 @@ def get_items(
     skip: int = 0,
     limit: int = 100
 ) -> list[Item]:
-    """ページネーション付きでアイテムを取得"""
+    """Get items with pagination"""
     return db.query(Item).offset(skip).limit(limit).all()
 ```
 
 ---
 
-## 🚨 チェックリスト
+## 🚨 Checklist
 
-コード作成・修正時に以下を確認すること:
+Verify the following when creating or modifying code:
 
-### 🔴 実装後の必須確認項目（コミット前に必ず実行）
+### 🔴 Mandatory checks after implementation (run before committing)
 
-**すべてのタスク実装完了後、以下を順番に実行してからコミットすること:**
+**After all tasks are implemented, run the following in order before committing:**
 
-1. **コードフォーマット**
+1. **Code formatting**
    ```bash
    ruff format .
    ```
 
-2. **テスト実行**
+2. **Run tests**
    ```bash
    python -m pytest
    ```
-   - すべてのテストがPassすることを確認
-   - 新規実装の場合は、カバレッジ70%以上を確認
+    - Confirm all tests pass
+    - For new implementations, confirm coverage is 70% or higher
 
-3. **UI実装の場合: Chrome DevToolsで画面確認**
-   - 開発サーバーを起動: `uvicorn app.main:app --reload`
-   - ブラウザでアクセス: `http://localhost:8000`
-   - Chrome DevTools (F12) で以下を確認:
-     - Console: JavaScriptエラーがないか
-     - Network: APIリクエストが正常に動作しているか
-     - Application: PWA機能（Service Worker、Cache）が動作しているか
-     - Lighthouse: パフォーマンス、アクセシビリティスコア
-   - モバイル表示確認: DevToolsのデバイスモードで確認
-   - レスポンシブデザイン確認: 画面幅を変更して確認
+3. **For UI work: verify in Chrome DevTools**
+    - Start dev server: `uvicorn app.main:app --reload`
+    - Access in browser: `http://localhost:8000`
+    - In Chrome DevTools (F12), check:
+        - Console: no JavaScript errors
+        - Network: API requests work correctly
+        - Application: PWA features (Service Worker, Cache) work
+        - Lighthouse: performance and accessibility scores
+    - Mobile view: use device mode in DevTools
+    - Responsive design: adjust viewport width and verify
 
-4. **Gitコミット**
+4. **Git commit**
    ```bash
    git add .
-   git commit -m "feat(scope): 機能を追加"
+    git commit -m "feat(scope): add feature"
    ```
 
-### 基本チェック
-- [ ] Ruffでフォーマット実行済み (`ruff format .`)
-- [ ] Ruffでlintチェック実行済み (`ruff check . --fix`)
-- [ ] すべてのテストがPass (`python -m pytest`)
-- [ ] UI実装の場合: Chrome DevToolsで画面確認済み
-- [ ] Mypyで型チェック実行済み (`mypy .`)
-- [ ] 型ヒントを付与（`from __future__ import annotations`使用）
-- [ ] Docstringを記述
-- [ ] エラーハンドリングを実装
-- [ ] 非推奨ライブラリを使用していない
-- [ ] セキュリティ上の問題がない
-- [ ] パフォーマンスを考慮
+### Basic checks
+- [ ] Run `ruff format .`
+- [ ] Run `ruff check . --fix`
+- [ ] All tests pass (`python -m pytest`)
+- [ ] For UI work: Chrome DevTools verification completed
+- [ ] Run Mypy type checks (`mypy .`)
+- [ ] Type hints added (`from __future__ import annotations` used)
+- [ ] Docstrings written
+- [ ] Error handling implemented
+- [ ] No deprecated libraries in use
+- [ ] No security issues
+- [ ] Performance considerations addressed
 
-### 型ヒントチェック
-- [ ] `collections.abc`の型を使用（`typing`モジュールではなく）
-- [ ] `X | None`構文を使用（`Optional[X]`ではなく）
-- [ ] `X | Y`構文を使用（`Union[X, Y]`ではなく）
-- [ ] 空のコレクションに明示的な型注釈を付与
-- [ ] `Protocol`を使用した構造的サブタイピング
-- [ ] 前方参照に`from __future__ import annotations`を使用
+### Type hint checks
+- [ ] Use `collections.abc` types (not `typing` module)
+- [ ] Use `X | None` syntax (not `Optional[X]`)
+- [ ] Use `X | Y` syntax (not `Union[X, Y]`)
+- [ ] Add explicit type annotations for empty collections
+- [ ] Use `Protocol` for structural subtyping
+- [ ] Use `from __future__ import annotations` for forward references
 
-### SQLAlchemyチェック
-- [ ] モダンな`Mapped`と`mapped_column`を使用
-- [ ] コンテキストマネージャーでトランザクション管理
-- [ ] 必要なカラムのみを選択してパフォーマンス最適化
-- [ ] 適切なJOINパターンを使用
-- [ ] 命名規則に従ったインデックス・制約名
+### SQLAlchemy checks
+- [ ] Use modern `Mapped` and `mapped_column`
+- [ ] Manage transactions with context managers
+- [ ] Select only required columns for performance
+- [ ] Use appropriate JOIN patterns
+- [ ] Follow naming conventions for indexes and constraints
 
-### Pytestチェック
-- [ ] 適切なフィクスチャスコープを使用
-- [ ] パラメータ化テストで複数ケースをカバー
-- [ ] テストIDを明示的に指定（可読性向上）
-- [ ] 間接的なパラメータ化で複雑なセットアップを実現
-- [ ] フィクスチャのオーバーライドを適切に使用
+### Pytest checks
+- [ ] Use appropriate fixture scopes
+- [ ] Cover multiple cases with parameterized tests
+- [ ] Explicitly specify test IDs (for readability)
+- [ ] Use indirect parameterization for complex setups
+- [ ] Appropriately override fixtures when needed
 
-### Alembicチェック
-- [ ] 説明的なマイグレーション名を使用
-- [ ] `upgrade()`と`downgrade()`の両方を実装
-- [ ] 命名規則をMetaDataと統合
-- [ ] `op.f()`で制約名を明示的に指定
-- [ ] スキーマ管理で`include_name`フックを使用
+### Alembic checks
+- [ ] Use descriptive migration names
+- [ ] Implement both `upgrade()` and `downgrade()`
+- [ ] Integrate naming conventions with MetaData
+- [ ] Explicitly specify constraint names with `op.f()`
+- [ ] Use the `include_name` hook for schema management
 
 ---
 
-## 📚 参考リソース
+## 📚 References
 
-### 公式ドキュメント
-- [FastAPI公式ドキュメント](https://fastapi.tiangolo.com/)
-- [Pydantic公式ドキュメント](https://docs.pydantic.dev/)
-- [SQLAlchemy公式ドキュメント](https://docs.sqlalchemy.org/)
-- [Alembic公式ドキュメント](https://alembic.sqlalchemy.org/)
-- [Pytest公式ドキュメント](https://docs.pytest.org/)
-- [Ruff公式ドキュメント](https://docs.astral.sh/ruff/)
+### Official Documentation
+- [FastAPI official documentation](https://fastapi.tiangolo.com/)
+- [Pydantic official documentation](https://docs.pydantic.dev/)
+- [SQLAlchemy official documentation](https://docs.sqlalchemy.org/)
+- [Alembic official documentation](https://alembic.sqlalchemy.org/)
+- [Pytest official documentation](https://docs.pytest.org/)
+- [Ruff official documentation](https://docs.astral.sh/ruff/)
 
-### Context7検証済みリソース
+### Context7 verified resources
 - [FastAPI](https://github.com/fastapi/fastapi) - Trust Score: 9.9
 - [FastAPI Best Practices](https://github.com/zhanymkanov/fastapi-best-practices) - Trust Score: 8.8
 - [Pytest](https://github.com/pytest-dev/pytest) - Trust Score: 9.5
@@ -1256,5 +1256,5 @@ def get_items(
 
 ---
 
-**最終更新**: 2025-11-12
-**Context7検証済み**: ✅
+**Last updated**: 2025-11-12
+**Context7 verified**: ✅
