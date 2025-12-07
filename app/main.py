@@ -154,8 +154,8 @@ async def root(request: Request) -> HTMLResponse:
         {
             "request": request,
             "settings": settings,
-            "github_url": "https://github.com/okajun35/NecoKeeper",
-            "demo_video_url": "https://www.youtube.com/embed/K5GZoW2HnA0",
+            "github_url": settings.github_repo_url,
+            "demo_video_url": f"https://www.youtube.com/embed/{settings.demo_video_id}",
         },
     )
 
