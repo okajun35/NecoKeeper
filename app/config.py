@@ -135,7 +135,7 @@ class Settings(BaseSettings):
         description="GitHubリポジトリURL",
     )
     demo_video_id: str = Field(
-        default="K5GZoW2HnA0", description="デモビデオのYouTube ID"
+        default="K5GZoW2HnA0", description="YouTube ID for demo video"
     )
 
     # Cookie設定（認証用）
