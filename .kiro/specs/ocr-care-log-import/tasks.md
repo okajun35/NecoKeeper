@@ -2,293 +2,293 @@
 
 ## Overview
 
-手書きの猫世話記録表（PDF/画像）をOCR解析してNecoKeeperデータベースに自動登録する3段階ワークフローを実装します。
+Implement a three-phase workflow that performs OCR on handwritten cat care log sheets (PDF/images) and automatically registers the results into the NecoKeeper database.
 
-**3段階ワークフロー**:
-- **Phase 1（自動Hook）**: PDF → 画像変換
-- **Phase 2（対話的）**: 画像 → JSON変換（Kiroチャットで猫ID・日付範囲を指定）
-- **Phase 3（自動Hook）**: JSON → データベース登録
+**Three-phase workflow**:
+- **Phase 1 (automatic Hook)**: PDF → image conversion
+- **Phase 2 (interactive)**: image → JSON conversion (user specifies cat ID and date range via Kiro chat)
+- **Phase 3 (automatic Hook)**: JSON → database registration
 
-**既存コードの状況**:
-- `scripts/hooks/pdf_to_image.py` ✅ 完成
-- `scripts/hooks/register_care_logs.py` ✅ 完成
-- `scripts/utils/` 配下のユーティリティ ✅ 完成
+**Status of existing code**:
+- `scripts/hooks/pdf_to_image.py` ✅ implemented
+- `scripts/hooks/register_care_logs.py` ✅ implemented
+- Utilities under `scripts/utils/` ✅ implemented
 
 ---
 
 ## Tasks
 
-- [x] 1. プロジェクト構造とユーティリティのセットアップ
-  - ディレクトリ構造の作成（`tmp/pdfs/`, `tmp/images/`, `tmp/json/`, `tmp/json/processed/`）
-  - 依存関係の追加（`pdf2image`, `PyMuPDF`, `requests`, `Pillow`）
-  - 環境変数テンプレートの作成
-  - ロギング設定の実装（`scripts/utils/logging_config.py`）
+- [x] 1. Set up project structure and utilities
+  - Create directory structure (`tmp/pdfs/`, `tmp/images/`, `tmp/json/`, `tmp/json/processed/`)
+  - Add dependencies (`pdf2image`, `PyMuPDF`, `requests`, `Pillow`)
+  - Create environment variable template
+  - Implement logging configuration (`scripts/utils/logging_config.py`)
   - _Requirements: All_
 
-- [x] 2. データマッピングユーティリティの実装
-  - `scripts/utils/data_mapper.py` の実装
-  - 記号→数値マッピング（○→5, △→3, ×→1）
-  - 時間帯マッピング（朝→morning, 昼→noon, 夕→evening）
-  - ブール値マッピング（○→true, ×→false）
-  - メモフィールド集約（排便、嘔吐、投薬、備考）
-  - OCRデフォルト値の適用
+- [x] 2. Implement data mapping utilities
+  - Implement `scripts/utils/data_mapper.py`
+  - Map symbols to numeric values (○→5, △→3, ×→1)
+  - Map time slots (朝→morning, 昼→noon, 夕→evening)
+  - Map boolean values (○→true, ×→false)
+  - Aggregate memo fields (defecation, vomiting, medication, notes)
+  - Apply OCR default values
   - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 10.2, 10.3, 10.4, 10.5_
 
-- [ ]* 2.1 データマッピングのプロパティテストを作成
+- [ ]* 2.1 Create property-based tests for data mapping
   - **Property 3: Time Slot Mapping Correctness**
   - **Validates: Requirements 3.9**
 
-- [ ]* 2.2 メモフィールド集約のプロパティテストを作成
+- [ ]* 2.2 Create property-based tests for memo field aggregation
   - **Property 11: Memo Field Aggregation**
   - **Validates: Requirements 3.5, 3.6, 3.7, 3.8**
 
-- [ ]* 2.3 デフォルト値適用のプロパティテストを作成
+- [ ]* 2.3 Create property-based tests for default value application
   - **Property 12: Default Value Application**
   - **Validates: Requirements 10.2, 10.3, 10.4, 10.5**
 
-- [x] 3. JSONスキーマバリデーターの実装
-  - `scripts/utils/json_schema.py` の実装
-  - Care Log JSONスキーマの定義
-  - スキーマバリデーション関数の実装
-  - フィールドレベルバリデーション（範囲、型、フォーマット）
-  - 日付バリデーション（年月範囲チェック付き）
-  - 詳細なバリデーションエラーの返却
+- [x] 3. Implement JSON schema validator
+  - Implement `scripts/utils/json_schema.py`
+  - Define care log JSON schema
+  - Implement schema validation function
+  - Implement field-level validation (range, type, format)
+  - Implement date validation (including year/month range checks)
+  - Return detailed validation errors
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ]* 3.1 JSON構造妥当性のプロパティテストを作成
+- [ ]* 3.1 Create property-based tests for JSON structure validity
   - **Property 1: JSON Structure Validity**
   - **Validates: Requirements 1.1, 3.1**
 
-- [ ]* 3.2 日付範囲整合性のプロパティテストを作成
+- [ ]* 3.2 Create property-based tests for date range consistency
   - **Property 2: Date Range Consistency**
   - **Validates: Requirements 4.6**
 
-- [ ]* 3.3 値範囲妥当性のプロパティテストを作成
+- [ ]* 3.3 Create property-based tests for value range validity
   - **Property 4: Appetite and Energy Range Validity**
   - **Validates: Requirements 3.2, 3.3, 8.2**
 
-- [ ]* 3.4 ブール値フィールド妥当性のプロパティテストを作成
+- [ ]* 3.4 Create property-based tests for boolean field validity
   - **Property 5: Boolean Field Validity**
   - **Validates: Requirements 3.4, 8.3**
 
-- [ ]* 3.5 from_paperフラグのプロパティテストを作成
+- [ ]* 3.5 Create property-based tests for from_paper flag consistency
   - **Property 6: From Paper Flag Consistency**
   - **Validates: Requirements 1.6, 10.1**
 
-- [x] 4. 猫識別ユーティリティの実装
-  - `scripts/utils/cat_identifier.py` の実装
-  - GET /api/v1/animals で全猫を取得
-  - animal_id（整数）による識別（メモリ内検索）
-  - 名前（文字列）による識別（メモリ内検索）
-  - 大文字小文字を区別しない名前マッチング
-  - 複数マッチエラーの処理
-  - マッチなしエラーの処理
-  - データベース依存なし（APIのみ）
+- [x] 4. Implement cat identification utilities
+  - Implement `scripts/utils/cat_identifier.py`
+  - Fetch all cats via GET /api/v1/animals
+  - Identify by animal_id (integer, in-memory search)
+  - Identify by name (string, in-memory search)
+  - Case-insensitive name matching
+  - Handle multiple-match errors
+  - Handle no-match errors
+  - No direct database dependency (API only)
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ]* 4.1 猫識別のユニットテストを作成
-  - IDによる識別のテスト
-  - 名前による識別のテスト
-  - 大文字小文字を区別しないマッチングのテスト
-  - 複数マッチエラーのテスト
-  - マッチなしエラーのテスト
+- [ ]* 4.1 Create unit tests for cat identification
+  - Test identification by ID
+  - Test identification by name
+  - Test case-insensitive matching
+  - Test multiple-match error
+  - Test no-match error
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ]* 4.2 ユーザー指定animal_idバリデーションのプロパティテストを作成
+- [ ]* 4.2 Create property-based tests for user-specified animal_id validation
   - **Property 7: User-Specified Animal ID Validation**
   - **Validates: Requirements 4.1, 4.3, 4.4**
 
-- [x] 5. LLMプロンプトテンプレートの作成
-  - `scripts/utils/prompt_template.py` の実装
-  - プレースホルダー付き構造化プロンプトテンプレートの定義
-  - プロンプト内のマッピングルールドキュメント
-  - 出力フォーマット仕様の追加
-  - パラメータ付きプロンプト生成関数の実装
+- [x] 5. Create LLM prompt template
+  - Implement `scripts/utils/prompt_template.py`
+  - Define structured prompt template with placeholders
+  - Document mapping rules inside the prompt
+  - Add output format specification
+  - Implement parameterized prompt generation function
   - _Requirements: 1.1, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9_
 
-- [x] 6. Phase 1: PDF変換Hookスクリプトの実装
-  - `scripts/hooks/pdf_to_image.py` の実装 ✅
-  - pdf2imageまたはPyMuPDFを使用したPDF最初のページ抽出
-  - ファイルバリデーション（存在、拡張子、サイズ）
-  - 変換失敗のエラーハンドリング
-  - 一時ファイルのクリーンアップ
-  - 標準化されたフォーマットで画像パスを返却
+- [x] 6. Phase 1: Implement PDF conversion Hook script
+  - Implement `scripts/hooks/pdf_to_image.py` ✅
+  - Extract first page of PDF using pdf2image or PyMuPDF
+  - File validation (existence, extension, size)
+  - Error handling for conversion failures
+  - Clean up temporary files
+  - Return image path in a standardized format
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 6.1 PDF変換のユニットテストを作成
-  - 変換成功のテスト
-  - PDFが見つからないエラーのテスト
-  - 破損PDFの処理テスト
-  - 出力パス生成のテスト
-  - エラー時のクリーンアップのテスト
+- [ ]* 6.1 Create unit tests for PDF conversion
+  - Test successful conversion
+  - Test error when PDF not found
+  - Test handling of corrupted PDFs
+  - Test output path generation
+  - Test cleanup on error
   - _Requirements: 2.1, 2.2, 2.4_
 
-- [ ]* 6.2 PDF最初のページ抽出のプロパティテストを作成
+- [ ]* 6.2 Create property-based tests for extracting the first page of a PDF
   - **Property 8: PDF First Page Extraction**
   - **Validates: Requirements 2.1, 2.3**
 
-- [x] 7. Phase 3: データ登録Hookスクリプトの実装
-  - `scripts/hooks/register_care_logs.py` の実装 ✅
-  - API認証の実装（POST /api/v1/auth/token）
-  - 認証トークンの保存と再利用
-  - バッチ登録ループの実装
-  - 個別レコード失敗のエラーハンドリング
-  - 失敗時も処理を継続（停止しない）
-  - 登録サマリーの生成（成功/失敗カウント）
-  - 詳細なエラーログ
+- [x] 7. Phase 3: Implement data registration Hook script
+  - Implement `scripts/hooks/register_care_logs.py` ✅
+  - Implement API authentication (POST /api/v1/auth/token)
+  - Store and reuse authentication token
+  - Implement batch registration loop
+  - Implement error handling for individual record failures
+  - Continue processing even when some records fail
+  - Generate registration summary (success/failure counts)
+  - Log detailed errors
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 7.2, 7.4, 7.5_
 
-- [ ]* 7.1 データ登録のユニットテストを作成
-  - 認証成功のテスト
-  - 認証失敗のテスト
-  - バッチ登録成功のテスト
-  - 個別レコード失敗処理のテスト
-  - ネットワークエラーリトライロジックのテスト
-  - サマリー生成のテスト
+- [ ]* 7.1 Create unit tests for data registration
+  - Test successful authentication
+  - Test authentication failure
+  - Test successful batch registration
+  - Test handling of individual record failures
+  - Test network error retry logic
+  - Test summary generation
   - _Requirements: 6.4, 6.5, 7.4, 7.5_
 
-- [ ]* 7.2 API認証成功のプロパティテストを作成
+- [ ]* 7.2 Create property-based tests for API authentication success
   - **Property 9: API Authentication Success**
   - **Validates: Requirements 6.3**
 
-- [ ]* 7.3 バッチ登録原子性のプロパティテストを作成
+- [ ]* 7.3 Create property-based tests for batch registration atomicity
   - **Property 10: Batch Registration Atomicity**
   - **Validates: Requirements 7.4, 7.5**
 
-- [x] 8. Kiro Hook設定ファイルの作成
-  - `.kiro/hooks/config.json` の作成
-  - pdf_to_image_hook の設定（`tmp/pdfs/*.pdf` を監視）
-  - register_care_logs_hook の設定（`tmp/json/*.json` を監視）
-  - Hook実行スクリプトのパス設定
-  - トリガー条件の設定
+- [x] 8. Create Kiro Hook configuration file
+  - Create `.kiro/hooks/config.json`
+  - Configure pdf_to_image_hook (watch `tmp/pdfs/*.pdf`)
+  - Configure register_care_logs_hook (watch `tmp/json/*.json`)
+  - Set script paths for Hooks
+  - Configure trigger conditions
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
 
-- [ ] 9. Phase 2: Kiroチャット対話ワークフローのドキュメント作成
-  - Kiroチャットでの画像添付方法のドキュメント
-  - ユーザープロンプト例の作成
-    - 基本形：「これはIDが12の猫の2024年11月14日～23日の記録です。JSON化してtmp/json/care_log.json に保存して」
-    - 短縮形：「ID12、11/14-11/23、JSON化してtmp/json/に保存」
-  - Kiroの内部プロンプトテンプレート使用方法
-  - ユーザーによるJSON確認・修正手順
-  - Phase 3 Hook自動トリガーの説明
+- [ ] 9. Phase 2: Create documentation for Kiro chat interactive workflow
+  - Document how to attach images in Kiro chat
+  - Create user prompt examples
+    - Basic: "This is the record for cat ID 12 from November 14 to 23, 2024. Convert it to JSON and save it as tmp/json/care_log.json."
+    - Short: "ID12, 11/14-11/23, convert to JSON and save to tmp/json/"
+  - Document how to use Kiro's internal prompt template
+  - Document how users review and edit JSON
+  - Explain automatic triggering of Phase 3 Hook
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.7, 1.8, 4.1, 4.2, 4.3_
 
-- [ ] 10. 使用ガイドドキュメントの作成
-  - `docs/ocr-import-guide.md` の更新
-  - 3段階ワークフローの説明
-  - Workflow 1: 画像から直接開始（Image → JSON → Database）
-  - Workflow 2: PDFから開始（PDF → Image → JSON → Database）
-  - プロンプトフォーマット例
-  - エラーメッセージとトラブルシューティング
-  - コマンド例
-  - FAQ セクション
+- [ ] 10. Create user guide documentation
+  - Update `docs/ocr-import-guide.md`
+  - Explain the three-phase workflow
+  - Workflow 1: Start directly from images (Image → JSON → Database)
+  - Workflow 2: Start from PDF (PDF → Image → JSON → Database)
+  - Provide prompt format examples
+  - Document error messages and troubleshooting
+  - Provide command examples
+  - Add FAQ section
   - _Requirements: All_
 
-- [ ] 11. サンプルデータとテスト画像の作成
-  - サンプル手書き世話記録画像の作成
-  - サンプルPDFの作成
-  - サンプルJSON出力ファイルの作成
-  - `scripts/tests/fixtures/` への追加
-  - エッジケースのサンプル（不明瞭な文字、部分的な記入）
+- [ ] 11. Create sample data and test images
+  - Create sample handwritten care log images
+  - Create sample PDFs
+  - Create sample JSON output files
+  - Add them to `scripts/tests/fixtures/`
+  - Create edge case samples (unclear characters, partially filled records)
   - _Requirements: All_
 
-- [ ] 12. Checkpoint - すべてのテストが通ることを確認
-  - すべてのテストが通ることを確認し、問題があればユーザーに質問する
+- [ ] 12. Checkpoint - verify all tests pass
+  - Confirm all tests pass; if there are issues, ask the user
 
-- [ ]* 13. 統合テストの作成
-  - `scripts/tests/test_integration.py` の作成
-  - エンドツーエンド画像処理ワークフローのテスト
-  - エンドツーエンドPDF処理ワークフローのテスト
-  - エラーリカバリーシナリオのテスト
-  - サンプル手書き画像でのテスト
-  - 様々なデータ品質レベルでのテスト
+- [ ]* 13. Create integration tests
+  - Create `scripts/tests/test_integration.py`
+  - Test end-to-end image processing workflow
+  - Test end-to-end PDF processing workflow
+  - Test error recovery scenarios
+  - Test with sample handwritten images
+  - Test with various levels of data quality
   - _Requirements: All_
 
-- [ ] 14. 最終Checkpoint - すべてのテストが通ることを確認
-  - すべてのテストが通ることを確認し、問題があればユーザーに質問する
+- [ ] 14. Final checkpoint - verify all tests pass
+  - Confirm all tests pass; if there are issues, ask the user
 
 ---
 
-## 実装ノート
+## Implementation Notes
 
-### タスク実行順序
-1. **基盤** (Tasks 1-5): 構造、ユーティリティ、バリデーションのセットアップ ✅ 完了
-2. **Phase 1 & 3** (Tasks 6-7): Hookスクリプトの実装 ✅ 完了
-3. **Phase 2 & 設定** (Tasks 8-9): Kiro Hook設定とチャットワークフローのドキュメント
-4. **ドキュメント** (Task 10): ユーザーガイドの作成
-5. **テストデータ** (Task 11): サンプルデータの作成
-6. **テスト** (Tasks 12-14): 包括的なテストと検証
+### Task execution order
+1. **Foundation** (Tasks 1–5): Set up structure, utilities, and validation ✅ done
+2. **Phase 1 & 3** (Tasks 6–7): Implement Hook scripts ✅ done
+3. **Phase 2 & configuration** (Tasks 8–9): Kiro Hook configuration and chat workflow documentation
+4. **Documentation** (Task 10): Create user guide
+5. **Test data** (Task 11): Create sample data
+6. **Testing** (Tasks 12–14): Comprehensive testing and verification
 
-### タスク間の依存関係
-- Task 8（Kiro Hook設定）は Tasks 6, 7 の完了が必要
-- Task 9（Phase 2ドキュメント）は Task 5（プロンプトテンプレート）の完了が必要
-- Task 10（使用ガイド）は Tasks 8, 9 の完了が必要
-- Task 13（統合テスト）は Tasks 1-11 の完了が必要
+### Task dependencies
+- Task 8 (Kiro Hook configuration) depends on completion of Tasks 6 and 7
+- Task 9 (Phase 2 documentation) depends on completion of Task 5 (prompt template)
+- Task 10 (user guide) depends on completion of Tasks 8 and 9
+- Task 13 (integration tests) depends on completion of Tasks 1–11
 
-### テスト戦略
-- ユニットテストは `*` でマークされ、オプションだが推奨
-- プロパティベーステストは普遍的な正しさのプロパティを検証
-- 統合テストはエンドツーエンドワークフローを検証
-- すべてのテストは最終デプロイ前に実行すべき
+### Testing strategy
+- Unit tests are marked with `*`; they are optional but recommended
+- Property-based tests validate general correctness properties
+- Integration tests validate end-to-end workflows
+- All tests should be run before final deployment
 
-### 環境セットアップ
-実装開始前に以下を確認：
-- Python 3.10+ がインストール済み
-- 仮想環境がアクティブ
-- NecoKeeper API がローカルで実行中
-- データベースがテストデータで初期化済み
-- 管理者認証情報が利用可能
-- 環境変数が設定済み（`NECOKEEPER_API_URL`, `NECOKEEPER_ADMIN_USERNAME`, `NECOKEEPER_ADMIN_PASSWORD`）
+### Environment setup
+Before starting implementation, confirm the following:
+- Python 3.10+ is installed
+- Virtual environment is active
+- NecoKeeper API is running locally
+- Database is initialized with test data
+- Administrator credentials are available
+- Environment variables are set (`NECOKEEPER_API_URL`, `NECOKEEPER_ADMIN_USERNAME`, `NECOKEEPER_ADMIN_PASSWORD`)
 
-### Kiro Hook設定
-Hookは以下のパターンでKiroから呼び出されます：
+### Kiro Hook configuration
+Hooks are invoked from Kiro with the following patterns:
 ```bash
-# PDF変換Hook
+# PDF conversion Hook
 python scripts/hooks/pdf_to_image.py <pdf_path>
 
-# データ登録Hook
+# Data registration Hook
 python scripts/hooks/register_care_logs.py <json_file_path>
 ```
 
-### ディレクトリ構造
+### Directory structure
 ```
 tmp/
-├── pdfs/                    # Phase 1 入力（Hook監視）
-├── images/                  # Phase 1 出力 / Phase 2 入力
-└── json/                    # Phase 2 出力 / Phase 3 入力（Hook監視）
-    └── processed/           # Phase 3 出力（処理済み）
+├── pdfs/                    # Phase 1 input (Hook watched)
+├── images/                  # Phase 1 output / Phase 2 input
+└── json/                    # Phase 2 output / Phase 3 input (Hook watched)
+  └── processed/           # Phase 3 output (processed)
 
 scripts/
 ├── hooks/
-│   ├── pdf_to_image.py      ✅ 完成
-│   └── register_care_logs.py ✅ 完成
+│   ├── pdf_to_image.py      ✅ implemented
+│   └── register_care_logs.py ✅ implemented
 └── utils/
-    ├── logging_config.py     ✅ 完成
-    ├── json_schema.py        ✅ 完成
-    ├── data_mapper.py        ✅ 完成
-    ├── cat_identifier.py     ✅ 完成
-    └── prompt_template.py    ✅ 完成
+  ├── logging_config.py     ✅ implemented
+  ├── json_schema.py        ✅ implemented
+  ├── data_mapper.py        ✅ implemented
+  ├── cat_identifier.py     ✅ implemented
+  └── prompt_template.py    ✅ implemented
 ```
 
-### 成功基準
-- すべてのコア機能タスク（1-11）が完了
-- 少なくとも70%のテストカバレッジ
-- すべてのプロパティベーステストが通過
-- ドキュメントが完成しレビュー済み
-- サンプル手書き記録のインポートに成功
+### Success criteria
+- All core functional tasks (1–11) are complete
+- At least 70% test coverage
+- All property-based tests pass
+- Documentation is complete and reviewed
+- Import of sample handwritten records succeeds
 
-### 既存コードの活用
-以下のスクリプトは既に完成しており、そのまま使用可能：
-- ✅ `scripts/hooks/pdf_to_image.py` - PDF変換機能完備
-- ✅ `scripts/hooks/register_care_logs.py` - API認証とバッチ登録完備
-- ✅ `scripts/utils/logging_config.py` - ロギング設定完備
-- ✅ `scripts/utils/json_schema.py` - JSONバリデーション完備
-- ✅ `scripts/utils/data_mapper.py` - データマッピング完備
-- ✅ `scripts/utils/cat_identifier.py` - 猫識別完備
-- ✅ `scripts/utils/prompt_template.py` - プロンプトテンプレート完備
+### Use of existing code
+The following scripts are already complete and can be used as-is:
+- ✅ `scripts/hooks/pdf_to_image.py` - fully implemented PDF conversion
+- ✅ `scripts/hooks/register_care_logs.py` - fully implemented API authentication and batch registration
+- ✅ `scripts/utils/logging_config.py` - logging configuration
+- ✅ `scripts/utils/json_schema.py` - JSON validation
+- ✅ `scripts/utils/data_mapper.py` - data mapping
+- ✅ `scripts/utils/cat_identifier.py` - cat identification
+- ✅ `scripts/utils/prompt_template.py` - prompt template
 
-残りのタスクは主に：
-1. Kiro Hook設定ファイルの作成
-2. Phase 2（Kiroチャット対話）のドキュメント作成
-3. 使用ガイドの更新
-4. テストの作成
+The remaining work mainly consists of:
+1. Creating the Kiro Hook configuration file
+2. Writing Phase 2 (Kiro chat interaction) documentation
+3. Updating the user guide
+4. Creating tests

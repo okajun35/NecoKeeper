@@ -1,19 +1,302 @@
-# 認証・認可仕様
+## ロール・権限マトリクス
 
-## 概要
+### ロール定義
+| ロール | 説明 | 対象ユーザー |
+|-------|------|------------|
+| admin | 管理者（全権限） | システム管理者 |
+| vet | 獣医師 | 診療記録の作成・編集権限 |
+| staff | スタッフ | 日常業務の権限 |
+| read_only | 閲覧のみ | 閲覧専用ユーザー |
 
-NecoKeeperの認証・認可システムは、JWT（JSON Web Token）ベースのステートレス認証を採用しています。
+### 権限マトリクス
 
-### 設計原則
+| 機能 | 権限 | admin | vet | staff | read_only |
+|-----|------|-------|-----|-------|-----------|
+| **猫管理** |
+| 猫一覧表示 | animal:read | ✓ | ✓ | ✓ | ✓ |
+| 猫登録・編集 | animal:write | ✓ | ✓ | ✓ | × |
+| 猫削除 | animal:delete | ✓ | × | × | × |
+| **世話記録** |
+| 世話記録表示 | care:read | ✓ | ✓ | ✓ | ✓ |
+| 世話記録登録・編集 | care:write | ✓ | ✓ | ✓ | × |
+| **診療記録** |
+| 診療記録表示 | medical:read | ✓ | ✓ | ✓ | ✓ |
+| 診療記録登録・編集 | medical:write | ✓ | ✓ | × | × |
+| 診療記録削除 | medical:delete | ✓ | ✓ | × | × |
+| **ボランティア** |
+| ボランティア表示 | volunteer:read | ✓ | ✓ | ✓ | ✓ |
+| ボランティア登録・編集 | volunteer:write | ✓ | × | ✓ | × |
+| **帳票・エクスポート** |
+| 帳票閲覧 | report:read | ✓ | ✓ | ✓ | ✓ |
+| 帳票作成 | report:write | ✓ | × | ✓ | × |
+| CSV出力 | csv:export | ✓ | × | ✓ | × |
+| PDF生成 | pdf:generate | ✓ | × | ✓ | × |
 
-1. **ステートレス**: JWTトークンによるステートレス認証
-2. **セキュリティ**: パスワードハッシュ化（Argon2）、トークン有効期限
-3. **RBAC**: ロールベースアクセス制御
-4. **監査**: ログイン履歴、操作ログの記録
+## セキュリティ考慮事項
 
-## 認証フロー
+### パスワードポリシー
 
-### ログインフロー
+1. **最小文字数**: 8文字以上
+2. **文字種**: 英字と数字を含む
+3. **ハッシュアルゴリズム**: Argon2（推奨）またはbcrypt
+4. **ソルト**: 自動生成（Argon2/bcryptが自動処理）
+
+### アカウントロック
+
+1. **ログイン失敗回数**: 5回まで
+2. **ロック期間**: 30分
+3. **ロック解除**: 時間経過または管理者による手動解除
+
+### トークンセキュリティ
+
+1. **有効期限**: 2時間（設定可能）
+2. **署名アルゴリズム**: HS256（HMAC-SHA256）
+3. **シークレットキー**: 環境変数で管理（最低32文字）
+4. **トークン保存**: localStorage（XSS対策が必要）
+
+### HTTPS必須
+
+本番環境では必ずHTTPSを使用してください。
+# Example Nginx configuration
+
+## エラーハンドリング
+
+### 認証エラー
+
+| エラー | HTTPステータス | メッセージ | 対応 |
+|-------|--------------|-----------|------|
+| トークンなし | 401 | Could not validate credentials | ログイン画面にリダイレクト |
+| トークン無効 | 401 | Could not validate credentials | ログイン画面にリダイレクト |
+| トークン期限切れ | 401 | Token has expired | ログイン画面にリダイレクト |
+| ユーザー非アクティブ | 403 | Inactive user | エラーメッセージ表示 |
+| アカウントロック | 403 | Account is locked until {time} | エラーメッセージ表示 |
+
+### 認可エラー
+
+| エラー | HTTPステータス | メッセージ | 対応 |
+|-------|--------------|-----------|------|
+| 権限不足 | 403 | Permission denied: {permission} | エラーメッセージ表示 |
+| ロール不一致 | 403 | Role {role} is not allowed | エラーメッセージ表示 |
+
+### フロントエンドエラーハンドリング
+* Handle API errors.
+
+* @param {Error} error - Error object.
+* @param {Response} response - Response object.
+    // 認証エラー: ログイン画面にリダイレクト
+    showToast('セッションが期限切れです。再度ログインしてください。', 'error');
+    // Authentication error: redirect to login page
+    showToast('Your session has expired. Please log in again.', 'error');
+    // 認可エラー: エラーメッセージ表示
+    showToast('この操作を実行する権限がありません。', 'error');
+    // Authorization error: show error message
+    showToast('You do not have permission to perform this action.', 'error');
+    // その他のエラー
+    showToast(error.message || 'エラーが発生しました。', 'error');
+    // Other errors
+    showToast(error.message || 'An error has occurred.', 'error');
+## Test Specification
+
+### Authentication Tests (`tests/auth/test_auth_api.py`)
+class TestLoginEndpoint:
+    """Tests for the login endpoint."""
+    def test_login_success(self, test_client, test_user):
+        """Success case: login succeeds."""
+    # Then: 200 OK and a token are returned
+    # Then: 200 OK and a token are returned
+    def test_login_wrong_password(self, test_client, test_user):
+        """Error case: wrong password."""
+    # Then: 401 Unauthorized is returned
+    # Then: 401 Unauthorized is returned
+    def test_login_nonexistent_user(self, test_client):
+        """Error case: non-existent user."""
+    # Then: 401 Unauthorized is returned
+    # Then: 401 Unauthorized is returned
+class TestCurrentUserEndpoint:
+    """Tests for retrieving current user information."""
+    """Success case: get user info with valid token."""
+    # Then: 200 OK and user info are returned
+    # Then: 200 OK and user info are returned
+    def test_get_current_user_without_token(self, test_client):
+        """Error case: no token."""
+    # Then: 401 Unauthorized is returned
+    # Then: 401 Unauthorized is returned
+### Permission Tests (`tests/auth/test_permissions.py`)
+class TestPermissionsMatrix:
+    """Tests for the permission matrix."""
+    def test_admin_has_all_permissions(self, admin_user):
+        """Admin has all permissions."""
+    def test_vet_has_medical_permissions(self, vet_user):
+        """Vet has permissions for medical records."""
+    def test_vet_cannot_export_csv(self, vet_user):
+        """Vet does not have CSV export permission."""
+    def test_staff_has_csv_permissions(self, staff_user):
+        """Staff has CSV export permission."""
+    def test_read_only_can_only_read(self, read_only_user):
+        """Read-only users only have read permissions."""
+## Audit Logs
+
+### Login History
+
+# On successful login
+
+# On failed login
+
+### Operation Logs
+
+# Log important operations (create/update/delete)
+
+## Server-side Authentication Implementation (added 2025-11-23)
+
+### Background
+
+**Problem**: The admin page briefly appeared before redirecting to the login screen.
+
+**Cause**: Authentication checks were performed only in JavaScript.
+
+❌ Previous implementation (security risk)
+Browser → Server (no auth check) → HTML returned
+         ↓
+      JavaScript runs → JWT check → redirect
+
+**Issues**:
+- Server returned HTML without performing authentication checks.
+- If JavaScript was disabled, the admin screen could be seen.
+- Confidential information might be included in the HTML source.
+
+### Solution
+
+**Implement JWT authentication on the server side.**
+
+✅ New implementation (secure)
+Browser → Server (auth check with JWT) → 401 error → redirect
+                                    ↓
+                                 Auth OK → HTML returned
+
+### Implementation Details
+
+#### 1. Optional authentication dependency function (`app/auth/dependencies.py`)
+
+    """Optional authentication (does not error if unauthenticated).
+
+    Use this for pages like the login page where you want
+    to redirect already authenticated users. If the user is
+    unauthenticated, this returns None without raising an error.
+
+    Context7 reference: /fastapi/fastapi - Dependencies with try-except
+    """
+
+        # Get token from Authorization header
+
+        # Remove "Bearer " prefix
+
+        # Decode token
+
+        # Convert user ID to int
+
+        # Retrieve user from the database
+
+#### 2. Admin page routing changes (`app/api/v1/admin_pages.py`)
+
+# Login page: optional authentication
+
+    """Login page.
+
+    If already authenticated, redirect to dashboard.
+    """
+
+# Dashboard: authentication required
+
+    """Dashboard (authentication required).
+
+    If unauthenticated, a 401 error is automatically raised.
+    """
+
+# All other admin endpoints: authentication required
+
+    """Cat list page (authentication required)."""
+
+#### 3. Custom exception handler (`app/main.py`)
+
+    """Custom handler for ``HTTPException``.
+
+    For admin pages, 401 errors are redirected to the login page.
+    API endpoints return JSON errors.
+
+    Context7 reference: /fastapi/fastapi - Custom Exception Handlers
+    """
+
+    # For admin pages, redirect 401 errors to the login page
+    # Do not redirect 401 for the login page itself (avoid loop)
+
+    # For API endpoints, return JSON errors
+
+### Security Improvements
+
+✅ **Server-side authentication checks**: JWT tokens are verified on the server.
+✅ **Admin HTML cannot be fetched without auth**: 401 errors are returned.
+✅ **Admin screen not visible even if JS is disabled**: Protected on the server.
+✅ **Proper redirect on 401**: Users are redirected to the login page.
+
+### Why JWT is Appropriate
+
+#### ❌ Misconception: "JWT itself is the problem"
+
+In this case, the issue was **not JWT itself, but the implementation**.
+
+#### ✅ Correct understanding: "JWT is appropriate, but must be verified server-side"
+
+**Advantages of JWT**:
+1. **Stateless authentication**: No need to store session info on the server.
+2. **Horizontal scaling**: Authentication can be shared across multiple servers.
+3. **Microservice-friendly**: Same token can be used across APIs and web apps.
+4. **Mobile-friendly**: No need for cookies (standard for REST APIs).
+
+**Important**: Even when using JWT, **always validate tokens on the server side**.
+
+### Test Results
+
+- **All 525 tests passing** ✅
+- **Coverage**: 73.48% → **83.02%** (+9.54%)
+- **Authentication dependencies**: 76.12%
+- **Admin pages**: 86.96%
+
+### References
+
+- **Context7 reference**: `/fastapi/fastapi` - Security Dependencies, RedirectResponse, Custom Exception Handlers
+- **Implementation date**: 2025-11-23
+- **Commit**: `fix(auth): implement server-side auth to fix security issue`
+
+---
+
+## Future Enhancements
+
+### Features for Phase 2 and beyond
+
+1. **Refresh tokens**: Manage long-lived tokens.
+2. **Two-factor authentication (2FA)**: Additional verification via TOTP.
+3. **OAuth2 integration**: External providers such as Google/GitHub.
+4. **Password reset**: Password reset via email.
+5. **Session management**: List and revoke active sessions.
+6. **Audit log UI**: View audit logs in the admin panel.
+7. **IP restrictions**: Restrict access from specific IP addresses.
+8. **Rate limiting**: Apply rate limits to API requests.
+# Authentication & Authorization Specification
+
+## Overview
+
+The NecoKeeper authentication and authorization system uses stateless authentication based on JWT (JSON Web Token).
+
+### Design Principles
+
+1. **Stateless**: Stateless authentication via JWT tokens
+2. **Security**: Password hashing (Argon2) and token expiration
+3. **RBAC**: Role-based access control
+4. **Auditability**: Recording login history and operation logs
+
+## Authentication Flow
+
+### Login Flow
 
 ```
 ┌─────────┐                ┌─────────┐                ┌─────────┐
@@ -43,7 +326,7 @@ NecoKeeperの認証・認可システムは、JWT（JSON Web Token）ベース�
      │                          │                          │
 ```
 
-### 認証済みリクエストフロー
+### Authenticated Request Flow
 
 ```
 ┌─────────┐                ┌─────────┐                ┌─────────┐
@@ -73,23 +356,23 @@ NecoKeeperの認証・認可システムは、JWT（JSON Web Token）ベース�
      │                          │                          │
 ```
 
-## バックエンド実装
+## Backend Implementation
 
-### JWT設定（app/config.py）
+### JWT Settings (`app/config.py`)
 
 ```python
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    """アプリケーション設定"""
+    """Application settings."""
 
-    # JWT設定
+    # JWT settings
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_hours: int = 2
 
-    # セキュリティ設定
+    # Security settings
     password_min_length: int = 8
     max_login_attempts: int = 5
     lockout_duration_minutes: int = 30
@@ -100,12 +383,12 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """設定インスタンスを取得（キャッシュ付き）"""
+    """Get the settings instance (cached)."""
     return Settings()
 ```
 
 
-### JWT生成・検証（app/auth/jwt.py）
+### JWT Generation and Verification (`app/auth/jwt.py`)
 
 ```python
 from __future__ import annotations
@@ -124,15 +407,14 @@ def create_access_token(
     data: dict[str, Any],
     expires_delta: timedelta | None = None,
 ) -> str:
-    """
-    JWTアクセストークンを生成
+    """Generate a JWT access token.
 
     Args:
-        data: トークンに含めるデータ（user_id, role等）
-        expires_delta: 有効期限（省略時は設定値を使用）
+        data: Data to include in the token (user_id, role, etc.).
+        expires_delta: Expiration delta (if omitted, uses settings).
 
     Returns:
-        str: JWTトークン
+        str: Encoded JWT token.
 
     Example:
         >>> token = create_access_token(
@@ -165,17 +447,16 @@ def create_access_token(
 
 
 def decode_access_token(token: str) -> dict[str, Any]:
-    """
-    JWTトークンをデコード
+    """Decode a JWT token.
 
     Args:
-        token: JWTトークン
+        token: JWT token.
 
     Returns:
-        dict: デコードされたペイロード
+        dict: Decoded payload.
 
     Raises:
-        JWTError: トークンが無効な場合
+        JWTError: If the token is invalid.
 
     Example:
         >>> payload = decode_access_token(token)
@@ -193,18 +474,17 @@ def decode_access_token(token: str) -> dict[str, Any]:
 
 
 def get_token_user_id(token: str) -> int:
-    """
-    トークンからユーザーIDを取得
+    """Extract the user ID from a token.
 
     Args:
-        token: JWTトークン
+        token: JWT token.
 
     Returns:
-        int: ユーザーID
+        int: User ID.
 
     Raises:
-        JWTError: トークンが無効な場合
-        ValueError: user_idが不正な場合
+        JWTError: If the token is invalid.
+        ValueError: If the user_id is invalid.
     """
     payload = decode_access_token(token)
     user_id_str = payload.get("sub")
@@ -218,7 +498,7 @@ def get_token_user_id(token: str) -> int:
         raise ValueError(f"Invalid user_id in token: {user_id_str}") from e
 ```
 
-### パスワードハッシュ化（app/auth/password.py）
+### Password Hashing (`app/auth/password.py`)
 
 ```python
 from __future__ import annotations
@@ -230,14 +510,13 @@ ph = PasswordHasher()
 
 
 def hash_password(password: str) -> str:
-    """
-    パスワードをハッシュ化
+    """Hash a password.
 
     Args:
-        password: 平文パスワード
+        password: Plain text password.
 
     Returns:
-        str: ハッシュ化されたパスワード
+        str: Hashed password.
 
     Example:
         >>> hashed = hash_password("SecurePassword123")
@@ -246,15 +525,14 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    パスワードを検証
+    """Verify a password.
 
     Args:
-        plain_password: 平文パスワード
-        hashed_password: ハッシュ化されたパスワード
+        plain_password: Plain text password.
+        hashed_password: Hashed password.
 
     Returns:
-        bool: パスワードが一致する場合True
+        bool: True if the password is valid.
 
     Example:
         >>> is_valid = verify_password("SecurePassword123", hashed)
@@ -267,27 +545,25 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def needs_rehash(hashed_password: str) -> bool:
-    """
-    パスワードの再ハッシュ化が必要か判定
+    """Determine whether the password needs to be rehashed.
 
     Args:
-        hashed_password: ハッシュ化されたパスワード
+        hashed_password: Hashed password.
 
     Returns:
-        bool: 再ハッシュ化が必要な場合True
+        bool: True if rehash is required.
     """
     return ph.check_needs_rehash(hashed_password)
 
 
 def validate_password_policy(password: str) -> tuple[bool, str | None]:
-    """
-    パスワードポリシーを検証
+    """Validate the password policy.
 
     Args:
-        password: 検証するパスワード
+        password: Password to validate.
 
     Returns:
-        tuple[bool, str | None]: (検証結果, エラーメッセージ)
+        tuple[bool, str | None]: (validation result, error message).
 
     Example:
         >>> is_valid, error = validate_password_policy("weak")
@@ -295,18 +571,18 @@ def validate_password_policy(password: str) -> tuple[bool, str | None]:
         ...     print(error)
     """
     if len(password) < 8:
-        return False, "パスワードは8文字以上である必要があります"
+        return False, "Password must be at least 8 characters long."
 
     if not any(c.isalpha() for c in password):
-        return False, "パスワードには英字を含める必要があります"
+        return False, "Password must contain at least one letter."
 
     if not any(c.isdigit() for c in password):
-        return False, "パスワードには数字を含める必要があります"
+        return False, "Password must contain at least one digit."
 
     return True, None
 ```
 
-### 認証依存性（app/auth/dependencies.py）
+### Authentication Dependencies (`app/auth/dependencies.py`)
 
 ```python
 from __future__ import annotations
@@ -319,7 +595,7 @@ from app.auth.jwt import get_token_user_id
 from app.database import get_db
 from app.models.user import User
 
-# OAuth2スキーム設定
+# OAuth2 scheme definition
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 
@@ -327,18 +603,17 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
-    """
-    現在のユーザーを取得
+    """Retrieve the current user.
 
     Args:
-        token: JWTトークン
-        db: データベースセッション
+        token: JWT token.
+        db: Database session.
 
     Returns:
-        User: 現在のユーザー
+        User: Current user.
 
     Raises:
-        HTTPException: トークンが無効、またはユーザーが存在しない場合
+        HTTPException: If the token is invalid or the user does not exist.
 
     Example:
         >>> @app.get("/api/v1/users/me")
@@ -369,17 +644,16 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    """
-    現在のアクティブユーザーを取得
+    """Retrieve the current active user.
 
     Args:
-        current_user: 現在のユーザー
+        current_user: Current user.
 
     Returns:
-        User: アクティブなユーザー
+        User: Active user.
 
     Raises:
-        HTTPException: ユーザーが非アクティブの場合
+        HTTPException: If the user is inactive.
 
     Example:
         >>> @app.get("/api/v1/animals")
@@ -397,7 +671,7 @@ async def get_current_active_user(
     return current_user
 ```
 
-### 権限チェック（app/auth/permissions.py）
+### Permission Checks (`app/auth/permissions.py`)
 
 ```python
 from __future__ import annotations
@@ -409,9 +683,9 @@ from fastapi import Depends, HTTPException, status
 from app.auth.dependencies import get_current_active_user
 from app.models.user import User
 
-# ロール別権限マトリクス
+# Permission matrix per role
 PERMISSIONS = {
-    "admin": ["*"],  # 全権限
+    "admin": ["*"],  # all permissions
     "vet": [
         "animal:read",
         "animal:write",
@@ -444,32 +718,31 @@ PERMISSIONS = {
 
 
 def has_permission(user: User, permission: str) -> bool:
-    """
-    ユーザーが指定された権限を持っているか判定
+    """Check whether a user has the specified permission.
 
     Args:
-        user: ユーザー
-        permission: 権限文字列（例: "animal:write"）
+        user: User instance.
+        permission: Permission string (e.g., "animal:write").
 
     Returns:
-        bool: 権限がある場合True
+        bool: True if the user has the permission.
 
     Example:
         >>> if has_permission(user, "animal:write"):
-        ...     # 猫情報を更新
+        ...     # update animal information
         ...     pass
     """
     user_permissions = PERMISSIONS.get(user.role, [])
 
-    # 管理者は全権限
+    # Admin has all permissions
     if "*" in user_permissions:
         return True
 
-    # 完全一致
+    # Exact match
     if permission in user_permissions:
         return True
 
-    # ワイルドカード一致（例: "animal:*"）
+    # Wildcard match (e.g., "animal:*")
     resource, action = permission.split(":")
     wildcard = f"{resource}:*"
     if wildcard in user_permissions:
@@ -479,21 +752,20 @@ def has_permission(user: User, permission: str) -> bool:
 
 
 def require_permission(permission: str) -> Callable:
-    """
-    権限チェックデコレータ
+    """Dependency factory for permission checking.
 
     Args:
-        permission: 必要な権限
+        permission: Required permission.
 
     Returns:
-        Callable: 依存性関数
+        Callable: Dependency function.
 
     Example:
         >>> @app.post("/api/v1/animals")
         >>> async def create_animal(
         ...     current_user: User = Depends(require_permission("animal:write"))
         ... ):
-        ...     # 猫を登録
+        ...     # create animal
         ...     pass
     """
     async def permission_checker(
@@ -510,21 +782,20 @@ def require_permission(permission: str) -> Callable:
 
 
 def require_role(roles: list[str]) -> Callable:
-    """
-    ロールチェックデコレータ
+    """Dependency factory for role checking.
 
     Args:
-        roles: 許可されたロールのリスト
+        roles: List of allowed roles.
 
     Returns:
-        Callable: 依存性関数
+        Callable: Dependency function.
 
     Example:
         >>> @app.post("/api/v1/medical-records")
         >>> async def create_medical_record(
         ...     current_user: User = Depends(require_role(["admin", "vet"]))
         ... ):
-        ...     # 診療記録を登録
+        ...     # create medical record
         ...     pass
     """
     async def role_checker(
@@ -541,7 +812,7 @@ def require_role(roles: list[str]) -> Callable:
 ```
 
 
-### 認証API（app/api/v1/auth.py）
+### Authentication API (`app/api/v1/auth.py`)
 
 ```python
 from __future__ import annotations
@@ -560,7 +831,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.auth import Token, UserResponse
 
-router = APIRouter(prefix="/auth", tags=["認証"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 settings = get_settings()
 
 
@@ -569,18 +840,17 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ) -> Token:
-    """
-    ログイン（JWTトークン取得）
+    """Login and obtain a JWT token.
 
     Args:
-        form_data: ログインフォームデータ（username=email, password）
-        db: データベースセッション
+        form_data: Login form data (username=email, password).
+        db: Database session.
 
     Returns:
-        Token: アクセストークンとトークンタイプ
+        Token: Access token and token type.
 
     Raises:
-        HTTPException: 認証失敗の場合
+        HTTPException: If authentication fails.
 
     Example:
         POST /api/v1/auth/token
@@ -594,7 +864,7 @@ async def login(
           "token_type": "bearer"
         }
     """
-    # ユーザー検索
+    # Look up user
     user = db.query(User).filter(User.email == form_data.username).first()
 
     if not user:
@@ -604,16 +874,16 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # アカウントロックチェック
+    # Check account lock status
     if user.is_locked():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Account is locked until {user.locked_until}",
         )
 
-    # パスワード検証
+    # Verify password
     if not verify_password(form_data.password, user.password_hash):
-        # ログイン失敗回数を増やす
+        # Increment failed login count
         user.increment_failed_login()
         db.commit()
 
@@ -623,11 +893,11 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # ログイン成功
+    # Login success
     user.reset_failed_login()
     db.commit()
 
-    # JWTトークン生成
+    # Generate JWT token
     access_token = create_access_token(
         data={"user_id": user.id, "role": user.role},
         expires_delta=timedelta(hours=settings.access_token_expire_hours)
@@ -640,14 +910,13 @@ async def login(
 async def read_users_me(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
-    """
-    現在のユーザー情報を取得
+    """Get the current user information.
 
     Args:
-        current_user: 現在のユーザー
+        current_user: Current user.
 
     Returns:
-        User: ユーザー情報
+        User: User information.
 
     Example:
         GET /api/v1/auth/me
@@ -657,7 +926,7 @@ async def read_users_me(
         {
           "id": 1,
           "email": "admin@example.com",
-          "name": "管理者",
+          "name": "Admin",
           "role": "admin",
           "is_active": true
         }
@@ -665,15 +934,15 @@ async def read_users_me(
     return current_user
 ```
 
-## フロントエンド実装
+## Frontend Implementation
 
-### トークン管理（app/static/js/admin/common.js）
+### Token Management (`app/static/js/admin/common.js`)
 
 ```javascript
 /**
- * 認証トークンを取得
+ * Get the authentication token.
  *
- * @returns {string|null} アクセストークン
+ * @returns {string|null} Access token.
  *
  * @example
  * const token = getAccessToken();
@@ -686,10 +955,10 @@ function getAccessToken() {
 }
 
 /**
- * 認証トークンを保存
+ * Save the authentication token.
  *
- * @param {string} token - アクセストークン
- * @param {string} tokenType - トークンタイプ（通常は "bearer"）
+ * @param {string} token - Access token.
+ * @param {string} tokenType - Token type (usually "bearer").
  *
  * @example
  * saveAccessToken(response.access_token, response.token_type);
@@ -700,7 +969,7 @@ function saveAccessToken(token, tokenType = 'bearer') {
 }
 
 /**
- * 認証トークンを削除
+ * Clear the authentication token.
  *
  * @example
  * clearAccessToken();
@@ -712,7 +981,7 @@ function clearAccessToken() {
 }
 
 /**
- * ログアウト処理
+ * Logout handler.
  *
  * @example
  * document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -723,10 +992,10 @@ function logout() {
 }
 
 /**
- * 認証チェック
+ * Authentication check.
  *
  * @example
- * // ページ読み込み時に認証チェック
+ * // Check authentication on page load
  * document.addEventListener('DOMContentLoaded', () => {
  *   if (!window.location.pathname.includes('/login')) {
  *     checkAuth();
@@ -741,11 +1010,11 @@ function checkAuth() {
 }
 
 /**
- * APIリクエストを送信（認証ヘッダー付き）
+ * Send an API request (with auth header).
  *
- * @param {string} url - リクエストURL
- * @param {object} options - fetchオプション
- * @returns {Promise<any>} レスポンスデータ
+ * @param {string} url - Request URL.
+ * @param {object} options - fetch options.
+ * @returns {Promise<any>} Response data.
  *
  * @example
  * const animals = await apiRequest('/api/v1/animals', {
@@ -771,7 +1040,7 @@ async function apiRequest(url, options = {}) {
       },
     });
 
-    // 401エラーの場合はログイン画面にリダイレクト
+    // On 401, redirect to login page
     if (response.status === 401) {
       logout();
       return;
@@ -779,7 +1048,7 @@ async function apiRequest(url, options = {}) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || 'リクエストに失敗しました');
+    throw new Error(error.detail || 'Request failed');
     }
 
     return await response.json();
@@ -790,11 +1059,11 @@ async function apiRequest(url, options = {}) {
 }
 ```
 
-### ログインページ（app/static/js/admin/login.js）
+### Login Page (`app/static/js/admin/login.js`)
 
 ```javascript
 /**
- * ログインフォーム送信処理
+ * Handle login form submission.
  *
  * @example
  * document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -806,12 +1075,12 @@ async function handleLogin(event) {
   const password = document.getElementById('password').value;
   const submitButton = event.target.querySelector('button[type="submit"]');
 
-  // ボタンを無効化
-  submitButton.disabled = true;
-  submitButton.textContent = 'ログイン中...';
+    // Disable button
+    submitButton.disabled = true;
+    submitButton.textContent = 'Logging in...';
 
   try {
-    // ログインAPIを呼び出し
+    // Call login API
     const formData = new URLSearchParams();
     formData.append('username', email);
     formData.append('password', password);
@@ -825,55 +1094,55 @@ async function handleLogin(event) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'ログインに失敗しました');
+    const error = await response.json();
+    throw new Error(error.detail || 'Login failed');
     }
 
     const data = await response.json();
 
-    // トークンを保存
+    // Save token
     saveAccessToken(data.access_token, data.token_type);
 
-    // ダッシュボードにリダイレクト
+    // Redirect to dashboard
     window.location.href = '/admin';
   } catch (error) {
     console.error('Login error:', error);
     showError(error.message);
   } finally {
-    // ボタンを有効化
+    // Re-enable button
     submitButton.disabled = false;
-    submitButton.textContent = 'ログイン';
+    submitButton.textContent = 'Login';
   }
 }
 
 /**
- * エラーメッセージを表示
+ * Show error message.
  *
- * @param {string} message - エラーメッセージ
+ * @param {string} message - Error message.
  */
 function showError(message) {
   const errorDiv = document.getElementById('errorMessage');
   errorDiv.textContent = message;
   errorDiv.classList.remove('hidden');
 
-  // 5秒後に非表示
+    // Hide after 5 seconds
   setTimeout(() => {
     errorDiv.classList.add('hidden');
   }, 5000);
 }
 ```
 
-### 認証済みページの初期化
+### Initialization for Authenticated Pages
 
 ```javascript
 /**
- * ページ読み込み時の初期化
+ * Initialize page on load.
  *
  * @example
  * document.addEventListener('DOMContentLoaded', initPage);
  */
 document.addEventListener('DOMContentLoaded', () => {
-  // ログインページ以外では認証チェック
+    // Check auth on all pages except login
   if (!window.location.pathname.includes('/login')) {
     checkAuth();
 
@@ -883,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 現在のユーザー情報を取得して表示
+ * Load and display current user.
  *
  * @example
  * await loadCurrentUser();
@@ -892,40 +1161,40 @@ async function loadCurrentUser() {
   try {
     const user = await apiRequest('/api/v1/auth/me');
 
-    // ユーザー名を表示
+    // Display user name
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
       userNameElement.textContent = user.name;
     }
 
-    // メールアドレスを表示
+    // Display email address
     const userEmailElement = document.getElementById('userEmail');
     if (userEmailElement) {
       userEmailElement.textContent = user.email;
     }
 
-    // ロールに応じてメニューを表示/非表示
+    // Show/hide menu items by role
     updateMenuByRole(user.role);
   } catch (error) {
     console.error('Failed to load user:', error);
-    // エラーの場合はログイン画面にリダイレクト
+    // On error, redirect to login page
     logout();
   }
 }
 
 /**
- * ロールに応じてメニューを更新
+ * Update menu based on role.
  *
- * @param {string} role - ユーザーロール
+ * @param {string} role - User role.
  */
 function updateMenuByRole(role) {
-  // 管理者のみ表示するメニュー
+    // Menus visible only to admin
   const adminOnlyMenus = document.querySelectorAll('[data-role="admin"]');
   adminOnlyMenus.forEach(menu => {
     menu.style.display = role === 'admin' ? 'block' : 'none';
   });
 
-  // 獣医師のみ表示するメニュー
+    // Menus visible only to vets
   const vetOnlyMenus = document.querySelectorAll('[data-role="vet"]');
   vetOnlyMenus.forEach(menu => {
     menu.style.display = ['admin', 'vet'].includes(role) ? 'block' : 'none';

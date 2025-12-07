@@ -1,276 +1,276 @@
-# Kiro Hooks クイックリファレンス
+# Kiro Hooks Quick Reference
 
-すぐに使えるコマンドとワークフローのチートシート
+Cheat sheet for ready-to-use commands and workflows.
 
-## 🚀 よく使うコマンド
+## 🚀 Frequently Used Commands
 
-### コミット前チェック
+### Pre-commit Checks
 ```bash
-# 全品質チェック実行
+# Run all quality checks
 make all
 
-# または個別実行
-make lint      # Lintチェック
-make format    # コードフォーマット
-make type-check # 型チェック
-make test      # テスト実行
+# Or run individually
+make lint       # Lint checks
+make format     # Code formatting
+make type-check # Type checks
+make test       # Run tests
 ```
 
-### カバレッジ確認
+### Coverage Verification
 ```bash
-# カバレッジ測定
+# Measure coverage
 pytest --cov=app --cov-report=term-missing
 
-# HTMLレポート生成
+# Generate HTML report
 pytest --cov=app --cov-report=html
 
-# レポート表示
+# Open report
 xdg-open htmlcov/index.html  # Linux
 open htmlcov/index.html      # macOS
 start htmlcov/index.html     # Windows
 ```
 
-### ケアログ登録
+### Care Log Registration
 ```bash
-# 手動登録
+# Manual registration
 PYTHONPATH=. python scripts/hooks/register_care_logs.py tmp/json/file.json
 
-# PDF変換
+# PDF conversion
 python scripts/hooks/pdf_to_image.py tmp/pdf/file.pdf --use-pymupdf
 ```
 
 ---
 
-## 📋 フック一覧（コピペ用）
+## 📋 Hook List (for Copy & Paste)
 
 ### 1. Pre-Commit Quality Gate
 ```
-実行: Ctrl+Shift+P → "Pre-Commit Quality Gate"
-用途: コミット前の全品質チェック
-時間: 30-60秒
+Run: Ctrl+Shift+P → "Pre-Commit Quality Gate"
+Purpose: Run all quality checks before commit
+Time: 30-60 seconds
 ```
 
 ### 2. Test Coverage Analyzer
 ```
-実行: Ctrl+Shift+P → "Test Coverage Analyzer"
-用途: カバレッジ分析と改善提案
-時間: 10-30秒
+Run: Ctrl+Shift+P → "Test Coverage Analyzer"
+Purpose: Coverage analysis and improvement suggestions
+Time: 10-30 seconds
 ```
 
 ### 3. Register Care Logs (Manual)
 ```
-実行: tmp/json/*.json を右クリック → "Register Care Logs (Manual)"
-用途: ケアログ手動登録
-時間: 1-5秒
+Run: Right-click tmp/json/*.json → "Register Care Logs (Manual)"
+Purpose: Manual care log registration
+Time: 1-5 seconds
 ```
 
 ### 4. Register Care Logs (Auto)
 ```
-実行: tmp/json/auto.json に保存で自動実行
-用途: ケアログ自動登録
-時間: 1-5秒
+Run: Save to tmp/json/auto.json to run automatically
+Purpose: Automatic care log registration
+Time: 1-5 seconds
 ```
 
 ### 5. PDF to Image Converter
 ```
-実行: tmp/pdf/*.pdf を右クリック → "PDF to Image Converter"
-用途: PDF→画像変換
-時間: 5-30秒
+Run: Right-click tmp/pdf/*.pdf → "PDF to Image Converter"
+Purpose: Convert PDF to images
+Time: 5-30 seconds
 ```
 
 ---
 
-## 🔄 典型的なワークフロー
+## 🔄 Typical Workflows
 
-### ワークフロー1: 新機能開発
+### Workflow 1: New Feature Development
 
 ```bash
-# 1. ブランチ作成
+# 1. Create branch
 git checkout -b feature/new-feature
 
-# 2. コード実装
-# ... コーディング ...
+# 2. Implement code
+# ... coding ...
 
-# 3. 品質チェック
+# 3. Quality checks
 make all
 
-# 4. カバレッジ確認
+# 4. Coverage verification
 pytest --cov=app --cov-report=term-missing
 
-# 5. コミット
+# 5. Commit
 git add .
-git commit -m "feat(scope): 新機能を追加"
+git commit -m "feat(scope): add new feature"
 
-# 6. プッシュ
+# 6. Push
 git push origin feature/new-feature
 ```
 
-### ワークフロー2: OCRケアログインポート
+### Workflow 2: OCR Care Log Import
 
 ```bash
-# 1. PDF配置
+# 1. Place PDF
 cp /path/to/care-log.pdf tmp/pdf/
 
-# 2. PDF→画像変換（右クリック or コマンド）
+# 2. PDF → Image conversion (right-click or command)
 python scripts/hooks/pdf_to_image.py tmp/pdf/care-log.pdf --use-pymupdf
 
-# 3. 画像→JSON（Kiroチャット）
-# [画像を添付]
-# "これはIDが12の猫の2024年11月14日～23日の記録です。
-#  JSON化してtmp/json/care_log_20241114.json に保存してください。"
+# 3. Image → JSON (via Kiro chat)
+# [Attach image]
+# "This is the record for cat ID 12 from November 14 to 23, 2024.
+#  Please convert it to JSON and save it to tmp/json/care_log_20241114.json."
 
-# 4. JSON→DB（右クリック or 自動）
-# tmp/json/care_log_20241114.json を右クリック
+# 4. JSON → DB (right-click or automatic)
+# Right-click tmp/json/care_log_20241114.json
 # → "Register Care Logs (Manual)"
 ```
 
-### ワークフロー3: テストカバレッジ改善
+### Workflow 3: Test Coverage Improvement
 
 ```bash
-# 1. 現状確認
+# 1. Check current status
 pytest --cov=app --cov-report=html
 
-# 2. 詳細分析（フック実行）
+# 2. Detailed analysis (run hook)
 # Ctrl+Shift+P → "Test Coverage Analyzer"
 
-# 3. 不足テスト追加
-# tests/test_xxx.py を編集
+# 3. Add missing tests
+# Edit tests/test_xxx.py
 
-# 4. 再測定
+# 4. Re-measure
 pytest --cov=app --cov-report=term-missing
 
-# 5. 改善確認
-# カバレッジが向上したか確認
+# 5. Verify improvement
+# Check if coverage has improved
 ```
 
 ---
 
-## 🐛 トラブルシューティング早見表
+## 🐛 Troubleshooting Quick Reference
 
-| 問題 | 解決方法 |
-|------|---------|
-| フックが実行されない | `.kiro.hook`ファイルの`"enabled": true`を確認 |
-| API認証エラー | `.env`ファイルの`NECOKEEPER_ADMIN_USERNAME/PASSWORD`を確認 |
-| モジュールエラー | `source .venv/bin/activate` → `pip install -r requirements.txt` |
-| テスト失敗 | `pytest tests/test_xxx.py -v`で詳細確認 |
-| Mypyエラー | 型ヒント追加: `def func(x: int) -> str:` |
-| JSONエラー | `python -m json.tool tmp/json/file.json`で検証 |
-| PDFエラー | `pip install PyMuPDF`でライブラリインストール |
-| 権限エラー | `chmod +x scripts/hooks/*.py`で実行権限付与 |
-
----
-
-## 📊 カバレッジ目標値
-
-| レイヤー | 目標 | 現在 | 状態 |
-|---------|------|------|------|
-| ドメイン層（models/） | 90%+ | 92% | ✅ |
-| サービス層（services/） | 80%+ | 75% | ⚠️ |
-| API層（api/） | 70%+ | 78% | ✅ |
-| 認証層（auth/） | 80%+ | 85% | ✅ |
-| ユーティリティ層（utils/） | 70%+ | 65% | ⚠️ |
-| **全体** | **70%+** | **80.99%** | ✅ |
+| Problem | Solution |
+|--------|----------|
+| Hook does not run | Check `"enabled": true` in `.kiro.hook` file |
+| API authentication error | Check `NECOKEEPER_ADMIN_USERNAME/PASSWORD` in `.env` |
+| Module error | `source .venv/bin/activate` → `pip install -r requirements.txt` |
+| Test failure | Run `pytest tests/test_xxx.py -v` for details |
+| Mypy error | Add type hints: `def func(x: int) -> str:` |
+| JSON error | Validate with `python -m json.tool tmp/json/file.json` |
+| PDF error | Install library with `pip install PyMuPDF` |
+| Permission error | Grant execute permission with `chmod +x scripts/hooks/*.py` |
 
 ---
 
-## 🔑 環境変数チェックリスト
+## 📊 Coverage Targets
+
+| Layer | Target | Current | Status |
+|-------|--------|---------|--------|
+| Domain layer (models/) | 90%+ | 92% | ✅ |
+| Service layer (services/) | 80%+ | 75% | ⚠️ |
+| API layer (api/) | 70%+ | 78% | ✅ |
+| Authentication layer (auth/) | 80%+ | 85% | ✅ |
+| Utility layer (utils/) | 70%+ | 65% | ⚠️ |
+| **Overall** | **70%+** | **80.99%** | ✅ |
+
+---
+
+## 🔑 Environment Variable Checklist
 
 ```bash
-# .envファイルに以下が設定されているか確認
+# Verify that the following are set in the .env file
 cat .env
 
-# 必須項目
+# Required variables
 NECOKEEPER_API_URL=http://localhost:8000
 NECOKEEPER_ADMIN_USERNAME=admin
 NECOKEEPER_ADMIN_PASSWORD=your_password
 
-# オプション
+# Optional
 AUTOMATION_API_ENABLED=true
 AUTOMATION_API_KEY=your_32_character_key
 ```
 
 ---
 
-## 📁 ディレクトリ構造
+## 📁 Directory Structure
 
 ```
 tmp/
-├── pdf/                    # PDF入力
-├── pdfs/                   # PDF入力（代替）
-├── images/                 # 変換後の画像
-└── json/                   # JSONデータ
-    ├── auto.json          # 自動登録用
-    └── processed/         # 処理済み
+├── pdf/                    # PDF input
+├── pdfs/                   # PDF input (alternative)
+├── images/                 # Converted images
+└── json/                   # JSON data
+   ├── auto.json           # For automatic registration
+   └── processed/          # Processed files
 ```
 
 ---
 
-## 🎯 コミットメッセージ例
+## 🎯 Commit Message Examples
 
 ```bash
-# 新機能
-git commit -m "feat(api): 新しいエンドポイントを追加"
+# New feature
+git commit -m "feat(api): add new endpoint"
 
-# バグ修正
-git commit -m "fix(ui): ログインフォームのバリデーションを修正"
+# Bug fix
+git commit -m "fix(ui): fix validation in login form"
 
-# リファクタリング
-git commit -m "refactor(service): 型ヒントをモダンな構文に更新"
+# Refactoring
+git commit -m "refactor(service): update type hints to modern syntax"
 
-# テスト追加
-git commit -m "test(mcp): MCPツールのテストを追加"
+# Add tests
+git commit -m "test(mcp): add tests for MCP tools"
 
-# ドキュメント
-git commit -m "docs: Kiroフックのガイドを追加"
+# Documentation
+git commit -m "docs: add Kiro hooks guide"
 
-# スタイル
-git commit -m "style: Ruffフォーマットを適用"
+# Style
+git commit -m "style: apply Ruff formatting"
 
-# パフォーマンス
-git commit -m "perf(db): クエリを最適化"
+# Performance
+git commit -m "perf(db): optimize queries"
 
-# ビルド
-git commit -m "chore: 依存関係を更新"
+# Build / chores
+git commit -m "chore: update dependencies"
 ```
 
 ---
 
-## 🔗 よく使うリンク
+## 🔗 Frequently Used Links
 
-- [完全ガイド](./HOOKS_GUIDE.md)
-- [OCRワークフロー](./README.md)
-- [API仕様](../../app/api/automation/README.md)
-- [MCP統合](../../app/mcp/README.md)
-- [テストガイド](../../tests/README.md)
-
----
-
-## 💡 ヒント
-
-### 効率的な開発のために
-
-1. **コミット前は必ず`make all`を実行**
-   - 品質問題を早期発見
-   - CI/CDでの失敗を防止
-
-2. **週次でカバレッジ分析**
-   - テストの穴を早期発見
-   - 技術的負債の蓄積を防止
-
-3. **フックをカスタマイズ**
-   - プロジェクト固有のニーズに対応
-   - ワークフローを最適化
-
-4. **ログを確認**
-   - `logs/ocr-import.log`で詳細確認
-   - エラー原因の特定が容易
-
-5. **環境変数を適切に管理**
-   - `.env.example`をテンプレートとして使用
-   - 機密情報はGitにコミットしない
+- [Complete Guide](./HOOKS_GUIDE.md)
+- [OCR Workflow](./README.md)
+- [API Specification](../../app/api/automation/README.md)
+- [MCP Integration](../../app/mcp/README.md)
+- [Test Guide](../../tests/README.md)
 
 ---
 
-**印刷用**: このページをPDFとして保存して、デスクに置いておくと便利です！
+## 💡 Tips
 
-**最終更新**: 2024年11月30日
+### For Efficient Development
+
+1. **Always run `make all` before committing**
+   - Catch quality issues early
+   - Prevent CI/CD failures
+
+2. **Analyze coverage weekly**
+   - Detect missing tests early
+   - Prevent technical debt from accumulating
+
+3. **Customize hooks**
+   - Adapt to project-specific needs
+   - Optimize your workflow
+
+4. **Check the logs**
+   - Use `logs/ocr-import.log` for detailed investigation
+   - Makes it easier to identify root causes of errors
+
+5. **Manage environment variables properly**
+   - Use `.env.example` as a template
+   - Do not commit secrets to Git
+
+---
+
+**For printing**: You can save this page as PDF and keep it at your desk for quick reference.
+
+**Last Updated**: November 30, 2024
