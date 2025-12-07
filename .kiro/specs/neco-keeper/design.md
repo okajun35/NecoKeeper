@@ -2,56 +2,56 @@
 
 ## Overview
 
-NecoKeeperは、保護猫活動のデジタル化を実現するWebアプリケーションです。FastAPI（バックエンド）+ SQLite（データベース）+ Tailwind CSS（フロントエンド）の構成で、小規模団体（10名前後、猫10〜20頭）での運用を想定しています。
+NecoKeeper is a web application that digitizes daily operations of cat rescue organizations. It is built with FastAPI (backend) + SQLite (database) + Tailwind CSS (frontend) and is optimized for small organizations (around 10 members, 10–20 cats).
 
-### 関連ドキュメント
+### Related Documents
 
-- [認証・認可仕様](./authentication.md): JWT認証、権限管理、フロントエンド・バックエンドの認証実装
-- [画像管理仕様](./image-management.md): 猫のプロフィール画像と画像ギャラリーの詳細仕様
+- [Authentication & Authorization Specification](./authentication.md): JWT authentication, RBAC, and frontend/backend integration
+- [Image Management Specification](./image-management.md): Cat profile photos and image gallery behavior
 
-### 設計原則
+### Design Principles
 
-1. **シンプルさ優先**: POC段階のため、過度に複雑な実装を避ける
-2. **モバイルファースト**: ボランティアがスマホで記録入力できることを最優先
-3. **オフライン対応**: PWAによるオフライン記録と自動同期
-4. **低コスト運用**: 無料ホスティングサービスで運用可能
-5. **段階的デジタル化**: 紙との併用を前提とした設計
+1. **Keep it simple**: Avoid over-engineering; this is a PoC/MVP.
+2. **Mobile first**: Volunteers must be able to enter records comfortably from smartphones.
+3. **Offline friendly**: Support offline recording and automatic sync via PWA.
+4. **Low-cost operations**: Must be runnable on free-tier hosting services.
+5. **Gradual digitalization**: Designed to co-exist with paper forms during transition.
 
-### 技術スタック
+### Technology Stack
 
-- **バックエンド**: FastAPI 0.104+ (Python 3.10+)
-- **データベース**: SQLite 3.35+
-- **ORM**: SQLAlchemy 2.0+ (Mapped, mapped_column)
-- **認証**: JWT + OAuth2 Password Flow（python-jose + passlib/bcrypt）
-- **PDF生成**: WeasyPrint 60+
-- **フロントエンドUI**: Tailwind CSS 3.3+ (CDN)
-- **フロントエンドJS**: HTMX 2.0+ + Alpine.js 3.x
+- **Backend**: FastAPI 0.104+ (Python 3.10+)
+- **Database**: SQLite 3.35+
+- **ORM**: SQLAlchemy 2.0+ (`Mapped`, `mapped_column`)
+- **Authentication**: JWT + OAuth2 Password Flow (python-jose + passlib/bcrypt)
+- **PDF Generation**: WeasyPrint 60+
+- **Frontend UI**: Tailwind CSS 3.3+ (CDN)
+- **Frontend JS**: HTMX 2.0+ + Alpine.js 3.x
 - **PWA**: Service Worker + IndexedDB
-- **多言語**: i18next（JSON対訳ファイル）
-- **OCR**: Tesseract（オプション、MCP連携）
-- **型チェック**: Mypy (strict mode)
-- **コードフォーマット**: Ruff
+- **Internationalization**: i18next (JSON translation files)
+- **OCR**: Tesseract (optional, via MCP integration)
+- **Type Checking**: mypy (strict mode)
+- **Code Formatting/Lint**: Ruff
 
-### コード品質基準
+### Code Quality Standards
 
-- **型ヒント**: すべての関数に完全な型ヒント（`from __future__ import annotations`, `X | None`, `collections.abc`）
-- **Docstring**: すべての関数・クラスにDocstring（Args, Returns, Raises, Example）
-- **エラーハンドリング**: 統一されたパターン（HTTPException、ロギング）
-- **命名規則**: PostgreSQL互換の命名規則（将来の移行を考慮）
-- **テスト**: Pytest（DDD準拠、ドメイン・アプリケーション・インフラ層）
+- **Type hints**: Full type hints for all functions (`from __future__ import annotations`, `X | None`, `collections.abc`).
+- **Docstrings**: Docstrings for all functions and classes (Args, Returns, Raises, Example).
+- **Error handling**: Unified pattern using `HTTPException` and structured logging.
+- **Naming conventions**: PostgreSQL-compatible naming to ease future DB migration.
+- **Tests**: Pytest with DDD-style layering (domain, application, infrastructure).
 
 ## Architecture
 
-### システム構成図
+### System Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Client Layer                          │
 ├──────────────────────┬──────────────────────────────────────┤
 │  Admin UI (Tailwind) │  Public Form (Tailwind + PWA)        │
-│  - 管理画面          │  - QRスキャン→記録入力               │
-│  - 認証必須          │  - 認証不要                          │
-│  - PC/スマホ対応     │  - スマホ最適化                      │
+│  - Admin dashboard   │  - Scan QR → input CareLog           │
+│  - Auth required     │  - No authentication required        |
+│  - PC / mobile UI    │  - Mobile optimized                  │
 │  - HTMX + Alpine.js  │  - Service Worker                    │
 └──────────────────────┴──────────────────────────────────────┘
                               ↓ HTTPS
@@ -82,73 +82,73 @@ NecoKeeperは、保護猫活動のデジタル化を実現するWebアプリケ�
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### ディレクトリ構造
+### Directory Structure
 
 ```
 necokeeper/
 ├── app/
-│   ├── main.py                 # FastAPIアプリケーションエントリーポイント
-│   ├── config.py               # 設定管理（環境変数）
-│   ├── database.py             # データベース接続
-│   ├── models/                 # SQLAlchemyモデル
+│   ├── main.py                 # FastAPI application entry point
+│   ├── config.py               # Settings management (environment variables)
+│   ├── database.py             # Database connection
+│   ├── models/                 # SQLAlchemy models
 │   │   ├── animal.py
 │   │   ├── care_log.py
 │   │   ├── medical_record.py
 │   │   ├── user.py
 │   │   ├── volunteer.py
 │   │   └── ...
-│   ├── schemas/                # Pydanticスキーマ（バリデーション）
+│   ├── schemas/                # Pydantic schemas (validation)
 │   │   ├── animal.py
 │   │   ├── care_log.py
 │   │   └── ...
-│   ├── api/                    # APIエンドポイント
+│   ├── api/                    # API endpoints
 │   │   ├── v1/
 │   │   │   ├── animals.py
 │   │   │   ├── care_logs.py
 │   │   │   ├── medical_records.py
 │   │   │   ├── auth.py
 │   │   │   └── ...
-│   ├── services/               # ビジネスロジック
+│   ├── services/               # Business logic layer
 │   │   ├── animal_service.py
 │   │   ├── care_log_service.py
 │   │   ├── pdf_service.py
 │   │   ├── ocr_service.py
 │   │   └── ...
-│   ├── auth/                   # 認証・認可
-│   │   ├── jwt.py             # JWT生成・検証
-│   │   ├── password.py        # パスワードハッシュ化
-│   │   ├── dependencies.py    # 認証依存性
-│   │   └── permissions.py     # 権限チェック
-│   ├── templates/              # Jinja2テンプレート
-│   │   ├── admin/              # 管理画面（Tailwind + HTMX + Alpine.js）
-│   │   ├── public/             # Publicフォーム（Tailwind + PWA）
-│   │   └── pdf/                # PDF生成用テンプレート
-│   ├── static/                 # 静的ファイル
+│   ├── auth/                   # Authentication & authorization
+│   │   ├── jwt.py             # JWT generation/verification
+│   │   ├── password.py        # Password hashing
+│   │   ├── dependencies.py    # Auth dependencies
+│   │   └── permissions.py     # Permission checks
+│   ├── templates/              # Jinja2 templates
+│   │   ├── admin/              # Admin UI (Tailwind + HTMX + Alpine.js)
+│   │   ├── public/             # Public form (Tailwind + PWA)
+│   │   └── pdf/                # PDF templates
+│   ├── static/                 # Static assets
 │   │   ├── css/
 │   │   ├── js/
 │   │   ├── img/
-│   │   └── i18n/               # 対訳ファイル（JSON）
-│   └── utils/                  # ユーティリティ
+│   │   └── i18n/               # Translation files (JSON)
+│   └── utils/                  # Utilities
 │       ├── qr_code.py
 │       ├── validators.py
 │       └── ...
 ├── data/
-│   └── app.sqlite3             # SQLiteデータベース
+│   └── app.sqlite3             # SQLite database
 ├── media/
-│   └── photos/                 # 猫の写真
-├── backups/                    # バックアップファイル
-├── tests/                      # テストコード
-├── requirements.txt            # Python依存関係
-├── render.yaml                 # Renderデプロイ設定
-├── railway.json                # Railwayデプロイ設定
-├── fly.toml                    # Fly.ioデプロイ設定
-└── README.md                   # デプロイ手順
+│   └── photos/                 # Cat photos
+├── backups/                    # Backup files
+├── tests/                      # Test code
+├── requirements.txt            # Python dependencies
+├── render.yaml                 # Render deployment config
+├── railway.json                # Railway deployment config
+├── fly.toml                    # Fly.io deployment config
+└── README.md                   # Deployment instructions
 ```
 
 
 ## Data Models
 
-### ER図（主要エンティティ）
+### ER Diagram (Main Entities)
 
 ```
 ┌─────────────┐       ┌──────────────┐       ┌─────────────┐
@@ -187,529 +187,529 @@ necokeeper/
 └─────────────┘       └──────────────┘
 ```
 
-### テーブル定義
+### Table Definitions
 
-#### Animals（猫マスター）
+#### Animals (Animal Master)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| name | VARCHAR(100) | YES | NULL | 猫の名前 |
-| photo | VARCHAR(255) | NO | - | 顔写真パス |
-| pattern | VARCHAR(100) | NO | - | 柄・色 |
-| tail_length | VARCHAR(50) | NO | - | 尻尾の長さ |
-| collar | VARCHAR(100) | YES | NULL | 首輪有無・色 |
-| age | VARCHAR(50) | NO | - | 年齢（大きさ） |
-| gender | VARCHAR(10) | NO | - | 性別（male/female/unknown） |
-| ear_cut | BOOLEAN | NO | FALSE | 耳カット有無 |
-| features | TEXT | YES | NULL | 外傷・特徴・性格 |
-| status | VARCHAR(20) | NO | '保護中' | ステータス |
-| protected_at | DATE | NO | CURRENT_DATE | 保護日 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| name | VARCHAR(100) | YES | NULL | Cat name |
+| photo | VARCHAR(255) | NO | - | Face photo path |
+| pattern | VARCHAR(100) | NO | - | Coat pattern / color |
+| tail_length | VARCHAR(50) | NO | - | Tail length description |
+| collar | VARCHAR(100) | YES | NULL | Collar presence / color |
+| age | VARCHAR(50) | NO | - | Age / size description |
+| gender | VARCHAR(10) | NO | - | Gender (male/female/unknown) |
+| ear_cut | BOOLEAN | NO | FALSE | Whether ear-tipped |
+| features | TEXT | YES | NULL | Wounds, features, temperament |
+| status | VARCHAR(20) | NO | 'protected' | Status |
+| protected_at | DATE | NO | CURRENT_DATE | Rescue date |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**インデックス**: status, protected_at, name
+**Indexes**: status, protected_at, name
 
-#### CareLog（世話記録）
+#### CareLog (Daily Care Log)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| recorder_id | INTEGER | YES | NULL | 記録者ID（FK） |
-| recorder_name | VARCHAR(100) | NO | - | 記録者名 |
-| time_slot | VARCHAR(10) | NO | - | 時点（morning/noon/evening） |
-| appetite | INTEGER | NO | 3 | 食欲（1〜5段階、5が最良） |
-| energy | INTEGER | NO | 3 | 元気（1〜5段階、5が最良） |
-| urination | BOOLEAN | NO | FALSE | 排尿（有り=TRUE、無し=FALSE） |
-| cleaning | BOOLEAN | NO | FALSE | 清掃（済=TRUE、未=FALSE） |
-| memo | TEXT | YES | NULL | メモ |
-| ip_address | VARCHAR(45) | YES | NULL | IPアドレス |
-| user_agent | VARCHAR(255) | YES | NULL | ユーザーエージェント |
-| device_tag | VARCHAR(100) | YES | NULL | デバイスタグ |
-| from_paper | BOOLEAN | NO | FALSE | 紙記録からの転記 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 記録日時 |
-| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 最終更新日時 |
-| last_updated_by | INTEGER | YES | NULL | 最終更新者ID（FK） |
+| id | INTEGER | NO | AUTO | Primary key |
+| animal_id | INTEGER | NO | - | Cat ID (FK) |
+| recorder_id | INTEGER | YES | NULL | Recorder user ID (FK) |
+| recorder_name | VARCHAR(100) | NO | - | Recorder display name |
+| time_slot | VARCHAR(10) | NO | - | Time slot (morning/noon/evening) |
+| appetite | INTEGER | NO | 3 | Appetite (1–5, 5 = best) |
+| energy | INTEGER | NO | 3 | Energy (1–5, 5 = best) |
+| urination | BOOLEAN | NO | FALSE | Urination (TRUE = yes, FALSE = no) |
+| cleaning | BOOLEAN | NO | FALSE | Cage/room cleaning done |
+| memo | TEXT | YES | NULL | Free-text memo |
+| ip_address | VARCHAR(45) | YES | NULL | IP address |
+| user_agent | VARCHAR(255) | YES | NULL | User agent |
+| device_tag | VARCHAR(100) | YES | NULL | Device tag |
+| from_paper | BOOLEAN | NO | FALSE | Copied from paper form |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Logged at |
+| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Last updated at |
+| last_updated_by | INTEGER | YES | NULL | Last updated by user ID (FK) |
 
-**インデックス**: animal_id, created_at, recorder_id, time_slot
+**Indexes**: animal_id, created_at, recorder_id, time_slot
 
-#### MedicalRecord（診療記録）
+#### MedicalRecord (Vet Medical Record)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| vet_id | INTEGER | NO | - | 獣医師ID（FK） |
-| date | DATE | NO | - | 診療日 |
-| time_slot | VARCHAR(20) | YES | NULL | 時間帯 |
-| weight | DECIMAL(5,2) | NO | - | 体重（kg） |
-| temperature | DECIMAL(4,1) | YES | NULL | 体温（℃） |
-| symptoms | TEXT | NO | - | 症状 |
-| medical_action_id | INTEGER | YES | NULL | 診療行為ID（FK） |
-| dosage | INTEGER | YES | NULL | 投薬量（回数） |
-| other | TEXT | YES | NULL | その他（ロット番号等） |
-| comment | TEXT | YES | NULL | コメント |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
-| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 最終更新日時 |
-| last_updated_by | INTEGER | YES | NULL | 最終更新者ID（FK） |
+| id | INTEGER | NO | AUTO | Primary key |
+| animal_id | INTEGER | NO | - | Cat ID (FK) |
+| vet_id | INTEGER | NO | - | Vet user ID (FK) |
+| date | DATE | NO | - | Visit date |
+| time_slot | VARCHAR(20) | YES | NULL | Time slot |
+| weight | DECIMAL(5,2) | NO | - | Weight (kg) |
+| temperature | DECIMAL(4,1) | YES | NULL | Temperature (°C) |
+| symptoms | TEXT | NO | - | Symptoms |
+| medical_action_id | INTEGER | YES | NULL | Medical action ID (FK) |
+| dosage | INTEGER | YES | NULL | Dosage count |
+| other | TEXT | YES | NULL | Other notes (e.g., lot number) |
+| comment | TEXT | YES | NULL | Comment |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
+| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Last updated at |
+| last_updated_by | INTEGER | YES | NULL | Last updated by user ID (FK) |
 
-**インデックス**: animal_id, date, vet_id, medical_action_id
+**Indexes**: animal_id, date, vet_id, medical_action_id
 
-#### Users（ユーザー）
+#### Users
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| email | VARCHAR(255) | NO | - | メールアドレス（ユニーク） |
-| password_hash | VARCHAR(255) | NO | - | パスワードハッシュ（bcrypt） |
-| name | VARCHAR(100) | NO | - | 氏名 |
-| role | VARCHAR(20) | NO | 'read_only' | ロール |
-| is_active | BOOLEAN | NO | TRUE | アクティブ状態 |
-| failed_login_count | INTEGER | NO | 0 | ログイン失敗回数 |
-| locked_until | DATETIME | YES | NULL | ロック解除日時 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| email | VARCHAR(255) | NO | - | Email address (unique) |
+| password_hash | VARCHAR(255) | NO | - | Password hash (bcrypt/argon2) |
+| name | VARCHAR(100) | NO | - | Full name |
+| role | VARCHAR(20) | NO | 'read_only' | Role |
+| is_active | BOOLEAN | NO | TRUE | Active flag |
+| failed_login_count | INTEGER | NO | 0 | Failed login attempts |
+| locked_until | DATETIME | YES | NULL | Account lock-until timestamp |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**インデックス**: email（ユニーク）, role
+**Indexes**: email (unique), role
 
-#### Volunteers（ボランティア）
+#### Volunteers
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| name | VARCHAR(100) | NO | - | 氏名 |
-| contact | VARCHAR(255) | YES | NULL | 連絡先 |
-| affiliation | VARCHAR(100) | YES | NULL | 所属 |
-| status | VARCHAR(20) | NO | 'active' | 活動状態 |
-| started_at | DATE | NO | CURRENT_DATE | 活動開始日 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| name | VARCHAR(100) | NO | - | Name |
+| contact | VARCHAR(255) | YES | NULL | Contact info |
+| affiliation | VARCHAR(100) | YES | NULL | Affiliation |
+| status | VARCHAR(20) | NO | 'active' | Activity status |
+| started_at | DATE | NO | CURRENT_DATE | Start date |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**インデックス**: status, name
+**Indexes**: status, name
 
-#### Applicants（里親希望者）
+#### Applicants (Adoption Applicants)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| name | VARCHAR(100) | NO | - | 氏名 |
-| contact | VARCHAR(255) | NO | - | 連絡先 |
-| address | TEXT | YES | NULL | 住所 |
-| family | TEXT | YES | NULL | 家族構成 |
-| environment | TEXT | YES | NULL | 飼育環境 |
-| conditions | TEXT | YES | NULL | 希望条件 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| name | VARCHAR(100) | NO | - | Name |
+| contact | VARCHAR(255) | NO | - | Contact info |
+| address | TEXT | YES | NULL | Address |
+| family | TEXT | YES | NULL | Family members |
+| environment | TEXT | YES | NULL | Living environment |
+| conditions | TEXT | YES | NULL | Adoption conditions |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**インデックス**: name, contact
+**Indexes**: name, contact
 
-#### AdoptionRecord（譲渡記録）
+#### AdoptionRecord
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| applicant_id | INTEGER | NO | - | 里親希望者ID（FK）※Applicantsテーブルと紐付け |
-| interview_date | DATE | YES | NULL | 面談日 |
-| interview_note | TEXT | YES | NULL | 面談内容 |
-| decision | VARCHAR(20) | YES | NULL | 判定結果（approved/rejected/pending） |
-| adoption_date | DATE | YES | NULL | 譲渡日 |
-| follow_up | TEXT | YES | NULL | 譲渡後フォロー |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| animal_id | INTEGER | NO | - | Cat ID (FK) |
+| applicant_id | INTEGER | NO | - | Applicant ID (FK to `Applicants`) |
+| interview_date | DATE | YES | NULL | Interview date |
+| interview_note | TEXT | YES | NULL | Interview notes |
+| decision | VARCHAR(20) | YES | NULL | Decision (approved/rejected/pending) |
+| adoption_date | DATE | YES | NULL | Adoption date |
+| follow_up | TEXT | YES | NULL | Post-adoption follow-up notes |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**インデックス**: animal_id, applicant_id, adoption_date
+**Indexes**: animal_id, applicant_id, adoption_date
 
-**applicant_idの用途**:
-- Applicants（里親希望者）テーブルと紐付けて、誰に譲渡したかを記録
-- 面談記録、譲渡決定、譲渡後フォローの履歴管理
-- 同一希望者が複数の猫を譲渡された場合の追跡
+**Use of `applicant_id`**:
+- Link to the `Applicants` table to record who adopted which cat.
+- Track interview history, decisions, and post-adoption follow-ups.
+- Track cases where the same applicant adopts multiple cats.
 
 
-#### MedicalActions（診療行為マスター）
+#### MedicalActions (Medical Action Master)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| name | VARCHAR(100) | NO | - | 診療名称（薬剤、ワクチン、検査等） |
-| category | VARCHAR(50) | YES | NULL | カテゴリ（薬剤、ワクチン、検査等） |
-| valid_from | DATE | NO | - | 適用開始日 |
-| valid_to | DATE | YES | NULL | 適用終了日 |
-| cost_price | DECIMAL(10,2) | NO | 0.00 | 原価（小数点2桁） |
-| selling_price | DECIMAL(10,2) | NO | 0.00 | 請求価格（小数点2桁） |
-| procedure_fee | DECIMAL(10,2) | NO | 0.00 | 投薬・処置料金（小数点2桁） |
-| currency | VARCHAR(3) | NO | 'JPY' | 通貨単位（JPY/USD） |
-| dosage_unit | VARCHAR(10) | YES | NULL | 投薬単位（錠、本、回、mL） |
-| description | TEXT | YES | NULL | 説明・備考 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
-| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 最終更新日時 |
-| last_updated_by | INTEGER | YES | NULL | 最終更新者ID（FK） |
+| id | INTEGER | NO | AUTO | Primary key |
+| name | VARCHAR(100) | NO | - | Medical action name (drug, vaccine, test, etc.) |
+| category | VARCHAR(50) | YES | NULL | Category (drug, vaccine, test, etc.) |
+| valid_from | DATE | NO | - | Effective-from date |
+| valid_to | DATE | YES | NULL | Effective-to date |
+| cost_price | DECIMAL(10,2) | NO | 0.00 | Cost price (2 decimal places) |
+| selling_price | DECIMAL(10,2) | NO | 0.00 | Billing unit price (2 decimal places) |
+| procedure_fee | DECIMAL(10,2) | NO | 0.00 | Procedure fee (2 decimal places) |
+| currency | VARCHAR(3) | NO | 'JPY' | Currency (JPY/USD) |
+| dosage_unit | VARCHAR(10) | YES | NULL | Dosage unit (tablet, bottle, times, mL) |
+| description | TEXT | YES | NULL | Description / notes |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
+| last_updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Last updated at |
+| last_updated_by | INTEGER | YES | NULL | Last updated by user ID (FK) |
 
-**インデックス**: name, valid_from, valid_to
+**Indexes**: name, valid_from, valid_to
 
-**投薬単位の選択肢**:
-- 錠（tablet）
-- 本（bottle）
-- 回（times）
-- mL（milliliter）
+**Dosage unit options**:
+- tablet: tablets / capsules
+- bottle: vials / bottles / injections
+- times: number of procedures / tests
+- mL: volume of liquid medicine in milliliters
 
-**料金計算式**:
-- 実際の請求価格 = (請求価格 × 投薬量) + 投薬・処置料金
+**Billing formula**:
+- Actual billing amount = (`selling_price` × dosage) + `procedure_fee`
 
-#### AnimalImages（猫画像ギャラリー）
+#### AnimalImages (Cat Image Gallery)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| image_path | VARCHAR(255) | NO | - | 画像パス |
-| taken_at | DATE | YES | NULL | 撮影日 |
-| description | TEXT | YES | NULL | 説明 |
-| file_size | INTEGER | NO | 0 | ファイルサイズ（bytes） |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| animal_id | INTEGER | NO | - | Cat ID (FK) |
+| image_path | VARCHAR(255) | NO | - | Image file path |
+| taken_at | DATE | YES | NULL | Photo taken date |
+| description | TEXT | YES | NULL | Description |
+| file_size | INTEGER | NO | 0 | File size (bytes) |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
 
-**インデックス**: animal_id, taken_at
+**Indexes**: animal_id, taken_at
 
-#### StatusHistory（ステータス変更履歴）
+#### StatusHistory (Status Change History)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| changed_by | INTEGER | NO | - | 変更者ID（FK） |
-| old_status | VARCHAR(20) | YES | NULL | 変更前ステータス |
-| new_status | VARCHAR(20) | NO | - | 変更後ステータス |
-| changed_at | DATETIME | NO | CURRENT_TIMESTAMP | 変更日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| animal_id | INTEGER | NO | - | Cat ID (FK) |
+| changed_by | INTEGER | NO | - | Changed by user ID (FK) |
+| old_status | VARCHAR(20) | YES | NULL | Previous status |
+| new_status | VARCHAR(20) | NO | - | New status |
+| changed_at | DATETIME | NO | CURRENT_TIMESTAMP | Changed at |
 
-**インデックス**: animal_id, changed_at
+**Indexes**: animal_id, changed_at
 
-#### AuditLog（監査ログ）
+#### AuditLog (Audit Trail)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| user_id | INTEGER | YES | NULL | ユーザーID（FK） |
-| action | VARCHAR(50) | NO | - | 操作種別 |
-| target_type | VARCHAR(50) | NO | - | 対象エンティティ |
-| target_id | INTEGER | YES | NULL | 対象ID |
-| old_value | TEXT | YES | NULL | 変更前の値（JSON） |
-| new_value | TEXT | YES | NULL | 変更後の値（JSON） |
-| ip_address | VARCHAR(45) | YES | NULL | IPアドレス |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 操作日時 |
+| id | INTEGER | NO | AUTO | Primary key |
+| user_id | INTEGER | YES | NULL | User ID (FK) |
+| action | VARCHAR(50) | NO | - | Action type |
+| target_type | VARCHAR(50) | NO | - | Target entity type |
+| target_id | INTEGER | YES | NULL | Target entity ID |
+| old_value | TEXT | YES | NULL | Old value (JSON serialized) |
+| new_value | TEXT | YES | NULL | New value (JSON serialized) |
+| ip_address | VARCHAR(45) | YES | NULL | IP address |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Logged at |
 
-**インデックス**: user_id, action, created_at
+**Indexes**: user_id, action, created_at
 
-#### RefreshTokens（リフレッシュトークン）※オプション
+#### RefreshTokens (Optional Refresh Token Store)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| user_id | INTEGER | NO | - | ユーザーID（FK） |
-| token | VARCHAR(255) | NO | - | リフレッシュトークン（ユニーク） |
-| expires_at | DATETIME | NO | - | 有効期限 |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
-| revoked | BOOLEAN | NO | FALSE | 無効化フラグ |
+| id | INTEGER | NO | AUTO | Primary key |
+| user_id | INTEGER | NO | - | User ID (FK) |
+| token | VARCHAR(255) | NO | - | Refresh token (unique) |
+| expires_at | DATETIME | NO | - | Expiration timestamp |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
+| revoked | BOOLEAN | NO | FALSE | Revoked flag |
 
-**インデックス**: user_id, token（ユニーク）, expires_at
+**Indexes**: user_id, token (unique), expires_at
 
-**注**: アクセストークンはステートレス（JWTのみ）。リフレッシュトークンは長期間有効なトークンの管理用（オプション機能）。
+**Note**: Access tokens are stateless (JWT only). Refresh tokens are optional and used when long-lived sessions are required.
 
-#### Settings（システム設定）
+#### Settings (System Settings)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
+| Column | Type | NULL | Default | Description |
 |---------|-----|------|-----------|------|
-| key | VARCHAR(100) | NO | - | 設定キー（主キー） |
-| value | TEXT | NO | - | 設定値（JSON） |
-| description | TEXT | YES | NULL | 説明 |
-| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+| key | VARCHAR(100) | NO | - | Setting key (primary key) |
+| value | TEXT | NO | - | Setting value (JSON) |
+| description | TEXT | YES | NULL | Description |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**設定例**:
-- `organization_info`: 団体情報
-- `image_limits`: 画像制限（最大枚数、最大サイズ）
-- `language`: デフォルト言語
-- `timezone`: タイムゾーン
+**Example keys**:
+- `organization_info`: Organization name, address, contact info.
+- `image_limits`: Image constraints (max count, max file size).
+- `language`: Default language.
+- `timezone`: Time zone.
 
 ## Components and Interfaces
 
 ### API Endpoints
 
-#### 認証API
+#### Authentication API
 
 ```
-POST   /api/v1/auth/token          # ログイン（JWTトークン取得）
-GET    /api/v1/auth/me             # 現在のユーザー情報取得
-POST   /api/v1/auth/refresh        # トークンリフレッシュ（オプション）
+POST   /api/v1/auth/token          # Login (issue JWT access token)
+GET    /api/v1/auth/me             # Get current user info
+POST   /api/v1/auth/refresh        # Refresh token (optional)
 ```
 
-#### 猫管理API
+#### Animal Management API
 
 ```
-GET    /api/v1/animals             # 猫一覧取得
-POST   /api/v1/animals             # 猫登録
-GET    /api/v1/animals/{id}        # 猫詳細取得
-PUT    /api/v1/animals/{id}        # 猫更新
-DELETE /api/v1/animals/{id}        # 猫削除（論理削除）
-GET    /api/v1/animals/search      # 猫検索
-POST   /api/v1/animals/import      # CSV一括登録
-GET    /api/v1/animals/export      # CSV一括出力
+GET    /api/v1/animals             # List animals
+POST   /api/v1/animals             # Create animal
+GET    /api/v1/animals/{id}        # Retrieve animal detail
+PUT    /api/v1/animals/{id}        # Update animal
+DELETE /api/v1/animals/{id}        # Soft-delete animal
+GET    /api/v1/animals/search      # Search animals
+POST   /api/v1/animals/import      # Bulk CSV import
+GET    /api/v1/animals/export      # Bulk CSV export
 ```
 
-#### 世話記録API
+#### CareLog API
 
 ```
-GET    /api/v1/care-logs           # 世話記録一覧取得
-POST   /api/v1/care-logs           # 世話記録登録
-GET    /api/v1/care-logs/{id}      # 世話記録詳細取得
-PUT    /api/v1/care-logs/{id}      # 世話記録更新
-GET    /api/v1/care-logs/export    # CSV出力
+GET    /api/v1/care-logs           # List care logs
+POST   /api/v1/care-logs           # Create care log
+GET    /api/v1/care-logs/{id}      # Retrieve care log detail
+PUT    /api/v1/care-logs/{id}      # Update care log
+GET    /api/v1/care-logs/export    # Export care logs as CSV
 ```
 
-#### 診療記録API
+#### Medical Record API
 
 ```
-GET    /api/v1/medical-records     # 診療記録一覧取得
-POST   /api/v1/medical-records     # 診療記録登録
-GET    /api/v1/medical-records/{id}# 診療記録詳細取得
-PUT    /api/v1/medical-records/{id}# 診療記録更新
+GET    /api/v1/medical-records     # List medical records
+POST   /api/v1/medical-records     # Create medical record
+GET    /api/v1/medical-records/{id}# Retrieve medical record detail
+PUT    /api/v1/medical-records/{id}# Update medical record
 ```
 
-#### PDF生成API
+#### PDF Generation API
 
 ```
-POST   /api/v1/pdf/qr-card         # QRカードPDF生成
-POST   /api/v1/pdf/paper-form      # 紙記録フォームPDF生成
-POST   /api/v1/pdf/medical-detail  # 診療明細PDF生成
-POST   /api/v1/pdf/report          # 帳票PDF生成
+POST   /api/v1/pdf/qr-card         # Generate QR card PDF
+POST   /api/v1/pdf/paper-form      # Generate paper form PDF
+POST   /api/v1/pdf/medical-detail  # Generate medical statement PDF
+POST   /api/v1/pdf/report          # Generate aggregate report PDF
 ```
 
-#### ボランティア管理API
+#### Volunteer Management API
 
 ```
-GET    /api/v1/volunteers          # ボランティア一覧取得
-POST   /api/v1/volunteers          # ボランティア登録
-GET    /api/v1/volunteers/{id}     # ボランティア詳細取得
-PUT    /api/v1/volunteers/{id}     # ボランティア更新
+GET    /api/v1/volunteers          # List volunteers
+POST   /api/v1/volunteers          # Create volunteer
+GET    /api/v1/volunteers/{id}     # Retrieve volunteer detail
+PUT    /api/v1/volunteers/{id}     # Update volunteer
 ```
 
-#### 里親管理API
+#### Adoption Management API
 
 ```
-GET    /api/v1/applicants          # 里親希望者一覧取得
-POST   /api/v1/applicants          # 里親希望者登録
-GET    /api/v1/applicants/{id}     # 里親希望者詳細取得
-PUT    /api/v1/applicants/{id}     # 里親希望者更新
-POST   /api/v1/adoptions           # 譲渡記録登録
-PUT    /api/v1/adoptions/{id}      # 譲渡記録更新
+GET    /api/v1/applicants          # List adoption applicants
+POST   /api/v1/applicants          # Create applicant
+GET    /api/v1/applicants/{id}     # Retrieve applicant detail
+PUT    /api/v1/applicants/{id}     # Update applicant
+POST   /api/v1/adoptions           # Create adoption record
+PUT    /api/v1/adoptions/{id}      # Update adoption record
 ```
 
-#### マスターデータAPI
+#### Master Data API
 
 ```
-GET    /api/v1/procedures          # 処置マスター一覧
-POST   /api/v1/procedures          # 処置マスター登録
-GET    /api/v1/medications         # 薬剤マスター一覧
-POST   /api/v1/medications         # 薬剤マスター登録
-GET    /api/v1/vaccines            # ワクチンマスター一覧
-POST   /api/v1/vaccines            # ワクチンマスター登録
+GET    /api/v1/procedures          # List procedure master
+POST   /api/v1/procedures          # Create procedure master record
+GET    /api/v1/medications         # List medication master
+POST   /api/v1/medications         # Create medication master record
+GET    /api/v1/vaccines            # List vaccine master
+POST   /api/v1/vaccines            # Create vaccine master record
 ```
 
-#### ダッシュボードAPI
+#### Dashboard API
 
 ```
-GET    /api/v1/dashboard/stats     # 統計情報取得
-GET    /api/v1/dashboard/chart     # グラフデータ取得
+GET    /api/v1/dashboard/stats     # Get dashboard stats
+GET    /api/v1/dashboard/chart     # Get chart data for graphs
 ```
 
-#### 画像管理API
+#### Image Management API
 
 ```
-POST   /api/v1/animals/{id}/images # 画像アップロード
-GET    /api/v1/animals/{id}/images # 画像一覧取得
-DELETE /api/v1/images/{id}         # 画像削除
+POST   /api/v1/animals/{id}/images # Upload image for cat
+GET    /api/v1/animals/{id}/images # List images for cat
+DELETE /api/v1/images/{id}         # Delete image
 ```
 
 #### OCR API
 
 ```
-POST   /api/v1/ocr/upload          # 画像/PDFアップロード→OCR処理
-GET    /api/v1/ocr/status/{job_id} # OCR処理状況取得
+POST   /api/v1/ocr/upload          # Upload image/PDF and trigger OCR
+GET    /api/v1/ocr/status/{job_id} # Get OCR job status
 ```
 
-#### Public API（認証不要）
+#### Public API (No Authentication)
 
 ```
-GET    /api/v1/public/animals/{animal_id}              # 猫情報取得
-GET    /api/v1/public/volunteers                       # アクティブボランティア一覧
-POST   /api/v1/public/care-logs                        # 記録保存（IPアドレス・User-Agent自動記録）
-GET    /api/v1/public/care-logs/latest/{animal_id}    # 前回入力値取得
-GET    /api/v1/public/care-logs/animal/{animal_id}    # 特定猫の記録一覧（直近7日間）
-GET    /api/v1/public/care-logs/animal/{animal_id}/{log_id}  # 特定記録の詳細
-GET    /api/v1/public/care-logs/status/today          # 全猫の当日記録状況一覧
+GET    /api/v1/public/animals/{animal_id}              # Get public cat info
+GET    /api/v1/public/volunteers                       # List active volunteers
+POST   /api/v1/public/care-logs                        # Save care log (IP/User-Agent recorded)
+GET    /api/v1/public/care-logs/latest/{animal_id}    # Get latest values for copy
+GET    /api/v1/public/care-logs/animal/{animal_id}    # Get last 7 days of logs for cat
+GET    /api/v1/public/care-logs/animal/{animal_id}/{log_id}  # Get specific log detail
+GET    /api/v1/public/care-logs/status/today          # Get today’s recording status for all cats
 ```
 
 
-### フロントエンド構成
+### Frontend Structure
 
-#### 管理画面（Tailwind CSS + HTMX + Alpine.js）
+#### Admin UI (Tailwind CSS + HTMX + Alpine.js)
 
-**技術スタック**:
-- **Tailwind CSS 3.3+**: ユーティリティファーストCSSフレームワーク（CDN経由）
-- **HTMX 2.0+**: HTMLベースの動的UI更新
-- **Alpine.js 3.x**: 軽量なリアクティブコンポーネント
+**Tech stack**:
+- **Tailwind CSS 3.3+**: Utility-first CSS framework (via CDN)
+- **HTMX 2.0+**: HTML-based dynamic UI updates
+- **Alpine.js 3.x**: Lightweight reactive components
 
-**レイアウト構造**:
+**Layout structure**:
 ```
 ┌────────────────────────────────────────────────┐
-│ Header (ロゴ、ユーザー名、ログアウト)          │
+│ Header (logo, user name, logout)                │
 ├────────┬───────────────────────────────────────┤
 │        │ Dashboard                             │
 │ Side   │ ┌─────────┬─────────┬─────────┐     │
-│ bar    │ │保護中   │譲渡可能 │今月譲渡 │     │
-│        │ │ 15頭    │ 8頭     │ 3頭     │     │
-│ - 猫台帳│ └─────────┴─────────┴─────────┘     │
-│ - 世話 │ ┌───────────────────────────────┐   │
-│ - 診療 │ │ 世話記録入力数推移（7日間）   │   │
-│ - 里親 │ │ [グラフ]                      │   │
-│ - マスタ│ └───────────────────────────────┘   │
-│ - 帳票 │ ┌───────────────────────────────┐   │
-│ - 設定 │ │ 長期保護猫一覧                │   │
-│        │ │ [テーブル]                    │   │
+│ bar    │ │Protected│Adoptable│Adopted  │     │
+│        │ │  15     │   8     │   3     │     │
+│ - Animals│└─────────┴─────────┴─────────┘     │
+│ - Care   │┌───────────────────────────────┐   │
+│ - Medical││ CareLog count (last 7 days)  │   │
+│ - Adoption││ [Chart]                      │   │
+│ - Masters│└───────────────────────────────┘   │
+│ - Reports│┌───────────────────────────────┐   │
+│ - Settings││ Long-term protected cats      │   │
+│        │ │ [Table]                        │   │
 │        │ └───────────────────────────────┘   │
 └────────┴───────────────────────────────────────┘
 ```
 
-**主要画面**:
-1. ダッシュボード: 統計情報、グラフ、アラート
-2. 猫台帳一覧: DataTables（検索、ソート、ページング）
-3. 猫詳細: タブ（基本情報、世話記録、診療記録、画像ギャラリー、体重グラフ）
-4. 世話記録一覧: DataTables、CSVエクスポート
-5. 診療記録一覧: DataTables、PDF/CSV/Excel出力
-6. 里親管理: 希望者一覧、面談記録、譲渡記録
-7. マスター管理: 診療行為、ボランティア
-8. 帳票出力: 日報、週報、月次集計、個別帳票
-9. 設定: 団体情報、画像制限、言語、ユーザー管理
+**Main screens**:
+1. Dashboard: KPIs, charts, and alerts.
+2. Animal master list: searchable, sortable, paginated listing.
+3. Animal detail: tabs (basic info, CareLogs, MedicalRecords, image gallery, weight graph).
+4. CareLog list: filters and CSV export.
+5. Medical record list: filters and PDF/CSV/Excel export.
+6. Adoption management: applicants, interview records, adoption records.
+7. Master data: medical actions, volunteers.
+8. Reports: daily/weekly/monthly and per-animal reports.
+9. Settings: organization info, image limits, language, user management.
 
-**診療行為マスター登録画面**:
+**Medical Action master maintenance screen**:
 ```
 ┌────────────────────────────────────────────────┐
-│ 診療行為マスター管理                           │
+│ Medical Action Master                          │
 ├────────────────────────────────────────────────┤
-│ [新規登録]  [CSVインポート]  [CSVエクスポート]│
+│ [New]  [CSV Import]  [CSV Export]             │
 ├────────────────────────────────────────────────┤
-│ 診療行為一覧（DataTables）                     │
+│ Medical action list (DataTables)              │
 │ ┌──────────────────────────────────────────┐ │
-│ │ 名称 │ カテゴリ │ 単位 │ 請求価格 │ 操作 │ │
+│ │ Name │ Category │ Unit │ Price    │ Ops │ │
 │ ├──────────────────────────────────────────┤ │
-│ │ 抗生剤A │ 薬剤 │ 錠 │ 500円 │ [編集][削除]│ │
-│ │ ワクチンB │ ワクチン │ 本 │ 3000円 │ [編集][削除]│ │
-│ │ 血液検査 │ 検査 │ 回 │ 5000円 │ [編集][削除]│ │
+│ │ Antibiotic A │ Drug   │ tablet │ 500 JPY  │ [Edit][Delete]│ │
+│ │ Vaccine B    │ Vaccine│ bottle │ 3000 JPY │ [Edit][Delete]│ │
+│ │ Blood test   │ Test   │ times  │ 5000 JPY │ [Edit][Delete]│ │
 │ └──────────────────────────────────────────┘ │
 └────────────────────────────────────────────────┘
 
-診療行為登録・編集モーダル:
+Medical action create/edit modal:
 ┌────────────────────────────────────────────────┐
-│ 診療行為登録                                   │
+│ Register Medical Action                        │
 ├────────────────────────────────────────────────┤
-│ 診療名称: [________________] *必須             │
-│ カテゴリ: [選択 ▼] (薬剤/ワクチン/検査/その他)│
-│ 投薬単位: [選択 ▼] (錠/本/回/mL)              │
-│ 原価: [________] 円                            │
-│ 請求価格: [________] 円 *必須                  │
-│ 投薬・処置料金: [________] 円                  │
-│ 通貨: [JPY ▼]                                  │
-│ 適用開始日: [2025-11-15] *必須                 │
-│ 適用終了日: [________] (未設定=現在も有効)     │
-│ 説明: [____________________________]           │
-│       [____________________________]           │
+│ Name: [________________] *required             │
+│ Category: [select ▼] (drug/vaccine/test/other)│
+│ Dosage unit: [select ▼] (tablet/bottle/times/mL)│
+│ Cost price: [________] JPY                     │
+│ Billing unit price: [________] JPY *required   │
+│ Procedure fee: [________] JPY                  │
+│ Currency: [JPY ▼]                              │
+│ Valid from: [2025-11-15] *required             │
+│ Valid to: [________] (empty = still valid)     │
+│ Description: [____________________________]    │
+│             [____________________________]     │
 ├────────────────────────────────────────────────┤
-│ [キャンセル]  [保存]                           │
+│ [Cancel]  [Save]                               │
 └────────────────────────────────────────────────┘
 ```
 
-**投薬単位の選択肢**:
-- 錠（tablet）: 錠剤・カプセル剤
-- 本（bottle）: 注射・点滴・ボトル
-- 回（times）: 処置・検査の回数
-- mL（milliliter）: 液体薬剤の容量
+**Dosage unit options**:
+- **tablet**: tablets / capsules
+- **bottle**: injections / drips / bottles
+- **times**: number of procedures or tests
+- **mL (milliliter)**: volume of liquid medicine
 
-#### Publicフォーム（Tailwind CSS + PWA）
+#### Public Form (Tailwind CSS + PWA)
 
-**1. 記録入力フォーム**:
+**1. CareLog input form**:
 ```
 ┌────────────────────────────────────────┐
-│ [猫の顔写真]                           │
-│ たま（ID: 001）                        │
+│ [Cat face photo]                       │
+│ Tama (ID: 001)                         │
 ├────────────────────────────────────────┤
-│ 記録者: [選択リスト ▼]                │
+│ Recorder: [select ▼]                  │
 │                                        │
-│ 体重: [____] kg                        │
-│ 食事量: [____]                         │
-│ 水: [____]                             │
-│ 排泄: [____]                           │
-│ 投薬: [____]                           │
-│ メモ: [________________]               │
+│ Weight: [____] kg                      │
+│ Food: [____]                           │
+│ Water: [____]                          │
+│ Excretion: [____]                      │
+│ Medication: [____]                     │
+│ Memo: [________________]               │
 │                                        │
-│ [前回値コピー]                         │
+│ [Copy last values]                     │
 ├────────────────────────────────────────┤
-│ [記録一覧を見る] [保存]               │
+│ [View records] [Save]                  │
 └────────────────────────────────────────┘
 ```
 
-**2. 個別猫の記録一覧ページ**:
+**2. Per-cat CareLog list page**:
 ```
 ┌────────────────────────────────────────┐
-│ [猫の顔写真]                           │
-│ たま（ID: 001）の記録                  │
+│ [Cat face photo]                       │
+│ Records for Tama (ID: 001)            │
 ├────────────────────────────────────────┤
-│ 今日の記録状況:                        │
-│ 朝: ○  昼: ×  夕: ○                   │
+│ Today’s recording status:             │
+│ Morning: ○  Noon: ×  Evening: ○      │
 ├────────────────────────────────────────┤
-│ 直近7日間の記録:                       │
+│ Last 7 days:                          │
 │ ┌──────────────────────────────────┐ │
-│ │ 2025-11-15 朝 ○ 山田太郎         │ │
-│ │ 2025-11-15 昼 × -                │ │
-│ │ 2025-11-15 夕 ○ 佐藤花子         │ │
-│ │ 2025-11-14 朝 ○ 山田太郎         │ │
+│ │ 2025-11-15 Morning ○ Yamada      │ │
+│ │ 2025-11-15 Noon    × -           │ │
+│ │ 2025-11-15 Evening ○ Sato        │ │
+│ │ 2025-11-14 Morning ○ Yamada      │ │
 │ │ ...                              │ │
 │ └──────────────────────────────────┘ │
 ├────────────────────────────────────────┤
-│ [記録を入力する]                       │
+│ [Enter new record]                     │
 └────────────────────────────────────────┘
 ```
 
-**3. 全猫の記録状況一覧ページ**:
+**3. All-cats daily status page**:
 ```
 ┌────────────────────────────────────────┐
-│ 全猫の記録状況（2025-11-15）           │
+│ All cats recording status (2025-11-15) │
 ├────────────────────────────────────────┤
 │ ┌──────────────────────────────────┐ │
-│ │ [写真] たま                      │ │
-│ │ 朝: ○  昼: ×  夕: ○              │ │
-│ │ [記録する]                       │ │
+│ │ [Photo] Tama                     │ │
+│ │ Morning: ○  Noon: ×  Evening: ○ │ │
+│ │ [Record]                         │ │
 │ ├──────────────────────────────────┤ │
-│ │ [写真] ミケ                      │ │
-│ │ 朝: ○  昼: ○  夕: ×              │ │
-│ │ [記録する]                       │ │
+│ │ [Photo] Mike                     │ │
+│ │ Morning: ○  Noon: ○  Evening: × │ │
+│ │ [Record]                         │ │
 │ ├──────────────────────────────────┤ │
-│ │ [写真] クロ                      │ │
-│ │ 朝: ×  昼: ×  夕: ×              │ │
-│ │ [記録する]                       │ │
+│ │ [Photo] Kuro                     │ │
+│ │ Morning: ×  Noon: ×  Evening: × │ │
+│ │ [Record]                         │ │
 │ └──────────────────────────────────┘ │
 └────────────────────────────────────────┘
 ```
 
-**PWA機能**:
-- Service Worker: オフライン対応、キャッシュ管理
-- manifest.json: ホーム画面追加、アイコン設定
-- IndexedDB: オフライン時のデータ一時保存
-- Background Sync: オンライン復帰時の自動同期
+**PWA features**:
+- Service Worker: offline support and cache management.
+- `manifest.json`: install to home screen and icons.
+- IndexedDB: temporary storage while offline.
+- Background Sync: automatic sync when back online.
 
-### 認証・認可フロー
+### Authentication & Authorization Flow
 
-#### JWT認証管理
+#### JWT Authentication Management
 
 ```python
 from jose import jwt, JWTError
@@ -717,15 +717,15 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-# OAuth2スキーム設定
+# OAuth2 scheme configuration
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
-# JWT設定
-SECRET_KEY = "your-secret-key-here"  # 環境変数から取得
+# JWT settings
+SECRET_KEY = "your-secret-key-here"  # to be loaded from env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 2
 
-# JWTアクセストークン生成
+# Create JWT access token
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
@@ -737,7 +737,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# トークン検証
+# Verify token
 def verify_token(token: str):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -753,7 +753,7 @@ def verify_token(token: str):
     except JWTError:
         raise credentials_exception
 
-# 認証依存性
+# Auth dependency
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     user_id = verify_token(token)
     user = db.query(User).filter(User.id == user_id).first()
@@ -761,7 +761,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=401, detail="User not found or inactive")
     return user
 
-# ログインエンドポイント
+# Login endpoint
 @app.post("/api/v1/auth/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
@@ -778,62 +778,62 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# 保護されたエンドポイント
+# Protected endpoint
 @app.get("/api/v1/users/me")
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 ```
 
-#### 権限チェック
+#### Permission Check
 
 ```python
-# デコレータによる権限チェック
+# Decorator-style permission check
 @require_role(["admin", "vet"])
 async def create_medical_record(request: Request):
-    # 診療記録作成処理
-    pass
+  # Medical record creation logic
+  pass
 
-# ロール別権限マトリクス
+# Role-based permission matrix
 PERMISSIONS = {
-    "admin": ["*"],  # 全権限
-    "vet": ["medical:*", "report:read"],
-    "staff": ["animal:read", "care:read", "medical:read", "report:*"],
-    "read_only": ["*:read"],
-    "volunteer": []  # Publicフォームのみ
+  "admin": ["*"],  # Full permissions
+  "vet": ["medical:*", "report:read"],
+  "staff": ["animal:read", "care:read", "medical:read", "report:*"],
+  "read_only": ["*:read"],
+  "volunteer": []  # Public form only
 }
 ```
 
-### PDF生成フロー
+  ### PDF Generation Flow
 
-#### QRカード生成
+  #### QR Card Generation
 
 ```python
-# 1. QRコード生成
+# 1. Generate QR code
 qr_url = f"https://necokeeper.example.com/public/care/{animal.id}"
 qr_img = qrcode.make(qr_url)
 
-# 2. HTMLテンプレートレンダリング
+# 2. Render HTML template
 html = render_template("pdf/qr_card.html", animal=animal, qr_img=qr_img)
 
-# 3. WeasyPrintでPDF生成
+# 3. Generate PDF with WeasyPrint
 pdf = HTML(string=html).write_pdf()
 
-# 4. レスポンス返却
+# 4. Return response
 return Response(pdf, media_type="application/pdf")
 ```
 
-#### 面付けカード生成
+#### Multi-up Card Generation
 
 ```python
-# A4用紙に2×5枚配置
+# Arrange 2×5 cards on an A4 page
 animals_list = [animals[i:i+10] for i in range(0, len(animals), 10)]
 for page_animals in animals_list:
     html += render_template("pdf/qr_card_grid.html", animals=page_animals)
 ```
 
-### 多言語対応
+### Internationalization
 
-#### 対訳ファイル構造
+#### Translation File Structure
 
 ```json
 // static/i18n/ja.json
@@ -869,10 +869,10 @@ for page_animals in animals_list:
 }
 ```
 
-#### 言語切り替え
+#### Language Switching
 
 ```javascript
-// フロントエンド（i18next）
+// Frontend (i18next)
 i18next.init({
   lng: localStorage.getItem('language') || navigator.language.split('-')[0],
   fallbackLng: 'ja',
@@ -882,65 +882,65 @@ i18next.init({
   }
 });
 
-// バックエンド（Jinja2）
+// Backend (Jinja2)
 {% set lang = request.cookies.get('language', 'ja') %}
 {{ t[lang]['common']['save'] }}
 ```
 
 ## Error Handling
 
-### エラー分類
+### Error Categories
 
-1. **バリデーションエラー** (400 Bad Request)
-   - 必須項目未入力
-   - 形式不正（メールアドレス、日付等）
-   - 範囲外の値
+1. **Validation Error** (400 Bad Request)
+  - Missing required fields.
+  - Invalid format (email, date, etc.).
+  - Out-of-range values.
 
-2. **認証エラー** (401 Unauthorized)
-   - ログイン失敗
-   - セッション期限切れ
+2. **Authentication Error** (401 Unauthorized)
+  - Login failure.
+  - Session/token expired.
 
-3. **認可エラー** (403 Forbidden)
-   - 権限不足
+3. **Authorization Error** (403 Forbidden)
+  - Insufficient permissions.
 
-4. **リソース未検出** (404 Not Found)
-   - 存在しない猫ID
-   - 存在しない記録
+4. **Resource Not Found** (404 Not Found)
+  - Non-existent cat ID.
+  - Non-existent record.
 
-5. **サーバーエラー** (500 Internal Server Error)
-   - データベース接続エラー
-   - PDF生成エラー
-   - OCR処理エラー
+5. **Server Error** (500 Internal Server Error)
+  - Database connection error.
+  - PDF generation error.
+  - OCR processing error.
 
-### エラーレスポンス形式
+### Error Response Format
 
 ```json
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "入力内容に誤りがあります",
+    "message": "There is an error in the submitted data.",
     "details": [
       {
         "field": "weight",
-        "message": "体重は0.1〜50.0の範囲で入力してください"
+        "message": "Weight must be within the range 0.1–50.0 kg."
       }
     ]
   }
 }
 ```
 
-### エラーログ
+### Error Logging
 
 ```python
 import logging
 
 logger = logging.getLogger(__name__)
 
-# ログレベル
-# INFO: 正常な操作
-# WARNING: 警告（ログイン失敗等）
-# ERROR: エラー（データベースエラー等）
-# CRITICAL: 致命的エラー（システム停止等）
+# Log levels
+# INFO: normal operations
+# WARNING: warnings (e.g., login failures)
+# ERROR: errors (e.g., DB errors)
+# CRITICAL: fatal errors (system down)
 
 logger.error(
     f"Database error: {str(e)}",
@@ -954,39 +954,39 @@ logger.error(
 
 ## Testing Strategy
 
-### テスト方針
+### Test Policy
 
-1. **単体テスト**: 各サービス、ユーティリティ関数
-2. **統合テスト**: API エンドポイント
-3. **E2Eテスト**: 主要ユーザーフロー（オプション）
+1. **Unit tests**: Each service and utility function.
+2. **Integration tests**: API endpoints.
+3. **E2E tests**: Main user flows (optional, but desirable).
 
-### テストツール
+### Test Tooling
 
-**バックエンドテスト:**
-- **pytest**: テストフレームワーク
-- **pytest-asyncio**: 非同期テスト
-- **httpx**: APIテスト
-- **faker**: テストデータ生成
+**Backend tests:**
+- **pytest**: test framework.
+- **pytest-asyncio**: async test support.
+- **httpx**: API client for tests.
+- **faker**: test data generation.
 
-**フロントエンドテスト:**
-- **Jest**: JavaScriptテストフレームワーク
-- **Playwright**: E2Eテスト（オプション）
-- **jsdom**: DOM環境シミュレーション
+**Frontend tests:**
+- **Jest**: JavaScript test framework.
+- **Playwright**: E2E tests (optional).
+- **jsdom**: DOM simulation for unit tests.
 
-### テストカバレッジ目標
+### Target Coverage
 
-- サービス層: 80%以上
-- API層: 70%以上
-- 全体: 60%以上
+- Service layer: 80% or higher.
+- API layer: 70% or higher.
+- Overall: 60% or higher.
 
-### テスト設計方針（t-wada氏のDDD準拠）
+### Test Design Policy (DDD style inspired by t-wada)
 
-**テスト構造:**
-- **ドメインロジックテスト**: ビジネスルールの検証（単体テスト）
-- **アプリケーションサービステスト**: ユースケースの検証（統合テスト）
-- **インフラストラクチャテスト**: 外部依存の検証（統合テスト）
+**Test structure:**
+- **Domain logic tests**: Validate business rules (unit tests).
+- **Application service tests**: Validate use cases (integration tests).
+- **Infrastructure tests**: Validate external dependencies (integration tests).
 
-**テスト例**
+**Test examples**
 
 ```python
 # tests/domain/test_animal_domain.py
@@ -994,19 +994,19 @@ import pytest
 from app.domain.animal import Animal, AnimalStatus
 
 def test_animal_can_be_adopted_when_ready():
-    """譲渡可能な猫は譲渡できる（ドメインルール）"""
+    """Cats in READY_FOR_ADOPTION status can be adopted (domain rule)."""
     animal = Animal(name="たま", status=AnimalStatus.READY_FOR_ADOPTION)
     assert animal.can_be_adopted() is True
 
 def test_animal_cannot_be_adopted_when_under_treatment():
-    """治療中の猫は譲渡できない（ビジネスルール）"""
+    """Cats UNDER_TREATMENT cannot be adopted (business rule)."""
     animal = Animal(name="たま", status=AnimalStatus.UNDER_TREATMENT)
     assert animal.can_be_adopted() is False
 
 # tests/application/test_animal_service.py
 @pytest.mark.asyncio
 async def test_register_new_animal_use_case(db_session):
-    """新しい猫を登録するユースケース"""
+    """Use case: register a new cat."""
     service = AnimalService(db_session)
     command = RegisterAnimalCommand(
         name="たま",
@@ -1020,7 +1020,7 @@ async def test_register_new_animal_use_case(db_session):
 # tests/infrastructure/test_animal_repository.py
 @pytest.mark.asyncio
 async def test_animal_repository_persistence(db_session):
-    """動物リポジトリの永続化テスト"""
+    """Persistence test for AnimalRepository."""
     repo = AnimalRepository(db_session)
     animal = Animal(name="たま", pattern="三毛")
     saved_animal = await repo.save(animal)
@@ -1031,15 +1031,15 @@ async def test_animal_repository_persistence(db_session):
 
 ## Deployment
 
-### ホスティングサービス選定
+### Hosting Service Comparison
 
-| サービス | 永続化ストレージ | 無料枠 | SQLite対応 | 推奨度 |
-|---------|----------------|--------|-----------|--------|
-| Render | ○ (Disk) | 750時間/月 | ○ | ★★★ |
-| Railway | ○ (Volume) | $5クレジット/月 | ○ | ★★★ |
-| Fly.io | ○ (Volume) | 3GB/月 | ○ | ★★☆ |
+| Service | Persistent storage | Free tier | SQLite support | Recommendation |
+|---------|--------------------|----------|----------------|----------------|
+| Render  | Yes (Disk)         | 750h/month | Yes          | ★★★ |
+| Railway | Yes (Volume)       | $5 credit/month | Yes      | ★★★ |
+| Fly.io  | Yes (Volume)       | 3GB/month | Yes          | ★★☆ |
 
-### Render デプロイ設定
+### Render Deployment Config
 
 ```yaml
 # render.yaml
@@ -1062,7 +1062,7 @@ services:
       sizeGB: 1
 ```
 
-### Railway デプロイ設定
+### Railway Deployment Config
 
 ```json
 {
@@ -1078,7 +1078,7 @@ services:
 }
 ```
 
-### Fly.io デプロイ設定
+### Fly.io Deployment Config
 
 ```toml
 # fly.toml
@@ -1103,7 +1103,7 @@ primary_region = "nrt"
   destination = "/data"
 ```
 
-### 環境変数
+### Environment Variables
 
 ```bash
 # .env.example
@@ -1113,16 +1113,16 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 DEBUG=False
 LOG_LEVEL=INFO
 
-# オプション（OCR機能）
+# Optional (OCR features)
 OCR_ENABLED=False
 TESSERACT_PATH=/usr/bin/tesseract
 GOOGLE_CLOUD_VISION_API_KEY=
 AWS_TEXTRACT_ACCESS_KEY=
 ```
 
-### バックアップ戦略
+### Backup Strategy
 
-#### 自動バックアップ
+#### Automatic Backup
 
 ```python
 # app/tasks/backup.py
@@ -1131,71 +1131,71 @@ from datetime import datetime
 from pathlib import Path
 
 async def backup_database():
-    """データベースとメディアファイルをバックアップ"""
+    """Back up database and media files."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_dir = Path("/backups")
     backup_dir.mkdir(exist_ok=True)
 
-    # SQLiteバックアップ
+    # SQLite backup
     db_path = Path("/data/app.sqlite3")
     backup_db = backup_dir / f"app_{timestamp}.sqlite3"
     shutil.copy2(db_path, backup_db)
 
-    # メディアファイルバックアップ
+    # Media files backup
     media_path = Path("/media")
     backup_media = backup_dir / f"media_{timestamp}.tar.gz"
     shutil.make_archive(backup_media.with_suffix(""), "gztar", media_path)
 
-    # 90日以上前のバックアップを削除
+    # Delete backups older than 90 days
     cutoff = datetime.now() - timedelta(days=90)
     for backup_file in backup_dir.glob("*"):
         if backup_file.stat().st_mtime < cutoff.timestamp():
             backup_file.unlink()
 ```
 
-#### スケジュール設定
+#### Scheduling
 
 ```python
 # app/main.py
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 scheduler = AsyncIOScheduler()
-scheduler.add_job(backup_database, "cron", hour=2, minute=0)  # 毎晩2:00
+  scheduler.add_job(backup_database, "cron", hour=2, minute=0)  # Every day at 2:00
 scheduler.start()
 ```
 
 ## Security Considerations
 
-### セキュリティ対策一覧
+### Security Measures
 
-1. **認証・認可**
-   - bcrypt/passlibによるパスワードハッシュ化
-   - JWT + OAuth2 Password Flow認証
-   - ログイン試行回数制限（5回失敗で15分ロック）
-   - アクセストークン有効期限（2時間）
-   - Bearer Token認証（Authorization: Bearer {token}）
+1. **Authentication & Authorization**
+  - Password hashing with bcrypt/passlib.
+  - JWT + OAuth2 Password Flow.
+  - Login attempt limit (lock for 15 minutes after 5 failures).
+  - Access token expiry (2 hours).
+  - Bearer token authentication (`Authorization: Bearer {token}`).
 
-2. **入力検証**
-   - Pydanticによるバリデーション
-   - SQLAlchemy ORMによるSQLインジェクション対策
-   - ファイルアップロード検証（拡張子、MIMEタイプ、サイズ）
+2. **Input Validation**
+  - Validation with Pydantic.
+  - SQL injection protection via SQLAlchemy ORM.
+  - File upload validation (extension, MIME type, size).
 
-3. **通信セキュリティ**
-   - HTTPS必須（本番環境）
-   - HSTS（HTTP Strict Transport Security）
-   - Cookie Secure フラグ
+3. **Transport Security**
+  - HTTPS required in production.
+  - HSTS (HTTP Strict Transport Security).
+  - Secure flag for cookies.
 
-4. **データ保護**
-   - 個人情報の暗号化（オプション）
-   - バックアップの定期実行
-   - 監査ログの記録
+4. **Data Protection**
+  - Optional encryption for personally identifiable information.
+  - Regular backups.
+  - Audit logging.
 
-5. **脆弱性対策**
-   - 依存ライブラリの定期更新
-   - セキュリティヘッダー設定
-   - レート制限（API呼び出し）
+5. **Vulnerability Mitigation**
+  - Regular dependency updates.
+  - Security headers.
+  - Rate limiting for APIs.
 
-### セキュリティヘッダー
+### Security Headers
 
 ```python
 # app/middleware/security.py
@@ -1214,22 +1214,22 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 ## Performance Optimization
 
-### データベース最適化
+### Database Optimization
 
-1. **インデックス設計**
-   - 頻繁に検索されるカラムにインデックス作成
-   - 複合インデックスの活用
+1. **Index design**
+  - Add indexes to frequently queried columns.
+  - Use composite indexes where appropriate.
 
-2. **クエリ最適化**
-   - N+1問題の回避（eager loading）
-   - ページネーション実装
-   - 不要なカラムの除外（select specific columns）
+2. **Query optimization**
+  - Avoid N+1 problems with eager loading.
+  - Implement pagination.
+  - Select only necessary columns.
 
-3. **接続プール**
-   - SQLAlchemyの接続プール設定
-   - 最大接続数: 20
+3. **Connection pooling**
+  - Configure SQLAlchemy connection pool.
+  - Max connections: around 20.
 
-### キャッシュ戦略
+### Caching Strategy
 
 ```python
 # app/cache.py
@@ -1237,18 +1237,18 @@ from functools import lru_cache
 
 @lru_cache(maxsize=128)
 def get_active_volunteers():
-    """アクティブなボランティア一覧をキャッシュ"""
+    """Cache the list of active volunteers."""
     return db.query(Volunteer).filter(Volunteer.status == "active").all()
 ```
 
-### 画像最適化
+### Image Optimization
 
 ```python
 # app/utils/image.py
 from PIL import Image
 
 def optimize_image(image_path: Path, max_size: tuple = (1920, 1080)):
-    """画像を最適化（リサイズ、圧縮）"""
+    """Optimize image (resize and compress)."""
     img = Image.open(image_path)
     img.thumbnail(max_size, Image.Resampling.LANCZOS)
     img.save(image_path, optimize=True, quality=85)
@@ -1256,7 +1256,7 @@ def optimize_image(image_path: Path, max_size: tuple = (1920, 1080)):
 
 ## Monitoring and Logging
 
-### ログ設定
+### Logging Configuration
 
 ```python
 # app/logging_config.py
@@ -1267,7 +1267,7 @@ def setup_logging():
     logger = logging.getLogger("necokeeper")
     logger.setLevel(logging.INFO)
 
-    # ファイルハンドラー（ローテーション）
+    # Rotating file handler
     file_handler = RotatingFileHandler(
         "logs/app.log",
         maxBytes=10485760,  # 10MB
@@ -1280,7 +1280,7 @@ def setup_logging():
     )
     logger.addHandler(file_handler)
 
-    # コンソールハンドラー
+    # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
         logging.Formatter("%(levelname)s: %(message)s")
@@ -1288,7 +1288,7 @@ def setup_logging():
     logger.addHandler(console_handler)
 ```
 
-### メトリクス収集
+### Metrics Collection
 
 ```python
 # app/middleware/metrics.py
@@ -1316,13 +1316,13 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
 ## Migration Strategy
 
-### 初期データ投入
+### Initial Data Seeding
 
 ```python
 # app/db/init_data.py
 async def init_database():
-    """初期データを投入"""
-    # 初期管理者アカウント
+    """Insert initial data into the database."""
+    # Initial admin account
     admin_user = User(
         email="admin@example.com",
         password_hash=hash_password("changeme"),
@@ -1331,7 +1331,7 @@ async def init_database():
     )
     db.add(admin_user)
 
-    # サンプル猫データ
+    # Sample cat data
     sample_animal = Animal(
         name="サンプル猫",
         pattern="キジトラ",
@@ -1341,7 +1341,7 @@ async def init_database():
     )
     db.add(sample_animal)
 
-    # サンプルボランティア
+    # Sample volunteer data
     sample_volunteer = Volunteer(
         name="サンプルボランティア",
         status="active"
@@ -1351,7 +1351,7 @@ async def init_database():
     await db.commit()
 ```
 
-### データマイグレーション
+### Database Migration
 
 ```python
 # alembic/versions/001_initial.py
@@ -1364,7 +1364,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(100), nullable=True),
         sa.Column("pattern", sa.String(100), nullable=False),
-        # ... 他のカラム
+        # ... other columns
         sa.PrimaryKeyConstraint("id")
     )
     op.create_index("ix_animals_status", "animals", ["status"])
@@ -1376,53 +1376,53 @@ def downgrade():
 
 ## Future Enhancements
 
-### Phase 2 機能候補
+### Phase 2 Feature Candidates
 
-1. **通知機能**
-   - メール通知（譲渡決定、診療予定リマインダー）
-   - プッシュ通知（PWA）
+1. **Notification features**
+  - Email notifications (adoption decisions, visit reminders).
+  - Push notifications (PWA).
 
-2. **レポート機能強化**
-   - カスタムレポート作成
-   - グラフの種類追加（円グラフ、棒グラフ）
+2. **Reporting improvements**
+  - Custom report builder.
+  - Additional chart types (pie, bar, etc.).
 
-3. **SNS連携**
-   - 譲渡可能猫の自動投稿（Twitter、Instagram）
-   - 画像の自動リサイズ・最適化
+3. **SNS integration**
+  - Auto-post adoptable cats (X/Twitter, Instagram).
+  - Automatic image resize/optimization for SNS.
 
-4. **モバイルアプリ**
-   - React Native / Flutter
-   - ネイティブカメラ連携
+4. **Mobile app**
+  - React Native / Flutter.
+  - Native camera integration.
 
-5. **AI機能**
-   - 猫の顔認識
-   - 健康状態の異常検知
+5. **AI features**
+  - Cat face recognition.
+  - Anomaly detection for health status.
 
-6. **マルチテナント対応**
-   - 複数団体の管理
-   - 団体間データ共有
+6. **Multi-tenant support**
+  - Manage multiple organizations.
+  - Optional data sharing across organizations.
 
 ## Appendix
 
-### 開発環境セットアップ
+### Development Environment Setup
 
 ```bash
-# Python仮想環境作成
+# Create Python virtual environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 依存関係インストール
+# Install dependencies
 pip install -r requirements.txt
 
-# データベース初期化
+# Initialize database
 alembic upgrade head
 python -m app.db.init_data
 
-# 開発サーバー起動
+# Start development server
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 主要ライブラリバージョン
+### Main Library Versions
 
 ```
 fastapi==0.104.1
@@ -1442,7 +1442,7 @@ pytest-asyncio==0.21.1
 httpx==0.25.1
 ```
 
-### 参考資料
+### References
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)

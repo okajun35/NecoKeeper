@@ -1,1593 +1,1590 @@
 # Implementation Plan
 
-このドキュメントは、NecoKeeperシステムの実装タスクリストです。各タスクは段階的に実装可能で、前のタスクの成果物を活用します。
+This document is the implementation task list for the NecoKeeper system. Each task can be implemented iteratively, building on the deliverables of prior tasks.
 
-## 現在の状態
+## Current Status
 
-**プロジェクトステータス**: MVP Core 完成！Phase 10（多言語対応）完了、基本機能すべて実装済み
+**Project Status**: MVP Core complete! Phase 10 (Multilingual support) finished, all core features implemented.
 
-**完了済み:**
-- ✅ Phase 1: プロジェクト基盤とデータベース（全11タスク）
-- ✅ Phase 2: 認証・認可システム（全7タスク）
-- ✅ Phase 3: 猫管理機能（全6タスク）
-- ✅ Phase 4: 世話記録機能（全5タスク）
-- ✅ Phase 4: ボランティア管理（全4タスク）
-- ✅ Phase 5: 診療記録機能（全9タスク）✅ 2024-11-18完了
-- ✅ Phase 6: PDF生成機能（全5タスク）
-- ✅ Phase 6: CSV/Excelエクスポート機能（全4タスク）✅ 2024-11-18完了
-- ✅ Phase 7: 里親管理機能（全4タスク）✅ 2024-11-18完了
-- ✅ Phase 8: 管理画面UI（全15タスク）✅ 2024-11-18完了
-- ✅ Phase 9: Public API + PWA（全13タスク完了）
-- ✅ Phase 10: 多言語対応（全5タスク）✅ 2024-11-22完了
+**Completed:**
+- ✅ Phase 1: Project foundation and database (11 tasks)
+- ✅ Phase 2: Authentication & authorization system (7 tasks)
+- ✅ Phase 3: Animal management features (6 tasks)
+- ✅ Phase 4: CareLog features (5 tasks)
+- ✅ Phase 4: Volunteer management (4 tasks)
+- ✅ Phase 5: Medical record features (9 tasks) ✅ Completed 2024-11-18
+- ✅ Phase 6: PDF generation features (5 tasks)
+- ✅ Phase 6: CSV/Excel export features (4 tasks) ✅ Completed 2024-11-18
+- ✅ Phase 7: Adoption management features (4 tasks) ✅ Completed 2024-11-18
+- ✅ Phase 8: Admin UI (15 tasks) ✅ Completed 2024-11-18
+- ✅ Phase 9: Public API + PWA (13 tasks)
+- ✅ Phase 10: Multilingual support (5 tasks) ✅ Completed 2024-11-22
 
-**実装済み機能:**
-- ✅ データベース（全12モデル）
-- ✅ JWT認証・認可システム（RBAC、権限チェック）
-- ✅ 猫管理機能（CRUD、検索、ステータス管理、画像ギャラリー）
-- ✅ 世話記録機能（CRUD、CSV出力、前回値コピー、フィルター）
-- ✅ ボランティア管理機能（CRUD、活動履歴）
-- ✅ 診療記録機能（CRUD、診療行為マスター、料金計算、管理画面UI）✅ 2024-11-18完了
-- ✅ 里親管理機能（希望者管理、面談記録、譲渡記録、管理画面UI）✅ 2024-11-18完了
-- ✅ PDF生成機能（QRカード、面付けカード、紙記録フォーム、帳票）
-- ✅ 管理画面UI（ダッシュボード、猫台帳、世話記録、診療記録、里親管理、ボランティア、帳票出力、設定、ログイン、体重グラフ、画像ギャラリー、検索）✅ 2024-11-18完了
-- ✅ Public API（認証不要の世話記録入力、記録一覧、記録詳細）
-- ✅ PWA機能（manifest.json、Service Worker、オフライン同期）
-- ✅ 多言語対応（日本語・英語、i18next統合、800+翻訳キー）✅ 2024-11-22完了
-- ✅ 統合テスト（232テスト、カバレッジ84.90%）
+**Implemented Features:**
+- ✅ Database (12 models)
+- ✅ JWT-based authentication & authorization (RBAC, permission checks)
+- ✅ Animal management (CRUD, search, status management, image gallery)
+- ✅ CareLog management (CRUD, CSV export, copy previous values, filters)
+- ✅ Volunteer management (CRUD, activity history)
+- ✅ Medical record management (CRUD, medical actions master, billing calculation, admin UI) ✅ Completed 2024-11-18
+- ✅ Adoption management (applicants, interviews, adoption records, admin UI) ✅ Completed 2024-11-18
+- ✅ PDF generation (QR cards, imposed cards, paper forms, reports)
+- ✅ Admin UI (dashboard, animal ledger, care logs, medical records, adoption management, volunteers, report export, settings, login, weight chart, image gallery, search) ✅ Completed 2024-11-18
+- ✅ Public API (unauthenticated CareLog input, list, detail)
+- ✅ PWA features (manifest.json, Service Worker, offline sync)
+- ✅ Multilingual support (Japanese/English, i18next integration, 800+ translation keys) ✅ Completed 2024-11-22
+- ✅ Integration tests (232 tests, coverage 84.90%)
 
-**次のステップ**: Phase 11（セキュリティとログ）、Phase 12（バックアップ）、Phase 15（残りのドキュメント整備）
+**Next Steps**: Phase 11 (Security and logging), Phase 12 (Backups), Phase 15 (Remaining documentation)
 
-**🎉 本番環境デプロイ完了！**
+**🎉 Production Deployment Complete!**
 - **URL**: https://necokeeper.onrender.com
-- **プラン**: Render Free Plan（1週間のPoC向け）
-- **デプロイ日**: 2024-11-23
-- **動作確認**: ✅ ログイン画面、API、多言語対応すべて正常動作
+- **Plan**: Render Free Plan (1-week PoC)
+- **Deployment date**: 2024-11-23
+- **Verification**: ✅ Login screen, APIs, and multilingual support all working correctly
 
-**重要な注意事項:**
+**Important Notes:**
 
-1. **Context7 MCP使用**: すべてのコード実装前に、Context7 MCPを使用して最新のライブラリドキュメントを参照すること
+1. **Use Context7 MCP**: Before any code implementation, use Context7 MCP to consult the latest library documentation.
 
-2. **コード品質基準（code-structure-review統合）**:
-   - すべてのファイルに `from __future__ import annotations` を追加
-   - 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
-   - Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
-   - Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
-   - 空のコレクションには明示的な型注釈を付与
-   - SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
-   - エラーハンドリングを統一（HTTPException、ロギング）
-   - すべての関数にDocstring（Args, Returns, Raises, Example）を記述
+2. **Code quality standards (code-structure-review integration):**
+  - Add `from __future__ import annotations` to all files.
+  - For type hints, use `collections.abc` (`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`).
+  - Use `X | None` syntax for optional types (not `Optional[X]`).
+  - Use `X | Y` syntax for unions (not `Union[X, Y]`).
+  - Add explicit type annotations to empty collections.
+  - For SQLAlchemy models, use `server_default=func.now()` and `onupdate=func.now()`.
+  - Standardize error handling (HTTPException, logging).
+  - Add docstrings (Args, Returns, Raises, Example) to all functions.
 
-3. **Mypy strict mode**: すべてのコードは `mypy --strict` をパスすること
+3. **Mypy strict mode**: All code must pass `mypy --strict`.
 
-4. **テスト**: 実装と並行してテストを作成し、品質を担保すること
+4. **Tests**: Write tests in parallel with implementation to ensure quality.
 
-### Context7 MCP 使用方法
-1. **ライブラリID解決**: `mcp_context7_resolve_library_id` でライブラリ名を検索
-2. **ドキュメント取得**: `mcp_context7_get_library_docs` で最新ドキュメントを取得（tokens: 5000推奨）
-3. **実装根拠**: 取得したドキュメントを一次根拠として設計・実装を行う
-4. **バージョン確認**: 非推奨APIが疑われる場合は Context7 で再確認
+### How to Use Context7 MCP
+1. **Resolve library ID**: Use `mcp_context7_resolve_library_id` to look up library names.
+2. **Fetch documentation**: Use `mcp_context7_get_library_docs` to retrieve up-to-date docs (recommended: tokens 5000).
+3. **Implementation basis**: Use the retrieved docs as the primary reference for design and implementation.
+4. **Version check**: If you suspect deprecations, confirm via Context7.
 
-## クイックスタートガイド
+## Quick Start Guide
 
-### 開発環境セットアップ（初回のみ）
+### Development Environment Setup (first time only)
 ```bash
-# 1. 仮想環境作成
+# 1. Create virtual environment
 python -m venv .venv
 
-# 2. 仮想環境アクティベート（Windows）
+# 2. Activate virtual environment (Windows)
 .venv\Scripts\activate
 
-# 3. 依存関係インストール
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. 環境変数設定
-# .env ファイルを作成し、必要な環境変数を設定
+# 4. Environment variables
+# Create a .env file and set required environment variables
 ```
 
-### タスク実行の流れ
-1. 該当Phaseの「Context7 MCP使用ガイドライン」を確認
-2. Context7 MCPで最新ドキュメントを取得
-3. タスクを1つずつ実装
-4. 実装完了後、チェックボックスをマーク
-5. 次のタスクへ進む
+### Task Execution Flow
+1. Check the "Context7 MCP usage guidelines" for the relevant Phase.
+2. Use Context7 MCP to fetch the latest documentation.
+3. Implement tasks one by one.
+4. After completing implementation, mark the checkbox.
+5. Move on to the next task.
 
-## タスク実行の注意事項
+## Notes for Executing Tasks
 
-- すべてのタスクは必須です（テスト含む）
-- 各タスクは独立して実装可能ですが、依存関係に注意してください
-- **必須**: Context7 MCPを使用して最新のライブラリドキュメントを参照すること
-- 各Phase開始時に、該当するContext7ガイドラインを確認すること
-- テストは実装と並行して作成し、品質を担保してください
+- All tasks are mandatory (including tests).
+- Each task can be implemented independently, but pay attention to dependencies.
+- **Required**: Use Context7 MCP to consult the latest library documentation.
+- At the start of each Phase, review the relevant Context7 guidelines.
+- Write tests in parallel with implementation to ensure quality.
 
-## 実装優先順位
+## Implementation Priority
 
-### 最優先（MVP Core）
-1. ✅ Phase 1: プロジェクト基盤とデータベース
-2. ✅ Phase 2: 認証・認可システム
-3. ✅ Phase 3: 猫管理機能（基本CRUD）
-4. ✅ Phase 4: 世話記録機能（基本入力）
-5. ✅ Phase 6: PDF生成機能（QRカード）
-6. ✅ Phase 9: Publicフォーム（基本入力）
+### Highest Priority (MVP Core)
+1. ✅ Phase 1: Project foundation and database
+2. ✅ Phase 2: Authentication & authorization system
+3. ✅ Phase 3: Animal management (basic CRUD)
+4. ✅ Phase 4: CareLog (basic input)
+5. ✅ Phase 6: PDF generation (QR cards)
+6. ✅ Phase 9: Public forms (basic input)
 
-### 高優先（MVP Extended）
-7. ✅ Phase 5: 診療記録機能
-8. ✅ Phase 7: 里親管理機能
-9. ✅ Phase 8: 管理画面UI（基本画面）
-10. Phase 11: セキュリティとログ
+### High Priority (MVP Extended)
+7. ✅ Phase 5: Medical record features
+8. ✅ Phase 7: Adoption management
+9. ✅ Phase 8: Admin UI (basic screens)
+10. Phase 11: Security and logging
 
-### 中優先（Enhancement）
-11. ✅ Phase 10: 多言語対応
-12. Phase 12: バックアップとデータ管理
-13. Phase 15: デプロイとドキュメント
+### Medium Priority (Enhancement)
+11. ✅ Phase 10: Multilingual support
+12. Phase 12: Backup and data management
+13. Phase 15: Deployment and documentation
 
-### 低優先（Optional）
-14. Phase 13: OCR機能
-15. Phase 14: ヘルプとサポート
-16. Phase 16: パフォーマンス最適化とテスト
-17. Phase 17: 最終調整とリリース
+### Low Priority (Optional)
+14. Phase 13: OCR features
+15. Phase 14: Help and support
+16. Phase 16: Performance optimization and tests
+17. Phase 17: Final polishing and release
 
 ---
 
-## Phase 1: プロジェクト基盤とデータベース ✅ 完了
+## Phase 1: Project Foundation and Database ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- 各タスク実装前に、必ず Context7 MCP を使用して最新ドキュメントを参照すること
-- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
-- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
-- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
-- WeasyPrint実装: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索後、ドキュメント取得
+**Context7 MCP usage guidelines:**
+- Before each task, always use Context7 MCP to consult the latest documentation.
+- FastAPI implementation: use `mcp_context7_get_library_docs` with `/fastapi/fastapi` (tokens: 5000).
+- SQLAlchemy implementation: use `mcp_context7_get_library_docs` with `/sqlalchemy/sqlalchemy` (tokens: 5000).
+- Pydantic implementation: use `mcp_context7_get_library_docs` with `/pydantic/pydantic` (tokens: 5000).
+- WeasyPrint implementation: use `mcp_context7_resolve_library_id` to search for "WeasyPrint", then fetch the docs.
 
-**コード品質改善（code-structure-review統合）**:
-- すべてのファイルに `from __future__ import annotations` を追加
-- 型ヒントは `collections.abc` を使用（`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`）
-- Optional型は `X | None` 構文を使用（`Optional[X]` ではなく）
-- Union型は `X | Y` 構文を使用（`Union[X, Y]` ではなく）
-- 空のコレクションには明示的な型注釈を付与
-- SQLAlchemyモデルは `server_default=func.now()` と `onupdate=func.now()` を使用
-- データベースモジュールにPostgreSQL互換の命名規則を追加
+**Code quality improvements (code-structure-review integration):**
+- Add `from __future__ import annotations` to all files.
+- For type hints, use `collections.abc` (`list[T]`, `dict[K, V]`, `Sequence[T]`, `Iterator[T]`).
+- Use `X | None` for optionals (not `Optional[X]`).
+- Use `X | Y` for unions (not `Union[X, Y]`).
+- Add explicit type annotations to empty collections.
+- In the database module, add PostgreSQL-compatible naming conventions.
 
-### 1. プロジェクト構造とセットアップ
+### 1. Project structure and setup
 
-プロジェクトの基本構造を作成し、必要な依存関係をセットアップします。
+Create the basic project structure and set up required dependencies.
 
-- [x] 1.1 プロジェクトディレクトリ構造を作成
-  - `app/`, `data/`, `media/`, `backups/`, `tests/` ディレクトリ
-  - `app/models/`, `app/schemas/`, `app/api/`, `app/services/`, `app/auth/`, `app/templates/`, `app/static/` サブディレクトリ
-  - _Requirements: 技術的制約1, 技術的制約2_
+- [x] 1.1 Create project directory structure
+  - Directories: `app/`, `data/`, `media/`, `backups/`, `tests/`
+  - Subdirectories: `app/models/`, `app/schemas/`, `app/api/`, `app/services/`, `app/auth/`, `app/templates/`, `app/static/`
+  - _Requirements: Technical Constraint 1, Technical Constraint 2_
 
-- [x] 1.2 requirements.txtを作成
+- [x] 1.2 Create `requirements.txt`
   - FastAPI, SQLAlchemy, Pydantic, WeasyPrint, bcrypt, python-multipart, jinja2, qrcode, python-dotenv, alembic
-  - テスト用: pytest, pytest-asyncio, httpx, faker
-  - _Requirements: 技術的制約1_
+  - For tests: pytest, pytest-asyncio, httpx, faker
+  - _Requirements: Technical Constraint 1_
 
-- [x] 1.3 設定管理モジュールを実装（app/config.py）
-  - 環境変数の読み込み（DATABASE_URL, SECRET_KEY, DEBUG, LOG_LEVEL）
-  - Pydantic Settingsを使用した型安全な設定管理
+- [x] 1.3 Implement config module (`app/config.py`)
+  - Load environment variables (DATABASE_URL, SECRET_KEY, DEBUG, LOG_LEVEL)
+  - Use Pydantic Settings for type-safe configuration management
   - _Requirements: Requirement 20.3_
 
-- [x] 1.4 FastAPIアプリケーションのエントリーポイントを作成（app/main.py）
-  - FastAPIインスタンス作成
-  - CORSミドルウェア設定
-  - 静的ファイル・テンプレート設定
-  - _Requirements: 技術的制約1_
+- [x] 1.4 Create FastAPI application entry point (`app/main.py`)
+  - Instantiate the FastAPI app
+  - Configure CORS middleware
+  - Configure static files and templates
+  - _Requirements: Technical Constraint 1_
 
-- [x] 1.5 開発環境のセットアップスクリプトを作成
-  - 仮想環境作成、依存関係インストール、データベース初期化の自動化スクリプト
-  - README.mdに手動セットアップ手順を記載
+- [x] 1.5 Create development setup script
+  - Script to create virtualenv, install dependencies, and initialize the database
+  - Document manual setup steps in `README.md`
   - _Requirements: Requirement 31_
 
-### 2. データベース設計と初期化
+### 2. Database design and initialization
 
-SQLiteデータベースとSQLAlchemyモデルを実装します。
+Implement the SQLite database and SQLAlchemy models.
 
-- [x] 2.1 データベース接続モジュールを実装（app/database.py）
-  - **Context7**: `/sqlalchemy/sqlalchemy` のドキュメントを参照（特にAsyncエンジン、セッション管理）
-  - SQLAlchemyエンジン作成（create_engine with SQLite）
-  - セッション管理（SessionLocal, get_db dependency）
-  - Base クラス定義（DeclarativeBase）
-  - データベースファイルパス: `settings.database_url` を使用
-  - _Requirements: 技術的制約1_
+- [x] 2.1 Implement database connection module (`app/database.py`)
+  - **Context7**: Refer to `/sqlalchemy/sqlalchemy` docs (especially Async engine and session management).
+  - Create SQLAlchemy engine (create_engine with SQLite).
+  - Session management (SessionLocal, `get_db` dependency).
+  - Define Base class (DeclarativeBase).
+  - Use `settings.database_url` for the DB file path.
+  - _Requirements: Technical Constraint 1_
 
-- [x] 2.2 Animalsモデルを実装（app/models/animal.py）
-  - **Context7**: SQLAlchemy 2.0のモデル定義方法を確認（Mapped, mapped_column）
-  - 全カラム定義（id, name, photo, pattern, tail_length, collar, age, gender, ear_cut, features, status, protected_at, created_at, updated_at）
-  - インデックス設定（status, protected_at, name）
-  - デフォルト値設定（status='保護中', protected_at=CURRENT_DATE）
-  - 型ヒント使用（Mapped[str], Mapped[Optional[str]]等）
+- [x] 2.2 Implement `Animals` model (`app/models/animal.py`)
+  - **Context7**: Confirm SQLAlchemy 2.0 model definitions (Mapped, mapped_column).
+  - Define all columns (id, name, photo, pattern, tail_length, collar, age, gender, ear_cut, features, status, protected_at, created_at, updated_at).
+  - Define indexes (status, protected_at, name).
+  - Set default values (status='protected', protected_at=CURRENT_DATE).
+  - Use type hints (Mapped[str], Mapped[str | None], etc.).
   - _Requirements: Requirement 1.4, Requirement 15.1_
 
-- [x] 2.3 CareLogモデルを実装（app/models/care_log.py）
-  - 全カラム定義（id, animal_id, recorder_id, recorder_name, time_slot, appetite, energy, urination, cleaning, memo, ip_address, user_agent, device_tag, from_paper, created_at, last_updated_at, last_updated_by）
-  - 外部キー設定（animal_id, last_updated_by）
-  - インデックス設定（animal_id, created_at, recorder_id, time_slot）
+- [x] 2.3 Implement `CareLog` model (`app/models/care_log.py`)
+  - Define all columns (id, animal_id, recorder_id, recorder_name, time_slot, appetite, energy, urination, cleaning, memo, ip_address, user_agent, device_tag, from_paper, created_at, last_updated_at, last_updated_by).
+  - Define foreign keys (animal_id, last_updated_by).
+  - Define indexes (animal_id, created_at, recorder_id, time_slot).
   - _Requirements: Requirement 3.2, Requirement 3.6, Requirement 23.6_
 
-- [x] 2.4 MedicalRecordモデルを実装（app/models/medical_record.py）
-  - 全カラム定義（id, animal_id, vet_id, date, time_slot, weight, temperature, symptoms, medical_action_id, dosage（INTEGER型、回数）, other, comment, created_at, updated_at, last_updated_at, last_updated_by）
-  - 外部キー設定（animal_id, vet_id, medical_action_id, last_updated_by）
-  - インデックス設定（animal_id, date, vet_id, medical_action_id）
+- [x] 2.4 Implement `MedicalRecord` model (`app/models/medical_record.py`)
+  - Define all columns (id, animal_id, vet_id, date, time_slot, weight, temperature, symptoms, medical_action_id, dosage (INTEGER, count), other, comment, created_at, updated_at, last_updated_at, last_updated_by).
+  - Define foreign keys (animal_id, vet_id, medical_action_id, last_updated_by).
+  - Define indexes (animal_id, date, vet_id, medical_action_id).
   - _Requirements: Requirement 5.2, Requirement 23.6_
 
-- [x] 2.5 Usersモデルを実装（app/models/user.py）
-  - 全カラム定義（id, email, password_hash, name, role, is_active, failed_login_count, locked_until, created_at, updated_at）
-  - ユニークインデックス（email）
+- [x] 2.5 Implement `Users` model (`app/models/user.py`)
+  - Define all columns (id, email, password_hash, name, role, is_active, failed_login_count, locked_until, created_at, updated_at).
+  - Unique index on email.
   - _Requirements: Requirement 21.6, Requirement 22.2_
 
-- [x] 2.6 Volunteersモデルを実装（app/models/volunteer.py）
-  - 全カラム定義（id, name, contact, affiliation, status, started_at, created_at, updated_at）
-  - インデックス設定（status, name）
+- [x] 2.6 Implement `Volunteers` model (`app/models/volunteer.py`)
+  - Define all columns (id, name, contact, affiliation, status, started_at, created_at, updated_at).
+  - Define indexes (status, name).
   - _Requirements: Requirement 4.1_
 
-- [x] 2.7 Applicants, AdoptionRecord, StatusHistory, AuditLog, Sessions, Settingsモデルを実装
-  - 各モデルの全カラム定義と外部キー設定
-  - 適切なインデックス設定
+- [x] 2.7 Implement `Applicants`, `AdoptionRecord`, `StatusHistory`, `AuditLog`, `Sessions`, `Settings` models
+  - Define all columns and foreign keys for each model.
+  - Add appropriate indexes.
   - _Requirements: Requirement 14, Requirement 15.2, Requirement 23.1_
 
-- [x] 2.8 診療行為マスターモデルを実装（MedicalActions）
-  - 全カラム定義（id, name, valid_from, valid_to, cost_price, selling_price, procedure_fee, currency, created_at, updated_at, last_updated_at, last_updated_by）
-  - 期間別価格管理と通貨単位（JPY/USD）
-  - インデックス設定（name, valid_from, valid_to）
+- [x] 2.8 Implement medical actions master model (`MedicalActions`)
+  - Define all columns (id, name, valid_from, valid_to, cost_price, selling_price, procedure_fee, currency, created_at, updated_at, last_updated_at, last_updated_by).
+  - Support period-based pricing and currency unit (JPY/USD).
+  - Define indexes (name, valid_from, valid_to).
   - _Requirements: Requirement 6.1, Requirement 6.2, Requirement 6.3_
 
-- [x] 2.9 AnimalImagesモデルを実装（app/models/animal_image.py）
-  - 全カラム定義（id, animal_id, image_path, taken_at, description, file_size, created_at）
-  - 外部キー設定（animal_id）
+- [x] 2.9 Implement `AnimalImages` model (`app/models/animal_image.py`)
+  - Define all columns (id, animal_id, image_path, taken_at, description, file_size, created_at).
+  - Define foreign key (animal_id).
   - _Requirements: Requirement 27.3_
 
-- [x] 2.10 Alembicマイグレーション設定
-  - **Context7**: Alembicの初期化と設定方法を確認
-  - `alembic init alembic` コマンド実行
-  - alembic.ini の設定（sqlalchemy.url）
-  - env.py の設定（target_metadata = Base.metadata）
-  - 初期マイグレーションスクリプト作成（`alembic revision --autogenerate -m "Initial migration"`）
-  - _Requirements: 技術的制約1_
+- [x] 2.10 Alembic migration setup
+  - **Context7**: Confirm Alembic initialization and configuration.
+  - Run `alembic init alembic`.
+  - Configure `alembic.ini` (sqlalchemy.url).
+  - Configure `env.py` (target_metadata = Base.metadata).
+  - Create initial migration script (`alembic revision --autogenerate -m "Initial migration"`).
+  - _Requirements: Technical Constraint 1_
 
-- [x] 2.11 ドメインモデルの単体テストを作成（DDD準拠）
-  - ドメインオブジェクトのビジネスルールテスト
-  - 値オブジェクトの不変性テスト
-  - エンティティの同一性テスト
+- [x] 2.11 Create unit tests for domain models (DDD-based)
+  - Test business rules of domain objects.
+  - Test immutability of value objects.
+  - Test entity identity.
   - _Requirements: Requirement 28_
 
 
-## Phase 2: 認証・認可システム（JWT + OAuth2） ✅ 完了
+## Phase 2: Authentication & Authorization System (JWT + OAuth2) ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- JWT実装前: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のOAuth2/JWT関連ドキュメントを参照（tokens: 5000）
-- passlib実装前: `mcp_context7_resolve_library_id` で "passlib" を検索し、ドキュメント取得
-- python-jose実装前: `mcp_context7_resolve_library_id` で "python-jose" を検索し、ドキュメント取得
+**Context7 MCP usage guidelines:**
+- Before implementing JWT: use `mcp_context7_get_library_docs` with `/fastapi/fastapi` and review OAuth2/JWT-related docs (tokens: 5000).
+- Before implementing passlib: use `mcp_context7_resolve_library_id` to search for "passlib" and fetch documentation.
+- Before implementing python-jose: use `mcp_context7_resolve_library_id` to search for "python-jose" and fetch documentation.
 
-**コード品質改善（code-structure-review統合）**:
-- すべての認証関連ファイルに型ヒント改善を適用
-- エラーハンドリングパターンを統一（HTTPException、ロギング）
-- Docstringを充実（Args, Returns, Raises, Example）
+**Code quality improvements (code-structure-review integration):**
+- Apply type-hint improvements to all authentication-related files.
+- Standardize error-handling patterns (HTTPException, logging).
+- Enrich docstrings (Args, Returns, Raises, Example).
 
-### 3. JWT認証機能の実装
+### 3. Implement JWT-based authentication
 
-JWT + OAuth2 Password Flowによる認証システムを実装します。
+Implement an authentication system using JWT + OAuth2 Password Flow.
 
-- [x] 3.1 パスワードハッシュ化ユーティリティを実装（app/auth/password.py）
-  - **Context7**: passlib + bcryptの使用方法を確認
-  - passlib.CryptContextを使用したハッシュ化・検証関数
-  - パスワードポリシー検証（最小8文字、英数字混在）
+- [x] 3.1 Implement password hashing utilities (`app/auth/password.py`)
+  - **Context7**: confirm how to use passlib + bcrypt.
+  - Provide hash and verify functions using `passlib.CryptContext`.
+  - Implement password policy validation (minimum 8 characters, alphanumeric mix).
   - _Requirements: Requirement 21.7, Requirement 22.1_
 
-- [x] 3.2 JWT管理モジュールを実装（app/auth/jwt.py）
-  - **Context7**: python-joseでのJWT生成・検証方法を確認
-  - JWTアクセストークン生成関数（有効期限: 2時間）
-  - JWTトークン検証関数
-  - SECRET_KEY設定（環境変数から取得）
+- [x] 3.2 Implement JWT management module (`app/auth/jwt.py`)
+  - **Context7**: confirm how to generate and verify JWTs with python-jose.
+  - Implement JWT access token generation (expiry: 2 hours).
+  - Implement JWT token verification function.
+  - Configure `SECRET_KEY` (loaded from environment variables).
   - _Requirements: Requirement 21.3, Requirement 22.3, Requirement 22.8_
 
-- [x] 3.3 認証依存性を実装（app/auth/dependencies.py）
-  - **Context7**: FastAPIのOAuth2PasswordBearerの使用方法を確認
-  - OAuth2PasswordBearerスキーム設定
-  - get_current_user依存性（トークンからユーザー取得）
-  - get_current_active_user依存性（アクティブユーザーのみ）
+- [x] 3.3 Implement authentication dependencies (`app/auth/dependencies.py`)
+  - **Context7**: confirm how to use FastAPI's `OAuth2PasswordBearer`.
+  - Configure the `OAuth2PasswordBearer` scheme.
+  - Implement `get_current_user` dependency (get user from token).
+  - Implement `get_current_active_user` dependency (only active users).
   - _Requirements: Requirement 21.3_
 
-- [x] 3.4 ログイン試行回数制限を実装
-  - 失敗回数のカウント（Usersテーブル）
-  - 5回失敗後15分間ロック
+- [x] 3.4 Implement login attempt limiting
+  - Count failed attempts (on `Users` table).
+  - Lock account for 15 minutes after 5 failed attempts.
   - _Requirements: Requirement 22.2_
 
-- [x] 3.5 権限チェック依存性を実装（app/auth/permissions.py）
-  - ロール別権限マトリクス定義
-  - require_role依存性関数
-  - require_permission依存性関数
+- [x] 3.5 Implement permission-check dependencies (`app/auth/permissions.py`)
+  - Define role-based permission matrix.
+  - Implement `require_role` dependency.
+  - Implement `require_permission` dependency.
   - _Requirements: Requirement 10.1-10.5_
 
-- [x] 3.6 認証APIエンドポイントを実装（app/api/v1/auth.py）
-  - **Context7**: FastAPIのOAuth2 Password Flowエンドポイント実装を確認
-  - POST /api/v1/auth/token（ログイン、JWTトークン取得）
-  - GET /api/v1/auth/me（現在のユーザー情報取得）
-  - OAuth2PasswordRequestFormを使用
+- [x] 3.6 Implement authentication API endpoints (`app/api/v1/auth.py`)
+  - **Context7**: review FastAPI docs for OAuth2 Password Flow endpoints.
+  - `POST /api/v1/auth/token` (login, obtain JWT token).
+  - `GET /api/v1/auth/me` (get current user info).
+  - Use `OAuth2PasswordRequestForm`.
   - _Requirements: Requirement 21.1-21.4, Requirement 21.8-21.9_
 
-- [x] 3.7 認証機能のテストを作成
-  - パスワードハッシュ化のテスト
-  - JWT生成・検証のテスト
-  - 認証依存性のテスト
-  - ログインAPIのテスト
-  - 権限チェックのテスト
+- [x] 3.7 Create tests for authentication features
+  - Test password hashing.
+  - Test JWT generation/verification.
+  - Test authentication dependencies.
+  - Test login API.
+  - Test permission checks.
   - _Requirements: Requirement 22_
 
-## Phase 3: 猫管理機能 ✅ 完了
+## Phase 3: Animal Management Features ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
-- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
-- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+**Context7 MCP usage guidelines:**
+- For Pydantic: use `mcp_context7_get_library_docs` with `/pydantic/pydantic` (tokens: 5000).
+- For SQLAlchemy: use `mcp_context7_get_library_docs` with `/sqlalchemy/sqlalchemy` (tokens: 5000).
+- For Pillow: use `mcp_context7_get_library_docs` with `/python-pillow/Pillow` (tokens: 5000).
 
-**コード品質改善（code-structure-review統合）**:
-- すべてのスキーマ、サービス、APIファイルに型ヒント改善を適用
-- エラーハンドリングパターンを統一
-- ロギングを追加
+**Code quality improvements (code-structure-review integration):**
+- Apply type-hint improvements to all schema, service, and API files.
+- Standardize error-handling patterns.
+- Add logging.
 
-### 4. 猫マスター管理
+### 4. Animal master management
 
-猫の個体情報のCRUD機能を実装します。
+Implement CRUD functionality for individual cat records.
 
-- [x] 4.1 Pydanticスキーマを実装（app/schemas/animal.py）
-  - AnimalCreate, AnimalUpdate, AnimalResponse
-  - バリデーションルール（必須項目、形式チェック）
+- [x] 4.1 Implement Pydantic schemas (`app/schemas/animal.py`)
+  - `AnimalCreate`, `AnimalUpdate`, `AnimalResponse`.
+  - Validation rules (required fields, format checks).
   - _Requirements: Requirement 1.2_
 
-- [x] 4.2 猫管理サービスを実装（app/services/animal_service.py）
-  - create_animal（猫登録）
-  - get_animal（猫詳細取得）
-  - update_animal（猫更新）
-  - delete_animal（論理削除）
-  - list_animals（一覧取得、ページネーション）
-  - search_animals（検索）
+- [x] 4.2 Implement animal management service (`app/services/animal_service.py`)
+  - `create_animal` (register cat).
+  - `get_animal` (get cat details).
+  - `update_animal` (update cat).
+  - `delete_animal` (logical delete).
+  - `list_animals` (list with pagination).
+  - `search_animals` (search).
   - _Requirements: Requirement 1.1-1.3, Requirement 1.5, Requirement 24.2_
 
-- [x] 4.3 画像アップロード処理を実装（app/utils/image.py）
-  - ファイル検証（拡張子、MIMEタイプ、サイズ）
-  - 画像最適化（リサイズ、圧縮）
-  - ファイル保存処理
+- [x] 4.3 Implement image upload utilities (`app/utils/image.py`)
+  - File validation (extension, MIME type, size).
+  - Image optimization (resize, compress).
+  - File storage handling.
   - _Requirements: Requirement 27.9, Requirement 27.10_
 
-- [x] 4.4 猫管理APIエンドポイントを実装（app/api/v1/animals.py）
-  - GET /api/v1/animals（一覧取得）
-  - POST /api/v1/animals（登録）
-  - GET /api/v1/animals/{id}（詳細取得）
-  - PUT /api/v1/animals/{id}（更新）
-  - DELETE /api/v1/animals/{id}（論理削除）
-  - GET /api/v1/animals/search（検索）
+- [x] 4.4 Implement animal management API endpoints (`app/api/v1/animals.py`)
+  - `GET /api/v1/animals` (list).
+  - `POST /api/v1/animals` (create).
+  - `GET /api/v1/animals/{id}` (detail).
+  - `PUT /api/v1/animals/{id}` (update).
+  - `DELETE /api/v1/animals/{id}` (logical delete).
+  - `GET /api/v1/animals/search` (search).
   - _Requirements: Requirement 1, Requirement 24_
 
-- [x] 4.5 ステータス管理機能を実装
-  - ステータス変更処理
-  - StatusHistory記録
-  - ステータスフィルタリング
+- [x] 4.5 Implement status management
+  - Status change operations.
+  - Record `StatusHistory`.
+  - Status-based filtering.
   - _Requirements: Requirement 15.2, Requirement 15.3, Requirement 15.6-15.7_
 
-- [x] 4.6 猫管理のテストを作成（DDD準拠）
-  - 猫ドメインオブジェクトの単体テスト（ステータス変更ルール等）
-  - 猫管理アプリケーションサービスのテスト（ユースケース）
-  - 猫リポジトリの統合テスト（永続化）
+- [x] 4.6 Create tests for animal management (DDD-based)
+  - Unit tests for cat domain objects (status-change rules, etc.).
+  - Application service tests for animal management use cases.
+  - Integration tests for the animal repository (persistence).
   - _Requirements: Requirement 1, Requirement 15_
 
-### 5. 画像ギャラリー機能
+### 5. Image gallery features
 
-**Context7 MCP使用ガイドライン**:
-- Pillow実装: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
-- ファイルアップロード: `mcp_context7_get_library_docs` で `/fastapi/fastapi` のFile Upload関連を参照
+**Context7 MCP usage guidelines:**
+- For Pillow: use `mcp_context7_get_library_docs` with `/python-pillow/Pillow` (tokens: 5000).
+- For file upload: use `mcp_context7_get_library_docs` with `/fastapi/fastapi` and review File Upload documentation.
 
-**コード品質改善**:
-- 型ヒント: `from __future__ import annotations`, `X | None`, `collections.abc`
-- エラーハンドリング: HTTPException、ロギング
-- Docstring: Args, Returns, Raises, Example
+**Code quality improvements:**
+- Type hints: `from __future__ import annotations`, `X | None`, `collections.abc`.
+- Error handling: HTTPException, logging.
+- Docstrings: Args, Returns, Raises, Example.
 
-猫の複数画像管理機能を実装します。
+Implement multi-image gallery features for cats.
 
-- [x] 5.1 画像ギャラリーサービスを実装（app/services/image_service.py）
-  - upload_image（画像アップロード）
-  - list_images（画像一覧取得）
-  - delete_image（画像削除）
-  - 枚数制限チェック
-  - ファイルサイズ制限チェック
+- [x] 5.1 Implement image gallery service (`app/services/image_service.py`)
+  - `upload_image` (upload image).
+  - `list_images` (list images).
+  - `delete_image` (delete image).
+  - Check max number of images.
+  - Check file size limits.
   - _Requirements: Requirement 27.2-27.3, Requirement 27.8-27.9_
 
-- [x] 5.2 画像管理APIエンドポイントを実装（app/api/v1/images.py）
-  - POST /api/v1/animals/{id}/images（画像アップロード）
-  - GET /api/v1/animals/{id}/images（画像一覧取得）
-  - DELETE /api/v1/images/{id}（画像削除）
+- [x] 5.2 Implement image management API endpoints (`app/api/v1/images.py`)
+  - `POST /api/v1/animals/{id}/images` (upload image).
+  - `GET /api/v1/animals/{id}/images` (list images).
+  - `DELETE /api/v1/images/{id}` (delete image).
   - _Requirements: Requirement 27.1-27.5_
 
-- [x] 5.3 画像制限設定機能を実装
-  - Settingsテーブルでの設定管理
-  - デフォルト値（最大20枚、最大5MB）
+- [x] 5.3 Implement image limit settings
+  - Manage settings via the `Settings` table.
+  - Default values (max 20 images, max 5MB).
   - _Requirements: Requirement 27.6-27.7, Requirement 27.10_
 
 
-## Phase 4: 世話記録機能 ✅ 完了
+## Phase 4: Care Log Features ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- CSV処理: `mcp_context7_resolve_library_id` で "pandas" または標準ライブラリ `csv` の使用を検討
-- FastAPI実装: `mcp_context7_get_library_docs` で `/fastapi/fastapi` を参照（tokens: 5000）
+**Context7 MCP usage guidelines:**
+- For CSV processing: use `mcp_context7_resolve_library_id` to consider using "pandas" or the standard library `csv`.
+- For FastAPI: use `mcp_context7_get_library_docs` with `/fastapi/fastapi` (tokens: 5000).
 
-**コード品質改善（code-structure-review統合）**:
-- すべてのファイルに型ヒント改善を適用
-- エラーハンドリングとロギングを統一
+**Code quality improvements (code-structure-review integration):**
+- Apply type-hint improvements to all files.
+- Standardize error handling and logging.
 
-### 6. 世話記録管理
+### 6. Care log management
 
-日々の世話記録のCRUD機能を実装します。
+Implement CRUD functionality for daily care logs.
 
-- [x] 6.1 Pydanticスキーマを実装（app/schemas/care_log.py）
-  - CareLogCreate, CareLogUpdate, CareLogResponse
-  - バリデーションルール（time_slot: 朝/昼/夕、appetite/energy: 1-5、urination/cleaning: boolean）
+- [x] 6.1 Implement Pydantic schemas (`app/schemas/care_log.py`)
+  - `CareLogCreate`, `CareLogUpdate`, `CareLogResponse`.
+  - Validation rules (`time_slot`: morning/noon/evening, `appetite`/`energy`: 1-5, `urination`/`cleaning`: boolean).
   - _Requirements: Requirement 3.2_
 
-- [x] 6.2 世話記録サービスを実装（app/services/care_log_service.py）
-  - create_care_log（記録登録）
-  - get_care_log（記録詳細取得）
-  - list_care_logs（一覧取得、フィルタリング）
-  - export_care_logs_csv（CSV出力）
+- [x] 6.2 Implement care log service (`app/services/care_log_service.py`)
+  - `create_care_log` (create record).
+  - `get_care_log` (get record details).
+  - `list_care_logs` (list with filtering).
+  - `export_care_logs_csv` (CSV export).
   - _Requirements: Requirement 3.5, Requirement 25.2-25.3_
 
-- [x] 6.3 世話記録APIエンドポイントを実装（app/api/v1/care_logs.py）
-  - GET /api/v1/care-logs（一覧取得）
-  - POST /api/v1/care-logs（登録）
-  - GET /api/v1/care-logs/{id}（詳細取得）
-  - PUT /api/v1/care-logs/{id}（更新）
-  - GET /api/v1/care-logs/export（CSV出力）
+- [x] 6.3 Implement care log API endpoints (`app/api/v1/care_logs.py`)
+  - `GET /api/v1/care-logs` (list).
+  - `POST /api/v1/care-logs` (create).
+  - `GET /api/v1/care-logs/{id}` (detail).
+  - `PUT /api/v1/care-logs/{id}` (update).
+  - `GET /api/v1/care-logs/export` (CSV export).
   - _Requirements: Requirement 3, Requirement 25_
 
-- [x] 6.4 前回入力値コピー機能を実装
-  - 最新の記録を取得
-  - フロントエンドへのデータ提供
+- [x] 6.4 Implement "copy previous input" feature
+  - Retrieve the latest record.
+  - Provide data to the frontend.
   - _Requirements: Requirement 3.7_
 
-- [x] 6.5 世話記録機能の統合テストを作成
-  - CRUD操作のテスト
-  - CSV出力のテスト
+- [x] 6.5 Create integration tests for care log features
+  - Test CRUD operations.
+  - Test CSV export.
   - _Requirements: Requirement 3, Requirement 25_
 
-### 7. ボランティア管理 ✅ 完了
+### 7. Volunteer management ✅ Completed
 
-ボランティア記録者の管理機能を実装します。
+Implement management features for volunteer recorders.
 
-- [x] 7.1 Pydanticスキーマを実装（app/schemas/volunteer.py）
-  - VolunteerCreate, VolunteerUpdate, VolunteerResponse
+- [x] 7.1 Implement Pydantic schemas (`app/schemas/volunteer.py`)
+  - `VolunteerCreate`, `VolunteerUpdate`, `VolunteerResponse`.
   - _Requirements: Requirement 4.1_
 
-- [x] 7.2 ボランティア管理サービスを実装（app/services/volunteer_service.py）
-  - create_volunteer（登録）
-  - get_volunteer（詳細取得）
-  - list_volunteers（一覧取得）
-  - update_volunteer（更新）
-  - get_activity_history（活動履歴取得）
-  - get_active_volunteers（アクティブボランティア一覧取得）
+- [x] 7.2 Implement volunteer management service (`app/services/volunteer_service.py`)
+  - `create_volunteer` (create).
+  - `get_volunteer` (detail).
+  - `list_volunteers` (list).
+  - `update_volunteer` (update).
+  - `get_activity_history` (get activity history).
+  - `get_active_volunteers` (list active volunteers).
   - _Requirements: Requirement 4.2, Requirement 4.4, Requirement 4.5_
 
-- [x] 7.3 ボランティア管理APIエンドポイントを実装（app/api/v1/volunteers.py）
-  - GET /api/v1/volunteers（一覧取得）
-  - POST /api/v1/volunteers（登録）
-  - GET /api/v1/volunteers/{id}（詳細取得）
-  - PUT /api/v1/volunteers/{id}（更新）
-  - GET /api/v1/volunteers/{id}/activity（活動履歴取得）
+- [x] 7.3 Implement volunteer management API endpoints (`app/api/v1/volunteers.py`)
+  - `GET /api/v1/volunteers` (list).
+  - `POST /api/v1/volunteers` (create).
+  - `GET /api/v1/volunteers/{id}` (detail).
+  - `PUT /api/v1/volunteers/{id}` (update).
+  - `GET /api/v1/volunteers/{id}/activity` (get activity history).
   - _Requirements: Requirement 4_
 
-- [x] 7.4 アクティブボランティア取得機能を実装
-  - Publicフォーム用の選択リスト提供
-  - _Requirements: Requirement 4.4_
-  - Publicフォーム用の選択リスト提供
+- [x] 7.4 Implement active volunteer retrieval
+  - Provide selection list for public form.
   - _Requirements: Requirement 4.4_
 
-## Phase 5: 診療記録機能 ✅ 完了（100%）
+## Phase 5: Medical Record Features ✅ Completed (100%)
 
-**Context7 MCP使用ガイドライン**:
-- Pydantic実装: `mcp_context7_get_library_docs` で `/pydantic/pydantic` を参照（tokens: 5000）
-- SQLAlchemy実装: `mcp_context7_get_library_docs` で `/sqlalchemy/sqlalchemy` を参照（tokens: 5000）
-- Decimal型処理: Python標準ライブラリ `decimal` の使用方法を確認
+**Context7 MCP usage guidelines:**
+- For Pydantic: use `mcp_context7_get_library_docs` with `/pydantic/pydantic` (tokens: 5000).
+- For SQLAlchemy: use `mcp_context7_get_library_docs` with `/sqlalchemy/sqlalchemy` (tokens: 5000).
+- For Decimal handling: review how to use Python standard library `decimal`.
 
-**コード品質改善**:
-- 型ヒント: `from __future__ import annotations`, `Decimal`, `X | None`
-- エラーハンドリング: IntegrityError、SQLAlchemyError
-- Docstring: 完全なドキュメント
+**Code quality improvements:**
+- Type hints: `from __future__ import annotations`, `Decimal`, `X | None`.
+- Error handling: `IntegrityError`, `SQLAlchemyError`.
+- Docstrings: fully documented.
 
-**実装完了日**: 2024-11-18
+**Completion date**: 2024-11-18
 
-### 8. 診療記録管理 ✅ 完了
+### 8. Medical record management ✅ Completed
 
-獣医診療記録のCRUD機能を実装します。
+Implement CRUD functionality for veterinary medical records.
 
-- [x] 8.1 Pydanticスキーマを実装（app/schemas/medical_record.py）✅
-  - MedicalRecordCreate, MedicalRecordUpdate, MedicalRecordResponse
-  - バリデーションルール（必須項目：診療年月日、体重、症状）
+- [x] 8.1 Implement Pydantic schemas (`app/schemas/medical_record.py`) ✅
+  - `MedicalRecordCreate`, `MedicalRecordUpdate`, `MedicalRecordResponse`
+  - Validation rules (required: consultation date, weight, symptoms)
   - _Requirements: Requirement 5.3_
 
-- [x] 8.2 診療記録サービスを実装（app/services/medical_record_service.py）✅
-  - create_medical_record（記録登録）
-  - get_medical_record（記録詳細取得）
-  - list_medical_records（一覧取得、時系列表示）
-  - update_medical_record（記録更新）
+- [x] 8.2 Implement medical record service (`app/services/medical_record_service.py`) ✅
+  - `create_medical_record` (register record)
+  - `get_medical_record` (get record details)
+  - `list_medical_records` (list, chronological order)
+  - `update_medical_record` (update record)
   - _Requirements: Requirement 5.1, Requirement 5.5_
 
-- [x] 8.3 診療記録APIエンドポイントを実装（app/api/v1/medical_records.py）✅
-  - GET /api/v1/medical-records（一覧取得）
-  - POST /api/v1/medical-records（登録）
-  - GET /api/v1/medical-records/{id}（詳細取得）
-  - PUT /api/v1/medical-records/{id}（更新）
+- [x] 8.3 Implement medical record API endpoints (`app/api/v1/medical_records.py`) ✅
+  - `GET /api/v1/medical-records` (list)
+  - `POST /api/v1/medical-records` (create)
+  - `GET /api/v1/medical-records/{id}` (detail)
+  - `PUT /api/v1/medical-records/{id}` (update)
   - _Requirements: Requirement 5_
 
-- [x] 8.4 診療記録機能の統合テストを作成 ✅
-  - CRUD操作のテスト
-  - バリデーションのテスト
+- [x] 8.4 Create integration tests for medical record features ✅
+  - Tests for CRUD operations
+  - Tests for validation rules
   - _Requirements: Requirement 5_
 
-### 9. 診療マスターデータ管理 ✅ 完了
+### 9. Medical master data management ✅ Completed
 
-処置・薬剤・ワクチンのマスターデータ管理機能を実装します。
+Implement master data management features for procedures, medications, and vaccines.
 
-- [x] 9.1 Pydanticスキーマを実装（app/schemas/medical_action.py）✅
-  - MedicalActionCreate, MedicalActionUpdate, MedicalActionResponse
-  - 期間別価格と通貨単位のバリデーション
+- [x] 9.1 Implement Pydantic schemas (`app/schemas/medical_action.py`) ✅
+  - `MedicalActionCreate`, `MedicalActionUpdate`, `MedicalActionResponse`
+  - Validation for period-based pricing and currency units
   - _Requirements: Requirement 6.1-6.3_
 
-- [x] 9.2 診療行為マスターサービスを実装（app/services/medical_action_service.py）✅
-  - create_medical_action（診療行為登録）
-  - list_medical_actions（一覧取得）
-  - update_medical_action（更新）
-  - calculate_billing（料金計算：請求価格×投薬量＋処置料金）
+- [x] 9.2 Implement medical action master service (`app/services/medical_action_service.py`) ✅
+  - `create_medical_action` (register medical action)
+  - `list_medical_actions` (list)
+  - `update_medical_action` (update)
+  - `calculate_billing` (billing: selling_price × dosage + procedure_fee)
   - _Requirements: Requirement 6.4_
 
-- [x] 9.3 診療行為マスターAPIエンドポイントを実装（app/api/v1/medical_actions.py）✅
-  - GET/POST /api/v1/medical-actions
-  - GET/PUT /api/v1/medical-actions/{id}
-  - GET /api/v1/medical-actions/{id}/calculate（料金計算）
-  - GET /api/v1/medical-actions/active/list（有効な診療行為一覧）
+- [x] 9.3 Implement medical action master API endpoints (`app/api/v1/medical_actions.py`) ✅
+  - `GET/POST /api/v1/medical-actions`
+  - `GET/PUT /api/v1/medical-actions/{id}`
+  - `GET /api/v1/medical-actions/{id}/calculate` (billing calculation)
+  - `GET /api/v1/medical-actions/active/list` (list active medical actions)
   - _Requirements: Requirement 6_
 
-- [x] 9.4 診療行為選択機能を実装 ✅
-  - MedicalActionsマスターからの選択リスト提供
-  - 自由入力も可能
+- [x] 9.4 Implement medical action selection feature ✅
+  - Provide selection list from `MedicalActions` master
+  - Allow free-text input as well
   - _Requirements: Requirement 5.4_
 
-- [x] 9.5 診療行為マスターに投薬単位選択機能を追加 ✅
-  - データベースマイグレーション: `dosage_unit` カラムを VARCHAR(10) で追加（既存）
-  - Pydanticスキーマ更新: `dosage_unit` フィールドを追加（選択肢: 錠、本、回、mL）
-  - 管理画面UI更新: 診療行為マスター登録・編集モーダルに投薬単位選択ドロップダウンを追加
-  - 診療記録登録画面更新: 診療行為選択時に対応する投薬単位を表示
+- [x] 9.5 Add dosage unit selection to medical action master ✅
+  - Database migration: add `dosage_unit` column as `VARCHAR(10)` (already done)
+  - Pydantic schema update: add `dosage_unit` field (choices: tablet, piece, time, mL)
+  - Admin UI update: add dosage unit dropdown to medical action master create/edit modal
+  - Medical record entry screen update: display dosage unit when a medical action is selected
   - _Requirements: Requirement 6.2, Requirement 6.7_
 
-## Phase 6: PDF生成機能 ✅ 完了
+## Phase 6: PDF Generation Features ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- WeasyPrint実装前: `mcp_context7_resolve_library_id` で "WeasyPrint" を検索し、`mcp_context7_get_library_docs` でドキュメント取得（tokens: 5000）
-- QRコード実装前: `mcp_context7_resolve_library_id` で "python-qrcode" を検索し、ドキュメント取得
-- Jinja2テンプレート実装前: `mcp_context7_get_library_docs` で `/pallets/jinja` を参照（tokens: 5000）
-- PDF生成のベストプラクティスを Context7 で確認
+**Context7 MCP usage guidelines:**
+- Before implementing WeasyPrint: use `mcp_context7_resolve_library_id` to search for "WeasyPrint" and then `mcp_context7_get_library_docs` to fetch docs (tokens: 5000).
+- Before implementing QR codes: use `mcp_context7_resolve_library_id` to search for "python-qrcode" and fetch docs.
+- Before implementing Jinja2 templates: use `mcp_context7_get_library_docs` with `/pallets/jinja` (tokens: 5000).
+- Confirm PDF-generation best practices via Context7.
 
-### 10. QRコードとPDF生成 ✅ 完了
+### 10. QR codes and PDF generation ✅ Completed
 
-QRカードと紙記録フォームのPDF生成機能を実装します。
+Implement PDF generation for QR cards and paper care-log forms.
 
 - [x] 10.1 QRコード生成ユーティリティを実装（app/utils/qr_code.py）
-  - QRコード画像生成
-  - バイト列変換
-  - 猫用URL生成機能
+  - QR code image generation
+  - Convert to byte array
+  - Generate cat-specific URLs
   - _Requirements: Requirement 2.3_
 
-- [x] 10.2 PDF生成サービスを実装（app/services/pdf_service.py）
-  - generate_qr_card（QRカードPDF生成）
-  - generate_qr_card_grid（面付けカードPDF生成、最大10枚）
-  - generate_paper_form（紙記録フォームPDF生成）
-  - generate_medical_detail（診療明細PDF生成 - 未実装マーク付き）
-  - generate_report（帳票PDF生成 - 未実装マーク付き）
+- [x] 10.2 Implement PDF generation service (`app/services/pdf_service.py`)
+  - `generate_qr_card` (generate QR card PDF)
+  - `generate_qr_card_grid` (generate imposed QR card PDF, up to 10 cards)
+  - `generate_paper_form` (generate paper care-log form PDF)
+  - `generate_medical_detail` (generate medical detail PDF – currently marked as not implemented)
+  - `generate_report` (generate report PDF – currently marked as not implemented)
   - _Requirements: Requirement 2.1-2.2, Requirement 2.5-2.8, Requirement 7.2-7.3, Requirement 9_
 
-- [x] 10.3 PDFテンプレートを作成（app/templates/pdf/）
-  - qr_card.html（A6サイズ）
-  - qr_card_grid.html（A4、2×5枚）
-  - paper_form.html（A4、1ヶ月分）
+- [x] 10.3 Create PDF templates (`app/templates/pdf/`)
+  - `qr_card.html` (A6 size)
+  - `qr_card_grid.html` (A4, 2×5 cards)
+  - `paper_form.html` (A4, 1 month per page)
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [x] 10.4 PDF生成APIエンドポイントを実装（app/api/v1/pdf.py）
+- [x] 10.4 Implement PDF generation API endpoints (`app/api/v1/pdf.py`)
   - POST /api/v1/pdf/qr-card
   - POST /api/v1/pdf/qr-card-grid
   - POST /api/v1/pdf/paper-form
-  - POST /api/v1/pdf/medical-detail（未実装エンドポイント）
-  - POST /api/v1/pdf/report（未実装エンドポイント）
-  - 認証・権限チェック付き
+  - POST /api/v1/pdf/medical-detail (not yet implemented)
+  - POST /api/v1/pdf/report (not yet implemented)
+  - With authentication and permission checks
   - _Requirements: Requirement 2, Requirement 7, Requirement 9_
 
-- [x] 10.5 PDF生成機能のテストを作成
-  - QRカード生成テスト（9テスト）
-  - 面付けカード生成テスト（4テスト）
-  - 紙記録フォーム生成テスト（4テスト）
-  - エラーハンドリングテスト
-  - カバレッジ94.81%
+- [x] 10.5 Create tests for PDF generation features
+  - QR card generation tests (9 tests)
+  - Imposed card generation tests (4 tests)
+  - Paper form generation tests (4 tests)
+  - Error-handling tests
+  - Coverage 94.81%
   - _Requirements: Requirement 28.3_
 
 
-### 11. CSV/Excelエクスポート機能 ✅ 完了
+### 11. CSV/Excel export features ✅ Completed
 
-CSV・Excel形式でのデータ出力機能を実装します。
+Implement data export features in CSV and Excel formats.
 
-- [x] 11.1 CSV出力サービスを実装（app/services/csv_service.py）✅
-  - 世話記録CSV出力（UTF-8 BOM付き）
-  - 帳票CSV出力（日報・週報・月次集計）
-  - 文字エンコーディング処理（UTF-8 BOM）
+- [x] 11.1 Implement CSV export service (`app/services/csv_service.py`) ✅
+  - Care-log CSV export (with UTF-8 BOM)
+  - Report CSV export (daily, weekly, monthly aggregates)
+  - Character encoding handling (UTF-8 BOM)
   - _Requirements: Requirement 8.1, Requirement 25.3_
 
-- [x] 11.2 Excel出力サービスを実装（app/services/excel_service.py）✅
-  - openpyxlを使用したExcel生成
-  - 世話記録Excel出力
-  - 帳票Excel出力（日報・週報・月次集計）
-  - スタイル設定（ヘッダー、罫線、フォント）
+- [x] 11.2 Implement Excel export service (`app/services/excel_service.py`) ✅
+  - Generate Excel files using `openpyxl`
+  - Care-log Excel export
+  - Report Excel export (daily, weekly, monthly aggregates)
+  - Style configuration (headers, borders, fonts)
   - _Requirements: Requirement 7.5, Requirement 9.4_
 
-- [x] 11.3 世話記録CSV/Excelエクスポート機能を実装 ✅
-  - GET /api/v1/care-logs/export（CSV出力）
-  - 日付範囲・猫IDフィルター対応
-  - 権限チェック（csv:export）
+- [x] 11.3 Implement care-log CSV/Excel export features ✅
+  - GET /api/v1/care-logs/export (CSV export)
+  - Date range and cat ID filters
+  - Permission checks (`csv:export`)
   - _Requirements: Requirement 8.2-8.4, Requirement 25.2-25.3_
 
-- [x] 11.4 帳票CSV/Excel出力機能を実装 ✅
-  - POST /api/v1/reports/export（CSV/Excel選択可能）
-  - 日報・週報・月次集計のCSV/Excel出力
-  - 形式選択（csv/excel）
-  - 権限チェック（report:read）
+- [x] 11.4 Implement report CSV/Excel export features ✅
+  - POST /api/v1/reports/export (selectable CSV/Excel formats)
+  - Daily, weekly, and monthly aggregate CSV/Excel export
+  - Format selection (csv/excel)
+  - Permission checks (`report:read`)
   - _Requirements: Requirement 7.4-7.5, Requirement 9.3-9.4_
 
-## Phase 7: 里親管理機能 ✅ 完了（100%）
+## Phase 7: Adoption Management Features ✅ Completed (100%)
 
-**実装完了日**: 2024-11-18
+**Completion date**: 2024-11-18
 
-### 12. 里親希望者と譲渡管理 ✅ 完了
+### 12. Adoption applicants and adoption management ✅ Completed
 
-里親探しと譲渡プロセスの管理機能を実装します。
+Implement features for managing the adoption process and applicants.
 
-- [x] 12.1 Pydanticスキーマを実装（app/schemas/adoption.py）✅
+- [x] 12.1 Implement Pydantic schemas (`app/schemas/adoption.py`) ✅
   - ApplicantCreate, ApplicantUpdate, ApplicantResponse
   - AdoptionRecordCreate, AdoptionRecordUpdate, AdoptionRecordResponse
   - _Requirements: Requirement 14.1-14.2_
 
-- [x] 12.2 里親管理サービスを実装（app/services/adoption_service.py）✅
-  - create_applicant（希望者登録）
-  - list_applicants（希望者一覧）
-  - create_interview_record（面談記録登録）
-  - create_adoption_record（譲渡記録登録）
-  - update_animal_status（猫のステータス更新）
-  - create_follow_up（譲渡後フォロー登録）
+- [x] 12.2 Implement adoption management service (`app/services/adoption_service.py`) ✅
+  - `create_applicant` (register applicant)
+  - `list_applicants` (list applicants)
+  - `create_interview_record` (register interview record)
+  - `create_adoption_record` (register adoption record)
+  - `update_animal_status` (update cat status)
+  - `create_follow_up` (register post-adoption follow-up)
   - _Requirements: Requirement 14.3-14.5_
 
-- [x] 12.3 里親管理APIエンドポイントを実装（app/api/v1/adoptions.py）✅
+- [x] 12.3 Implement adoption management API endpoints (`app/api/v1/adoptions.py`) ✅
   - GET/POST /api/v1/applicants
   - GET/PUT /api/v1/applicants/{id}
   - POST /api/v1/adoptions
   - PUT /api/v1/adoptions/{id}
   - _Requirements: Requirement 14_
 
-- [x] 12.4 里親管理機能の統合テストを作成 ✅
-  - 希望者登録のテスト
-  - 譲渡プロセスのテスト
-  - ステータス更新のテスト
+- [x] 12.4 Create integration tests for adoption management features ✅
+  - Tests for applicant registration
+  - Tests for the adoption process
+  - Tests for status updates
   - _Requirements: Requirement 14_
 
-## Phase 8: 管理画面UI ✅ 完了（100%）
+## Phase 8: Admin UI ✅ Completed (100%)
 
-**Context7 MCP使用ガイドライン**:
-- Tailwind CSS実装前: `mcp_context7_get_library_docs` で `/tailwindlabs/tailwindcss` を参照（tokens: 5000）
-- HTMX実装前: `mcp_context7_resolve_library_id` で "htmx" を検索し、ドキュメント取得
-- Alpine.js実装前: `mcp_context7_resolve_library_id` で "alpinejs" を検索し、ドキュメント取得
-- Chart.js実装前: `mcp_context7_get_library_docs` で `/chartjs/Chart.js` を参照（tokens: 5000）
-- Jinja2テンプレート実装前: `mcp_context7_get_library_docs` で `/pallets/jinja` を参照
+**Context7 MCP usage guidelines:**
+- Before implementing Tailwind CSS: use `mcp_context7_get_library_docs` with `/tailwindlabs/tailwindcss` (tokens: 5000).
+- Before implementing HTMX: use `mcp_context7_resolve_library_id` to search for "htmx" and fetch documentation.
+- Before implementing Alpine.js: use `mcp_context7_resolve_library_id` to search for "alpinejs" and fetch documentation.
+- Before implementing Chart.js: use `mcp_context7_get_library_docs` with `/chartjs/Chart.js` (tokens: 5000).
+- Before implementing Jinja2 templates: use `mcp_context7_get_library_docs` with `/pallets/jinja`.
 
-**実装完了日**: 2024-11-18
+**Completion date**: 2024-11-18
 
-**実装技術スタック**:
-- Tailwind CSS 3.3+ (CDN)
-- HTMX 2.0+ (動的UI更新)
-- Alpine.js 3.x (リアクティブコンポーネント)
+**Implemented technology stack:**
+- Tailwind CSS 3.3+ (CDN).
+- HTMX 2.0+ (dynamic UI updates).
+- Alpine.js 3.x (reactive components).
 
-### 13. 管理画面UIの実装 ✅ 完了
+### 13. Implement admin UI ✅ Completed
 
-管理画面のUIを実装します。
+Implement the admin UI.
 
-- [x] 13.1 ベーステンプレートを作成（app/templates/admin/base.html）✅
-  - Tailwind CSS + HTMX + Alpine.jsレイアウト
-  - レスポンシブサイドバーメニュー（モバイル対応）
-  - ヘッダー（ユーザー名、ログアウト、通知）
-  - モバイルメニュー（ハンバーガーメニュー、オーバーレイ）
+- [x] 13.1 Create base template (`app/templates/admin/base.html`) ✅
+  - Layout using Tailwind CSS + HTMX + Alpine.js.
+  - Responsive sidebar menu (mobile friendly).
+  - Header (user name, logout, notifications).
+  - Mobile menu (hamburger + overlay).
   - _Requirements: Requirement 12.1-12.2_
 
-- [x] 13.2 ダッシュボード画面を実装（app/templates/admin/dashboard.html）✅
-  - 統計情報カード表示（保護中の猫、譲渡可能、今日の記録、ボランティア）
-  - 最近の世話記録一覧
-  - 記録が必要な猫一覧
-  - モバイル・PC両対応レイアウト
+- [x] 13.2 Implement dashboard screen (`app/templates/admin/dashboard.html`) ✅
+  - Statistic cards (cats under protection, adoptable, today's logs, volunteers).
+  - List of recent care logs.
+  - List of cats that need records.
+  - Responsive layout for mobile and desktop.
   - _Requirements: Requirement 12.3, Requirement 16.1-16.4_
 
-- [x] 13.3 猫台帳一覧画面を実装（app/templates/admin/animals/list.html）✅
-  - 検索・フィルター機能（ステータス、表示件数）
-  - カードレイアウト（レスポンシブ）
-  - アクションボタン（詳細、編集、QR）
-  - モバイル・PC両対応
+- [x] 13.3 Implement cat ledger list screen (`app/templates/admin/animals/list.html`) ✅
+  - Search and filter (by status, page size).
+  - Responsive card layout.
+  - Action buttons (detail, edit, QR).
+  - Responsive for mobile and desktop.
   - _Requirements: Requirement 12.4, Requirement 15.3, Requirement 15.6-15.7_
 
-- [x] 13.4 猫詳細画面を実装（app/templates/admin/animals/detail.html）✅
-  - タブ構成（基本情報、世話記録、診療記録、画像ギャラリー、体重グラフ）
-  - 基本情報編集フォーム
-  - ステータス変更機能
-  - QRカード出力ボタン（A6縦向きPDF、写真30mm、QRコード60mm）
-  - 紙記録フォーム出力ボタン（年月選択モーダル、A4サイズ）
-  - 写真base64エンコード埋め込み対応
-  - 体重推移グラフ（Chart.js、折れ線グラフ、平均体重基準線、データテーブル）
+- [x] 13.4 Implement cat detail screen (`app/templates/admin/animals/detail.html`) ✅
+  - Tab layout (basic info, care logs, medical records, image gallery, weight chart).
+  - Basic info edit form.
+  - Status change feature.
+  - QR card export button (A6 portrait PDF, photo 30mm, QR code 60mm).
+  - Paper care-log form export button (year/month modal, A4 size).
+  - Support for embedding base64-encoded photos.
+  - Weight trend chart (Chart.js line chart, average weight baseline, data table).
   - _Requirements: Requirement 1.3, Requirement 15.2, Requirement 2.1-2.7_
 
-- [x] 13.5 世話記録一覧画面を実装（app/templates/admin/care_logs/list.html）✅
-  - 静的HTMLテンプレート作成完了
-  - モバイル: カード表示レイアウト
-  - デスクトップ: テーブル表示レイアウト
-  - CSVエクスポートボタン配置
-  - ページネーション UI
+- [x] 13.5 Implement care-log list screen (`app/templates/admin/care_logs/list.html`) ✅
+  - Static HTML template implemented.
+  - Mobile: card-based layout.
+  - Desktop: table layout.
+  - CSV export button.
+  - Pagination UI.
   - _Requirements: Requirement 25.1_
 
-- [x] 13.5.1 世話記録一覧の動的機能実装（JavaScript）✅
-  - APIからデータ取得（`/api/v1/care-logs`）
-  - フィルター機能実装（猫、日付範囲、時点）
-  - ページネーション処理
-  - CSVエクスポートボタンの配線
-  - データの動的レンダリング（モバイル/デスクトップ）
-  - ローディング状態とエラーハンドリング
+- [x] 13.5.1 Implement dynamic behavior for care-log list (JavaScript) ✅
+  - Fetch data from API (`/api/v1/care-logs`)
+  - Implement filters (cat, date range, time slot)
+  - Implement pagination
+  - Wire up CSV export button
+  - Dynamic rendering for mobile/desktop layouts
+  - Loading state and error handling
   - _Requirements: Requirement 25.1_
 
-- [x] 13.6 診療記録一覧画面を実装（app/templates/admin/medical_records/list.html）✅
-  - HTMLテンプレート実装（モバイル・デスクトップ対応）
-  - JavaScript実装（app/static/js/admin/medical_records_list.js）
-  - フィルター機能（猫、獣医師、日付範囲）
-  - ページネーション処理
-  - 時系列表示（降順）
-  - 診療行為・投薬情報表示
-  - ルーティング実装（/admin/medical-records）
+- [x] 13.6 Implement medical-record list screen (`app/templates/admin/medical_records/list.html`) ✅
+  - HTML template implementation (mobile & desktop).
+  - JavaScript implementation (`app/static/js/admin/medical_records_list.js`).
+  - Filters (cat, vet, date range).
+  - Pagination.
+  - Time-series display (descending).
+  - Display medical actions and medication info.
+  - Routing implementation (`/admin/medical-records`).
   - _Requirements: Requirement 5.5, Requirement 7.1_
 
-- [x] 13.7 里親管理画面を実装（app/templates/admin/adoptions/）✅
-  - 里親希望者一覧画面（検索、フィルター、ページネーション）
-  - 里親希望者登録・編集画面
-  - 譲渡記録一覧画面（猫・希望者・判定フィルター）
-  - 面談記録登録・編集機能
-  - モバイル・PC両対応レイアウト
+- [x] 13.7 Implement adoption management screens (`app/templates/admin/adoptions/`) ✅
+  - Applicant list screen (search, filter, pagination).
+  - Applicant create/edit screen.
+  - Adoption record list screen (filters by cat, applicant, status).
+  - Interview record create/edit functions.
+  - Responsive layout for mobile and desktop.
   - _Requirements: Requirement 14_
 
-- [x] 13.8 マスター管理画面を実装（app/templates/admin/volunteers/）✅
-  - ボランティア一覧画面（検索、フィルター）
-  - モバイル: カード表示
-  - デスクトップ: テーブル表示
-  - アクションボタン（詳細、編集）
+- [x] 13.8 Implement volunteer master management screens (`app/templates/admin/volunteers/`) ✅
+  - Volunteer list screen (search, filter).
+  - Mobile: card view.
+  - Desktop: table view.
+  - Action buttons (detail, edit).
   - _Requirements: Requirement 4_
 
-- [x] 13.9 帳票出力画面を実装（app/templates/admin/reports/）✅
-  - 日報出力（日別の世話記録集計）
-  - 週報出力（週別の世話記録集計）
-  - 月次集計出力（月別の医療費・診療件数）
-  - 個別帳票出力（猫ごとの記録まとめ）
-  - 期間指定フォーム
-  - 形式選択（PDF/CSV/Excel）
-  - モバイル・PC両対応レイアウト
+- [x] 13.9 Implement report output screens (`app/templates/admin/reports/`) ✅
+  - Daily report output (per-day care-log aggregation).
+  - Weekly report output (per-week care-log aggregation).
+  - Monthly aggregation output (monthly medical costs and record counts).
+  - Per-cat report output (summary per cat).
+  - Period selection form.
+  - Format selection (PDF/CSV/Excel).
+  - Responsive layout for mobile and desktop.
   - _Requirements: Requirement 9.1-9.8_
 
-- [x] 13.10 設定画面を実装（app/templates/admin/settings/）✅
-  - 団体情報設定
-  - 画像設定（最大枚数、最大ファイルサイズ）
-  - 言語設定
-  - セキュリティ設定（セッションタイムアウト、ログイン試行回数制限）
-  - バックアップ設定（自動バックアップ、保持期間）
-  - モバイル・PC両対応レイアウト
+- [x] 13.10 Implement settings screens (`app/templates/admin/settings/`) ✅
+  - Organization information settings.
+  - Image settings (max number of images, max file size).
+  - Language settings.
+  - Security settings (session timeout, login attempt limit).
+  - Backup settings (automatic backups, retention period).
+  - Responsive layout for mobile and desktop.
   - _Requirements: Requirement 27.6-27.7, Requirement 31.3-31.4_
-  - 団体情報設定
-  - 画像制限設定
-  - 言語設定
-  - ユーザー管理
+  - Organization information settings.
+  - Image restriction settings.
+  - Language settings.
+  - User management.
   - _Requirements: Requirement 27.6-27.7, Requirement 31.3-31.4_
 
-- [x] 13.11 ログイン画面を実装（app/templates/admin/login.html）✅
-  - メールアドレス・パスワード入力フォーム
-  - エラーメッセージ表示
+- [x] 13.11 Implement login screen (`app/templates/admin/login.html`) ✅
+  - Email and password input form.
+  - Error message display.
   - _Requirements: Requirement 21.1-21.2_
 
-- [x] 13.12 体重推移グラフを実装 ✅
-  - Chart.jsを使用したグラフ表示（折れ線グラフ）
-  - 平均体重基準線表示
-  - データテーブル併用表示
-  - JavaScript実装（app/static/js/admin/animal_detail.js）
+- [x] 13.12 Implement weight trend chart ✅
+  - Display graph using Chart.js (line chart).
+  - Show average weight baseline.
+  - Show data table alongside the chart.
+  - JavaScript implementation (`app/static/js/admin/animal_detail.js`).
   - _Requirements: Requirement 26.1-26.4_
 
-- [x] 13.13 画像ギャラリータブを実装 ✅
-  - サムネイル表示
-  - 画像アップロードダイアログ
-  - 拡大表示機能
-  - ソート機能（撮影日順、登録日順）
-  - JavaScript実装（app/static/js/admin/animal_detail.js）
-  - 画像パスに/media/プレフィックス自動追加
-  - 画像削除機能
+- [x] 13.13 Implement image gallery tab ✅
+  - Thumbnail display.
+  - Image upload dialog.
+  - Zoom/enlarge feature.
+  - Sorting (by taken date, by created date).
+  - JavaScript implementation (`app/static/js/admin/animal_detail.js`).
+  - Auto-add `/media/` prefix to image paths.
+  - Image delete functionality.
   - _Requirements: Requirement 27.1-27.5_
 
-- [x] 13.14 検索機能を実装 ✅
-  - リアルタイム検索（JavaScript）
-  - 詳細検索フォーム（性別、年齢範囲、Status、保護日範囲）
-  - 猫台帳一覧画面に実装済み
+- [x] 13.14 Implement search features ✅
+  - Real-time search (JavaScript).
+  - Advanced search form (gender, age range, status, protected date range).
+  - Implemented in the animal ledger list screen.
   - _Requirements: Requirement 24.1-24.5_
 
 
-## Phase 9: Publicフォーム（PWA） ✅ 完了
+## Phase 9: Public Forms (PWA) ✅ Completed
 
-**Context7 MCP使用ガイドライン**:
-- Tailwind CSS実装前: `mcp_context7_get_library_docs` で `/tailwindlabs/tailwindcss` を参照（tokens: 5000）
-- PWA/Service Worker実装前: `mcp_context7_resolve_library_id` で "Workbox" を検索し、ドキュメント取得
-- IndexedDB実装前: `mcp_context7_resolve_library_id` で "IndexedDB" または "Dexie.js" を検索（ラッパーライブラリ推奨）
+**Context7 MCP usage guidelines:**
+- Before implementing Tailwind CSS: use `mcp_context7_get_library_docs` with `/tailwindlabs/tailwindcss` (tokens: 5000).
+- Before implementing PWA/Service Worker: use `mcp_context7_resolve_library_id` to search for "Workbox" and fetch documentation.
+- Before implementing IndexedDB: use `mcp_context7_resolve_library_id` to search for "IndexedDB" or "Dexie.js" (wrapper library recommended).
 
-### 14. Publicフォームの実装 ✅
+### 14. Implement public forms ✅
 
-認証不要の世話記録入力フォームを実装します。
+Implement an unauthenticated care-log input form.
 
-- [x] 14.1 Publicフォームテンプレートを作成（app/templates/public/care_form.html）✅
-  - Tailwind CSSでモバイル最適化
-  - 1画面完結型レイアウト
-  - 猫の名前・顔写真サムネイル表示
-  - 入力欄（時点選択、食欲1-5段階、元気1-5段階、排尿有無、清掃済未、メモ）
-  - ボランティア選択リスト
-  - 保存ボタン（画面下部固定）
+- [x] 14.1 Create public form template (`app/templates/public/care_form.html`) ✅
+  - Mobile-optimized with Tailwind CSS.
+  - Single-screen layout.
+  - Display cat name and face thumbnail.
+  - Input fields (time slot, appetite 1–5, energy 1–5, urination yes/no, cleaning done/not done, memo).
+  - Volunteer selection list.
+  - Fixed-position save button at bottom of screen.
   - _Requirements: Requirement 3.1-3.4, Requirement 13.1-13.5_
 
-- [x] 14.2 Publicフォーム用APIエンドポイントを実装（app/api/v1/public.py）✅
-  - GET /api/v1/public/animals/{animal_id}（猫情報取得）
-  - GET /api/v1/public/volunteers（アクティブボランティア一覧）
-  - POST /api/v1/public/care-logs（記録保存、IPアドレス・User-Agent自動記録）
-  - GET /api/v1/public/care-logs/latest/{animal_id}（前回入力値取得）
-  - テスト11個実装（カバレッジ97.62%）
+- [x] 14.2 Implement API endpoints for public form (`app/api/v1/public.py`) ✅
+  - GET /api/v1/public/animals/{animal_id} (fetch cat information)
+  - GET /api/v1/public/volunteers (list of active volunteers)
+  - `POST /api/v1/public/care-logs` (save record, automatically record IP address and User-Agent).
+  - `GET /api/v1/public/care-logs/latest/{animal_id}` (get previous input values).
+  - 11 tests implemented (coverage 97.62%).
   - _Requirements: Requirement 3.5-3.7_
 
-- [x] 14.3 前回入力値コピー機能を実装（JavaScript）✅
-  - 最新記録の取得
-  - フォームへの自動入力
+- [x] 14.3 Implement "copy previous input" feature (JavaScript) ✅
+  - Retrieve latest record.
+  - Auto-fill the form.
   - _Requirements: Requirement 3.7_
 
-- [x] 14.4 PWA設定を実装 ✅
-  - manifest.json作成（アイコン、名前、テーマカラー）
-  - Service Worker実装（app/static/js/sw.js）
-  - オフラインキャッシュ戦略
+- [x] 14.4 Implement PWA settings ✅
+  - Create `manifest.json` (icons, name, theme color).
+  - Implement Service Worker (`app/static/js/sw.js`).
+  - Offline caching strategy.
   - _Requirements: Requirement 18.1-18.2_
 
-- [x] 14.5 オフライン機能を実装 ✅
-  - IndexedDBへの一時保存
-  - オンライン復帰時の自動同期
-  - 同期状態表示（同期済み、同期待ち、同期中）
+- [x] 14.5 Implement offline features ✅
+  - Temporary storage in IndexedDB.
+  - Automatic sync when coming back online.
+  - Sync status display (synced, pending, syncing).
   - _Requirements: Requirement 18.3-18.5_
 
-- [x] 14.6 ホーム画面追加プロンプトを実装 ✅
-  - 初回アクセス時のプロンプト表示
+- [x] 14.6 Implement add-to-home-screen prompt ✅
+  - Show prompt on first access.
   - _Requirements: Requirement 18.2_
 
-- [x] 14.7 Publicフォームの動作テストを作成 ✅
-  - フォーム入力・保存のテスト
-  - オフライン機能のテスト
+- [x] 14.7 Create behavior tests for public form ✅
+  - Tests for form input and save behavior.
+  - Tests for offline features.
   - _Requirements: Requirement 3, Requirement 18_
 
-### 14.8 記録一覧機能の実装 ✅ 完了
+### 14.8 Implement record list features ✅ Completed
 
-ボランティアが記録状況を確認できる機能を実装します。
+Implement features that allow volunteers to check record status.
 
-- [x] 14.8.1 個別猫の記録一覧APIエンドポイントを実装（app/api/v1/public.py）✅
-  - GET /api/v1/public/care-logs/animal/{animal_id}（直近7日間の記録一覧）
-  - GET /api/v1/public/care-logs/animal/{animal_id}/{log_id}（特定記録の詳細）
-  - 日付・時点・記録者名・記録状況（〇/×）を返却
-  - Pydanticスキーマ実装（AnimalCareLogListResponse, CareLogSummary）
-  - テスト実装（3テストケース）
+- [x] 14.8.1 Implement per-cat record list API endpoints (`app/api/v1/public.py`) ✅
+  - `GET /api/v1/public/care-logs/animal/{animal_id}` (list of records for the last 7 days).
+  - `GET /api/v1/public/care-logs/animal/{animal_id}/{log_id}` (details for a specific record).
+  - Return date, time slot, recorder name, and record status (✓/✗).
+  - Implement Pydantic schemas (`AnimalCareLogListResponse`, `CareLogSummary`).
+  - Implement tests (3 test cases).
   - _Requirements: Requirement 3.11-3.13_
 
-- [x] 14.8.2 全猫の記録状況一覧APIエンドポイントを実装（app/api/v1/public.py）✅
-  - GET /api/v1/public/care-logs/status/today（全猫の当日記録状況）
-  - 各猫の名前、顔写真、当日の朝・昼・夕の記録状況（〇/×）を返却
-  - Pydanticスキーマ実装（AllAnimalsStatusResponse, AnimalStatusSummary）
-  - テスト実装（3テストケース）
+- [x] 14.8.2 Implement all-cats record status API endpoints (`app/api/v1/public.py`) ✅
+  - `GET /api/v1/public/care-logs/status/today` (today's record status for all cats).
+  - Return each cat's name, face photo, and today's morning/noon/evening record status (✓/✗).
+  - Implement Pydantic schemas (`AllAnimalsStatusResponse`, `AnimalStatusSummary`).
+  - Implement tests (3 test cases).
   - _Requirements: Requirement 3.14-3.16_
 
-- [x] 14.8.3 個別猫の記録一覧ページを実装（app/templates/public/care_log_list.html）✅
-  - Tailwind CSSでモバイル最適化
-  - 今日の記録状況（朝・昼・夕）を視覚的に表示
-  - 直近7日間の記録一覧（日付、時点、記録者名、記録状況）
-  - 記録詳細表示機能（食欲、元気、排尿、清掃、メモ）をモーダルで実装
-  - 記録入力フォームへの遷移リンク
-  - JavaScript実装（app/static/js/care_log_list.js）
-  - 画像フォールバック処理実装
+- [x] 14.8.3 Implement per-cat record list page (`app/templates/public/care_log_list.html`) ✅
+  - Mobile-optimized with Tailwind CSS.
+  - Visually display today's record status (morning/noon/evening).
+  - List of records for the last 7 days (date, time slot, recorder name, status).
+  - Record detail modal (appetite, energy, urination, cleaning, memo).
+  - Link to the record input form.
+  - JavaScript implementation (`app/static/js/care_log_list.js`).
+  - Image fallback handling.
   - _Requirements: Requirement 3.11-3.13_
 
-- [x] 14.8.4 全猫の記録状況一覧ページを実装（app/templates/public/all_animals_status.html）✅
-  - Tailwind CSSでモバイル最適化
-  - 全猫の一覧表示（顔写真サムネイル、名前）
-  - 各猫の当日記録状況（朝〇/×、昼〇/×、夕〇/×）
-  - 各猫の記録入力・記録一覧フォームへの遷移リンク
-  - JavaScript実装（app/static/js/all_animals_status.js）
-  - 画像フォールバック処理実装
+- [x] 14.8.4 Implement all-cats record status page (`app/templates/public/all_animals_status.html`) ✅
+  - Mobile-optimized with Tailwind CSS.
+  - Show list of all cats (face thumbnail, name).
+  - Show today's record status per cat (morning ✓/✗, noon ✓/✗, evening ✓/✗).
+  - Links to each cat's record input and record list forms.
+  - JavaScript implementation (`app/static/js/all_animals_status.js`).
+  - Image fallback handling.
   - _Requirements: Requirement 3.14-3.17_
 
-- [x] 14.8.5 記録入力フォームに記録一覧へのリンクを追加 ✅
-  - 「記録一覧を見る」ボタンを追加（app/templates/public/care_form.html）
-  - 個別猫の記録一覧ページへ遷移（JavaScript動的設定）
+- [x] 14.8.5 Add link from record input form to record list ✅
+  - Add a "View record list" button (`app/templates/public/care_form.html`).
+  - Navigate to the individual cat's record list page (set dynamically via JavaScript).
   - _Requirements: Requirement 3.10_
 
-- [x] 14.8.6 記録一覧機能のテストを作成 ✅
-  - 個別猫の記録一覧APIのテスト（3テストケース）
-  - 特定記録詳細取得APIのテスト（3テストケース）
-  - 全猫の記録状況一覧APIのテスト（3テストケース）
-  - 記録状況判定ロジックのテスト
+- [x] 14.8.6 Create tests for record list features ✅
+  - Tests for per-cat record list API (3 test cases)
+  - Tests for specific-record detail API (3 test cases)
+  - Tests for all-cats record status API (3 test cases)
+  - Tests for record-status decision logic
   - _Requirements: Requirement 3_
 
-## Phase 10: 多言語対応 ✅ 完了（100%）
+## Phase 10: Multilingual Support ✅ Completed (100%)
 
-**Context7 MCP使用ガイドライン**:
-- i18next実装前: `mcp_context7_get_library_docs` で `/i18next/i18next` を参照（tokens: 5000）
-- バックエンド多言語化: Jinja2テンプレートでの実装方法を Context7 で確認
+**Context7 MCP usage guidelines:**
+- Before implementing i18next: use `mcp_context7_get_library_docs` with `/i18next/i18next` (tokens: 5000).
+- For backend localization: confirm Jinja2-based implementation approaches via Context7.
 
-**実装完了日**: 2024-11-22
+**Completion date**: 2024-11-22
 
-### 15. i18n実装 ✅ 完了
+### 15. Implement i18n ✅ Completed
 
-日本語・英語の多言語対応を実装します。
+Implement Japanese/English multilingual support.
 
-- [x] 15.1 対訳ファイルを作成（app/static/i18n/）✅
-  - ja.json（日本語）- 完成
-  - en.json（英語）- 完成
-  - カテゴリ別に文言を定義（共通UI、猫台帳、世話記録、診療記録、里親管理、帳票、エラーメッセージ）
-  - 17カテゴリ、800+翻訳キー実装
-  - README.md（使用方法・命名規則ドキュメント）
+- [x] 15.1 Create translation files (`app/static/i18n/`) ✅
+  - `ja.json` (Japanese) - completed
+  - `en.json` (English) - completed
+  - Define phrases by category (common UI, cat ledger, care logs, medical records, adoption management, reports, error messages)
+  - 17 categories, 800+ translation keys implemented
+  - `README.md` (usage and naming-convention documentation)
   - _Requirements: Requirement 19.2, Requirement 19.6_
 
-- [x] 15.2 フロントエンド多言語化を実装（JavaScript）✅
-  - i18nextライブラリ統合
-  - 言語切り替え機能
-  - ローカルストレージへの保存
-  - ブラウザ言語設定からの自動選択
+- [x] 15.2 Implement frontend multilingual support (JavaScript) ✅
+  - Integrate i18next library
+  - Implement language switcher
+  - Save language preference to localStorage
+  - Auto-select based on browser language settings
   - _Requirements: Requirement 19.3-19.5_
 
-- [x] 15.3 バックエンド多言語化を実装（Jinja2）✅
-  - テンプレートでの対訳ファイル読み込み
-  - 言語切り替えエンドポイント
+- [x] 15.3 Implement backend multilingual support (Jinja2) ✅
+  - Load translation files in templates
+  - Implement language-switching endpoint
   - _Requirements: Requirement 19.3_
 
-- [x] 15.4 PDF帳票の多言語化を実装 ✅
-  - PDFテンプレートでの言語切り替え
+- [x] 15.4 Implement multilingual support for PDF reports ✅
+  - Switch languages in PDF templates
   - _Requirements: Requirement 19.7_
 
-- [x] 15.5 多言語対応のテストを作成 ✅
-  - 言語切り替えのテスト
-  - 対訳ファイルの整合性チェック
+- [x] 15.5 Create tests for multilingual support ✅
+  - Tests for language switching
+  - Consistency checks for translation files
   - _Requirements: Requirement 19_
 
-## Phase 11: セキュリティとログ
+## Phase 11: Security and Logging
 
-### 16. セキュリティ強化
+### 16. Security hardening
 
-セキュリティ対策を実装します。
+Implement security measures.
 
-- [ ] 16.1 セキュリティヘッダーミドルウェアを実装（app/middleware/security.py）
+- [ ] 16.1 Implement security-header middleware (`app/middleware/security.py`)
   - X-Content-Type-Options: nosniff
   - X-Frame-Options: DENY
   - X-XSS-Protection: 1; mode=block
   - Strict-Transport-Security（HTTPS時）
   - _Requirements: Requirement 22.5_
 
-- [ ] 16.2 入力バリデーション強化
-  - Pydanticスキーマでの厳密な検証
-  - ファイルアップロード検証（拡張子、MIMEタイプ、サイズ）
+- [ ] 16.2 Strengthen input validation
+  - Strict validation using Pydantic schemas
+  - File-upload validation (extension, MIME type, size)
   - _Requirements: Requirement 22.6_
 
-- [ ] 16.3 監査ログ機能を実装（app/services/audit_service.py）
-  - 重要操作の記録（猫Status変更、譲渡決定、ユーザー登録・削除、マスターデータ変更）
-  - AuditLogテーブルへの保存
+- [ ] 16.3 Implement audit-log features (`app/services/audit_service.py`)
+  - Record important operations (cat status changes, adoption decisions, user creation/deletion, master-data changes)
+  - Save to `AuditLog` table
   - _Requirements: Requirement 23.1-23.2_
 
-- [ ] 16.4 監査ログ画面を実装（app/templates/admin/audit_logs/）
-  - 一覧表示（時系列）
-  - フィルタ機能（日付範囲、操作者、操作種別）
-  - CSVエクスポート
+- [ ] 16.4 Implement audit-log screens (`app/templates/admin/audit_logs/`)
+  - Chronological list view
+  - Filter features (date range, operator, operation type)
+  - CSV export
   - _Requirements: Requirement 23.3-23.5_
 
-- [ ] 16.5 セキュリティ機能のテストを作成
-  - セキュリティヘッダーのテスト
-  - 監査ログ記録のテスト
+- [ ] 16.5 Create tests for security features
+  - Tests for security headers
+  - Tests for audit-log recording
   - _Requirements: Requirement 22, Requirement 23_
 
-### 17. ログとエラーハンドリング
+### 17. Logging and error handling
 
-ログ管理とエラーハンドリングを実装します。
+Implement logging and error-handling features.
 
-- [ ] 17.1 ログ設定を実装（app/logging_config.py）
-  - RotatingFileHandler（10MB、5ファイル）
-  - ログレベル設定（INFO, WARNING, ERROR, CRITICAL）
-  - フォーマット設定
+- [ ] 17.1 Implement logging configuration (`app/logging_config.py`)
+  - `RotatingFileHandler` (10 MB, 5 files)
+  - Log-level configuration (INFO, WARNING, ERROR, CRITICAL)
+  - Log format configuration
   - _Requirements: Requirement 29.6_
 
 - [ ] 17.2 エラーハンドリングミドルウェアを実装（app/middleware/error_handler.py）
-  - 例外キャッチ
-  - エラーレスポンス生成（JSON形式）
-  - エラーログ記録
+  - Catch exceptions.
+  - Generate error responses (JSON format).
+  - Record error logs.
   - _Requirements: Requirement 29.1-29.3_
 
-- [ ] 17.3 エラーページを実装（app/templates/errors/）
-  - 400, 401, 403, 404, 500エラーページ
-  - ユーザーフレンドリーなメッセージ
+- [ ] 17.3 Implement error pages (`app/templates/errors/`)
+  - Error pages for 400, 401, 403, 404, 500.
+  - User-friendly messages.
   - _Requirements: Requirement 29.1_
 
-- [ ] 17.4 データベース接続エラー処理を実装
-  - リトライ処理
-  - 管理者通知
+- [ ] 17.4 Implement database-connection error handling
+  - Retry logic.
+  - Admin notification.
   - _Requirements: Requirement 29.2_
 
-- [ ] 17.5 ネットワークエラー処理を実装（PWA）
-  - オフラインモード切り替え
-  - 復旧後の自動同期
+- [ ] 17.5 Implement network error handling (PWA)
+  - Switch to offline mode.
+  - Automatic sync after recovery.
   - _Requirements: Requirement 29.4_
 
 
-## Phase 12: バックアップとデータ管理
+## Phase 12: Backup and Data Management
 
-**Context7 MCP使用ガイドライン**:
-- APScheduler実装前: `mcp_context7_get_library_docs` で `/agronholm/apscheduler` を参照（tokens: 5000）
-- FastAPI統合方法を Context7 ドキュメントで確認
+**Context7 MCP usage guidelines:**
+- Before implementing APScheduler: use `mcp_context7_get_library_docs` with `/agronholm/apscheduler` (tokens: 5000).
+- Confirm FastAPI integration patterns via Context7 documentation.
 
-### 18. バックアップ機能
+### 18. Backup features
 
-自動バックアップ機能を実装します。
+Implement automatic backup features.
 
-- [ ] 18.1 バックアップタスクを実装（app/tasks/backup.py）
-  - SQLiteデータベースのバックアップ
-  - /mediaディレクトリのバックアップ
-  - タイムスタンプ付きファイル名
-  - 90日以上前のバックアップ自動削除
+- [ ] 18.1 Implement backup tasks (`app/tasks/backup.py`)
+  - Backup SQLite database
+  - Backup `/media` directory
+  - Timestamped backup filenames
+  - Automatically delete backups older than 90 days
   - _Requirements: Requirement 11.1-11.3, Requirement 30.1-30.2_
 
-- [ ] 18.2 スケジューラー設定を実装
-  - APSchedulerによる定時実行（毎晩2:00）
-  - バックアップ失敗時のエラーログ記録
+- [ ] 18.2 Implement scheduler configuration
+  - Schedule regular execution with APScheduler (every night at 2:00)
+  - Record error logs when backups fail
   - _Requirements: Requirement 11.1, Requirement 11.4_
 
-- [ ] 18.3 データ保持期間管理を実装
-  - 譲渡済み猫データの無期限保持
-  - 里親希望者の個人情報3年間保持
-  - 個人情報削除機能
+- [ ] 18.3 Implement data retention management
+  - Retain adopted-cat data indefinitely
+  - Retain personal data of adoption applicants for 3 years
+  - Implement personal-data deletion feature
   - _Requirements: Requirement 30.3-30.5_
 
-- [ ] 18.4 バックアップ機能のテストを作成
-  - バックアップ実行のテスト
-  - 古いバックアップ削除のテスト
+- [ ] 18.4 Create tests for backup features
+  - Tests for backup execution
+  - Tests for deletion of old backups
   - _Requirements: Requirement 11, Requirement 30_
 
-### 19. 初期セットアップ
+### 19. Initial setup
 
-初回セットアップウィザードを実装します。
+Implement the first-time setup wizard.
 
-- [ ] 19.1 セットアップウィザード画面を実装（app/templates/setup/wizard.html）
-  - ステップ1: 初期管理者アカウント作成
-  - ステップ2: 団体情報登録
-  - ステップ3: 基本設定（言語、タイムゾーン、画像制限）
+- [ ] 19.1 Implement setup wizard screens (`app/templates/setup/wizard.html`)
+  - Step 1: Create initial admin account
+  - Step 2: Register organization information
+  - Step 3: Basic settings (language, timezone, image limits)
   - _Requirements: Requirement 31.1-31.4_
 
-- [ ] 19.2 セットアップAPIエンドポイントを実装（app/api/v1/setup.py）
-  - POST /api/v1/setup/admin（管理者作成）
-  - POST /api/v1/setup/organization（団体情報登録）
-  - POST /api/v1/setup/settings（基本設定）
-  - POST /api/v1/setup/complete（セットアップ完了）
+- [ ] 19.2 Implement setup API endpoints (`app/api/v1/setup.py`)
+  - POST /api/v1/setup/admin (create admin)
+  - POST /api/v1/setup/organization (register organization information)
+  - POST /api/v1/setup/settings (basic settings)
+  - POST /api/v1/setup/complete (mark setup as complete)
   - _Requirements: Requirement 31.2-31.5_
 
-- [ ] 19.3 サンプルデータ投入機能を実装（app/db/init_data.py）
-  - サンプル猫1頭
-  - サンプルボランティア1名
+- [ ] 19.3 Implement sample-data seeding (`app/db/init_data.py`)
+  - One sample cat
+  - One sample volunteer
   - _Requirements: Requirement 31.6_
 
-- [ ] 19.4 初回起動判定処理を実装
-  - Usersテーブルが空の場合、セットアップウィザードにリダイレクト
+- [ ] 19.4 Implement first-run detection logic
+  - If `Users` table is empty, redirect to setup wizard
   - _Requirements: Requirement 31.1_
 
-## Phase 13: OCR機能（オプション）
+## Phase 13: OCR Features (Optional)
 
-### 20. OCR処理
+### 20. OCR processing
 
-紙記録からのデータ移行支援機能を実装します。
+Implement features to assist with data migration from paper records.
 
-- [ ] 20.1 OCRサービスを実装（app/services/ocr_service.py）
-  - 画像/PDFアップロード処理
-  - Tesseract OCR実行
-  - テキスト抽出
-  - 編集可能フォームへのデータ提供
+- [ ] 20.1 Implement OCR service (`app/services/ocr_service.py`)
+  - Image/PDF upload handling
+  - Run Tesseract OCR
+  - Extract text
+  - Provide data to editable forms
   - _Requirements: Requirement 17.5-17.7_
 
-- [ ] 20.2 MCP連携を実装
-  - Google Cloud Vision API連携
-  - AWS Textract連携
-  - OCRサービス選択機能
+- [ ] 20.2 Implement MCP integration
+  - Integrate Google Cloud Vision API
+  - Integrate AWS Textract
+  - Implement OCR-service selection
   - _Requirements: Requirement 17.9_
 
-- [ ] 20.3 Kiro Hook連携を実装
-  - 指定フォルダ監視
-  - ファイル追加時の自動OCR処理
+- [ ] 20.3 Implement Kiro Hook integration
+  - Watch specified folders
+  - Automatically run OCR when files are added
   - _Requirements: Requirement 17.8_
 
-- [ ] 20.4 OCR APIエンドポイントを実装（app/api/v1/ocr.py）
-  - POST /api/v1/ocr/upload（アップロード→OCR処理）
-  - GET /api/v1/ocr/status/{job_id}（処理状況取得）
+- [ ] 20.4 Implement OCR API endpoints (`app/api/v1/ocr.py`)
+  - POST /api/v1/ocr/upload (upload → OCR processing)
+  - GET /api/v1/ocr/status/{job_id} (get processing status)
   - _Requirements: Requirement 17.5, Requirement 17.10_
 
-- [ ] 20.5 OCR結果確認画面を実装（app/templates/admin/ocr/）
-  - 認識テキスト表示
-  - 編集フォーム
-  - 保存ボタン
+- [ ] 20.5 Implement OCR result review screens (`app/templates/admin/ocr/`)
+  - Display recognized text
+  - Edit form
+  - Save button
   - _Requirements: Requirement 17.6-17.7_
 
-- [ ] 20.6 進捗通知機能を実装
-  - WebSocketまたはポーリングによる進捗表示
+- [ ] 20.6 Implement progress-notification features
+  - Show progress via WebSocket or polling
   - _Requirements: Requirement 17.10_
 
-- [ ] 20.7 OCR機能のテストを作成
-  - OCR処理のテスト
-  - MCP連携のテスト
+- [ ] 20.7 Create tests for OCR features
+  - Tests for OCR processing
+  - Tests for MCP integration
   - _Requirements: Requirement 17_
 
-## Phase 14: ヘルプとサポート
+## Phase 14: Help and Support
 
-### 21. ヘルプ機能
+### 21. Help features
 
-ユーザー向けヘルプ機能を実装します。
+Implement user-facing help features.
 
-- [ ] 21.1 オンラインヘルプページを作成（app/templates/help/）
-  - 各機能の使い方（画像付き）
-  - よくある質問（FAQ）
+- [ ] 21.1 Create online help pages (`app/templates/help/`)
+  - Usage guides for each feature (with images)
+  - Frequently Asked Questions (FAQ)
   - _Requirements: Requirement 32.2-32.4_
 
-- [ ] 21.2 ヘルプボタンを配置
-  - 管理画面各ページにヘルプボタン
-  - コンテキストヘルプ（該当ページのヘルプを表示）
+- [ ] 21.2 Place help buttons
+  - Add help buttons to each admin screen
+  - Contextual help (show help relevant to the current page)
   - _Requirements: Requirement 32.1-32.2_
 
-- [ ] 21.3 問い合わせフォームを実装（app/templates/help/contact.html）
-  - 問い合わせ内容入力フォーム
-  - メール送信機能
+- [ ] 21.3 Implement contact form (`app/templates/help/contact.html`)
+  - Inquiry input form
+  - Email sending feature
   - _Requirements: Requirement 32.5-32.6_
 
-- [ ] 21.4 プライバシーポリシーページを作成
-  - データ収集・利用目的の明示
+- [ ] 21.4 Create privacy-policy page
+  - Clearly state purposes of data collection and usage
   - _Requirements: Requirement 30.6_
 
-## Phase 15: デプロイとドキュメント
+## Phase 15: Deployment and Documentation
 
-**Context7 MCP使用ガイドライン**:
-- Docker実装前: Renderの最新ドキュメント（https://render.com/docs/docker）を参照
-- render.yaml実装前: Blueprint仕様（https://render.com/docs/blueprint-spec）を参照
-- Persistent Disks実装前: https://render.com/docs/disks を参照
+**Context7 MCP usage guidelines:**
+- Before implementing Docker: refer to Render's latest docs (https://render.com/docs/docker).
+- Before implementing `render.yaml`: refer to the Blueprint spec (https://render.com/docs/blueprint-spec).
+- Before using Persistent Disks: refer to https://render.com/docs/disks.
 
-**デプロイ方針（ハッカソン向けPoC戦略）**:
-- **Dockerベースのデプロイ**を採用（WeasyPrint、Pillow等のOS依存パッケージを確実にインストール）
-- **2段階デプロイ戦略**:
-  - **Phase 1（Free Plan - 1週間のPoC）**:
-    - SQLite（エフェメラル、/tmp/）
-    - データは再デプロイで消える前提（PoC割り切り）
-    - PostgreSQL不要（シンプル構成）
-  - **Phase 2（Starter Plan - ハッカソン審査時）**:
-    - SQLite + Persistent Disk（1GB）で本番運用
-    - データ永続化
-- **render.yaml不要**（Render Dashboard UIから直接デプロイ）
-- **マルチステージビルド**でイメージサイズを最適化
+**Deployment strategy (hackathon PoC):**
+- Use **Docker-based deployment** to reliably install OS-dependent packages (WeasyPrint, Pillow, etc.).
+- **Two-stage deployment strategy**:
+  - **Phase 1 (Free Plan - 1-week PoC):**
+    - SQLite (ephemeral, `/tmp/`).
+    - Data is assumed to be lost on redeploy (PoC trade-off).
+    - No PostgreSQL (simple architecture).
+  - **Phase 2 (Starter Plan - for hackathon judging):**
+    - SQLite + Persistent Disk (1GB) for production.
+    - Data persistence.
+- No `render.yaml` required (deploy directly from Render Dashboard UI).
+- Use **multi-stage builds** to optimize image size.
 
-**Free Plan制約（許容範囲）**:
-- ⚠️ Persistent Disk使用不可 → エフェメラルファイルシステム（PoC割り切り）
-- ⚠️ 15分間アクセスなしでスピンダウン（初回アクセス時に遅延）
-- ⚠️ 月750時間の制限（1週間のデモには十分）
-- ✅ PostgreSQL不要（シンプル構成）
+**Free Plan constraints (acceptable for PoC):**
+- ⚠️ No Persistent Disk → ephemeral filesystem (PoC trade-off).
+- ⚠️ Spins down after 15 minutes of inactivity (cold start latency).
+- ⚠️ Monthly limit of 750 hours (sufficient for a 1-week demo).
+- ✅ No PostgreSQL required (simple architecture).
 
-### 22. Dockerコンテナ化（Free Plan PoC向け） ✅ 完了
+### 22. Docker containerization (for Free Plan PoC) ✅ Completed
 
-**実装完了日**: 2024-11-23
-**デプロイ先**: Render Free Plan (https://necokeeper.onrender.com)
-**デプロイ状況**: ✅ 正常稼働中（ログイン画面確認済み）
+**Completion date**: 2024-11-23
+**Deployment target**: Render Free Plan (https://necokeeper.onrender.com)
+**Deployment status**: ✅ Running normally (login screen verified).
 
-Dockerコンテナ化を実装します。
+Implement Docker containerization.
 
-- [x] 22.1 Dockerfileを作成（マルチステージビルド）✅
-  - **Stage 1: Builder** - 依存関係のインストール
-    - Python 3.12ベースイメージ
-    - WeasyPrint依存パッケージ（libpango、libcairo、libgdk-pixbuf）
-    - **日本語フォント**（fonts-noto-cjk、fonts-ipafont-gothic）
-    - requirements.txtからPythonパッケージインストール
-  - **Stage 2: Runtime** - 本番環境用の軽量イメージ
-    - 必要な実行時パッケージのみコピー
-    - **日本語フォント**をコピー（PDF帳票の日本語表示に必須）
-    - 非rootユーザーで実行（セキュリティ）
-    - ヘルスチェック設定（HEALTHCHECK指令）
-  - **データベース設定**:
-    - SQLiteのみ（エフェメラル、/tmp/necokeeper.db）
-    - 再デプロイでデータ消失（PoC割り切り）
-  - **メディアファイル設定**:
-    - エフェメラルファイルシステム（/tmp/media/）
-  - **重要**: 日本語フォントがないとPDF帳票が正しく表示されない
+- [x] 22.1 Create Dockerfile (multi-stage build) ✅
+  - **Stage 1: Builder** - install dependencies.
+    - Python 3.12 base image.
+    - WeasyPrint dependencies (`libpango`, `libcairo`, `libgdk-pixbuf`).
+    - **Japanese fonts** (`fonts-noto-cjk`, `fonts-ipafont-gothic`).
+    - Install Python packages from `requirements.txt`.
+  - **Stage 2: Runtime** - lightweight image for production.
+    - Copy only required runtime packages.
+    - Copy **Japanese fonts** (required for Japanese PDF output).
+    - Run as non-root user (security).
+    - Configure health check (`HEALTHCHECK`).
+  - **Database settings**:
+    - SQLite only (ephemeral, `/tmp/necokeeper.db`).
+    - Data loss on redeploy (PoC trade-off).
+  - **Media file settings**:
+    - Ephemeral filesystem (`/tmp/media/`).
+  - **Important**: PDFs will not display Japanese correctly without fonts.
   - _Requirements: Requirement 20.1-20.2, Requirement 2.1-2.8（PDF生成）_
 
-- [x] 22.2 .dockerignoreを作成 ✅
-  - 不要なファイルをビルドコンテキストから除外
-  - .git、.venv、__pycache__、*.pyc、tests/、docs/、data/、media/、backups/
-  - ビルド時間とイメージサイズの最適化
+- [x] 22.2 Create `.dockerignore` ✅
+  - Exclude unnecessary files from build context.
+  - `.git`, `.venv`, `__pycache__`, `*.pyc`, `tests/`, `docs/`, `data/`, `media/`, `backups/`.
+  - Optimize build time and image size.
   - _Requirements: Requirement 20.1_
 
-- [x] 22.3 docker-compose.ymlを作成（ローカル開発用）✅
-  - Webサービス定義
-  - ボリュームマウント（data/、media/、backups/）
-  - 環境変数設定
-  - ポートマッピング（8000:8000）
+- [x] 22.3 Create `docker-compose.yml` (for local development) ✅
+  - Define web service.
+  - Volume mounts (`data/`, `media/`, `backups/`).
+  - Environment variable configuration.
+  - Port mapping (`8000:8000`).
   - _Requirements: Requirement 31_
 
-- [x] 22.4 Dockerビルド・実行テストを実施 ✅
-  - ローカルでDockerイメージをビルド
-  - コンテナ起動確認（SQLite、エフェメラル）
-  - ヘルスチェック動作確認
-  - **Render Free Planデプロイ完了**: https://necokeeper.onrender.com
-  - **動作確認**: ログイン画面正常表示、多言語対応（日本語/英語）動作確認
+- [x] 22.4 Run Docker build and execution tests ✅
+  - Build Docker image locally.
+  - Verify container startup (SQLite, ephemeral).
+  - Verify health check behavior.
+  - **Render Free Plan deployment completed**: https://necokeeper.onrender.com
+  - **Verification**: login screen loads correctly; multilingual (Japanese/English) works.
   - _Requirements: Requirement 20.1_
 
-### 23. Renderデプロイ設定（Free Plan PoC向け）
+### 23. Render deployment configuration (for Free Plan PoC)
 
-Render用のデプロイ設定を作成します。
+Create deployment configuration for Render.
 
-- [ ] 23.1 環境変数テンプレートを作成（.env.example）
-  - 必須環境変数の一覧と説明
-  - DATABASE_URL: sqlite:////tmp/necokeeper.db（エフェメラル）
-  - SECRET_KEY: （自動生成を推奨）
-  - ENVIRONMENT: production
-  - CORS_ORIGINS: 本番ドメイン
-  - MEDIA_DIR: /tmp/media（エフェメラル）
+- [ ] 23.1 Create environment-variable template (`.env.example`)
+  - List and describe required environment variables.
+  - `DATABASE_URL`: `sqlite:////tmp/necokeeper.db` (ephemeral).
+  - `SECRET_KEY`: (recommend auto-generation).
+  - `ENVIRONMENT`: `production`.
+  - `CORS_ORIGINS`: production domain.
+  - `MEDIA_DIR`: `/tmp/media` (ephemeral).
   - _Requirements: Requirement 20.3_
 
-- [ ] 23.2 デプロイ手順ドキュメントを作成（DEPLOY.md）
-  - **Free Plan PoC デプロイ手順（1週間）**:
-    1. GitHubリポジトリ接続
-    2. Render Dashboard: New → Web Service
-    3. Language: Docker
-    4. Dockerfile Path: ./Dockerfile
-    5. 環境変数設定:
-       - DATABASE_URL: sqlite:////tmp/necokeeper.db
-       - SECRET_KEY: （自動生成）
-       - ENVIRONMENT: production
-    6. Plan: Free
-    7. デプロイ実行
-    8. ⚠️ 注意: データは再デプロイで消える（PoC割り切り）
-  - **Starter Planへの移行手順（ハッカソン審査時）**:
-    1. Web ServiceをStarter Planにアップグレード（$7/月）
-    2. Persistent Disk追加（1GB、/app/data）
-    3. 環境変数更新:
-       - DATABASE_URL: sqlite:////app/data/necokeeper.db
-       - MEDIA_DIR: /app/media
-    4. 再デプロイ
-    5. データベース初期化（alembic upgrade head）
-    6. 初期管理者アカウント作成
-  - **トラブルシューティング**:
-    - スピンダウン対策（Free Plan、15分）
-    - データ消失時の対応（再初期化）
-    - メモリ不足
+- [ ] 23.2 Create deployment guide (DEPLOY.md)
+  - **Free Plan PoC deployment steps (1 week):**
+    1. Connect GitHub repository.
+    2. In Render Dashboard: New → Web Service.
+    3. Language: Docker.
+    4. Dockerfile Path: `./Dockerfile`.
+    5. Configure environment variables:
+       - `DATABASE_URL`: `sqlite:////tmp/necokeeper.db`.
+       - `SECRET_KEY`: (auto-generate).
+       - `ENVIRONMENT`: `production`.
+    6. Plan: Free.
+    7. Deploy.
+    8. ⚠️ Note: data is lost on redeploy (PoC trade-off).
+  - **Migration to Starter Plan (for hackathon judging):**
+    1. Upgrade Web Service to Starter Plan ($7/month).
+    2. Add Persistent Disk (1GB, `/app/data`).
+    3. Update environment variables:
+       - `DATABASE_URL`: `sqlite:////app/data/necokeeper.db`.
+       - `MEDIA_DIR`: `/app/media`.
+    4. Redeploy.
+    5. Initialize database (`alembic upgrade head`).
+    6. Create initial admin account.
+  - **Troubleshooting:**
+    - Handling spin-down (Free Plan, 15 minutes).
+    - Handling data loss (re-initialize).
+    - Memory issues.
   - _Requirements: Requirement 20.5-20.6_
 
-- [ ] 23.3 README.mdを更新
-  - プロジェクト概要
-  - 主な機能
-  - 技術スタック
-  - ローカル開発環境セットアップ
-  - Renderへのデプロイ方法（DEPLOY.mdへのリンク）
-  - ⚠️ Free Plan制約の明記（データ消失）
-  - ライセンス情報
+- [ ] 23.3 Update `README.md`
+  - Project overview.
+  - Main features.
+  - Tech stack.
+  - Local development setup.
+  - Deployment to Render (link to DEPLOY.md).
+  - ⚠️ Note Free Plan constraints (data loss).
+  - License information.
   - _Requirements: Requirement 20.5_
 
-### 24. ドキュメント整備
+### 24. Documentation
 
-開発・運用ドキュメントを整備します。
+Prepare development and operations documentation.
 
-- [ ] 24.1 API仕様書を確認・更新
-  - FastAPIの自動生成OpenAPI（Swagger）仕様書を確認
-  - /docs エンドポイントでアクセス可能
-  - 各エンドポイントの説明を充実
-  - _Requirements: 技術的制約1_
+- [ ] 24.1 Review and update API specifications
+  - Review FastAPI auto-generated OpenAPI (Swagger) specs
+  - Accessible at the `/docs` endpoint
+  - Enrich descriptions for each endpoint
+  - _Requirements: Technical constraint 1_
 
 - [ ] 24.2 開発環境セットアップガイドを作成（DEVELOPMENT.md）
-  - **ローカル開発環境**:
-    - Python 3.12のインストール
-    - 仮想環境作成（python -m venv .venv）
-    - 依存関係インストール（pip install -r requirements.txt）
-    - 環境変数設定（.envファイル）
-    - データベース初期化（alembic upgrade head）
-    - 開発サーバー起動（uvicorn app.main:app --reload）
-  - **Docker開発環境**:
-    - docker-compose up -d
-    - ホットリロード設定
-  - **テスト実行**:
-    - pytest実行方法
-    - カバレッジ測定
-  - **コード品質チェック**:
-    - ruff、mypy、pre-commit
+  - **Local development environment:**
+    - Install Python 3.12.
+    - Create virtual environment (`python -m venv .venv`).
+    - Install dependencies (`pip install -r requirements.txt`).
+    - Configure environment variables (`.env` file).
+    - Initialize database (`alembic upgrade head`).
+    - Start development server (`uvicorn app.main:app --reload`).
+  - **Docker development environment:**
+    - `docker-compose up -d`.
+    - Configure hot reloading.
+  - **Running tests:**
+    - How to run `pytest`.
+    - How to measure coverage.
+  - **Code quality checks:**
+    - `ruff`, `mypy`, `pre-commit`.
   - _Requirements: Requirement 31_
 
-- [ ] 24.3 運用マニュアルを作成（OPERATIONS.md）
-  - **バックアップ・リストア手順**:
-    - 自動バックアップ設定確認
-    - 手動バックアップ実行
-    - リストア手順
-  - **ユーザー管理手順**:
-    - 管理者アカウント作成
-    - パスワードリセット
-    - 権限変更
-  - **モニタリング**:
-    - ログ確認方法
-    - エラー監視
-    - パフォーマンス監視
-  - **トラブルシューティング**:
-    - よくある問題と解決方法
-    - データベース接続エラー
-    - メモリ不足
-    - ディスク容量不足
+- [ ] 24.3 Create operations manual (`OPERATIONS.md`)
+  - **Backup & restore procedures:**
+    - Verify automatic backup settings.
+    - Run manual backups.
+    - Restore procedures.
+  - **User management procedures:**
+    - Create admin accounts.
+    - Reset passwords.
+    - Change permissions.
+  - **Monitoring:**
+    - How to check logs.
+    - Error monitoring.
+    - Performance monitoring.
+  - **Troubleshooting:**
+    - Common issues and resolutions.
+    - Database connection errors.
+    - Out-of-memory issues.
+    - Disk space issues.
   - _Requirements: Requirement 11, Requirement 21_
 
-- [ ] 24.4 アーキテクチャドキュメントを作成（ARCHITECTURE.md）
-  - システム構成図
-  - データベーススキーマ
-  - API設計
-  - 認証・認可フロー
-  - ファイル構成
-  - 技術スタック
+- [ ] 24.4 Create architecture documentation (`ARCHITECTURE.md`)
+  - System architecture diagram
+  - Database schema
+  - API design
+  - Authentication/authorization flows
+  - File structure
+  - Technology stack
+  - _Requirements: Technical constraint 1_
+
+- [ ] 24.5 Create contribution guide (`CONTRIBUTING.md`)
+  - Development flow (Git workflow).
+  - Coding conventions.
+  - Pull request guidelines.
+  - Testing requirements.
   - _Requirements: 技術的制約1_
 
-- [ ] 24.5 コントリビューションガイドを作成（CONTRIBUTING.md）
-  - 開発フロー（Git workflow）
-  - コーディング規約
-  - プルリクエストのガイドライン
-  - テスト要件
-  - _Requirements: 技術的制約1_
+## Phase 16: Performance optimization and testing
 
-## Phase 16: パフォーマンス最適化とテスト
+**Context7 MCP usage guidelines:**
+- Before implementing pytest: use `mcp_context7_get_library_docs` with `/pytest-dev/pytest` (tokens: 5000).
+- Before implementing pytest-asyncio: use `mcp_context7_resolve_library_id` to search for "pytest-asyncio".
+- Before implementing Pillow: use `mcp_context7_get_library_docs` with `/python-pillow/Pillow` (tokens: 5000).
 
-**Context7 MCP使用ガイドライン**:
-- pytest実装前: `mcp_context7_get_library_docs` で `/pytest-dev/pytest` を参照（tokens: 5000）
-- pytest-asyncio実装前: `mcp_context7_resolve_library_id` で "pytest-asyncio" を検索
-- Pillow実装前: `mcp_context7_get_library_docs` で `/python-pillow/Pillow` を参照（tokens: 5000）
+### 25. Performance optimization
 
-### 25. パフォーマンス最適化
+Optimize system performance.
 
-システムパフォーマンスを最適化します。
-
-- [ ] 25.1 データベースインデックスを最適化
-  - 頻繁に検索されるカラムのインデックス確認
-  - 複合インデックスの追加
+- [ ] 25.1 Optimize database indexes
+  - Review indexes on frequently searched columns
+  - Add composite indexes where appropriate
   - _Requirements: Requirement 28.1-28.2_
 
-- [ ] 25.2 クエリ最適化を実施
-  - N+1問題の解消（eager loading）
-  - 不要なカラムの除外
+- [ ] 25.2 Optimize queries
+  - Eliminate N+1 problems (eager loading)
+  - Exclude unnecessary columns
   - _Requirements: Requirement 28.1_
 
-- [ ] 25.3 画像最適化を実装
-  - アップロード時の自動リサイズ
-  - 圧縮処理
+- [ ] 25.3 Implement image optimization
+  - Automatic resizing on upload
+  - Compression processing
   - _Requirements: Requirement 27.9_
 
-- [ ] 25.4 キャッシュ戦略を実装
-  - アクティブボランティア一覧のキャッシュ
-  - 設定値のキャッシュ
+- [ ] 25.4 Implement caching strategy
+  - Cache the list of active volunteers
+  - Cache configuration values
   - _Requirements: Requirement 28.1_
 
-- [ ] 25.5 パフォーマンステストを実施
-  - レスポンスタイム測定（画面遷移3秒、記録保存2秒、PDF生成10秒）
-  - 同時接続テスト（20名）
-  - 大量データテスト（猫100頭）
+- [ ] 25.5 Run performance tests
+  - Measure response times (screen transitions 3s, record save 2s, PDF generation 10s)
+  - Concurrent-connection tests (20 users)
+  - Large-data tests (100 cats)
   - _Requirements: Requirement 28.1-28.5_
 
-### 26. 統合テストとE2Eテスト
+### 26. Integration and E2E tests
 
-システム全体のテストを実施します。
+Run tests for the entire system.
 
-- [ ] 26.1 統合テストを作成（DDD準拠）
-  - ドメインサービス間の協調テスト
-  - アプリケーションサービスの統合テスト
-  - インフラストラクチャ層の統合テスト
-  - APIエンドポイントのコントラクトテスト
+- [ ] 26.1 Create integration tests (DDD-based)
+  - Collaboration tests between domain services
+  - Integration tests for application services
+  - Integration tests for infrastructure layer
+  - Contract tests for API endpoints
   - _Requirements: Requirement 28_
 
-- [ ] 26.2 フロントエンドテストを作成
-  - Jest + jsdomでJavaScript関数のテスト
-  - PWA機能（オフライン同期、キャッシュ）のテスト
+- [ ] 26.2 Create frontend tests
+  - Test JavaScript functions with Jest + jsdom
+  - Test PWA features (offline sync, caching)
   - _Requirements: Requirement 18_
 
-- [ ] 26.3 E2Eテストを作成
-  - ユーザーフロー（猫登録→記録入力→帳票出力）のテスト
-  - Playwrightを使用
+- [ ] 26.3 Create E2E tests
+  - Test user flows (cat registration → record input → report output)
+  - Use Playwright
   - _Requirements: Requirement 28_
 
-- [ ] 26.4 ブラウザ互換性テストを実施
-  - Chrome、Firefox、Safari、Edge（最新版+1つ前）
-  - iOS 14+、Android 10+
+- [ ] 26.4 Run browser compatibility tests
+  - Chrome, Firefox, Safari, Edge (latest + previous)
+  - iOS 14+, Android 10+
   - _Requirements: Requirement 28.7-28.8_
 
-- [ ] 26.5 セキュリティテストを実施
-  - SQLインジェクションテスト
-  - XSSテスト
-  - CSRF対策テスト
+- [ ] 26.5 Run security tests
+  - SQL injection tests
+  - XSS tests
+  - CSRF countermeasure tests
   - _Requirements: Requirement 22_
 
-## Phase 17: 最終調整とリリース
+## Phase 17: Final adjustments and release
 
-### 27. 最終調整
+### 27. Final adjustments
 
-リリース前の最終調整を行います。
+Perform final adjustments before release.
 
-- [ ] 27.1 エラーメッセージの多言語化を確認
-  - 全エラーメッセージが対訳ファイルに含まれているか確認
+- [ ] 27.1 Verify multilingual support for error messages
+  - Ensure all error messages are included in translation files
   - _Requirements: Requirement 19.6_
 
-- [ ] 27.2 UI/UXの最終調整
-  - モバイル表示の確認
-  - ボタンサイズの確認（最小44×44px）
+- [ ] 27.2 Final UI/UX adjustments
+  - Verify mobile display
+  - Verify button sizes (minimum 44×44 px)
   - _Requirements: Requirement 13.2_
 
-- [ ] 27.3 デフォルト設定値の確認
-  - 画像制限（最大20枚、最大5MB）
-  - セッションタイムアウト（2時間）
-  - ログイン試行回数制限（5回）
+- [ ] 27.3 Verify default configuration values
+  - Image limits (max 20 images, max 5 MB)
+  - Session timeout (2 hours)
+  - Login attempt limit (5 attempts)
   - _Requirements: Requirement 22, Requirement 27.10_
 
-- [ ] 27.4 ログ出力の確認
-  - 本番環境でのログレベル設定
-  - 機密情報のマスキング
+- [ ] 27.4 Verify log output
+  - Log-level configuration in production
+  - Masking of sensitive information
   - _Requirements: Requirement 29.6_
 
-- [ ] 27.5 HTTPS設定の確認
-  - 本番環境でのHTTPS必須化
-  - セキュリティヘッダーの確認
+- [ ] 27.5 Verify HTTPS configuration
+  - Enforce HTTPS in production
+  - Verify security headers
   - _Requirements: Requirement 22.5_
 
-- [ ] 27.6 負荷テストを実施
-  - 同時接続20名での動作確認
-  - システム稼働率95%の確認
+- [ ] 27.6 Run load tests
+  - Verify behavior with 20 concurrent users
+  - Verify system availability of 95%
   - _Requirements: Requirement 28.4, Requirement 28.6_
 
-### 28. リリース準備
+### 28. Release preparation
 
-リリースに向けた最終準備を行います。
+Perform final preparations for release.
 
-- [ ] 28.1 本番環境へのデプロイ
-  - Render/Railway/Fly.ioへのデプロイ
-  - 環境変数設定
-  - データベース永続化設定
+- [ ] 28.1 Deploy to production environment
+  - Deploy to Render/Railway/Fly.io
+  - Configure environment variables
+  - Configure database persistence
   - _Requirements: Requirement 20.1-20.5_
 
-- [ ] 28.2 初期データ投入
-  - セットアップウィザードの実行
-  - 初期管理者アカウント作成
-  - サンプルデータ投入
+- [ ] 28.2 Seed initial data
+  - Run setup wizard
+  - Create initial admin account
+  - Insert sample data
   - _Requirements: Requirement 31_
 
-- [ ] 28.3 バックアップ設定の確認
-  - 自動バックアップの動作確認
-  - バックアップファイルの保存先確認
+- [ ] 28.3 Verify backup configuration
+  - Verify automatic backup behavior
+  - Verify backup file locations
   - _Requirements: Requirement 11_
 
-- [ ] 28.4 監視設定
-  - エラーログ監視
-  - システム稼働監視
+- [ ] 28.4 Configure monitoring
+  - Monitor error logs
+  - Monitor system uptime
   - _Requirements: Requirement 29.2_
 
-- [ ] 28.5 ユーザー向けドキュメントの公開
-  - オンラインヘルプの公開
-  - FAQ の公開
-  - プライバシーポリシーの公開
+- [ ] 28.5 Publish user-facing documentation
+  - Publish online help
+  - Publish FAQ
+  - Publish privacy policy
   - _Requirements: Requirement 32_
 
-- [ ] 28.6 リリースノートの作成
-  - 実装機能一覧
-  - 既知の制限事項
-  - 今後の予定
-  - _Requirements: スケジュール制約1_
+- [ ] 28.6 Create release notes
+  - List implemented features
+  - Known limitations
+  - Future roadmap
+  - _Requirements: Schedule constraint 1_
 
 ---
 
-## 実装完了
+## Completion
 
-全てのタスクが完了したら、NecoKeeperシステムのMVPが完成です。
+Once all tasks are complete, the MVP of the NecoKeeper system is finished.
 
-次のステップ:
-1. ユーザーフィードバックの収集
-2. バグ修正と改善
-3. Phase 2機能の検討（通知機能、SNS連携、AI機能等）
+Next steps:
+1. Collect user feedback.
+2. Fix bugs and implement improvements.
+3. Plan Phase 2 features (notifications, SNS integration, AI features, etc.).
 
 ---
 
-## 進捗サマリー
+## Progress Summary
 
-### Phase別完了状況
-- [x] Phase 1: プロジェクト基盤とデータベース (11/11 完了) ✅
-- [x] Phase 2: 認証・認可システム (7/7 完了) ✅
-- [x] Phase 3: 猫管理機能 (6/6 完了) ✅
-- [x] Phase 4: 世話記録機能 (5/5 完了) ✅
-- [x] Phase 4: ボランティア管理 (4/4 完了) ✅
-- [x] Phase 5: 診療記録機能 (4/4 完了) ✅ 2024-11-18
-- [x] Phase 5: 診療マスターデータ管理 (5/5 完了) ✅
-- [x] Phase 6: PDF生成機能 (5/5 完了) ✅
-- [x] Phase 6: CSV/Excelエクスポート機能 (4/4 完了) ✅ 2024-11-18
-- [x] Phase 7: 里親管理機能 (4/4 完了) ✅ 2024-11-18
-- [x] Phase 8: 管理画面UI (15/15 完了) ✅ 2024-11-18
-- [x] Phase 9: Publicフォーム（PWA） (7/7 完了) ✅
-- [x] Phase 9: 記録一覧機能 (6/6 完了) ✅
-- [x] Phase 10: 多言語対応 (5/5 完了) ✅ 2024-11-22
-- [ ] Phase 11: セキュリティとログ (0/10 完了)
-- [ ] Phase 12: バックアップとデータ管理 (0/7 完了)
-- [ ] Phase 13: OCR機能（オプション） (0/7 完了)
-- [ ] Phase 14: ヘルプとサポート (0/4 完了)
-- [x] Phase 15: デプロイとドキュメント (4/11 完了) - Dockerコンテナ化完了 ✅
-- [ ] Phase 16: パフォーマンス最適化とテスト (0/10 完了)
-- [ ] Phase 17: 最終調整とリリース (0/12 完了)
+### Completion status by Phase
+- [x] Phase 1: Project foundation and database (11/11 completed) ✅
+- [x] Phase 2: Authentication & authorization system (7/7 completed) ✅
+- [x] Phase 3: Animal management features (6/6 completed) ✅
+- [x] Phase 4: Care Log features (5/5 completed) ✅
+- [x] Phase 4: Volunteer management (4/4 completed) ✅
+- [x] Phase 5: Medical record features (4/4 completed) ✅ 2024-11-18
+- [x] Phase 5: Medical master data management (5/5 completed) ✅
+- [x] Phase 6: PDF generation features (5/5 completed) ✅
+- [x] Phase 6: CSV/Excel export features (4/4 completed) ✅ 2024-11-18
+- [x] Phase 7: Adoption management features (4/4 completed) ✅ 2024-11-18
+- [x] Phase 8: Admin UI (15/15 completed) ✅ 2024-11-18
+- [x] Phase 9: Public forms (PWA) (7/7 completed) ✅
+- [x] Phase 9: Record list features (6/6 completed) ✅
+- [x] Phase 10: Multilingual support (5/5 completed) ✅ 2024-11-22
+- [ ] Phase 11: Security and logging (0/10 completed)
+- [ ] Phase 12: Backup and data management (0/7 completed)
+- [ ] Phase 13: OCR features (optional) (0/7 completed)
+- [ ] Phase 14: Help and support (0/4 completed)
+- [x] Phase 15: Deployment and documentation (4/11 completed) - Docker containerization completed ✅
+- [ ] Phase 16: Performance optimization and tests (0/10 completed)
+- [ ] Phase 17: Final polishing and release (0/12 completed)
 
-### 全体進捗
-**完了タスク数**: 85 / 142 タスク (59.9%)
-**MVP Core完了**: Phase 1-10（バックエンド + 管理画面UI + PWA + 記録一覧 + CSV/Excel出力 + 多言語対応）完全完了 ✅
-**Dockerコンテナ化完了**: Phase 15 Task 22（Render Free Planデプロイ完了）✅
-**本番環境**: https://necokeeper.onrender.com （稼働中）
-**推定残り時間**: 約57-85時間（1タスク平均1-1.5時間）
+### Overall progress
+**Completed tasks**: 85 / 142 tasks (59.9%)
+**MVP Core completed**: Phases 1–10 (backend + admin UI + PWA + record lists + CSV/Excel export + multilingual support) fully completed ✅
+**Docker containerization completed**: Phase 15 Task 22 (Render Free Plan deployment completed) ✅
+**Production environment**: https://necokeeper.onrender.com (running)
+**Estimated remaining time**: ~57–85 hours (1–1.5 hours per task)
 
-### 実装済み機能
-- ✅ データベース（全12モデル）
-- ✅ JWT認証・認可システム（RBAC、権限チェック）
-- ✅ 猫管理機能（CRUD、検索、ステータス管理、画像ギャラリー）
-- ✅ 世話記録機能（CRUD、CSV出力、前回値コピー、フィルター）
-- ✅ ボランティア管理機能（CRUD、活動履歴）
-- ✅ 診療記録機能（CRUD、診療行為マスター、料金計算、管理画面UI）✅ 2024-11-18完了
-- ✅ 里親管理機能（希望者管理、面談記録、譲渡記録、管理画面UI）✅ 2024-11-18完了
-- ✅ 画像アップロード・最適化・ギャラリー管理
-- ✅ PDF生成機能（QRカード、面付けカード、紙記録フォーム）
-- ✅ Public API（認証不要の世話記録入力、記録一覧、記録詳細）
-- ✅ PWA機能（manifest.json、Service Worker、オフライン同期）
-- ✅ 記録一覧機能（個別猫・全猫の記録状況、記録詳細モーダル）
-- ✅ 管理画面UI（ダッシュボード、猫台帳、世話記録、診療記録、里親管理、ボランティア、帳票出力、設定、ログイン、体重グラフ、画像ギャラリー、検索）✅ 2024-11-18完了
-- ✅ 多言語対応（日本語・英語、i18next統合、800+翻訳キー）✅ 2024-11-22完了
-- ✅ Dockerコンテナ化（マルチステージビルド、日本語フォント対応）✅ 2024-11-23完了
-- ✅ Render Free Planデプロイ（https://necokeeper.onrender.com）✅ 2024-11-23完了
-- ✅ 統合テスト（232テスト、カバレッジ84.90%）
+### Implemented features
+- ✅ Database (all 12 models).
+- ✅ JWT-based authentication & authorization (RBAC, permission checks).
+- ✅ Animal management (CRUD, search, status management, image gallery).
+- ✅ Care Log features (CRUD, CSV export, copy previous values, filters).
+- ✅ Volunteer management (CRUD, activity history).
+- ✅ Medical record features (CRUD, medical actions master, billing calculation, admin UI) ✅ Completed 2024-11-18.
+- ✅ Adoption management (applicants, interviews, adoption records, admin UI) ✅ Completed 2024-11-18.
+- ✅ Image upload, optimization, and gallery management.
+- ✅ PDF generation (QR cards, imposed cards, paper forms).
+- ✅ Public API (unauthenticated care-log input, list, detail).
+- ✅ PWA features (`manifest.json`, Service Worker, offline sync).
+- ✅ Record list features (per-cat and all-cats status, record detail modals).
+- ✅ Admin UI (dashboard, animal ledger, care logs, medical records, adoption management, volunteers, report export, settings, login, weight chart, image gallery, search) ✅ Completed 2024-11-18.
+- ✅ Multilingual support (Japanese/English, i18next integration, 800+ translation keys) ✅ Completed 2024-11-22.
+- ✅ Docker containerization (multi-stage build, Japanese font support) ✅ Completed 2024-11-23.
+- ✅ Render Free Plan deployment (https://necokeeper.onrender.com) ✅ Completed 2024-11-23.
+- ✅ Integration tests (232 tests, coverage 84.90%).
 
-### 実装済みAPI（合計30+エンドポイント）
-- **認証**: 2エンドポイント
-- **猫管理**: 6エンドポイント
-- **世話記録**: 6エンドポイント
-- **ボランティア管理**: 5エンドポイント
-- **診療記録**: 4エンドポイント
-- **診療行為マスター**: 5エンドポイント
-- **PDF生成**: 5エンドポイント
-- **Public API**: 7エンドポイント（記録入力、記録一覧、記録詳細、全猫状況）
+### Implemented APIs (30+ endpoints total)
+- **Auth**: 2 endpoints.
+- **Animal management**: 6 endpoints.
+- **Care logs**: 6 endpoints.
+- **Volunteer management**: 5 endpoints.
+- **Medical records**: 4 endpoints.
+- **Medical actions master**: 5 endpoints.
+- **PDF generation**: 5 endpoints.
+- **Public API**: 7 endpoints (record input, record list, record detail, all-cats status).
 
-### 次に実装すべきタスク（優先順位）
+### Next tasks to implement (priority)
 
-**重要**: 実装前に必ずcode-structure-reviewの改善を適用すること
-- すべてのファイルに `from __future__ import annotations` を追加
-- 型ヒントは `collections.abc` と `X | None` 構文を使用
-- エラーハンドリングとロギングを統一
-- Docstringを完全に記述
+**Important**: Before implementation, always apply code-structure-review improvements:
+- Add `from __future__ import annotations` to all files.
+- Use `collections.abc` and `X | None` in type hints.
+- Standardize error handling and logging.
+- Write complete docstrings.
 
-**推奨実装順序:**
+**Recommended order:**
 
-1. **Phase 15**: デプロイとドキュメント（優先度：最高）
-   - Task 22.1-22.4: Dockerコンテナ化（シンプル構成）
-   - Task 23.1-23.3: Renderデプロイ設定（Free Plan PoC向け）
-   - Task 24.1-24.5: ドキュメント整備
-   - 推定時間: 11-16時間
-   - **理由**: ハッカソン向けPoC環境を早期に確立（1週間のデモ）
-   - **デプロイ戦略**: Free Plan（SQLiteエフェメラル）→ Starter Plan（Persistent Disk）の2段階
+1. **Phase 15**: Deployment and documentation (priority: highest)
+  - Task 22.1–22.4: Docker containerization (simple configuration).
+  - Task 23.1–23.3: Render deployment settings (Free Plan PoC).
+  - Task 24.1–24.5: Documentation.
+  - Estimated time: 11–16 hours.
+  - **Reason**: establish hackathon PoC environment early (1-week demo).
+  - **Deployment strategy**: two steps, Free Plan (SQLite ephemeral) → Starter Plan (Persistent Disk).
 
-2. **Phase 11**: セキュリティとログ（優先度：高）
-   - Task 16.1-16.5: セキュリティ強化
-   - Task 17.1-17.5: ログとエラーハンドリング
-   - 推定時間: 10-15時間
+2. **Phase 11**: Security and logging (priority: high)
+  - Task 16.1–16.5: security hardening.
+  - Task 17.1–17.5: logging and error handling.
+  - Estimated time: 10–15 hours.
 
-3. **Phase 12**: バックアップとデータ管理（優先度：高）
-   - Task 18.1-18.4: バックアップ機能
-   - Task 19.1-19.4: 初期セットアップ
-   - 推定時間: 11-16時間
+3. **Phase 12**: Backup and data management (priority: high)
+  - Task 18.1–18.4: backup features.
+  - Task 19.1–19.4: initial setup.
+  - Estimated time: 11–16 hours.
 
-4. **Phase 16**: パフォーマンス最適化とテスト（優先度：中）
-   - Task 25.1-25.5: パフォーマンス最適化
-   - Task 26.1-26.5: 統合テストとE2Eテスト
-   - 推定時間: 15-22時間
+4. **Phase 16**: Performance optimization and tests (priority: medium)
+  - Task 25.1–25.5: performance optimization.
+  - Task 26.1–26.5: integration and E2E tests.
+  - Estimated time: 15–22 hours.
