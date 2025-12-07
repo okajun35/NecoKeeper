@@ -72,20 +72,20 @@ COPY alembic/ ./alembic/
 COPY alembic.ini .
 
 # リポジトリの DB をイメージに含める（Free Plan 用）
-COPY data ./data
+# COPY data ./data
 
 # 初期化スクリプトをコピー（パーミッション設定前）
-COPY scripts/init_db.sh /app/scripts/init_db.sh
+#COPY scripts/init_db.sh /app/scripts/init_db.sh
 
 # エフェメラルディレクトリの作成（Free Plan用）
 # 注意: これらのディレクトリは再デプロイで消える
-RUN mkdir -p /tmp/data /tmp/media /tmp/backups /tmp/logs && \
-    chmod 777 /tmp/data /tmp/media /tmp/backups /tmp/logs && \
-    chmod +x /app/scripts/init_db.sh
+#RUN mkdir -p /tmp/data /tmp/media /tmp/backups /tmp/logs && \
+#    chmod 777 /tmp/data /tmp/media /tmp/backups /tmp/logs && \
+#    chmod +x /app/scripts/init_db.sh
 
 # 非rootユーザーの作成（セキュリティ）
-RUN useradd -m -u 1000 necokeeper && \
-    chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
+# RUN useradd -m -u 1000 necokeeper && \
+#    chown -R necokeeper:necokeeper /app /tmp/data /tmp/media /tmp/backups /tmp/logs
 
 # 非rootユーザーに切り替え
 USER necokeeper
