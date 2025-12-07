@@ -31,7 +31,7 @@ Built with **FastAPI**, **OCR**, **SQL**, **Docker**, and optional automation th
 ---
 
 ## 🎬 Demo Video
-👉 **https://youtu.be/ (insert your link)**
+👉 **https://youtu.be/K5GZoW2HnA0**
 A 3-minute walkthrough showing AI-driven workflow and shelter operations.
 
 ---
