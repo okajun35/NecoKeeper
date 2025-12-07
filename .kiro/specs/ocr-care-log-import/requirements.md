@@ -2,30 +2,30 @@
 
 ## Introduction
 
-手書きの猫世話記録表（PDF/画像）をOCR解析し、NecoKeeperのデータベースに自動登録する機能を実装します。ボランティアが紙に記録した世話記録を効率的にデジタル化し、データ入力の手間を削減します。
+Implement a feature that performs OCR on handwritten cat care log sheets (PDF/images) and automatically registers the results into the NecoKeeper database. This reduces the effort of manual data entry by digitizing care logs that volunteers record on paper.
 
-**重要な設計判断**: 3段階のKiro Hookワークフローを採用します：
-1. **Phase 1 (自動)**: PDF → Image変換
-2. **Phase 2 (対話)**: Image → JSON変換（Kiroチャットで猫ID・日付範囲を指定）
-3. **Phase 3 (自動)**: JSON → Database登録
+**Key design decision**: adopt a three-phase Kiro Hook workflow:
+1. **Phase 1 (automatic)**: PDF → Image conversion
+2. **Phase 2 (interactive)**: Image → JSON conversion (user specifies cat ID and date range via Kiro chat)
+3. **Phase 3 (automatic)**: JSON → Database registration
 
-この設計により、OCRの誤認識を防ぎつつ、人間の確認ポイントを設けることでデータの整合性を保証します。手書きの「12」が「2」に誤認識されるような問題を、Phase 2でユーザーが明示的に指定することで回避します。
+This design prevents OCR misrecognition while ensuring data consistency by adding a human review point. Issues such as handwritten "12" being misread as "2" are avoided because the user explicitly specifies these values in Phase 2.
 
 ## Glossary
 
-- **OCR (Optical Character Recognition)**: 光学文字認識。画像内の文字を読み取りテキストデータに変換する技術
-- **Kiro**: ローカル環境で動作するAI開発アシスタント。ユーザーの指示を受けてスクリプトやLLMを呼び出す司令塔
-- **マルチモーダルLLM**: 画像とテキストを理解できる大規模言語モデル。画像内容を解析してJSON化する
-- **Hook**: Kiroが実行するスクリプト。PDF変換やデータ登録などの処理を担当
-- **Care Log**: 猫の世話記録。食欲、元気、排尿、清掃などの日々の記録
-- **Time Slot**: 記録の時点。morning（朝）、noon（昼）、evening（夕）の3つ
-- **from_paper**: 紙記録からの転記フラグ。OCR経由で登録されたデータを識別するためのフラグ
+- **OCR (Optical Character Recognition)**: Technology that reads characters in an image and converts them into text data.
+- **Kiro**: A local AI development assistant that orchestrates scripts and LLMs based on user instructions.
+- **Multimodal LLM**: A large language model that can understand both images and text, used here to analyze images and generate JSON.
+- **Hook**: A script executed by Kiro, responsible for tasks such as PDF conversion and data registration.
+- **Care Log**: A daily record of cat care, including appetite, energy, urination, cleaning, and so on.
+- **Time Slot**: The time of the record; one of `morning`, `noon`, or `evening`.
+- **from_paper**: A flag indicating that data was imported from paper records via OCR.
 
 ## Requirements
 
 ### Requirement 1: Phase 2 - Image to JSON Conversion (Interactive)
 
-**User Story:** As a ボランティア, I want to use Kiro chat to convert a handwritten care log image to JSON with specified metadata (animal_id, date_range), so that I can digitize paper records with human verification before database registration.
+**User Story:** As a volunteer, I want to use Kiro chat to convert a handwritten care log image to JSON with specified metadata (animal_id, date_range), so that I can digitize paper records with human verification before database registration.
 
 **Design Rationale:** Phase 2 is interactive to allow human verification and correction of OCR results before database registration.
 
@@ -42,7 +42,7 @@
 
 ### Requirement 2: Phase 1 - PDF to Image Conversion (Automatic Hook)
 
-**User Story:** As a ボランティア, I want to place a PDF file in a watched folder so that it is automatically converted to an image, enabling me to proceed with OCR analysis.
+**User Story:** As a volunteer, I want to place a PDF file in a watched folder so that it is automatically converted to an image, enabling me to proceed with OCR analysis.
 
 **Design Rationale:** Phase 1 is fully automated using Kiro Hook to reduce manual steps.
 
@@ -57,7 +57,7 @@
 
 ### Requirement 3
 
-**User Story:** As a システム管理者, I want the OCR system to map handwritten records to the existing Care Log data model, so that imported data is consistent with manually entered records.
+**User Story:** As a system administrator, I want the OCR system to map handwritten records to the existing Care Log data model, so that imported data is consistent with manually entered records.
 
 #### Acceptance Criteria
 
@@ -73,7 +73,7 @@
 
 ### Requirement 4: User-Specified Metadata in Kiro Chat Prompt
 
-**User Story:** As a ボランティア, I want to specify the cat ID, date range, and output path in my Kiro chat prompt, so that records are associated with the correct animal without OCR misrecognition errors.
+**User Story:** As a volunteer, I want to specify the cat ID, date range, and output path in my Kiro chat prompt, so that records are associated with the correct animal without OCR misrecognition errors.
 
 **Design Rationale:** All critical metadata (animal_id, date_range, output_path) is user-specified in a natural language prompt to prevent OCR errors. For example, handwritten "12" can be misread as "2" or "2-", causing data integrity issues.
 
@@ -89,7 +89,7 @@
 
 ### Requirement 5: Kiro Hook Configuration and Management
 
-**User Story:** As a システム管理者, I want to configure Kiro Hooks for automatic PDF conversion and JSON registration, so that the workflow is automated and maintainable.
+**User Story:** As a system administrator, I want to configure Kiro Hooks for automatic PDF conversion and JSON registration, so that the workflow is automated and maintainable.
 
 **Design Rationale:** Kiro Hooks provide file-watching capabilities to automate Phase 1 and Phase 3, reducing manual intervention.
 
@@ -105,7 +105,7 @@
 
 ### Requirement 6: Phase 3 - JSON to Database Registration (Automatic Hook)
 
-**User Story:** As a ボランティア, I want JSON files to be automatically registered to the database when saved to a watched folder, so that I don't need to manually trigger the registration process.
+**User Story:** As a volunteer, I want JSON files to be automatically registered to the database when saved to a watched folder, so that I don't need to manually trigger the registration process.
 
 **Design Rationale:** Phase 3 is fully automated using Kiro Hook to complete the workflow after human verification in Phase 2.
 
@@ -121,7 +121,7 @@
 
 ### Requirement 7
 
-**User Story:** As a ボランティア, I want the system to provide clear feedback during the import process, so that I can understand what is happening and troubleshoot issues.
+**User Story:** As a volunteer, I want the system to provide clear feedback during the import process, so that I can understand what is happening and troubleshoot issues.
 
 #### Acceptance Criteria
 
@@ -133,7 +133,7 @@
 
 ### Requirement 8
 
-**User Story:** As a システム管理者, I want the system to validate extracted data before registration, so that invalid data does not corrupt the database.
+**User Story:** As a system administrator, I want the system to validate extracted data before registration, so that invalid data does not corrupt the database.
 
 #### Acceptance Criteria
 
@@ -145,7 +145,7 @@
 
 ### Requirement 9
 
-**User Story:** As a システム管理者, I want the system to handle special symbols and notations in handwritten records, so that data is interpreted correctly.
+**User Story:** As a system administrator, I want the system to handle special symbols and notations in handwritten records, so that data is interpreted correctly.
 
 #### Acceptance Criteria
 
@@ -157,7 +157,7 @@
 
 ### Requirement 10
 
-**User Story:** As a システム管理者, I want the system to store metadata about the import process, so that I can track the source and quality of imported data.
+**User Story:** As a system administrator, I want the system to store metadata about the import process, so that I can track the source and quality of imported data.
 
 #### Acceptance Criteria
 
@@ -171,22 +171,22 @@
 
 ### Handwritten Record Fields → Care Log Model
 
-| 手書き項目 | Care Log Field | Data Type | Mapping Rule |
-|-----------|----------------|-----------|--------------|
-| 日付 | log_date | date | Combine with user-specified year-month |
-| 朝/昼/夕 | time_slot | string | 朝→morning, 昼→noon, 夕→evening |
-| ごはん | appetite | int (1-5) | ○→5, △→3, ×→1 |
-| 元気 | energy | int (1-5) | ○→5, △→3, ×→1 |
-| 排尿 | urination | boolean | ○→True, ×→False, 数字→True (count in memo) |
-| 排便 | memo | string | ○→"排便あり", ×→"排便なし" (append to memo) |
-| 嘔吐 | memo | string | ○→"嘔吐あり", ×→"嘔吐なし" (append to memo) |
-| 投薬 | memo | string | ○→"投薬あり", ×→"投薬なし" (append to memo) |
-| 備考 | memo | string | Append handwritten notes |
-| 名前 | animal_id | int | User specifies in prompt, search by name or ID |
+| Handwritten Field | Care Log Field | Data Type | Mapping Rule |
+|-------------------|----------------|----------|--------------|
+| Date | log_date | date | Combine with user-specified year and month |
+| Morning/Noon/Evening (朝/昼/夕) | time_slot | string | 朝 → morning, 昼 → noon, 夕 → evening |
+| Meal (ごはん) | appetite | int (1-5) | ○ → 5, △ → 3, × → 1 |
+| Energy (元気) | energy | int (1-5) | ○ → 5, △ → 3, × → 1 |
+| Urination (排尿) | urination | boolean | ○ → True, × → False, numeric value → True (count goes into memo) |
+| Defecation (排便) | memo | string | ○ → "Defecation: yes", × → "Defecation: no" (append to memo) |
+| Vomiting (嘔吐) | memo | string | ○ → "Vomiting: yes", × → "Vomiting: no" (append to memo) |
+| Medication (投薬) | memo | string | ○ → "Medication: yes", × → "Medication: no" (append to memo) |
+| Notes (備考) | memo | string | Append handwritten notes |
+| Name (名前) | animal_id | int | User specifies in prompt, search by name or ID |
 
 ### Default Values for OCR Import
 
-- `recorder_name`: "OCR自動取込"
+- `recorder_name`: "OCR auto import"
 - `recorder_id`: null
 - `from_paper`: True
 - `device_tag`: "OCR-Import"
