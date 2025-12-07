@@ -1,61 +1,61 @@
 # NecoKeeper MCP Tools
 
-このドキュメントは、NecoKeeperプロジェクトで利用可能なMCP（Model Context Protocol）ツールについて説明します。
+This document describes the MCP (Model Context Protocol) tools available in the NecoKeeper project.
 
-## 概要
+## Overview
 
-NecoKeeperには、Claude（AI）が自然言語で猫の管理を行うためのMCPツールが実装されています。これらのツールは、Automation APIを通じてNecoKeeperと連携します。
+NecoKeeper implements MCP tools that allow Claude (AI) to manage cats using natural language. These tools integrate with NecoKeeper through the Automation API.
 
-## 利用可能なツール
+## Available Tools
 
-### 1. register_cat - 猫の登録
+### 1. register_cat - Register Cat
 
-**用途**: 新しい猫をシステムに登録する
+**Purpose**: Register a new cat in the system
 
-**必須パラメータ**:
-- `name`: 猫の名前（1-100文字）
-- `gender`: 性別（`male`, `female`, `unknown`）
-- `pattern`: 柄・模様
-- `tail_length`: 尻尾の長さ
-- `age`: 年齢・大きさ
+**Required Parameters**:
+- `name`: Cat's name (1-100 characters)
+- `gender`: Gender (`male`, `female`, `unknown`)
+- `pattern`: Pattern/markings
+- `tail_length`: Tail length
+- `age`: Age/size
 
-**任意パラメータ**:
-- `status`: ステータス（デフォルト: "保護中"）
-- `color`: 毛色
-- `collar`: 首輪の情報
-- `ear_cut`: 耳カットの有無（デフォルト: false）
-- `features`: 特徴・性格
-- `protected_at`: 保護日（YYYY-MM-DD形式）
+**Optional Parameters**:
+- `status`: Status (default: "Under Protection")
+- `color`: Fur color
+- `collar`: Collar information
+- `ear_cut`: Ear cut presence (default: false)
+- `features`: Features/personality
+- `protected_at`: Protection date (YYYY-MM-DD format)
 
-**戻り値**:
+**Return Value**:
 ```json
 {
   "animal_id": 42,
-  "name": "たま",
+  "name": "Tama",
   "public_url": "http://localhost:8000/public/care?animal_id=42"
 }
 ```
 
-**使用例**:
+**Usage Example**:
 ```
-ユーザー: "たまという名前のキジトラの猫を登録してください。オスで、尻尾は長く、成猫です。"
+User: "Please register a cat named Tama. It's a male tabby with a long tail, adult cat."
 
-Claude: register_catツールを呼び出し、以下のパラメータで登録:
-- name: "たま"
+Claude: Calls register_cat tool with the following parameters:
+- name: "Tama"
 - gender: "male"
-- pattern: "キジトラ"
-- tail_length: "長い"
-- age: "成猫"
+- pattern: "Tabby"
+- tail_length: "Long"
+- age: "Adult"
 ```
 
-### 2. generate_qr_card - 単一QRカードPDFの生成
+### 2. generate_qr_card - Generate Single QR Card PDF
 
-**用途**: 登録済みの猫の単一QRカード付きPDF（A6サイズ）を生成する
+**Purpose**: Generate a single QR card PDF (A6 size) for a registered cat
 
-**必須パラメータ**:
-- `animal_id`: 猫のID（整数）
+**Required Parameters**:
+- `animal_id`: Cat's ID (integer)
 
-**戻り値**:
+**Return Value**:
 ```json
 {
   "pdf_path": "/path/to/NecoKeeper/tmp/qr/qr_card_42.pdf",
@@ -63,28 +63,28 @@ Claude: register_catツールを呼び出し、以下のパラメータで登録
 }
 ```
 
-**使用例**:
+**Usage Example**:
 ```
-ユーザー: "たまのQRカードを生成してください"
+User: "Please generate a QR card for Tama"
 
-Claude: generate_qr_cardツールを呼び出し、animal_id=42でPDFを生成
+Claude: Calls generate_qr_card tool with animal_id=42 to generate PDF
 ```
 
-**注意点**:
-- PDFは`tmp/qr/qr_card_{animal_id}.pdf`に保存される
-- A6サイズの単一QRカード
-- 猫の写真、名前、ID、QRコードが含まれる
-- ディレクトリが存在しない場合は自動作成される
-- 既存のPDFは上書きされる
+**Notes**:
+- PDF is saved to `tmp/qr/qr_card_{animal_id}.pdf`
+- A6 size single QR card
+- Includes cat's photo, name, ID, and QR code
+- Directory is created automatically if it doesn't exist
+- Existing PDF will be overwritten
 
-### 3. generate_qr - QRコードグリッドPDFの生成
+### 3. generate_qr - Generate QR Code Grid PDF
 
-**用途**: 登録済みの複数の猫のQRコード付きPDF（A4サイズ、2×5枚）を生成する
+**Purpose**: Generate a QR code PDF (A4 size, 2×5 grid) for multiple registered cats
 
-**必須パラメータ**:
-- `animal_id`: 猫のID（整数）
+**Required Parameters**:
+- `animal_id`: Cat's ID (integer)
 
-**戻り値**:
+**Return Value**:
 ```json
 {
   "pdf_path": "/path/to/NecoKeeper/tmp/qr/qr_42.pdf",
@@ -92,29 +92,29 @@ Claude: generate_qr_cardツールを呼び出し、animal_id=42でPDFを生成
 }
 ```
 
-**使用例**:
+**Usage Example**:
 ```
-ユーザー: "たまのQRコードグリッドを生成してください"
+User: "Please generate a QR code grid for Tama"
 
-Claude: generate_qrツールを呼び出し、animal_id=42でPDFを生成
+Claude: Calls generate_qr tool with animal_id=42 to generate PDF
 ```
 
-**注意点**:
-- PDFは`tmp/qr/qr_{animal_id}.pdf`に保存される
-- A4サイズの面付けPDF（2×5枚、最大10枚）
-- 複数の猫のQRカードを一度に印刷できる
-- ディレクトリが存在しない場合は自動作成される
-- 既存のPDFは上書きされる
+**Notes**:
+- PDF is saved to `tmp/qr/qr_{animal_id}.pdf`
+- A4 size imposition PDF (2×5 grid, max 10 cards)
+- Can print multiple cat QR cards at once
+- Directory is created automatically if it doesn't exist
+- Existing PDF will be overwritten
 
-### 4. upload_cat_image - 猫の画像アップロード
+### 4. upload_cat_image - Upload Cat Image
 
-**用途**: 登録済みの猫のプロフィール画像をアップロードする
+**Purpose**: Upload a profile image for a registered cat
 
-**必須パラメータ**:
-- `animal_id`: 猫のID（整数）
-- `image_path`: ローカル画像ファイルのパス（絶対パスまたは相対パス）
+**Required Parameters**:
+- `animal_id`: Cat's ID (integer)
+- `image_path`: Local image file path (absolute or relative path)
 
-**戻り値**:
+**Return Value**:
 ```json
 {
   "image_url": "http://localhost:8000/media/animals/42/gallery/uuid.jpg",
@@ -122,210 +122,210 @@ Claude: generate_qrツールを呼び出し、animal_id=42でPDFを生成
 }
 ```
 
-**使用例**:
+**Usage Example**:
 ```
-ユーザー: "たまの画像をアップロードしてください。パスは /home/user/tama.jpg です"
+User: "Please upload an image for Tama. The path is /home/user/tama.jpg"
 
-Claude: upload_cat_imageツールを呼び出し、画像をアップロード
-```
-
-**注意点**:
-- 対応形式: JPEG、PNG、WebP
-- 最大ファイルサイズ: 5MB（デフォルト）
-- 最大画像枚数: 20枚/猫（デフォルト）
-- 画像は`media/animals/{animal_id}/gallery/`にUUIDベースのファイル名で保存される
-- 画像は自動的に最適化される
-
-## 典型的なワークフロー
-
-### シナリオ1: 新しい猫の完全登録
-
-```
-1. ユーザー: "新しい猫を登録したいです。名前はミケで、三毛猫のメスです"
-   → Claude: register_catで登録
-
-2. ユーザー: "ミケの写真をアップロードしてください。/path/to/mike.jpg"
-   → Claude: upload_cat_imageで画像アップロード
-
-3. ユーザー: "ミケのQRカードを作ってください"
-   → Claude: generate_qr_cardでPDF生成（A6サイズ、単一カード）
+Claude: Calls upload_cat_image tool to upload the image
 ```
 
-### シナリオ2: 複数の猫を一括登録
+**Notes**:
+- Supported formats: JPEG, PNG, WebP
+- Maximum file size: 5MB (default)
+- Maximum images per cat: 20 (default)
+- Images are saved to `media/animals/{animal_id}/gallery/` with UUID-based filenames
+- Images are automatically optimized
+
+## Typical Workflows
+
+### Scenario 1: Complete Registration of a New Cat
 
 ```
-ユーザー: "3匹の猫を登録してください。
-         1. たま（オス、キジトラ、成猫）
-         2. クロ（メス、黒猫、子猫）
-         3. シロ（不明、白猫、成猫）"
+1. User: "I want to register a new cat. Her name is Mike, a female calico cat"
+   → Claude: Register with register_cat
+
+2. User: "Please upload Mike's photo. /path/to/mike.jpg"
+   → Claude: Upload image with upload_cat_image
+
+3. User: "Please create a QR card for Mike"
+   → Claude: Generate PDF with generate_qr_card (A6 size, single card)
+```
+
+### Scenario 2: Batch Registration of Multiple Cats
+
+```
+User: "Please register 3 cats:
+       1. Tama (male, tabby, adult)
+       2. Kuro (female, black cat, kitten)
+       3. Shiro (unknown, white cat, adult)"
 
 Claude:
-1. register_catを3回呼び出し
-2. 各猫のIDを記録
-3. 必要に応じてQRコードを生成
+1. Call register_cat 3 times
+2. Record each cat's ID
+3. Generate QR codes as needed
 ```
 
-## 技術的な詳細
+## Technical Details
 
-### 認証
+### Authentication
 
-MCPツールは内部的にAutomation APIを使用します：
+MCP tools internally use the Automation API:
 
-- **認証方式**: Automation API Key（`X-Automation-Key`ヘッダー）
-- **環境変数**: `AUTOMATION_API_KEY`（最低32文字）
-- **設定**: `.env`ファイルで`ENABLE_AUTOMATION_API=true`が必要
+- **Authentication Method**: Automation API Key (`X-Automation-Key` header)
+- **Environment Variable**: `AUTOMATION_API_KEY` (minimum 32 characters)
+- **Configuration**: Requires `ENABLE_AUTOMATION_API=true` in `.env` file
 
-### エンドポイント
+### Endpoints
 
-MCPツールは以下のAutomation APIエンドポイントを使用：
+MCP tools use the following Automation API endpoints:
 
-| ツール | エンドポイント | メソッド |
-|--------|--------------|----------|
+| Tool | Endpoint | Method |
+|------|----------|--------|
 | register_cat | `/api/automation/animals` | POST |
 | generate_qr_card | `/api/automation/pdf/qr-card` | POST |
 | generate_qr | `/api/automation/pdf/qr-card-grid` | POST |
 | upload_cat_image | `/api/automation/animals/{id}/images` | POST |
 
-### エラーハンドリング
+### Error Handling
 
-MCPツールは以下のエラーを適切に処理します：
+MCP tools properly handle the following errors:
 
-1. **ネットワークエラー**: API接続失敗
-2. **認証エラー**: API Key不正または期限切れ
-3. **バリデーションエラー**: 不正なパラメータ
-4. **ファイルエラー**: 画像ファイルが見つからない、形式不正
-5. **リソースエラー**: 猫が存在しない（404）
+1. **Network Error**: API connection failure
+2. **Authentication Error**: Invalid or expired API Key
+3. **Validation Error**: Invalid parameters
+4. **File Error**: Image file not found or invalid format
+5. **Resource Error**: Cat does not exist (404)
 
-エラー発生時は、ユーザーに分かりやすいメッセージを返します。
+When errors occur, user-friendly messages are returned.
 
-## 使用時の注意点
+## Usage Guidelines
 
-### DO（推奨）
+### DO (Recommended)
 
-- ✅ ユーザーが提供した情報を正確にパラメータに変換する
-- ✅ 登録後のanimal_idを記録し、後続の操作で使用する
-- ✅ エラーが発生した場合は、具体的な原因をユーザーに説明する
-- ✅ 画像パスは絶対パスで指定する（相対パスも可能だが推奨しない）
-- ✅ 複数の操作を行う場合は、各ステップの結果を確認する
+- ✅ Accurately convert user-provided information to parameters
+- ✅ Record animal_id after registration and use it in subsequent operations
+- ✅ Explain the specific cause to users when errors occur
+- ✅ Specify image paths as absolute paths (relative paths possible but not recommended)
+- ✅ Verify the result of each step when performing multiple operations
 
-### DON'T（非推奨）
+### DON'T (Not Recommended)
 
-- ❌ 必須パラメータを省略しない
-- ❌ 不正な値（空文字列、nullなど）を送信しない
-- ❌ animal_idを間違えない（登録時の戻り値を使用）
-- ❌ 存在しない画像パスを指定しない
-- ❌ エラーを無視して次の操作に進まない
+- ❌ Don't omit required parameters
+- ❌ Don't send invalid values (empty strings, null, etc.)
+- ❌ Don't use wrong animal_id (use the return value from registration)
+- ❌ Don't specify non-existent image paths
+- ❌ Don't ignore errors and proceed to the next operation
 
-## トラブルシューティング
+## Troubleshooting
 
-### 問題: "Authentication error: Invalid or expired token"
+### Issue: "Authentication error: Invalid or expired token"
 
-**原因**: API Keyが設定されていない、または不正
+**Cause**: API Key is not configured or invalid
 
-**解決方法**:
-1. `.env`ファイルに`AUTOMATION_API_KEY`が設定されているか確認
-2. API Keyが32文字以上であることを確認
-3. `ENABLE_AUTOMATION_API=true`が設定されているか確認
-4. NecoKeeper APIを再起動
+**Solution**:
+1. Verify `AUTOMATION_API_KEY` is set in `.env` file
+2. Confirm API Key is at least 32 characters
+3. Verify `ENABLE_AUTOMATION_API=true` is set
+4. Restart NecoKeeper API
 
-### 問題: "Network error: Could not connect to NecoKeeper API"
+### Issue: "Network error: Could not connect to NecoKeeper API"
 
-**原因**: NecoKeeper APIが起動していない
+**Cause**: NecoKeeper API is not running
 
-**解決方法**:
-1. NecoKeeper APIが起動しているか確認: `curl http://localhost:8000/docs`
-2. `NECOKEEPER_API_URL`が正しいか確認（デフォルト: `http://localhost:8000`）
-3. ファイアウォールがポート8000をブロックしていないか確認
+**Solution**:
+1. Verify NecoKeeper API is running: `curl http://localhost:8000/docs`
+2. Verify `NECOKEEPER_API_URL` is correct (default: `http://localhost:8000`)
+3. Check if firewall is blocking port 8000
 
-### 問題: "File error: Image file not found"
+### Issue: "File error: Image file not found"
 
-**原因**: 画像ファイルのパスが不正
+**Cause**: Image file path is invalid
 
-**解決方法**:
-1. ファイルパスが正しいか確認（絶対パスを推奨）
-2. ファイルが存在するか確認: `ls -la /path/to/image.jpg`
-3. ファイルの読み取り権限があるか確認
+**Solution**:
+1. Verify file path is correct (absolute path recommended)
+2. Verify file exists: `ls -la /path/to/image.jpg`
+3. Verify file has read permissions
 
-### 問題: 猫が見つからない（404エラー）
+### Issue: Cat not found (404 error)
 
-**原因**: 指定したanimal_idが存在しない
+**Cause**: Specified animal_id does not exist
 
-**解決方法**:
-1. register_catの戻り値からanimal_idを正確に取得
-2. データベースに猫が登録されているか確認
-3. 別の猫のIDと混同していないか確認
+**Solution**:
+1. Accurately obtain animal_id from register_cat return value
+2. Verify cat is registered in database
+3. Check if confused with another cat's ID
 
-## 開発者向け情報
+## Developer Information
 
-### ファイル構造
+### File Structure
 
 ```
 app/mcp/
-├── __init__.py          # パッケージ初期化
-├── __main__.py          # エントリーポイント
-├── config.py            # 設定管理
-├── api_client.py        # Automation API クライアント
-├── server.py            # MCPサーバー（FastMCP）
-├── error_handler.py     # エラーハンドリング
-├── tools/                  # ツール実装
-│   ├── register_cat.py     # 猫登録ツール
-│   ├── generate_qr_card.py # 単一QRカード生成ツール
-│   ├── generate_qr.py      # QRグリッド生成ツール
-│   └── upload_image.py     # 画像アップロードツール
-└── README.md            # 詳細ドキュメント
+├── __init__.py          # Package initialization
+├── __main__.py          # Entry point
+├── config.py            # Configuration management
+├── api_client.py        # Automation API client
+├── server.py            # MCP server (FastMCP)
+├── error_handler.py     # Error handling
+├── tools/               # Tool implementations
+│   ├── register_cat.py     # Cat registration tool
+│   ├── generate_qr_card.py # Single QR card generation tool
+│   ├── generate_qr.py      # QR grid generation tool
+│   └── upload_image.py     # Image upload tool
+└── README.md            # Detailed documentation
 ```
 
-### テスト
+### Testing
 
 ```bash
-# MCPツールのテストを実行
+# Run MCP tool tests
 pytest tests/mcp/ -v
 
-# 統合テストを実行
+# Run integration tests
 pytest tests/mcp/test_integration.py -v
 
-# カバレッジ付きで実行
+# Run with coverage
 pytest tests/mcp/ --cov=app/mcp --cov-report=html
 ```
 
-### デバッグ
+### Debugging
 
-デバッグログを有効化：
+Enable debug logging:
 
 ```bash
-# .envファイルに追加
+# Add to .env file
 MCP_LOG_LEVEL=DEBUG
 MCP_LOG_FILE=logs/mcp-server.log
 
-# ログを確認
+# View logs
 tail -f logs/mcp-server.log
 ```
 
-## 関連ドキュメント
+## Related Documentation
 
-- **MCP Server README**: `app/mcp/README.md` - 詳細な技術ドキュメント
-- **Automation API README**: `app/api/automation/README.md` - API仕様
-- **Design Document**: `.kiro/specs/claude-mcp-integration/design.md` - 設計書
-- **Requirements**: `.kiro/specs/claude-mcp-integration/requirements.md` - 要件定義
+- **MCP Server README**: `app/mcp/README.md` - Detailed technical documentation
+- **Automation API README**: `app/api/automation/README.md` - API specifications
+- **Design Document**: `.kiro/specs/claude-mcp-integration/design.md` - Design document
+- **Requirements**: `.kiro/specs/claude-mcp-integration/requirements.md` - Requirements definition
 
-## まとめ
+## Summary
 
-NecoKeeper MCPツールを使用することで、Claudeは自然言語で猫の管理を行えます。ユーザーの指示を適切に解釈し、正しいパラメータでツールを呼び出すことで、効率的な猫の登録・管理が可能になります。
+Using NecoKeeper MCP tools, Claude can manage cats using natural language. By properly interpreting user instructions and calling tools with correct parameters, efficient cat registration and management becomes possible.
 
-エラーが発生した場合は、ユーザーに分かりやすく説明し、適切な解決方法を提案してください。
+When errors occur, explain them clearly to users and suggest appropriate solutions.
 
 ---
 
-**最終更新**: 2024-12-02
-**バージョン**: 1.1.0
+**Last Updated**: 2024-12-02
+**Version**: 1.1.0
 
-## 変更履歴
+## Changelog
 
 ### v1.1.0 (2024-12-02)
-- ✨ `generate_qr_card`ツールを追加（単一QRカード、A6サイズ）
-- 🐛 画像パス処理を修正（`media/`プレフィックスの問題を解決）
-- 📝 `generate_qr`を`generate_qr`（グリッド）と`generate_qr_card`（単一）に分離
+- ✨ Added `generate_qr_card` tool (single QR card, A6 size)
+- 🐛 Fixed image path handling (`media/` prefix issue resolved)
+- 📝 Separated `generate_qr` into `generate_qr` (grid) and `generate_qr_card` (single)
 
 ### v1.0.0 (2024-11-29)
-- 🎉 初回リリース
-- ✨ `register_cat`、`generate_qr`、`upload_cat_image`ツールを実装
+- 🎉 Initial release
+- ✨ Implemented `register_cat`, `generate_qr`, `upload_cat_image` tools

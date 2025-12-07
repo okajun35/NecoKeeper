@@ -2,12 +2,12 @@
 inclusion: always
 ---
 
-# Python Backend Development Best Practices
+# Python バックエンド開発ベストプラクティス
 
-This document defines best practices for Python backend development (FastAPI, SQLAlchemy, Alembic, Pytest) in the NecoKeeper project.
-Follow these rules when creating or modifying code.
+このドキュメントは、NecoKeeperプロジェクトにおけるPythonバックエンド開発（FastAPI、SQLAlchemy、Alembic、Pytest）のベストプラクティスを定義します。
+すべてのコード作成・修正時にこれらのルールに従ってください。
 
-**Context7 References**:
+**Context7参照**:
 - `/zhanymkanov/fastapi-best-practices` (Trust Score: 8.8)
 - `/fastapi/fastapi` (Trust Score: 9.9)
 - `/websites/python_3_15` (Trust Score: 7.5)
@@ -19,26 +19,26 @@ Follow these rules when creating or modifying code.
 
 ---
 
-## 🔧 Required Actions
+## 🔧 必須実行項目
 
-### 1. Code Formatting
-**Always run Ruff formatting after creating or modifying any Python file**
+### 1. コードフォーマット
+**すべてのPythonファイル作成・修正後、必ずRuffでフォーマットを実行すること**
 
 ```bash
-# Lint check and auto-fix
+# Lintチェックと自動修正
 ruff check . --fix
 
-# Code formatting
+# コードフォーマット
 ruff format .
 ```
 
-### 2. Test Execution and Coverage Measurement
-**After all code changes, run Pytest and fix/run tests until all test cases pass**
+### 2. テスト実行とカバレッジ測定
+**すべてのコード変更後、Pytestを実施してすべてのテストケースがPassするまでテストを修正・実施すること**
 
-**Coverage Goals**:
-- **Service Layer**: 80%+
-- **API Layer**: 70%+
-- **Overall**: 70%+ (aiming for 80% eventually)
+**カバレッジ目標**:
+- **サービス層**: 80%以上
+- **API層**: 70%以上
+- **全体**: 70%以上（最終的に80%を目指す）
 
 ```bash
 # すべてのテストを実行（カバレッジ付き）
@@ -88,70 +88,70 @@ exclude_lines = [
 ]
 ```
 
-### 3. Deprecated Library Verification
-**When deprecated library warnings appear, use Context7 to verify alternative libraries**
+### 3. 非推奨ライブラリの検証
+**warningで非推奨のライブラリが表示された場合、Context7を使用して代替ライブラリを検証すること**
 
 ```python
-# Steps when deprecation warnings appear:
-# 1. Search for latest library in Context7
-# 2. Select library with high Trust Score (8.0+)
-# 3. Check latest version documentation
-# 4. Verify migration path and implement
+# 非推奨の警告が出た場合の対応手順:
+# 1. Context7で最新のライブラリを検索
+# 2. Trust Scoreが高い(8.0以上)ライブラリを選択
+# 3. 最新バージョンのドキュメントを確認
+# 4. 移行パスを確認して実装
 ```
 
-### 4. Test Coverage and DDD/TDD Principles
+### 4. テストカバレッジとDDD/TDD原則
 
-**From DDD (Domain-Driven Design) and TDD (Test-Driven Development) Perspective**:
+**DDD（Domain-Driven Design）とTDD（Test-Driven Development）の観点**:
 
-#### Test Coverage Priority (t-wada Compliant)
+#### テストカバレッジの優先順位（t-wada準拠）
 
-1. **Domain Layer (Highest Priority)**: 90%+
-   - Business rule validation
-   - Entity invariants
-   - Value object validation
-   - Domain service logic
+1. **ドメイン層（最優先）**: 90%以上
+   - ビジネスルールの検証
+   - エンティティの不変条件
+   - 値オブジェクトの検証
+   - ドメインサービスのロジック
 
-2. **Application Layer (High Priority)**: 80%+
-   - Use case execution flow
-   - Service layer business logic
-   - Transaction boundaries
+2. **アプリケーション層（高優先）**: 80%以上
+   - ユースケースの実行フロー
+   - サービス層のビジネスロジック
+   - トランザクション境界
 
-3. **Infrastructure Layer (Medium Priority)**: 70%+
-   - Repository persistence logic
-   - External service integration
+3. **インフラ層（中優先）**: 70%以上
+   - リポジトリの永続化ロジック
+   - 外部サービス連携
 
-4. **Presentation Layer (Low Priority)**: 60%+
-   - API endpoints
-   - Request/response transformation
+4. **プレゼンテーション層（低優先）**: 60%以上
+   - APIエンドポイント
+   - リクエスト/レスポンス変換
 
-#### Development Continuation Decision at 73% Coverage
+#### カバレッジ73%での開発継続判断
 
-**✅ Conditions to Continue Development**:
-- Domain layer (models/) coverage is 80%+
-- Service layer (services/) main use cases are tested
-- Regression tests for existing features are in place
-- New features developed test-first
+**✅ 開発を継続してよい条件**:
+- ドメイン層（models/）のカバレッジが80%以上
+- サービス層（services/）の主要ユースケースがテスト済み
+- 既存機能の回帰テストが整備されている
+- 新機能開発時にテストファーストで進める
 
-**⚠️ Conditions Requiring Improvement**:
-- Service layer coverage below 50% (currently 36% in some files)
-- Domain logic tests insufficient
-- Edge case tests not implemented
+**⚠️ 改善が必要な条件**:
+- サービス層のカバレッジが50%未満（現在36%のファイルあり）
+- ドメインロジックのテストが不足
+- エッジケースのテストが未実装
 
-**Current Status (73.48%)**:
-- ✅ Domain Layer (models/): High coverage (90%+)
-- ⚠️ Service Layer (services/): Needs improvement (36-68%)
-- ✅ Auth Layer (auth/): Good (75-95%)
-- ❌ Utility Layer (utils/image.py): Untested (0%)
+**現在の状況（73.48%）**:
+- ✅ ドメイン層（models/）: 高カバレッジ（90%以上）
+- ⚠️ サービス層（services/）: 改善必要（36-68%）
+- ✅ 認証層（auth/）: 良好（75-95%）
+- ❌ ユーティリティ層（utils/image.py）: 未テスト（0%）
 
-**Recommended Actions**:
-1. **Before Phase 5**: Add tests for `app/services/animal_service.py` (36%)
-2. **During Phase 5**: Develop new features test-first
-3. **After Phase 5**: Add tests for `app/utils/image.py` (0%)
-4. **Continuously**: Maintain 70%+ coverage at each Phase completion
+**推奨アクション**:
+1. **Phase 5実装前に**: `app/services/animal_service.py`（36%）のテストを追加
+2. **Phase 5実装時に**: 新機能はテストファーストで開発
+3. **Phase 5完了後に**: `app/utils/image.py`（0%）のテストを追加
+4. **継続的に**: 各Phase完了時にカバレッジ70%以上を維持
 
-**Test-First Development Principles**:
+**テストファースト開発の原則**:
 ```python
-# 1. Red: Write a failing test
+# 1. Red: 失敗するテストを書く
 def test_create_image_gallery():
     # Given
     animal_id = 1
@@ -164,14 +164,14 @@ def test_create_image_gallery():
     assert result.success is True
     assert result.image_id is not None
 
-# 2. Green: Write minimal code to pass
+# 2. Green: テストをパスする最小限のコードを書く
 def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
-    # Minimal implementation
+    # 最小限の実装
     return UploadResult(success=True, image_id=1)
 
-# 3. Refactor: Improve the code
+# 3. Refactor: コードを改善
 def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
-    # Implementation after refactoring
+    # リファクタリング後の実装
     validated_data = validate_image(image_data)
     saved_path = save_to_storage(validated_data)
     return UploadResult(success=True, image_id=saved_path.id)
@@ -179,34 +179,34 @@ def upload_image(animal_id: int, image_data: bytes) -> UploadResult:
 
 ---
 
-## 📁 Project Structure
+## 📁 プロジェクト構造
 
 ```
 app/
-├── api/           # API endpoints
-│   └── v1/        # API versioning
-├── models/        # SQLAlchemy models
-├── schemas/       # Pydantic schemas
-├── services/      # Business logic
-├── auth/          # Authentication & authorization
-├── utils/         # Utility functions
-├── config.py      # Configuration management
-├── database.py    # Database connection
-└── main.py        # Application entry point
+├── api/           # APIエンドポイント
+│   └── v1/        # APIバージョン管理
+├── models/        # SQLAlchemyモデル
+├── schemas/       # Pydanticスキーマ
+├── services/      # ビジネスロジック
+├── auth/          # 認証・認可
+├── utils/         # ユーティリティ関数
+├── config.py      # 設定管理
+├── database.py    # データベース接続
+└── main.py        # アプリケーションエントリーポイント
 
-tests/             # Test code
-├── conftest.py    # Pytest fixtures
-├── api/           # API tests
-├── models/        # Model tests
-└── services/      # Service tests
+tests/             # テストコード
+├── conftest.py    # Pytestフィクスチャ
+├── api/           # APIテスト
+├── models/        # モデルテスト
+└── services/      # サービステスト
 ```
 
 ---
 
-## 🐍 Python Coding Conventions
+## 🐍 Python コーディング規約
 
-### Import Order
-**Standard library → Third-party → Local modules**
+### インポート順序
+**標準ライブラリ → サードパーティ → ローカルモジュールの順**
 
 ```python
 # 標準ライブラリ
@@ -320,9 +320,9 @@ def calculate_total(items: list[Item]) -> Decimal:
 
 ---
 
-## 🚀 FastAPI Best Practices
+## 🚀 FastAPI ベストプラクティス
 
-### 1. Utilizing Dependency Injection
+### 1. 依存性注入の活用
 
 ```python
 from fastapi import Depends
@@ -457,9 +457,9 @@ def get_item(db: Session, item_id: int) -> Item:
 
 ---
 
-## 🗄️ SQLAlchemy Best Practices
+## 🗄️ SQLAlchemy ベストプラクティス
 
-**Context7 Reference**: `/sqlalchemy/sqlalchemy` (Code Snippets: 2830)
+**Context7参照**: `/sqlalchemy/sqlalchemy` (Code Snippets: 2830)
 
 ### 1. モダンなDeclarative Mapping
 
@@ -594,9 +594,9 @@ metadata = MetaData(naming_convention=POSTGRES_INDEXES_NAMING_CONVENTION)
 
 ---
 
-## 🧪 Pytest Best Practices
+## 🧪 Pytest ベストプラクティス
 
-**Context7 Reference**: `/pytest-dev/pytest` (Trust Score: 9.5)
+**Context7参照**: `/pytest-dev/pytest` (Trust Score: 9.5)
 
 ### 1. 基本的なパラメータ化テスト
 
@@ -799,9 +799,9 @@ def auth_token(test_client):
 
 ---
 
-## 🔍 Mypy Type Checking Configuration
+## 🔍 Mypy 型チェック設定
 
-**Context7 Reference**: `/python/mypy` (Trust Score: 8.9)
+**Context7参照**: `/python/mypy` (Trust Score: 8.9)
 
 ### 1. mypy.ini設定ファイル
 
@@ -908,9 +908,9 @@ mapping: dict[str, int] = {}
 
 ---
 
-## ⚙️ Configuration Management
+## ⚙️ 設定管理
 
-### Using Pydantic Settings
+### Pydantic Settingsの使用
 
 ```python
 # config.py
@@ -951,9 +951,9 @@ app.dependency_overrides[get_settings] = get_settings_override
 
 ---
 
-## 📝 Alembic Migration Best Practices
+## 📝 Alembic マイグレーションベストプラクティス
 
-**Context7 Reference**: `/sqlalchemy/alembic` (Code Snippets: 363)
+**Context7参照**: `/sqlalchemy/alembic` (Code Snippets: 363)
 
 ### 1. 命名規則の設定
 
@@ -1086,9 +1086,9 @@ context.configure(
 
 ---
 
-## 🔒 Security
+## 🔒 セキュリティ
 
-### Password Hashing
+### パスワードハッシュ化
 
 ```python
 from argon2 import PasswordHasher
@@ -1122,9 +1122,9 @@ def create_access_token(data: dict) -> str:
 
 ---
 
-## 📊 Performance
+## 📊 パフォーマンス
 
-### Avoiding N+1 Problem
+### N+1問題の回避
 
 ```python
 # Bad: N+1問題
@@ -1154,9 +1154,9 @@ def get_items(
 
 ---
 
-## 🚨 Checklist
+## 🚨 チェックリスト
 
-Verify the following when creating or modifying code:
+コード作成・修正時に以下を確認すること:
 
 ### 🔴 実装後の必須確認項目（コミット前に必ず実行）
 
@@ -1235,9 +1235,9 @@ Verify the following when creating or modifying code:
 
 ---
 
-## 📚 References
+## 📚 参考リソース
 
-### Official Documentation
+### 公式ドキュメント
 - [FastAPI公式ドキュメント](https://fastapi.tiangolo.com/)
 - [Pydantic公式ドキュメント](https://docs.pydantic.dev/)
 - [SQLAlchemy公式ドキュメント](https://docs.sqlalchemy.org/)

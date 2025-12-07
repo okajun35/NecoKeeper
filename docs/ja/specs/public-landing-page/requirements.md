@@ -2,16 +2,16 @@
 
 ## Introduction
 
-Create a public landing page for NecoKeeper. This page will be linked from the hackathon page and serves as a static page introducing the project overview, key features, and technology stack. With a clean and modern design, it effectively communicates NecoKeeper's value to visitors.
+NecoKeeperの公開ランディングページを作成します。このページはハッカソンのページからリンクされ、プロジェクトの概要、主要機能、技術スタックを紹介する静的なページです。クリーンでモダンなデザインで、訪問者にNecoKeeperの価値を効果的に伝えます。
 
 ## Glossary
 
-- **Landing Page**: Public web page introducing the NecoKeeper project
-- **System**: The entire NecoKeeper application
-- **Visitor**: User visiting the landing page (no authentication required)
-- **Hackathon Page**: Hackathon introduction page (external site)
-- **Demo Section**: Preview elements visually demonstrating system functionality
-- **CTA (Call-to-Action)**: Buttons or links prompting visitors to take specific actions
+- **Landing Page**: NecoKeeperプロジェクトを紹介する公開Webページ
+- **System**: NecoKeeperアプリケーション全体
+- **Visitor**: ランディングページを訪問するユーザー（認証不要）
+- **Hackathon Page**: ハッカソンの紹介ページ（外部サイト）
+- **Demo Section**: システムの動作を視覚的に示すプレビュー要素
+- **CTA (Call-to-Action)**: 訪問者に特定のアクションを促すボタンやリンク
 
 ## Requirements
 

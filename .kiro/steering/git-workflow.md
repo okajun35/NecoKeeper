@@ -2,64 +2,64 @@
 inclusion: always
 ---
 
-# Git ワークフロー
+# Git Workflow
 
-このドキュメントは、NecoKeeperプロジェクトのGitワークフローを定義します。
+This document defines the Git workflow for the NecoKeeper project.
 
-## ブランチ戦略
+## Branch Strategy
 
-### メインブランチ
-- **main**: 本番環境用の安定版ブランチ
-  - 常にデプロイ可能な状態を維持
-  - 直接コミット禁止（Pull Requestのみ）
+### Main Branch
+- **main**: Stable branch for production environment
+  - Always maintain a deployable state
+  - Direct commits prohibited (Pull Requests only)
 
-### 作業ブランチ
+### Working Branches
 
-#### フィーチャーブランチ（機能開発）
-- **命名規則**: `feature/<機能名>`
-- **例**:
+#### Feature Branches (Feature Development)
+- **Naming Convention**: `feature/<feature-name>`
+- **Examples**:
   - `feature/public-form`
   - `feature/pdf-generation`
   - `feature/medical-records`
-- **作成元**: `develop`
-- **マージ先**: `develop`
+- **Created From**: `develop`
+- **Merged To**: `develop`
 
-#### バグ修正ブランチ
-- **命名規則**: `fix/<バグ内容>`
-- **例**:
+#### Bug Fix Branches
+- **Naming Convention**: `fix/<bug-description>`
+- **Examples**:
   - `fix/404-errors`
   - `fix/timezone-issue`
   - `fix/form-validation`
-- **作成元**: `develop`（緊急の場合は `main`）
-- **マージ先**: `develop`（緊急の場合は `main` と `develop` 両方）
+- **Created From**: `develop` (or `main` for urgent fixes)
+- **Merged To**: `develop` (or both `main` and `develop` for urgent fixes)
 
-#### リファクタリングブランチ
-- **命名規則**: `refactor/<対象>`
-- **例**:
+#### Refactoring Branches
+- **Naming Convention**: `refactor/<target>`
+- **Examples**:
   - `refactor/type-hints`
   - `refactor/error-handling`
-- **作成元**: `develop`
-- **マージ先**: `develop`
+- **Created From**: `develop`
+- **Merged To**: `develop`
 
-#### ドキュメントブランチ
-- **命名規則**: `docs/<内容>`
-- **例**:
+#### Documentation Branches
+- **Naming Convention**: `docs/<content>`
+- **Examples**:
   - `docs/setup-guide`
   - `docs/api-documentation`
-- **作成元**: `develop`
-- **マージ先**: `develop`
+- **Created From**: `develop`
+- **Merged To**: `develop`
 
-#### テストブランチ
-- **命名規則**: `test/<対象>`
-- **例**:
+#### Test Branches
+- **Naming Convention**: `test/<target>`
+- **Examples**:
   - `test/care-log-service`
   - `test/authentication`
-- **作成元**: `develop`
-- **マージ先**: `develop`
+- **Created From**: `develop`
+- **Merged To**: `develop`
 
-## コミットメッセージ規約
+## Commit Message Convention
 
-### フォーマット
+### Format
 ```
 <type>(<scope>): <subject>
 
@@ -68,131 +68,131 @@ inclusion: always
 <footer>
 ```
 
-### Type（必須）
-- **feat**: 新機能
-- **fix**: バグ修正
-- **docs**: ドキュメントのみの変更
-- **style**: コードの意味に影響しない変更（空白、フォーマット等）
-- **refactor**: バグ修正や機能追加を伴わないコード変更
-- **perf**: パフォーマンス改善
-- **test**: テストの追加・修正
-- **chore**: ビルドプロセスやツールの変更
+### Type (Required)
+- **feat**: New feature
+- **fix**: Bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that don't affect code meaning (whitespace, formatting, etc.)
+- **refactor**: Code changes that neither fix bugs nor add features
+- **perf**: Performance improvements
+- **test**: Adding or modifying tests
+- **chore**: Changes to build process or tools
 
-### Scope（任意）
-変更の範囲を示す：
-- `auth`: 認証関連
-- `api`: APIエンドポイント
-- `model`: データモデル
-- `service`: ビジネスロジック
-- `ui`: ユーザーインターフェース
-- `test`: テスト
-- `docs`: ドキュメント
+### Scope (Optional)
+Indicates the scope of changes:
+- `auth`: Authentication related
+- `api`: API endpoints
+- `model`: Data models
+- `service`: Business logic
+- `ui`: User interface
+- `test`: Tests
+- `docs`: Documentation
 
-### Subject（必須）
-- 50文字以内
-- 命令形で記述（"追加した" ではなく "追加"）
-- 文末にピリオド不要
-- 日本語または英語
+### Subject (Required)
+- Within 50 characters
+- Use imperative mood ("add" not "added")
+- No period at the end
+- English or Japanese
 
-### Body（任意）
-- 変更の理由と内容を詳細に説明
-- 72文字で改行
+### Body (Optional)
+- Detailed explanation of why and what changed
+- Wrap at 72 characters
 
-### Footer（任意）
-- Issue番号の参照
-- Breaking Changesの記載
+### Footer (Optional)
+- Reference to issue numbers
+- Breaking changes notation
 
-### 例
+### Examples
 
 ```bash
-# 新機能追加
-feat(api): Public APIエンドポイントを追加
+# New feature
+feat(api): Add public API endpoints
 
-認証不要の世話記録入力用APIを実装。
+Implement API for care log input without authentication.
 - GET /api/v1/public/animals/{id}
 - POST /api/v1/public/care-logs
 
 Closes #123
 
-# バグ修正
-fix(ui): 404エラーを修正
+# Bug fix
+fix(ui): Fix 404 errors
 
-PWAアイコンとデフォルト画像のパスを修正。
-- Service Worker登録コードを追加
-- default.svgを作成
+Fix paths for PWA icons and default images.
+- Add Service Worker registration code
+- Create default.svg
 
-# リファクタリング
-refactor(model): 型ヒントをモダンな構文に更新
+# Refactoring
+refactor(model): Update type hints to modern syntax
 
 - Optional[X] → X | None
 - List[X] → list[X]
-- from __future__ import annotations を追加
+- Add from __future__ import annotations
 
-# ドキュメント
-docs: PWAアイコンのセットアップガイドを追加
+# Documentation
+docs: Add PWA icon setup guide
 
-# テスト
-test(service): care_log_serviceのテストを追加
+# Test
+test(service): Add tests for care_log_service
 
-カバレッジを68%から85%に向上
+Improve coverage from 68% to 85%
 ```
 
-## ワークフロー
+## Workflow
 
-### 1. 新機能開発の流れ
+### 1. Feature Development Flow
 
 ```bash
-# 1. developブランチを最新化
+# 1. Update develop branch
 git checkout develop
 git pull origin develop
 
-# 2. フィーチャーブランチを作成
+# 2. Create feature branch
 git checkout -b feature/new-feature
 
-# 3. 開発とコミット
+# 3. Develop and commit
 git add .
-git commit -m "feat(scope): 機能を追加"
+git commit -m "feat(scope): Add feature"
 
-# 4. 定期的にdevelopの変更を取り込む
+# 4. Regularly incorporate develop changes
 git fetch origin
 git rebase origin/develop
 
-# 5. リモートにプッシュ
+# 5. Push to remote
 git push origin feature/new-feature
 
-# 6. Pull Requestを作成（GitHub/GitLab）
-# 7. レビュー後、developにマージ
+# 6. Create Pull Request (GitHub/GitLab)
+# 7. Merge to develop after review
 ```
 
-### 2. バグ修正の流れ
+### 2. Bug Fix Flow
 
 ```bash
-# 1. developブランチから修正ブランチを作成
+# 1. Create fix branch from develop
 git checkout develop
 git pull origin develop
 git checkout -b fix/bug-description
 
-# 2. 修正とコミット
+# 2. Fix and commit
 git add .
-git commit -m "fix(scope): バグを修正"
+git commit -m "fix(scope): Fix bug"
 
-# 3. プッシュとPull Request
+# 3. Push and create Pull Request
 git push origin fix/bug-description
 ```
 
-### 3. 緊急バグ修正（Hotfix）
+### 3. Urgent Bug Fix (Hotfix)
 
 ```bash
-# 1. mainブランチから修正ブランチを作成
+# 1. Create fix branch from main
 git checkout main
 git pull origin main
 git checkout -b hotfix/critical-bug
 
-# 2. 修正とコミット
+# 2. Fix and commit
 git add .
-git commit -m "fix(scope): 緊急バグを修正"
+git commit -m "fix(scope): Fix critical bug"
 
-# 3. mainとdevelopの両方にマージ
+# 3. Merge to both main and develop
 git checkout main
 git merge hotfix/critical-bug
 git push origin main
@@ -201,133 +201,133 @@ git checkout develop
 git merge hotfix/critical-bug
 git push origin develop
 
-# 4. hotfixブランチを削除
+# 4. Delete hotfix branch
 git branch -d hotfix/critical-bug
 ```
 
-## コミットのタイミング
+## Commit Timing
 
-### 頻繁にコミット
-- 論理的な単位で小さくコミット
-- 1つのコミットで1つの変更
-- 動作する状態でコミット
+### Commit Frequently
+- Commit in small, logical units
+- One commit for one change
+- Commit in a working state
 
-### コミットすべきタイミング
-- ✅ 新しいファイルを追加した
-- ✅ 機能の一部が完成した
-- ✅ バグを修正した
-- ✅ リファクタリングが完了した
-- ✅ テストを追加した
-- ✅ ドキュメントを更新した
+### When to Commit
+- ✅ Added new files
+- ✅ Completed part of a feature
+- ✅ Fixed a bug
+- ✅ Completed refactoring
+- ✅ Added tests
+- ✅ Updated documentation
 
-### コミットすべきでないタイミング
-- ❌ コードが動作しない状態
-- ❌ テストが失敗している状態
-- ❌ 複数の無関係な変更を含む
-- ❌ デバッグ用のコードが残っている
+### When NOT to Commit
+- ❌ Code is not working
+- ❌ Tests are failing
+- ❌ Contains multiple unrelated changes
+- ❌ Debug code remains
 
-## コミット前のチェック（必須）
+## Pre-Commit Checks (Required)
 
-**すべてのコミット前に必ず実行してください**
+**Always run these checks before every commit**
 
-### Makeコマンドで一括チェック（推奨）
+### Batch Check with Make Command (Recommended)
 
 ```bash
-# pre-commitと同じ順番で全チェック
+# Run all checks in the same order as pre-commit
 make all
 ```
 
-このコマンドは以下を順番に実行します：
-1. **Lint**: Ruffでコード品質チェック
-2. **Format**: Ruffでコードフォーマット
-3. **Mypy**: 型チェック
-4. **Pytest**: 全テスト実行（345テスト）
-5. **Prettier**: JavaScript/JSON/YAMLフォーマット
+This command executes the following in order:
+1. **Lint**: Code quality check with Ruff
+2. **Format**: Code formatting with Ruff
+3. **Mypy**: Type checking
+4. **Pytest**: Run all tests (345 tests)
+5. **Prettier**: JavaScript/JSON/YAML formatting
 
-### 個別チェック
+### Individual Checks
 
 ```bash
-# 基本チェックのみ（format + lint + test）
+# Basic checks only (format + lint + test)
 make check
 
-# 個別実行
-make lint      # Lintチェック
-make format    # コードフォーマット
-make mypy      # 型チェック
-make test      # テスト実行
-make coverage  # カバレッジ付きテスト
+# Individual execution
+make lint      # Lint check
+make format    # Code formatting
+make mypy      # Type checking
+make test      # Run tests
+make coverage  # Tests with coverage
 ```
 
-### 推奨ワークフロー
+### Recommended Workflow
 
 ```bash
-# 1. コード変更後、コミット前に全チェック
+# 1. Run all checks after code changes, before commit
 make all
 
-# 2. 全てパスしたらコミット
+# 2. Commit after all checks pass
 git add .
-git commit -m "feat(scope): 機能を追加"
+git commit -m "feat(scope): Add feature"
 
-# 3. プッシュ
+# 3. Push
 git push origin feature/your-feature
 ```
 
-### チェックが失敗した場合
+### When Checks Fail
 
-- **Lint/Formatエラー**: 自動修正されるので再度`make all`を実行
-- **Mypyエラー**: 型ヒントを修正
-- **Testエラー**: テストを修正してから再実行
+- **Lint/Format errors**: Auto-fixed, run `make all` again
+- **Mypy errors**: Fix type hints
+- **Test errors**: Fix tests and re-run
 
-### pre-commitフック
+### pre-commit Hook
 
-コミット時に自動的にチェックが実行されます：
+Checks run automatically on commit:
 
 ```bash
-# pre-commitフックをインストール（初回のみ）
+# Install pre-commit hook (first time only)
 pre-commit install
 
-# 手動で全ファイルをチェック
+# Manually check all files
 pre-commit run --all-files
 ```
 
-## プッシュのタイミング
+## Push Timing
 
-### 定期的にプッシュ
-- 1日の作業終了時
-- 重要な変更を完了した時
-- 他の開発者と共有したい時
-- バックアップとして保存したい時
+### Push Regularly
+- At the end of the day
+- After completing important changes
+- When you want to share with other developers
+- To save as backup
 
-### プッシュ前のチェックリスト
-- [ ] **`make all`を実行して全てパス**（最重要）
-- [ ] すべてのテストがパス
-- [ ] Lintエラーがない
-- [ ] 型チェックがパス
-- [ ] コミットメッセージが適切
-- [ ] 機密情報が含まれていない
+### Pre-Push Checklist
+- [ ] **Run `make all` and all checks pass** (Most important)
+- [ ] All tests pass
+- [ ] No lint errors
+- [ ] Type checking passes
+- [ ] Commit message is appropriate
+- [ ] No sensitive information included
 
-## ブランチの削除
+## Branch Deletion
 
-### マージ後のブランチ削除
+### Delete Branch After Merge
 
 ```bash
-# ローカルブランチを削除
+# Delete local branch
 git branch -d feature/completed-feature
 
-# リモートブランチを削除
+# Delete remote branch
 git push origin --delete feature/completed-feature
 ```
 
-## .gitignoreの管理
+## .gitignore Management
 
-以下のファイルは必ずコミットしない：
+Never commit the following files:
 
 ```gitignore
-# 環境変数
+# Environment variables
 .env
 .env.local
 
-# データベース
+# Database
 *.db
 *.sqlite
 *.sqlite3
@@ -344,74 +344,74 @@ venv/
 .idea/
 *.swp
 
-# ログ
+# Logs
 *.log
 
-# テスト
+# Tests
 .coverage
 htmlcov/
 .pytest_cache/
 
-# ビルド成果物
+# Build artifacts
 dist/
 build/
 *.egg-info/
 ```
 
-## トラブルシューティング
+## Troubleshooting
 
-### コミットを取り消す
+### Undo Commit
 
 ```bash
-# 直前のコミットを取り消し（変更は保持）
+# Undo last commit (keep changes)
 git reset --soft HEAD~1
 
-# 直前のコミットを取り消し（変更も破棄）
+# Undo last commit (discard changes)
 git reset --hard HEAD~1
 
-# コミットメッセージを修正
-git commit --amend -m "新しいメッセージ"
+# Modify commit message
+git commit --amend -m "New message"
 ```
 
-### マージコンフリクトの解決
+### Resolve Merge Conflicts
 
 ```bash
-# 1. コンフリクトを確認
+# 1. Check conflicts
 git status
 
-# 2. ファイルを編集してコンフリクトを解決
-# （<<<<<<<, =======, >>>>>>> を削除）
+# 2. Edit files to resolve conflicts
+# (Remove <<<<<<<, =======, >>>>>>>)
 
-# 3. 解決したファイルをステージング
+# 3. Stage resolved files
 git add <resolved-file>
 
-# 4. マージを完了
+# 4. Complete merge
 git commit
 ```
 
-### 間違ったブランチにコミットした
+### Committed to Wrong Branch
 
 ```bash
-# 1. コミットを別のブランチに移動
+# 1. Move commit to another branch
 git checkout correct-branch
 git cherry-pick <commit-hash>
 
-# 2. 元のブランチからコミットを削除
+# 2. Remove commit from original branch
 git checkout wrong-branch
 git reset --hard HEAD~1
 ```
 
-## ベストプラクティス
+## Best Practices
 
-1. **小さく頻繁にコミット**: 大きな変更を避け、論理的な単位で分割
-2. **意味のあるコミットメッセージ**: 将来の自分や他の開発者のために
-3. **定期的にプッシュ**: バックアップとして、また共同作業のために
-4. **developを最新に保つ**: マージコンフリクトを最小化
-5. **テストを書く**: コミット前にテストを実行
-6. **レビューを受ける**: Pull Requestで品質を保証
-7. **ブランチを整理**: マージ後は不要なブランチを削除
+1. **Commit small and frequently**: Avoid large changes, split into logical units
+2. **Meaningful commit messages**: For your future self and other developers
+3. **Push regularly**: As backup and for collaboration
+4. **Keep develop up to date**: Minimize merge conflicts
+5. **Write tests**: Run tests before committing
+6. **Get reviews**: Ensure quality through Pull Requests
+7. **Clean up branches**: Delete unnecessary branches after merge
 
-## 参考リンク
+## References
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Git Flow](https://nvie.com/posts/a-successful-git-branching-model/)

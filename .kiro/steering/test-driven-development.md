@@ -2,50 +2,50 @@
 inclusion: always
 ---
 
-# テスト駆動開発（TDD）ガイドライン
+# Test-Driven Development (TDD) Guidelines
 
-このドキュメントは、t-wada（和田卓人）氏のテスト駆動開発の原則に基づいた、NecoKeeperプロジェクトのテスト戦略を定義します。
+This document defines the testing strategy for the NecoKeeper project, based on the principles of Test-Driven Development by t-wada (Takuto Wada).
 
-**基本原則**: 「テストのないコードはレガシーコード」
+**Core Principle**: "Code without tests is legacy code"
 
 ---
 
-## 🎯 テスト駆動開発の3原則
+## 🎯 Three Principles of Test-Driven Development
 
-### 1. Red（失敗するテストを書く）
+### 1. Red (Write a Failing Test)
 ```python
 def test_create_animal_with_name():
-    """まず失敗するテストを書く"""
+    """First, write a failing test"""
     # Given
-    animal_data = AnimalCreate(name="たま", ...)
+    animal_data = AnimalCreate(name="Tama", ...)
 
     # When
     result = animal_service.create_animal(db, animal_data, user_id)
 
     # Then
-    assert result.name == "たま"  # まだ実装されていないので失敗
+    assert result.name == "Tama"  # Fails because not implemented yet
 ```
 
-### 2. Green（テストをパスする最小限のコードを書く）
+### 2. Green (Write Minimal Code to Pass the Test)
 ```python
 def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Animal:
-    """テストをパスする最小限の実装"""
+    """Minimal implementation to pass the test"""
     animal = Animal(**animal_data.model_dump())
     db.add(animal)
     db.commit()
     return animal
 ```
 
-### 3. Refactor（コードを改善する）
+### 3. Refactor (Improve the Code)
 ```python
 def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Animal:
-    """リファクタリング後の実装"""
+    """Implementation after refactoring"""
     try:
         animal = Animal(**animal_data.model_dump())
         db.add(animal)
-        db.flush()  # IDを取得
+        db.flush()  # Get ID
 
-        # ステータス履歴を記録（副作用）
+        # Record status history (side effect)
         status_history = StatusHistory(
             animal_id=animal.id,
             new_status=animal.status,
@@ -58,85 +58,85 @@ def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Anima
         return animal
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="登録失敗") from e
+        raise HTTPException(status_code=500, detail="Registration failed") from e
 ```
 
 ---
 
-## 📋 テストの種類と優先順位
+## 📋 Types of Tests and Priority
 
-### 1. ドメインロジックテスト（最優先）
+### 1. Domain Logic Tests (Highest Priority)
 
-**目的**: ビジネスルールの検証
+**Purpose**: Validate business rules
 
 ```python
 class TestAnimalDomainLogic:
-    """ドメインロジックのテスト"""
+    """Domain logic tests"""
 
     def test_status_change_creates_history(self):
-        """ステータス変更時に履歴が記録される"""
-        # ビジネスルールの検証
+        """Status change creates history record"""
+        # Validate business rules
 
     def test_cannot_adopt_animal_under_treatment(self):
-        """治療中の猫は譲渡できない"""
-        # ビジネス制約の検証
+        """Cannot adopt cat under treatment"""
+        # Validate business constraints
 ```
 
-### 2. 境界値テスト
+### 2. Boundary Value Tests
 
-**目的**: エッジケースの検証
+**Purpose**: Validate edge cases
 
 ```python
 class TestBoundaryConditions:
-    """境界値テスト"""
+    """Boundary value tests"""
 
     def test_pagination_first_page(self):
-        """最初のページ"""
+        """First page"""
 
     def test_pagination_last_page(self):
-        """最後のページ"""
+        """Last page"""
 
     def test_pagination_empty_result(self):
-        """結果が0件の場合"""
+        """Empty result"""
 
     def test_search_with_empty_query(self):
-        """空の検索クエリ"""
+        """Empty search query"""
 
     def test_search_with_special_characters(self):
-        """特殊文字を含む検索"""
+        """Search with special characters"""
 ```
 
-### 3. エラーハンドリングテスト
+### 3. Error Handling Tests
 
-**目的**: 異常系の検証
+**Purpose**: Validate error cases
 
 ```python
 class TestErrorHandling:
-    """エラーハンドリングテスト"""
+    """Error handling tests"""
 
     def test_get_nonexistent_resource(self):
-        """存在しないリソース → 404"""
+        """Non-existent resource → 404"""
         with pytest.raises(HTTPException) as exc_info:
             service.get_animal(db, 99999)
         assert exc_info.value.status_code == 404
 
     def test_create_with_invalid_data(self):
-        """不正なデータ → 400"""
+        """Invalid data → 400"""
 
     def test_unauthorized_access(self):
-        """権限なし → 403"""
+        """Unauthorized → 403"""
 ```
 
-### 4. 副作用の検証テスト
+### 4. Side Effect Validation Tests
 
-**目的**: 状態変更の検証
+**Purpose**: Validate state changes
 
 ```python
 class TestSideEffects:
-    """副作用の検証テスト"""
+    """Side effect validation tests"""
 
     def test_create_animal_records_status_history(self):
-        """猫登録時にステータス履歴が記録される"""
+        """Cat registration records status history"""
         # Given
         animal_data = AnimalCreate(...)
 
@@ -151,97 +151,97 @@ class TestSideEffects:
         assert history.new_status == result.status
 
     def test_update_status_creates_history_entry(self):
-        """ステータス更新時に履歴エントリが作成される"""
+        """Status update creates history entry"""
 ```
 
-### 5. 統合テスト
+### 5. Integration Tests
 
-**目的**: コンポーネント間の連携検証
+**Purpose**: Validate component interactions
 
 ```python
 class TestIntegration:
-    """統合テスト"""
+    """Integration tests"""
 
     def test_create_and_retrieve_animal(self):
-        """猫を登録して取得できる"""
-        # 複数のサービスメソッドの連携
+        """Register and retrieve cat"""
+        # Multiple service method interactions
 
     def test_full_adoption_workflow(self):
-        """譲渡ワークフロー全体"""
-        # 保護中 → 譲渡可能 → 譲渡済み
+        """Complete adoption workflow"""
+        # Under protection → Available for adoption → Adopted
 ```
 
 ---
 
-## 🏗️ テスト構造のベストプラクティス
+## 🏗️ Test Structure Best Practices
 
-### Given-When-Then パターン
+### Given-When-Then Pattern
 
 ```python
 def test_example():
-    """テストの説明"""
-    # Given（前提条件）
-    animal = Animal(name="たま", status="保護中")
+    """Test description"""
+    # Given (preconditions)
+    animal = Animal(name="Tama", status="Under Protection")
     db.add(animal)
     db.commit()
 
-    # When（実行）
-    result = service.update_status(db, animal.id, "譲渡可能", user_id)
+    # When (execution)
+    result = service.update_status(db, animal.id, "Available for Adoption", user_id)
 
-    # Then（検証）
-    assert result.status == "譲渡可能"
-    # 副作用の検証
+    # Then (validation)
+    assert result.status == "Available for Adoption"
+    # Validate side effects
     history = db.query(StatusHistory).filter(...).first()
-    assert history.new_status == "譲渡可能"
+    assert history.new_status == "Available for Adoption"
 ```
 
-### テストクラスの命名規則
+### Test Class Naming Convention
 
 ```python
-# ✅ 推奨
+# ✅ Recommended
 class TestCreateAnimal:
-    """猫登録のテスト"""
+    """Cat registration tests"""
 
 class TestAnimalStatusTransition:
-    """猫のステータス遷移のテスト"""
+    """Cat status transition tests"""
 
-# ❌ 非推奨
-class AnimalTests:  # 曖昧
-class TestAnimal:   # 範囲が広すぎる
+# ❌ Not recommended
+class AnimalTests:  # Too vague
+class TestAnimal:   # Too broad
 ```
 
-### テストメソッドの命名規則
+### Test Method Naming Convention
 
 ```python
-# ✅ 推奨: test_<対象>_<条件>_<期待結果>
+# ✅ Recommended: test_<target>_<condition>_<expected_result>
 def test_create_animal_with_valid_data_success(self):
-    """正常系: 有効なデータで猫を登録できる"""
+    """Normal case: Successfully register cat with valid data"""
 
 def test_get_animal_with_nonexistent_id_raises_404(self):
-    """異常系: 存在しないIDで404エラー"""
+    """Error case: 404 error for non-existent ID"""
 
 def test_update_status_from_protected_to_adoptable_creates_history(self):
-    """副作用: ステータス変更時に履歴が記録される"""
+    """Side effect: Status change records history"""
 
-# ❌ 非推奨
-def test_animal(self):  # 何をテストしているか不明
-def test_1(self):       # 意味不明
+# ❌ Not recommended
+def test_animal(self):  # Unclear what is being tested
+def test_1(self):       # Meaningless
 ```
 
 ---
 
-## 🎨 テストデータの作成パターン
+## 🎨 Test Data Creation Patterns
 
-### 1. フィクスチャの活用
+### 1. Using Fixtures
 
 ```python
 @pytest.fixture(scope="function")
 def test_animal(test_db: Session) -> Animal:
-    """テスト用の猫を作成"""
+    """Create test cat"""
     animal = Animal(
-        name="テスト猫",
-        pattern="キジトラ",
-        status="保護中",
+        name="Test Cat",
+        pattern="Tabby",
+        status="Under Protection",
     )
     test_db.add(animal)
     test_db.commit()
@@ -250,29 +250,29 @@ def test_animal(test_db: Session) -> Animal:
 
 @pytest.fixture(scope="function")
 def test_animals_bulk(test_db: Session) -> list[Animal]:
-    """複数の猫を作成（ページネーションテスト用）"""
+    """Create multiple cats (for pagination tests)"""
     animals: list[Animal] = []
     for i in range(10):
-        animal = Animal(name=f"猫{i}", ...)
+        animal = Animal(name=f"Cat{i}", ...)
         test_db.add(animal)
         animals.append(animal)
     test_db.commit()
     return animals
 ```
 
-### 2. ファクトリーパターン
+### 2. Factory Pattern
 
 ```python
 def create_test_animal(
     db: Session,
-    name: str = "テスト猫",
-    status: str = "保護中",
+    name: str = "Test Cat",
+    status: str = "Under Protection",
     **kwargs
 ) -> Animal:
-    """テスト用の猫を作成するファクトリー"""
+    """Factory for creating test cats"""
     animal = Animal(
         name=name,
-        pattern=kwargs.get("pattern", "キジトラ"),
+        pattern=kwargs.get("pattern", "Tabby"),
         status=status,
         **kwargs
     )
@@ -282,84 +282,84 @@ def create_test_animal(
     return animal
 ```
 
-### 3. パラメータ化テスト
+### 3. Parameterized Tests
 
 ```python
 @pytest.mark.parametrize(
     "status,expected_adoptable",
     [
-        ("保護中", False),
-        ("治療中", False),
-        ("譲渡可能", True),
-        ("譲渡済み", False),
+        ("Under Protection", False),
+        ("Under Treatment", False),
+        ("Available for Adoption", True),
+        ("Adopted", False),
     ],
     ids=["protected", "treatment", "adoptable", "adopted"]
 )
 def test_is_adoptable_by_status(status, expected_adoptable):
-    """ステータスごとの譲渡可否判定"""
+    """Adoption eligibility by status"""
     animal = Animal(status=status)
     assert animal.is_adoptable() == expected_adoptable
 ```
 
 ---
 
-## 🔍 テストカバレッジの目標
+## 🔍 Test Coverage Goals
 
-### レイヤー別カバレッジ目標
+### Coverage Goals by Layer
 
-| レイヤー | 目標カバレッジ | 理由 |
-|---------|--------------|------|
-| **ドメイン層（models/）** | 90%以上 | ビジネスルールの中核 |
-| **アプリケーション層（services/）** | 80%以上 | ユースケースの実装 |
-| **インフラ層（database.py, utils/）** | 70%以上 | 外部依存の抽象化 |
-| **プレゼンテーション層（api/）** | 70%以上 | リクエスト/レスポンス変換 |
+| Layer | Target Coverage | Reason |
+|-------|----------------|--------|
+| **Domain Layer (models/)** | 90%+ | Core business rules |
+| **Application Layer (services/)** | 80%+ | Use case implementation |
+| **Infrastructure Layer (database.py, utils/)** | 70%+ | External dependency abstraction |
+| **Presentation Layer (api/)** | 70%+ | Request/response transformation |
 
-### カバレッジの測定
+### Measuring Coverage
 
 ```bash
-# カバレッジ測定
+# Measure coverage
 python -m pytest --cov=app --cov-report=html --cov-report=term-missing
 
-# 特定のファイルのみ
+# Specific file only
 python -m pytest --cov=app/services/animal_service.py --cov-report=term-missing
 
-# カバレッジ閾値チェック（80%未満で失敗）
+# Coverage threshold check (fail if below 80%)
 python -m pytest --cov=app --cov-fail-under=80
 ```
 
 ---
 
-## 🚫 アンチパターン
+## 🚫 Anti-Patterns
 
-### 1. テストが実装の詳細に依存
+### 1. Tests Depend on Implementation Details
 
 ```python
-# ❌ 悪い例: 内部実装に依存
+# ❌ Bad: Depends on internal implementation
 def test_create_animal_calls_db_add():
-    """db.add()が呼ばれることをテスト"""
-    # 実装の詳細をテストしている
+    """Test that db.add() is called"""
+    # Testing implementation details
 
-# ✅ 良い例: 振る舞いをテスト
+# ✅ Good: Test behavior
 def test_create_animal_persists_to_database():
-    """猫がデータベースに保存される"""
+    """Cat is persisted to database"""
     result = service.create_animal(db, data, user_id)
     saved = db.query(Animal).filter(Animal.id == result.id).first()
     assert saved is not None
 ```
 
-### 2. テストが他のテストに依存
+### 2. Tests Depend on Other Tests
 
 ```python
-# ❌ 悪い例: テストの順序に依存
+# ❌ Bad: Depends on test order
 def test_1_create_animal():
     global created_animal_id
     created_animal_id = ...
 
 def test_2_get_animal():
-    # test_1に依存している
+    # Depends on test_1
     animal = service.get_animal(db, created_animal_id)
 
-# ✅ 良い例: 各テストが独立
+# ✅ Good: Each test is independent
 def test_create_animal(test_db):
     result = service.create_animal(...)
 
@@ -367,33 +367,33 @@ def test_get_animal(test_db, test_animal):
     result = service.get_animal(test_db, test_animal.id)
 ```
 
-### 3. 過度なモック
+### 3. Excessive Mocking
 
 ```python
-# ❌ 悪い例: すべてをモック
+# ❌ Bad: Mock everything
 def test_create_animal_with_mocks():
     mock_db = Mock()
     mock_animal = Mock()
-    # 実際の動作を検証していない
+    # Not testing actual behavior
 
-# ✅ 良い例: 実際のデータベースを使用
+# ✅ Good: Use real database
 def test_create_animal_with_real_db(test_db):
-    # インメモリSQLiteで実際の動作を検証
+    # Test actual behavior with in-memory SQLite
     result = service.create_animal(test_db, data, user_id)
 ```
 
-### 4. 1つのテストで複数のことを検証
+### 4. Testing Multiple Things in One Test
 
 ```python
-# ❌ 悪い例: 複数の検証
+# ❌ Bad: Multiple validations
 def test_animal_crud():
-    # 作成、取得、更新、削除を1つのテストで
+    # Create, read, update, delete in one test
     animal = service.create_animal(...)
     retrieved = service.get_animal(...)
     updated = service.update_animal(...)
     service.delete_animal(...)
 
-# ✅ 良い例: 1テスト1検証
+# ✅ Good: One validation per test
 def test_create_animal():
     result = service.create_animal(...)
     assert result.id is not None
@@ -405,14 +405,14 @@ def test_get_animal():
 
 ---
 
-## 📝 新機能開発のワークフロー
+## 📝 New Feature Development Workflow
 
-### ステップ1: テストファーストで設計
+### Step 1: Design with Test-First
 
 ```python
-# 1. まず失敗するテストを書く
+# 1. First, write a failing test
 def test_upload_image_with_valid_file():
-    """画像アップロード機能のテスト"""
+    """Image upload feature test"""
     # Given
     image_data = b"fake_image_data"
     animal_id = 1
@@ -425,61 +425,61 @@ def test_upload_image_with_valid_file():
     assert result.image_path is not None
 ```
 
-### ステップ2: 最小限の実装
+### Step 2: Minimal Implementation
 
 ```python
-# 2. テストをパスする最小限のコード
+# 2. Minimal code to pass the test
 def upload_image(
     db: Session,
     animal_id: int,
     image_data: bytes,
     user_id: int
 ) -> UploadResult:
-    """画像をアップロード"""
-    # 最小限の実装
+    """Upload image"""
+    # Minimal implementation
     return UploadResult(success=True, image_path="/fake/path")
 ```
 
-### ステップ3: エッジケースのテスト追加
+### Step 3: Add Edge Case Tests
 
 ```python
-# 3. エッジケースのテストを追加
+# 3. Add edge case tests
 def test_upload_image_exceeds_size_limit():
-    """ファイルサイズ超過"""
+    """File size exceeds limit"""
     large_image = b"x" * (6 * 1024 * 1024)  # 6MB
     with pytest.raises(HTTPException) as exc:
         image_service.upload_image(db, 1, large_image, user_id)
     assert exc.value.status_code == 400
 
 def test_upload_image_invalid_format():
-    """不正なフォーマット"""
+    """Invalid format"""
     invalid_data = b"not an image"
     with pytest.raises(HTTPException):
         image_service.upload_image(db, 1, invalid_data, user_id)
 ```
 
-### ステップ4: リファクタリング
+### Step 4: Refactoring
 
 ```python
-# 4. テストをパスしたままリファクタリング
+# 4. Refactor while keeping tests passing
 def upload_image(
     db: Session,
     animal_id: int,
     image_data: bytes,
     user_id: int
 ) -> UploadResult:
-    """画像をアップロード（リファクタリング後）"""
-    # バリデーション
+    """Upload image (after refactoring)"""
+    # Validation
     validate_image_size(image_data)
     validate_image_format(image_data)
 
-    # 画像処理
+    # Image processing
     optimized_data = optimize_image(image_data)
 
-    # 保存
+    # Save
     image_path = save_image(optimized_data, animal_id)
 
-    # データベース記録
+    # Database record
     image_record = AnimalImage(
         animal_id=animal_id,
         image_path=image_path,
@@ -493,45 +493,45 @@ def upload_image(
 
 ---
 
-## ✅ テスト実装チェックリスト
+## ✅ Test Implementation Checklist
 
-新機能を実装する際は、以下をすべて満たすこと：
+When implementing new features, ensure all of the following are met:
 
-### 必須項目
-- [ ] 正常系のテストを書いた
-- [ ] 異常系（エラーハンドリング）のテストを書いた
-- [ ] 境界値のテストを書いた
-- [ ] 副作用（データベース変更、ログ記録など）を検証した
-- [ ] すべてのテストがパスする
-- [ ] カバレッジが目標値（80%）以上
-- [ ] テストが独立している（他のテストに依存しない）
-- [ ] テスト名が説明的である
+### Required Items
+- [ ] Wrote normal case tests
+- [ ] Wrote error case (error handling) tests
+- [ ] Wrote boundary value tests
+- [ ] Validated side effects (database changes, logging, etc.)
+- [ ] All tests pass
+- [ ] Coverage meets target (80%+)
+- [ ] Tests are independent (don't depend on other tests)
+- [ ] Test names are descriptive
 
-### 推奨項目
-- [ ] パラメータ化テストで複数ケースをカバー
-- [ ] Given-When-Thenパターンを使用
-- [ ] テストクラスで論理的にグループ化
-- [ ] フィクスチャを適切に活用
-- [ ] テストのドキュメント（docstring）を記述
+### Recommended Items
+- [ ] Cover multiple cases with parameterized tests
+- [ ] Use Given-When-Then pattern
+- [ ] Logically group with test classes
+- [ ] Properly utilize fixtures
+- [ ] Write test documentation (docstrings)
 
 ---
 
-## 📚 参考資料
+## 📚 References
 
-### t-wada氏の資料
-- [質とスピード](https://speakerdeck.com/twada/quality-and-speed-2020-autumn-edition)
-- [テスト駆動開発](https://www.amazon.co.jp/dp/4274217884)
-- [プログラマが知るべき97のこと](https://xn--97-273ae6a4irb6e2hsoiozc2g4b8082p.com/)
+### t-wada Resources
+- [Quality and Speed](https://speakerdeck.com/twada/quality-and-speed-2020-autumn-edition)
+- [Test-Driven Development](https://www.amazon.co.jp/dp/4274217884)
+- [97 Things Every Programmer Should Know](https://xn--97-273ae6a4irb6e2hsoiozc2g4b8082p.com/)
 
-### Pytest公式ドキュメント
+### Pytest Official Documentation
 - [Pytest Documentation](https://docs.pytest.org/)
 - [Pytest Best Practices](https://docs.pytest.org/en/stable/goodpractices.html)
 
-### Context7参照
+### Context7 References
 - `/pytest-dev/pytest` (Trust Score: 9.5)
 - `/sairyss/domain-driven-hexagon` (DDD + TDD)
 
 ---
 
-**最終更新**: 2025-11-13
-**t-wada準拠**: ✅
+**Last Updated**: 2025-11-13
+**t-wada Compliant**: ✅
