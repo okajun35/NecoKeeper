@@ -129,6 +129,15 @@ class Settings(BaseSettings):
         default="http://localhost:8000", description="アプリケーションのベースURL"
     )
 
+    # ランディングページ設定
+    github_repo_url: str = Field(
+        default="https://github.com/okajun35/NecoKeeper",
+        description="GitHubリポジトリURL",
+    )
+    demo_video_id: str = Field(
+        default="K5GZoW2HnA0", description="デモビデオのYouTube ID"
+    )
+
     # Cookie設定（認証用）
     cookie_secure: bool = Field(
         default=True,

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Prevent search engine indexing (hackathon demo site) -->
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="description" content="NecoKeeper - AI-powered cat care management system for shelters. Digitize handwritten logs, track health records, and manage rescued cats efficiently.">
+    <meta name="keywords" content="cat shelter, animal care, AI, OCR, FastAPI, volunteer management">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="NecoKeeper – AI-powered Cat Care Management">
+    <meta property="og:description" content="Turn handwritten care logs into structured data with AI">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="{{ request.url_for('static', path='images/og-image.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NecoKeeper Dashboard - AI Workflow for Real Cat Rescue Operations">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NecoKeeper – AI-powered Cat Care Management">
+    <meta name="twitter:description" content="Turn handwritten care logs into structured data with AI">
+    <meta name="twitter:image" content="{{ request.url_for('static', path='images/og-image.png') }}">
+
+    <title>NecoKeeper – AI-powered Cat Care Management</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/icons/default_icon.svg">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        /* CSS Variables for theming */
+        :root {
+            /* Background */
+            --bg-primary: #f5f5f7;
+            --bg-card: #ffffff;
+
+            /* Accent Colors */
+            --accent-primary: #ff7f50;
+            --accent-soft: rgba(255, 127, 80, 0.08);
+
+            /* Text Colors */
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+
+            /* Border */
+            --border-soft: #e5e7eb;
+
+            /* Status Colors */
+            --status-success: #15803d;
+            --status-success-bg: #ecfdf5;
+            --status-success-border: #bbf7d0;
+
+            /* Typography */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', system-ui, sans-serif;
+
+            /* Typography Scale */
+            --text-xs: 0.75rem;    /* 12px */
+            --text-sm: 0.875rem;   /* 14px */
+            --text-base: 1rem;     /* 16px */
+            --text-lg: 1.125rem;   /* 18px */
+            --text-xl: 1.25rem;    /* 20px */
+            --text-2xl: 1.5rem;    /* 24px */
+            --text-3xl: 1.875rem;  /* 30px */
+            --text-4xl: 2.25rem;   /* 36px */
+
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Staggered animations for cards */
+        .panel-grid .card {
+            animation: fadeIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .panel-grid .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .panel-grid .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .panel-grid .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .panel-grid .card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        /* Component Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-4);
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--border-soft);
+            background-color: var(--bg-card);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .logo-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-left:hover .logo-circle {
+            transform: rotate(10deg) scale(1.1);
+            background-color: rgba(255, 127, 80, 0.15);
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            transition: color 0.2s ease;
+        }
+
+        .nav-left:hover .brand-name {
+            color: var(--accent-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-6);
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+            /* Ensure touch-friendly tap targets */
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .cta-link {
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            color: var(--text-primary) !important;
+            transition: all 0.2s ease;
+        }
+
+        .cta-link:hover {
+            background-color: var(--bg-primary);
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Main Layout */
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+            padding: var(--space-12) 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 520px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: var(--space-2) var(--space-4);
+            background-color: var(--accent-soft);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .badge:hover {
+            background-color: rgba(255, 127, 80, 0.15);
+            color: var(--accent-primary);
+            transform: scale(1.02);
+        }
+
+        .hero-title {
+            font-size: clamp(1.9rem, 5vw, 2.6rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: var(--space-4);
+            color: var(--text-primary);
+        }
+
+        .hero-lead {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .btn {
+            padding: var(--space-3) var(--space-6);
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            /* Ensure touch-friendly tap targets */
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 127, 80, 0.3);
+            background-color: #ff6a3d;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(255, 127, 80, 0.2);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-soft);
+        }
+
+        .btn-ghost:hover {
+            background-color: var(--bg-primary);
+            border-color: var(--text-secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-ghost:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Panel */
+        .panel {
+            max-width: 520px;
+            background-color: var(--bg-card);
+            border-radius: 1.3rem;
+            padding: var(--space-6);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .panel:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .panel-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-pill {
+            padding: var(--space-1) var(--space-3);
+            background-color: var(--status-success-bg);
+            color: var(--status-success);
+            border: 1px solid var(--status-success-border);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .status-pill:hover {
+            background-color: var(--status-success);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .card {
+            padding: var(--space-4);
+            background-color: var(--bg-primary);
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .card strong {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card span {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Timeline */
+        .timeline {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .timeline li {
+            display: flex;
+            gap: var(--space-3);
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            padding: var(--space-2);
+            margin: calc(var(--space-2) * -1);
+            border-radius: 0.5rem;
+        }
+
+        .timeline li:hover {
+            background-color: var(--accent-soft);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-primary);
+            margin-top: 6px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .timeline li:hover .dot {
+            transform: scale(1.5);
+            box-shadow: 0 0 0 4px rgba(255, 127, 80, 0.2);
+        }
+
+        .timeline li div:last-child {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            transition: color 0.2s ease;
+        }
+
+        .timeline li:hover div:last-child {
+            color: var(--text-primary);
+        }
+
+        /* Video Section */
+        .video-section {
+            padding: var(--space-12) 0;
+        }
+
+        .video-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .video-heading {
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: var(--space-8);
+            color: var(--text-primary);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .video-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .video-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem;
+        }
+
+        /* Footer */
+        .footer {
+            padding: var(--space-6) 0;
+            border-top: 1px solid var(--border-soft);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .footer .container > div:first-child {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Focus States for Accessibility */
+        .btn:focus,
+        .nav-links a:focus,
+        .cta-link:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        .btn:focus:not(:focus-visible),
+        .nav-links a:focus:not(:focus-visible),
+        .cta-link:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        /* Smooth scrolling for anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Skip to main content link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-primary);
+            color: white;
+            padding: var(--space-2) var(--space-4);
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 4px 0;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Screen reader only text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Responsive Design - Mobile First Approach */
+
+        /* Extra Small devices (320px and up) - Base styles already mobile-first */
+        @media (max-width: 374px) {
+            .container {
+                padding: 0 var(--space-3);
+            }
+
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .hero-lead {
+                font-size: 1rem;
+            }
+
+            .panel {
+                padding: var(--space-4);
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-2);
+            }
+        }
+
+        /* Small devices (phones, 640px and down) */
+        @media (max-width: 640px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer .container > div:first-child {
+                flex-direction: column;
+                gap: var(--space-2);
+                text-align: center;
+            }
+
+            .video-heading {
+                font-size: 1.5rem;
+            }
+
+            .video-section {
+                padding: var(--space-8) 0;
+            }
+        }
+
+        /* Medium devices (tablets, 768px and up) */
+        @media (min-width: 768px) {
+            .main {
+                flex-direction: row;
+                gap: var(--space-12);
+                align-items: flex-start;
+            }
+
+            .hero, .panel {
+                flex: 1;
+            }
+
+            .container {
+                padding: 0 var(--space-6);
+            }
+
+            .nav {
+                padding: var(--space-6) 0;
+            }
+
+            .hero-lead {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* Large devices (desktops, 1024px and up) */
+        @media (min-width: 1024px) {
+            .container {
+                padding: 0 var(--space-8);
+            }
+
+            .main {
+                gap: var(--space-16);
+                padding: var(--space-16) 0;
+            }
+
+            .video-section {
+                padding: var(--space-16) 0;
+            }
+
+            .video-container {
+                max-width: 900px;
+            }
+
+            .hero-title {
+                font-size: 2.6rem;
+            }
+
+            .nav-links {
+                gap: var(--space-8);
+            }
+        }
+
+        /* Extra Large devices (large desktops, 1280px and up) */
+        @media (min-width: 1280px) {
+            .video-container {
+                max-width: 1000px;
+            }
+
+            .hero, .panel {
+                max-width: 560px;
+            }
+        }
+
+        /* Ultra Wide screens (2560px and up) */
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 1600px;
+            }
+
+            .video-container {
+                max-width: 1200px;
+            }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-width: 896px) and (orientation: landscape) {
+            .main {
+                padding: var(--space-6) 0;
+            }
+
+            .video-section {
+                padding: var(--space-6) 0;
+            }
+
+            .hero-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .nav, .video-section {
+                display: none;
+            }
+
+            .main {
+                flex-direction: column;
+            }
+
+            body {
+                background-color: white;
+            }
+
+            .panel, .card {
+                box-shadow: none;
+                border: 1px solid var(--border-soft);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Navigation -->
+    <header class="nav" role="banner">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="nav-left">
+                <div class="logo-circle" aria-hidden="true">🐾</div>
+                <div class="brand-name">NecoKeeper</div>
+            </div>
+            <nav class="nav-links" role="navigation" aria-label="Main navigation">
+                <a href="#how" aria-label="Jump to How it works section">How it works</a>
+                <a href="#video" aria-label="Jump to Demo Video section">Demo Video</a>
+                <a href="#tech" aria-label="Jump to Tech Stack section">Tech</a>
+                <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub (opens in new tab)">GitHub</a>
+                <a class="cta-link" href="#video" aria-label="Watch demo video">Watch demo</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" role="main" id="main-content">
+        <div class="main fade-in">
+            <!-- Hero Section -->
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="badge" role="text">
+                    <span aria-hidden="true">🐱</span> Built for cat shelters · AI + AWS Kiro
+                </div>
+                <h1 class="hero-title" id="hero-title">
+                    AI-powered daily care management for rescued cats.
+                </h1>
+                <p class="hero-lead">
+                    NecoKeeper turns handwritten care logs and veterinary notes into
+                    structured data. Volunteers keep using paper; the system handles
+                    digitization, aggregation, and QR-based access for each cat.
+                </p>
+                <div class="hero-actions" role="group" aria-label="Call to action buttons">
+                    <a href="/admin" aria-label="Try the live demo application">
+                        <button class="btn btn-primary" type="button">
+                            Try the live demo
+                            <span aria-hidden="true">↗</span>
+                        </button>
+                    </a>
+                    <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub (opens in new tab)">
+                        <button class="btn btn-ghost" type="button">
+                            View source
+                        </button>
+                    </a>
+                </div>
+                <div class="hero-meta" role="list" aria-label="Key features">
+                    <span role="listitem"><span aria-hidden="true">✅</span> Focus: shelters & volunteer groups</span>
+                    <span role="listitem"><span aria-hidden="true">✅</span> Tech: FastAPI, SQLAlchemy, Pydantic, MCP, AWS Kiro</span>
+                </div>
+            </section>
+
+            <!-- Demo Preview Panel -->
+            <aside class="panel" id="how" aria-labelledby="panel-title" role="complementary">
+                <div class="panel-header">
+                    <div class="panel-title" id="panel-title">Rescued cat overview · Demo</div>
+                    <span class="status-pill" role="status" aria-live="polite">Shelter load: 18 cats</span>
+                </div>
+                <div class="panel-grid" role="list" aria-label="Cat information cards">
+                    <div class="card" role="listitem">
+                        <strong>CAT</strong>
+                        <span>"Mikan" · 2 y/o female, shy but curious</span>
+                    </div>
+                    <div class="card" role="listitem">
+                        <strong>CARE TODAY</strong>
+                        <span>Food <span aria-label="completed">✔</span> · Water <span aria-label="completed">✔</span> · Litter <span aria-label="completed">✔</span> · Play <span aria-label="not completed">✕</span></span>
+                    </div>
+                    <div class="card" role="listitem">
+                        <strong>HEALTH</strong>
+                        <span>Next vet visit: <time datetime="2024-12-12">Dec 12</time> · Weight trend stable</span>
+                    </div>
+                    <div class="card" role="listitem">
+                        <strong>QR CARD</strong>
+                        <span>Scan at the cage to open profile instantly</span>
+                    </div>
+                </div>
+                <ol class="timeline" aria-label="How NecoKeeper works">
+                    <li>
+                        <div class="dot" aria-hidden="true"></div>
+                        <div><strong>1.</strong> Volunteers fill in handwritten daily care logs as usual.</div>
+                    </li>
+                    <li>
+                        <div class="dot" aria-hidden="true"></div>
+                        <div><strong>2.</strong> NecoKeeper reads the sheet image, extracts items with AI, and generates JSON.</div>
+                    </li>
+                    <li>
+                        <div class="dot" aria-hidden="true"></div>
+                        <div><strong>3.</strong> The API stores care logs, vet records, and notes per cat.</div>
+                    </li>
+                    <li>
+                        <div class="dot" aria-hidden="true"></div>
+                        <div><strong>4.</strong> QR codes on each cage open the latest profile in one tap.</div>
+                    </li>
+                </ol>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Video Section -->
+    <section class="video-section" id="video" aria-labelledby="video-heading">
+        <div class="container">
+            <div class="video-container">
+                <h2 class="video-heading" id="video-heading">See NecoKeeper in Action</h2>
+                <div class="video-wrapper" role="region" aria-label="Demo video player">
+                    <iframe
+                        src="{{ demo_video_url }}"
+                        title="NecoKeeper Demo Video - Watch how the system works with handwritten care logs and QR codes"
+                        frameborder="0"
+                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        class="video-iframe"
+                        loading="lazy"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="tech" role="contentinfo" aria-label="Technology stack information">
+        <div class="container" style="display: flex; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap; gap: var(--space-2);">
+            <span role="text">Built with FastAPI · AWS Kiro · MCP</span>
+            <span role="text" style="color: var(--border-soft);">·</span>
+            <span role="text" style="font-weight: 500;">Hackathon Edition (Kiroween 2025)</span>
+        </div>
+    </footer>
+</body>
+</html>

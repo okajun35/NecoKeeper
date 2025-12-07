@@ -25,6 +25,38 @@ templates = Jinja2Templates(directory=str(templates_dir))
 settings = get_settings()
 
 
+@router.get("/", response_class=HTMLResponse)
+async def landing_page(request: Request):  # type: ignore[no-untyped-def]
+    """
+    公開ランディングページを表示
+
+    ハッカソン訪問者向けのプロジェクト紹介ページ。
+    認証不要で、プロジェクトの概要、機能、デモを紹介。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: ランディングページのHTML
+
+    Example:
+        GET /public/
+    """
+    # 環境変数から設定を読み込み
+    github_url = settings.github_repo_url
+    demo_video_url = f"https://www.youtube.com/embed/{settings.demo_video_id}"
+
+    return templates.TemplateResponse(
+        "public/landing.html",
+        {
+            "request": request,
+            "settings": settings,
+            "github_url": github_url,
+            "demo_video_url": demo_video_url,
+        },
+    )
+
+
 @router.get("/care", response_class=HTMLResponse)
 async def care_form_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
     """
