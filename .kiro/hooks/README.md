@@ -1,12 +1,12 @@
 # Kiro Hooks Configuration
 
-このディレクトリには、NecoKeeperプロジェクトの開発・運用を自動化するKiroフック設定が含まれています。
+This directory contains Kiro hook configurations for automating development and operations workflows in the NecoKeeper project.
 
-## 📚 ドキュメント
+## 📚 Documentation
 
-- **[完全ガイド](./HOOKS_GUIDE.md)** - 全フックの詳細な説明と使用方法
-- **[クイックリファレンス](./QUICK_REFERENCE.md)** - よく使うコマンドとワークフローのチートシート
-- **[OCRワークフロー](#overview)** - OCRケアログインポートの詳細（このファイル）
+- **[Complete Guide](./HOOKS_GUIDE.md)** - Detailed explanations and usage for all hooks
+- **[Quick Reference](./QUICK_REFERENCE.md)** - Cheat sheet for commonly used commands and workflows
+- **[OCR Workflow](#overview)** - Details of the OCR care log import workflow (this file)
 
 ---
 
@@ -51,11 +51,11 @@ Both hooks use **manual triggers**, which means:
 
 **Step 2: Image to JSON (Interactive)**
 1. Attach the generated image in Kiro chat
-2. Provide prompt with metadata:
+2. Provide a prompt with metadata, for example:
 ```
-これはIDが12の猫の2024年11月14日～23日の記録です。
-scripts/utils/prompt_template.py のテンプレートを参照して、
-JSON化してtmp/json/care_log_20241114.json に保存してください。
+This is the record for cat ID 12 from November 14 to 23, 2024.
+Please refer to the template in scripts/utils/prompt_template.py,
+convert it to JSON, and save it to tmp/json/care_log_20241114.json.
 ```
 
 **Step 3: JSON to Database**
@@ -75,15 +75,15 @@ tmp/pdf/sample-cat-log.pdf を PyMuPDF で画像に変換してください
 
 **Step 2: Image to JSON (Interactive)**
 ```
-[画像を添付: tmp/images/sample-cat-log_page1.png]
+[Attach image: tmp/images/sample-cat-log_page1.png]
 
-これはIDが12の猫の2024年11月14日～23日の記録です。
-JSON化してtmp/json/care_log_20241114.json に保存してください。
+This is the record for cat ID 12 from November 14 to 23, 2024.
+Please convert it to JSON and save it to tmp/json/care_log_20241114.json.
 ```
 
 **Step 3: JSON to Database**
 ```
-tmp/json/care_log_20241114.json をデータベースに登録してください
+Please register tmp/json/care_log_20241114.json to the database.
 ```
 
 ### Method 3: Command Line
@@ -145,7 +145,7 @@ python scripts/hooks/register_care_logs.py tmp/json/care_log_20241114.json
 **Method 2: Via Kiro Chat**
 
 ```
-tmp/pdf/sample-cat-log.pdf を PyMuPDF で画像に変換してください
+Please convert tmp/pdf/sample-cat-log.pdf to images using PyMuPDF.
 ```
 
 **Method 3: Command Line**
@@ -160,7 +160,7 @@ python scripts/hooks/pdf_to_image.py tmp/pdf/your-file.pdf
 **Next Steps After Conversion**:
 1. Open Kiro chat
 2. Attach the generated image
-3. Provide prompt: "これはIDが<猫ID>の猫の<開始日>～<終了日>の記録です。JSON化してtmp/json/<ファイル名>.json に保存して"
+3. Provide a prompt, for example: "This is the record for cat ID <ID> from <start_date> to <end_date>. Please convert it to JSON and save it to tmp/json/<file_name>.json."
 
 ### 2. Care Log Data Registration (`register_care_logs.kiro.hook`)
 
@@ -210,7 +210,7 @@ python scripts/hooks/pdf_to_image.py tmp/pdf/your-file.pdf
 **Method 2: Via Kiro Chat**
 
 ```
-tmp/json/care_log_20241114.json をデータベースに登録してください
+Please register tmp/json/care_log_20241114.json to the database.
 ```
 
 **Method 3: Command Line**
@@ -228,10 +228,10 @@ python scripts/hooks/register_care_logs.py tmp/json/your-file.json
 
 ```
 tmp/
-├── pdfs/                    # Phase 1 input (Hook監視)
+├── pdfs/                    # Phase 1 input (hook-watched)
 ├── images/                  # Phase 1 output / Phase 2 input
-└── json/                    # Phase 2 output / Phase 3 input (Hook監視)
-    └── processed/           # Phase 3 output (処理済み)
+└── json/                    # Phase 2 output / Phase 3 input (hook-watched)
+  └── processed/           # Phase 3 output (processed)
 ```
 
 ## Environment Setup
@@ -278,7 +278,7 @@ python scripts/hooks/pdf_to_image.py tmp/pdf/file.pdf --use-pymupdf
 
 **Expected Output**:
 - Image created: `tmp/images/file_page1.png`
-- Log message: "PDF変換が完了しました"
+- Log message: "PDF変換がCompleteしました"
 
 ### Test Care Log Registration
 
@@ -294,7 +294,7 @@ NECOKEEPER_ADMIN_PASSWORD=password
 
 **Via Kiro Chat (Recommended)**:
 ```
-tmp/test_care_logs.json をデータベースに登録してください
+tmp/test_care_logs.json をDatabaseにRegisterしてください
 ```
 
 **Via Command Line**:

@@ -1,47 +1,48 @@
-# 画像管理仕様
+# Image Management Specification
 
-## 概要
+## Overview
 
-NecoKeeperの画像管理機能は、猫のプロフィール画像と画像ギャラリーの2つの機能を提供します。
+The NecoKeeper image management feature provides two main
+capabilities: cat profile images and image galleries.
 
-### 設計原則
+### Design Principles
 
-1. **ストレージ効率**: 画像サイズ制限とファイル数制限
-2. **パフォーマンス**: 画像の遅延読み込みとキャッシュ
-3. **ユーザビリティ**: ドラッグ&ドロップ、プレビュー表示
-4. **セキュリティ**: ファイル形式検証、サイズ制限
+1. **Storage efficiency**: Limit image size and number of files.
+2. **Performance**: Lazy loading and caching of images.
+3. **Usability**: Drag & drop uploads and preview display.
+4. **Security**: File type validation and file size limits.
 
-## データモデル
+## Data Model
 
-### AnimalImages（猫画像ギャラリー）
+### ``AnimalImages`` (cat image gallery)
 
-| カラム名 | 型 | NULL | デフォルト | 説明 |
-|---------|-----|------|-----------|------|
-| id | INTEGER | NO | AUTO | 主キー |
-| animal_id | INTEGER | NO | - | 猫ID（FK） |
-| image_path | VARCHAR(255) | NO | - | 画像パス（相対パス） |
-| taken_at | DATE | YES | NULL | 撮影日 |
-| description | TEXT | YES | NULL | 説明 |
-| file_size | INTEGER | NO | 0 | ファイルサイズ（bytes） |
-| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
+| Column      | Type         | NULL | Default          | Description                        |
+|------------|--------------|------|------------------|------------------------------------|
+| id         | INTEGER      | NO   | AUTO             | Primary key                        |
+| animal_id  | INTEGER      | NO   | -                | Cat ID (FK)                        |
+| image_path | VARCHAR(255) | NO   | -                | Image path (relative path)         |
+| taken_at   | DATE         | YES  | NULL             | Date the photo was taken           |
+| description| TEXT         | YES  | NULL             | Description                        |
+| file_size  | INTEGER      | NO   | 0                | File size in bytes                 |
+| created_at | DATETIME     | NO   | CURRENT_TIMESTAMP| Creation timestamp                 |
 
-**インデックス**: animal_id, taken_at
+**Indexes**: ``animal_id``, ``taken_at``
 
-### Animals.photo（プロフィール画像）
+### ``Animals.photo`` (profile image)
 
-- **型**: VARCHAR(255)
-- **NULL**: YES（任意項目）
-- **デフォルト**: NULL
-- **説明**: プロフィール画像パス（絶対パスまたは相対パス）
+- **Type**: ``VARCHAR(255)``
+- **NULL**: YES (optional field)
+- **Default**: ``NULL``
+- **Description**: Profile image path (absolute or relative path)
 
-**画像パスの優先順位**:
-1. `Animals.photo`（プロフィール画像）
-2. `AnimalImages`の最新画像（created_at降順）
-3. デフォルト画像（`/static/images/default-cat.svg`）
+**Priority for image path resolution**:
+1. ``Animals.photo`` (profile image)
+2. Latest image in ``AnimalImages`` (by ``created_at`` descending)
+3. Default image (``/static/images/default-cat.svg``)
 
-## ストレージ構造
+## Storage Structure
 
-### ディレクトリ構成
+### Directory Layout
 
 ```
 media/
@@ -55,29 +56,29 @@ media/
             └── ...
 ```
 
-### ファイル命名規則
+### File Naming Rules
 
-- **形式**: `{uuid}.{ext}`
-- **UUID**: UUID4（ハイフンなし、32文字）
-- **拡張子**: `jpg`, `jpeg`, `png`, `webp`
+- **Format**: ``{uuid}.{ext}``
+- **UUID**: UUID4 (32 characters, no hyphens)
+- **Extensions**: ``jpg``, ``jpeg``, ``png``, ``webp``
 
-**例**:
+**Examples**:
 - `f4b3679d97474a6dbe89d7275c8e71db.png`
 - `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6.jpg`
 
-## 画像制限
+## Image Limits
 
-### デフォルト設定
+### Default Settings
 
-| 項目 | 値 | 説明 |
-|-----|-----|------|
-| 最大画像枚数（1猫あたり） | 20枚 | Settingsテーブルで変更可能 |
-| 最大ファイルサイズ | 5MB | Settingsテーブルで変更可能 |
-| 対応形式 | JPEG, PNG, WebP | - |
-| 最小サイズ | 100x100px | - |
-| 最大サイズ | 4000x4000px | - |
+| Item                             | Value      | Description                               |
+|----------------------------------|------------|-------------------------------------------|
+| Max images per cat               | 20 images  | Configurable via ``Settings`` table       |
+| Max file size                    | 5MB        | Configurable via ``Settings`` table       |
+| Supported formats                | JPEG, PNG, WebP | -                                     |
+| Minimum dimensions              | 100x100px  | -                                         |
+| Maximum dimensions              | 4000x4000px| -                                         |
 
-### Settings設定
+### ``Settings`` Configuration
 
 ```json
 {
@@ -94,11 +95,11 @@ media/
 }
 ```
 
-## API仕様
+## API Specification
 
-### 画像アップロード
+### Image Upload
 
-#### プロフィール画像アップロード（新規）
+#### Upload new profile image
 
 ```http
 POST /api/v1/animals/{animal_id}/profile-image
@@ -108,14 +109,14 @@ Authorization: Bearer {token}
 file: (binary)
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "image_path": "/media/animals/1/profile/f4b3679d97474a6dbe89d7275c8e71db.png"
 }
 ```
 
-#### プロフィール画像変更
+#### Replace profile image
 
 ```http
 PUT /api/v1/animals/{animal_id}/profile-image
@@ -125,14 +126,14 @@ Authorization: Bearer {token}
 file: (binary)
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "image_path": "/media/animals/1/profile/a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6.jpg"
 }
 ```
 
-#### ギャラリーからプロフィール画像を選択
+#### Select profile image from gallery
 
 ```http
 PUT /api/v1/animals/{animal_id}/profile-image/from-gallery/{image_id}
@@ -140,14 +141,14 @@ Content-Type: application/json
 Authorization: Bearer {token}
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "image_path": "/media/animals/1/gallery/f4b3679d97474a6dbe89d7275c8e71db.png"
 }
 ```
 
-#### 画像ギャラリーにアップロード
+#### Upload image to gallery
 
 ```http
 POST /api/v1/animals/{animal_id}/images
@@ -156,30 +157,30 @@ Authorization: Bearer {token}
 
 file: (binary)
 taken_at: 2025-11-15 (optional)
-description: かわいい写真 (optional)
+description: Cute photo (optional)
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "id": 123,
   "animal_id": 1,
   "image_path": "animals/1/gallery/f4b3679d97474a6dbe89d7275c8e71db.png",
   "taken_at": "2025-11-15",
-  "description": "かわいい写真",
+  "description": "Cute photo",
   "file_size": 1234567,
   "created_at": "2025-11-15T10:30:00"
 }
 ```
 
-### 画像一覧取得
+### Get image list
 
 ```http
 GET /api/v1/animals/{animal_id}/images?sort_by=created_at&ascending=false
 Authorization: Bearer {token}
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 [
   {
@@ -187,7 +188,7 @@ Authorization: Bearer {token}
     "animal_id": 1,
     "image_path": "animals/1/gallery/f4b3679d97474a6dbe89d7275c8e71db.png",
     "taken_at": "2025-11-15",
-    "description": "かわいい写真",
+    "description": "Cute photo",
     "file_size": 1234567,
     "created_at": "2025-11-15T10:30:00"
   },
@@ -195,27 +196,27 @@ Authorization: Bearer {token}
 ]
 ```
 
-**クエリパラメータ**:
-- `sort_by`: ソート基準（`created_at` または `taken_at`）
-- `ascending`: 昇順（`true`）または降順（`false`）
+**Query parameters**:
+- ``sort_by``: Sort key (``created_at`` or ``taken_at``)
+- ``ascending``: ``true`` for ascending, ``false`` for descending
 
-### 画像削除
+### Delete image
 
 ```http
 DELETE /api/v1/images/{image_id}
 Authorization: Bearer {token}
 ```
 
-**レスポンス**: 204 No Content
+**Response**: ``204 No Content``
 
-### 画像制限情報取得
+### Get image limit information
 
 ```http
 GET /api/v1/animals/{animal_id}/images/limits
 Authorization: Bearer {token}
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "max_images_per_animal": 20,
@@ -225,39 +226,39 @@ Authorization: Bearer {token}
 }
 ```
 
-### 表示用画像パス取得
+### Get display image path
 
 ```http
 GET /api/v1/animals/{animal_id}/display-image
 Authorization: Bearer {token}
 ```
 
-**レスポンス**:
+**Response**:
 ```json
 {
   "image_path": "/media/animals/1/profile/f4b3679d97474a6dbe89d7275c8e71db.png"
 }
 ```
 
-## フロントエンド実装
+## Frontend Implementation
 
-### 管理画面（猫詳細ページ）
+### Admin UI (cat detail page)
 
-#### プロフィール画像変更モーダル
+#### Profile image change modal
 
 ```html
 <!-- モーダル構造 -->
 <div id="profileImageModal" class="modal">
   <div class="modal-content">
-    <h3>プロフィール画像を変更</h3>
+    <h3>Change profile image</h3>
 
-    <!-- タブ -->
+    <!-- Tabs -->
     <div class="tabs">
       <button id="tab-upload" class="tab active">新しい画像をアップロード</button>
       <button id="tab-gallery" class="tab">ギャラリーから選択</button>
     </div>
 
-    <!-- アップロードタブ -->
+    <!-- Upload tab -->
     <div id="content-upload" class="tab-content">
       <input type="file" id="modal-file-input" accept="image/*">
       <div id="modal-preview-container" class="hidden">
@@ -266,10 +267,10 @@ Authorization: Bearer {token}
       <button id="uploadBtn" disabled>アップロード</button>
     </div>
 
-    <!-- ギャラリータブ -->
+    <!-- Gallery tab -->
     <div id="content-gallery" class="tab-content hidden">
       <div id="gallery-grid" class="grid">
-        <!-- 画像グリッド -->
+        <!-- Image grid -->
       </div>
       <div id="gallery-empty" class="hidden">
         <p>画像がありません</p>
@@ -281,7 +282,7 @@ Authorization: Bearer {token}
 </div>
 ```
 
-#### JavaScript実装
+#### JavaScript implementation
 
 ```javascript
 // プロフィール画像アップロード
@@ -304,10 +305,10 @@ async function uploadProfileImage(animalId, file) {
 
   const result = await response.json();
 
-  // プロフィール画像を更新
+  // Update profile image
   document.getElementById('animalPhoto').src = result.image_path;
 
-  showAlert('success', 'プロフィール画像を更新しました');
+  showAlert('success', 'Profile image updated');
 }
 
 // ギャラリーから画像を選択
@@ -330,70 +331,70 @@ async function selectGalleryImage(imageId, imagePath) {
 
   const result = await response.json();
 
-  // プロフィール画像を更新
+  // Update profile image
   document.getElementById('animalPhoto').src = result.image_path;
 
-  showAlert('success', 'プロフィール画像を更新しました');
+  showAlert('success', 'Profile image updated');
 }
 ```
 
-#### 画像ギャラリータブ
+#### Image gallery tab
 
 ```html
 <!-- 画像ギャラリー -->
 <div id="content-gallery" class="tab-content">
   <div class="gallery-header">
-    <p>8枚の画像</p>
-    <button onclick="openUploadDialog()">画像を追加</button>
+    <p>8 images</p>
+    <button onclick="openUploadDialog()">Add image</button>
   </div>
 
   <div class="gallery-grid">
     <div class="gallery-item">
-      <img src="/media/animals/1/gallery/image1.png" alt="猫の画像">
-      <button onclick="deleteImage(123)" class="delete-btn">削除</button>
+      <img src="/media/animals/1/gallery/image1.png" alt="Cat image">
+      <button onclick="deleteImage(123)" class="delete-btn">Delete</button>
       <p class="image-date">2025-11-15</p>
-      <p class="image-description">かわいい写真</p>
+      <p class="image-description">Cute photo</p>
     </div>
     <!-- 他の画像 -->
   </div>
 </div>
 ```
 
-### 新規登録ページ
+### New registration page
 
 ```html
 <!-- プロフィール画像アップロード -->
 <div class="form-group">
-  <label for="profile-image">プロフィール画像（任意）</label>
+  <label for="profile-image">Profile image (optional)</label>
   <input type="file" id="profile-image" accept="image/*">
   <img id="profile-preview" src="/static/images/default-cat.svg" alt="プレビュー">
-  <p class="help-text">最大5MB、JPEG/PNG/WebP形式</p>
+  <p class="help-text">Max 5MB, JPEG/PNG/WebP</p>
 </div>
 ```
 
 ```javascript
-// 新規登録時のプロフィール画像アップロード
+// Upload profile image when creating a new animal
 async function createAnimalWithImage() {
-  // 1. 猫の基本情報を登録
+  // 1. Create cat with basic information
   const animal = await apiRequest(`${API_BASE}/animals`, {
     method: 'POST',
     body: JSON.stringify(formData),
   });
 
-  // 2. プロフィール画像がある場合はアップロード
+  // 2. If a profile image is provided, upload it
   const fileInput = document.getElementById('profile-image');
   if (fileInput.files.length > 0) {
     await uploadProfileImage(animal.id, fileInput.files[0]);
   }
 
-  // 3. 詳細ページにリダイレクト
+  // 3. Redirect to detail page
   window.location.href = `/admin/animals/${animal.id}`;
 }
 ```
 
-## バックエンド実装
+## Backend Implementation
 
-### サービス層（image_service.py）
+### Service layer (`image_service.py`)
 
 ```python
 from __future__ import annotations

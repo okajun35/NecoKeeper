@@ -2,13 +2,13 @@
 
 ## Overview
 
-NecoKeeperの公開ランディングページは、ハッカソン訪問者にプロジェクトの価値を効果的に伝える静的Webページです。クリーンでモダンな美学を採用し、FastAPI + Jinja2 + Tailwind CSSで実装します。
+The NecoKeeper public landing page is a static web page that effectively communicates the project's value to hackathon visitors. It adopts a clean and modern aesthetic, implemented with FastAPI + Jinja2 + Tailwind CSS.
 
-**デザインコンセプト:**
-- **Clean & Modern**: 洗練されたミニマルデザインで情報を明確に伝達
-- **Distinctive Typography**: 個性的なフォント選択で印象に残るビジュアル
-- **Subtle Motion**: 控えめなアニメーションで洗練された体験
-- **Responsive First**: モバイルからデスクトップまで最適化
+**Design Concept:**
+- **Clean & Modern**: Clear information delivery with sophisticated minimal design
+- **Distinctive Typography**: Memorable visuals with distinctive font choices
+- **Subtle Motion**: Sophisticated experience with subtle animations
+- **Responsive First**: Optimized from mobile to desktop
 
 ## Architecture
 
@@ -55,16 +55,17 @@ Landing Page
 @router.get("/", response_class=HTMLResponse)
 async def landing_page(request: Request):
     """
-    公開ランディングページを表示
+    Render the public landing page.
 
-    ハッカソン訪問者向けのプロジェクト紹介ページ。
-    認証不要で、プロジェクトの概要、機能、デモを紹介。
+    This is a project introduction page for hackathon visitors.
+    It is publicly accessible (no authentication) and introduces
+    the project overview, features, and demo.
 
     Args:
-        request: FastAPIリクエストオブジェクト
+        request: FastAPI Request object
 
     Returns:
-        HTMLResponse: ランディングページのHTML
+        HTMLResponse: HTML content of the landing page
 
     Example:
         GET /

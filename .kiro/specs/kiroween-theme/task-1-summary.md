@@ -16,11 +16,13 @@
 Added `KIROWEEN_MODE` boolean field to the Settings class:
 
 ```python
-# Kiroween Theme設定
+# Kiroween Theme configuration
 kiroween_mode: bool = Field(
-    default=False,
-    description="Kiroween Mode（Necro-Terminal Theme）の有効化。"
-    "Trueの場合、サイバーパンク/ホラーテーマのUIが適用されます。",
+  default=False,
+  description=(
+    "Enable Kiroween Mode (Necro-Terminal Theme). "
+    "When True, a cyberpunk/horror themed UI is applied."
+  ),
 )
 ```
 
@@ -48,21 +50,21 @@ Added comprehensive documentation for `KIROWEEN_MODE`:
 
 ```bash
 # ============================================
-# Kiroween Theme設定（ハッカソン用）
+# Kiroween Theme configuration (for hackathon use)
 # ============================================
-# Kiroween Mode（Necro-Terminal Theme）を有効化
-# true: サイバーパンク/ホラーテーマのUIを表示
-# false: 標準のNecoKeeperテーマを表示（デフォルト）
+# Enable Kiroween Mode (Necro-Terminal Theme)
+# true: Show cyberpunk/horror themed UI
+# false: Show standard NecoKeeper theme (default)
 #
-# 使用方法:
-# 1. ハッカソンデモ時: KIROWEEN_MODE=true
-# 2. 本番環境: KIROWEEN_MODE=false
-# 3. 開発環境: 必要に応じて切り替え
+# Usage:
+# 1. Hackathon demo: KIROWEEN_MODE=true
+# 2. Production: KIROWEEN_MODE=false
+# 3. Development: Toggle as needed
 #
-# 注意:
-# - この設定は環境変数でのみ制御され、コードの変更は不要です
-# - テーマ切り替え後はアプリケーションの再起動が必要です
-# - ビジネスロジックには影響せず、UIのみが変更されます
+# Notes:
+# - This setting is controlled only via environment variable; no code changes required
+# - Restart the application after changing this setting
+# - Does not affect business logic, only the UI theme
 KIROWEEN_MODE=false
 ```
 

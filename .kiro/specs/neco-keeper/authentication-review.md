@@ -1,41 +1,42 @@
-# 認証実装レビュー（2025-11-23）
+# Authentication Implementation Review (2025-11-23)
 
-## 📋 レビュー概要
+## 📋 Review Summary
 
-現在の認証実装を確認し、FastAPIのベストプラクティスと照らし合わせて妥当性を検証しました。
+The current authentication implementation was reviewed and validated
+against FastAPI best practices.
 
-**Context7参照**: `/fastapi/fastapi` - Cookie Parameters, Security Dependencies, RedirectResponse
+**Context7 reference**: `/fastapi/fastapi` - Cookie Parameters, Security Dependencies, RedirectResponse
 
 ---
 
-## 🔍 現在の実装
+## 🔍 Current Implementation
 
-### 1. オプショナル認証依存関数（app/auth/dependencies.py）
+### 1. Optional authentication dependency (`app/auth/dependencies.py`)
 
 ```python
 async def get_current_user_optional(
     request: Request, db: Annotated[Session, Depends(get_db)]
 ) -> User | None:
-    """
-    オプショナル認証（未認証でもエラーにしない）
+    """Optional authentication (does not raise on unauthenticated users).
 
-    CookieまたはAuthorizationヘッダーからトークンを取得し、認証を試みます。
-    ログインページなど、認証済みユーザーをリダイレクトしたい場合に使用。
-    未認証の場合はNoneを返し、エラーを発生させない。
+    Tries to obtain a token from Cookie or Authorization header and
+    authenticate the user. Intended for pages like the login page
+    where authenticated users should be redirected. If the user is
+    unauthenticated, returns ``None`` without raising an error.
     """
     try:
         token = None
 
-        # 1. Cookieからトークンを取得（HTMLページ用）
+        # 1. Get token from Cookie (for HTML pages)
         cookie_token = request.cookies.get("access_token")
         if cookie_token:
-            # "Bearer "プレフィックスを削除
+            # Remove "Bearer " prefix
             if cookie_token.startswith("Bearer "):
                 token = cookie_token[7:]
             else:
                 token = cookie_token
 
-        # 2. Authorizationヘッダーからトークンを取得（API用、後方互換性）
+        # 2. Get token from Authorization header (for API, backward compatible)
         if not token:
             authorization = request.headers.get("authorization")
             if authorization:
@@ -46,20 +47,20 @@ async def get_current_user_optional(
         if not token:
             return None
 
-        # トークンをデコード
+        # Decode token
         payload = decode_access_token(token)
         user_id = payload.get("sub")
 
         if user_id is None:
             return None
 
-        # ユーザーIDを整数に変換
+        # Convert user ID to int
         try:
             user_id = int(user_id)
         except ValueError:
             return None
 
-        # データベースからユーザーを取得
+        # Retrieve user from database
         user = db.query(User).filter(User.id == user_id).first()
         return user
 
@@ -67,17 +68,17 @@ async def get_current_user_optional(
         return None
 ```
 
-### 2. Cookie/Headerハイブリッド認証依存関数（app/auth/dependencies.py）
+### 2. Hybrid Cookie/Header authentication dependency (`app/auth/dependencies.py`)
 
 ```python
 async def get_current_user_from_cookie_or_header(
     request: Request, db: Annotated[Session, Depends(get_db)]
 ) -> User:
-    """
-    CookieまたはAuthorizationヘッダーから認証情報を取得
+    """Get authentication information from Cookie or Authorization header.
 
-    HTMLページ（Cookie）とAPI（Header）の両方に対応した認証依存関数。
-    認証に失敗した場合は401エラーを返します。
+    Authentication dependency that supports both HTML pages (Cookie)
+    and APIs (Authorization header). Returns 401 if authentication
+    fails.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,7 +89,7 @@ async def get_current_user_from_cookie_or_header(
     try:
         token = None
 
-        # 1. Cookieからトークンを取得（HTMLページ用）
+        # 1. Get token from Cookie (for HTML pages)
         cookie_token = request.cookies.get("access_token")
         if cookie_token:
             if cookie_token.startswith("Bearer "):
@@ -96,7 +97,7 @@ async def get_current_user_from_cookie_or_header(
             else:
                 token = cookie_token
 
-        # 2. Authorizationヘッダーからトークンを取得（API用、後方互換性）
+        # 2. Get token from Authorization header (for API, backward compatible)
         if not token:
             authorization = request.headers.get("authorization")
             if authorization:
@@ -107,20 +108,20 @@ async def get_current_user_from_cookie_or_header(
         if not token:
             raise credentials_exception
 
-        # トークンをデコード
+        # Decode token
         payload = decode_access_token(token)
         user_id = payload.get("sub")
 
         if user_id is None:
             raise credentials_exception
 
-        # ユーザーIDを整数に変換
+        # Convert user ID to int
         try:
             user_id = int(user_id)
         except ValueError as e:
             raise credentials_exception from e
 
-        # データベースからユーザーを取得
+        # Retrieve user from database
         user = db.query(User).filter(User.id == user_id).first()
 
         if user is None:
@@ -137,40 +138,41 @@ async def get_current_active_user(
         User, Depends(get_current_user_from_cookie_or_header)
     ],
 ) -> User:
-    """
-    現在のアクティブユーザーを取得
+    """Get the current active user.
 
-    ユーザーがアクティブ状態であることを確認します。
+    Ensures that the user is active.
     """
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="非アクティブなユーザーです"
         )
 
-    # アカウントロックチェック
+    # Check account lock status
     if current_user.is_locked():
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="アカウントがロックされています。しばらくしてから再度お試しください",
+            detail=(
+                "Account is locked. Please try again after some time."
+            ),
         )
 
     return current_user
 ```
 
-### 3. 管理画面ルーティング（app/api/v1/admin_pages.py）
+### 3. Admin page routing (`app/api/v1/admin_pages.py`)
 
 ```python
 from app.auth.dependencies import get_current_user_optional
 
-# ログインページ: オプショナル認証
+# Login page: optional authentication
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional)
 ) -> Response:
-    """
-    ログインページ
-    既にログイン済みの場合はダッシュボードにリダイレクト
+    """Login page.
+
+    If already logged in, redirect to dashboard.
     """
     if current_user:
         return RedirectResponse(url="/admin", status_code=302)
@@ -178,15 +180,15 @@ async def login_page(
     return templates.TemplateResponse("admin/login.html", {"request": request})
 
 
-# ダッシュボード: オプショナル認証 + 手動リダイレクト
+# Dashboard: optional authentication + manual redirect
 @router.get("", response_class=HTMLResponse)
 async def dashboard_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional)
 ) -> Response:
-    """
-    ダッシュボード（認証必須）
-    未認証の場合はログインページにリダイレクト
+    """Dashboard (authentication required).
+
+    If unauthenticated, redirect to the login page.
     """
     if not current_user:
         return RedirectResponse(url="/admin/login", status_code=302)
@@ -197,13 +199,13 @@ async def dashboard_page(
     )
 
 
-# その他の全管理画面エンドポイント: オプショナル認証 + 手動リダイレクト
+# All other admin endpoints: optional authentication + manual redirect
 @router.get("/animals", response_class=HTMLResponse)
 async def animals_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional)
 ) -> Response:
-    """猫一覧ページ（認証必須）"""
+    """Cat list page (authentication required)."""
     if not current_user:
         return RedirectResponse(url="/admin/login", status_code=302)
 
@@ -215,23 +217,23 @@ async def animals_list_page(
 
 ---
 
-## ✅ FastAPIベストプラクティスとの照合
+## ✅ Comparison with FastAPI Best Practices
 
-### 1. Cookieからの認証情報取得
+### 1. Retrieving authentication info from Cookies
 
-**Context7参照**: `/fastapi/fastapi` - Cookie Parameters
+**Context7 reference**: `/fastapi/fastapi` - Cookie Parameters
 
-✅ **実装は妥当**
-- `request.cookies.get("access_token")`を使用
-- FastAPIの標準的なCookie取得方法
-- オプショナルな取得（存在しない場合はNone）
+✅ **Implementation is appropriate**
+- Uses ``request.cookies.get("access_token")``
+- Standard way of reading cookies in FastAPI
+- Optional retrieval (returns ``None`` when not present)
 
-**FastAPIの推奨パターン**:
+**FastAPI recommended pattern**:
 ```python
-# ✅ 現在の実装
+# ✅ Current implementation
 cookie_token = request.cookies.get("access_token")
 
-# ✅ 代替案（Pydanticモデル）
+# ✅ Alternative (Pydantic model)
 from fastapi import Cookie
 from pydantic import BaseModel
 
@@ -243,18 +245,18 @@ async def endpoint(cookies: Annotated[AuthCookies, Cookie()]):
     token = cookies.access_token
 ```
 
-### 2. オプショナル依存関数パターン
+### 2. Optional dependency pattern
 
-**Context7参照**: `/fastapi/fastapi` - Dependencies with try-except
+**Context7 reference**: `/fastapi/fastapi` - Dependencies with try-except
 
-✅ **実装は妥当**
-- `try-except`で例外を捕捉してNoneを返す
-- FastAPIの推奨パターン
-- エラーを発生させずに未認証を許可
+✅ **Implementation is appropriate**
+- Uses ``try-except`` to catch exceptions and return ``None``
+- Matches FastAPI's recommended pattern
+- Allows unauthenticated access without raising errors
 
-**FastAPIの推奨パターン**:
+**FastAPI recommended pattern**:
 ```python
-# ✅ 現在の実装
+# ✅ Current implementation
 async def get_current_user_optional(...) -> User | None:
     try:
         # 認証処理
@@ -263,54 +265,54 @@ async def get_current_user_optional(...) -> User | None:
         return None
 ```
 
-### 3. RedirectResponseの使用
+### 3. Use of ``RedirectResponse``
 
-**Context7参照**: `/fastapi/fastapi` - RedirectResponse
+**Context7 reference**: `/fastapi/fastapi` - RedirectResponse
 
-✅ **実装は妥当**
-- `RedirectResponse(url="/admin/login", status_code=302)`
-- 302 Found（一時的なリダイレクト）を使用
-- FastAPIの標準的なリダイレクト方法
+✅ **Implementation is appropriate**
+- Uses ``RedirectResponse(url="/admin/login", status_code=302)``
+- Uses 302 Found (temporary redirect)
+- Standard redirect approach in FastAPI
 
-**FastAPIの推奨パターン**:
+**FastAPI recommended pattern**:
 ```python
-# ✅ 現在の実装
+# ✅ Current implementation
 return RedirectResponse(url="/admin/login", status_code=302)
 
-# ✅ 代替案（response_classを使用）
+# ✅ Alternative (using response_class)
 @router.get("/redirect", response_class=RedirectResponse)
 async def redirect():
     return "/admin/login"
 ```
 
-### 4. ハイブリッド認証（Cookie + Header）
+### 4. Hybrid authentication (Cookie + Header)
 
-**Context7参照**: `/fastapi/fastapi` - Cookie Parameters, Security Dependencies
+**Context7 reference**: `/fastapi/fastapi` - Cookie Parameters, Security Dependencies
 
-✅ **実装は妥当**
-- HTMLページ: Cookieから取得
-- API: Authorizationヘッダーから取得
-- 両方に対応した柔軟な実装
+✅ **Implementation is appropriate**
+- HTML pages: read from Cookie
+- APIs: read from Authorization header
+- Flexible implementation supporting both
 
-**FastAPIの推奨パターン**:
+**FastAPI recommended pattern**:
 ```python
-# ✅ 現在の実装
-# 1. Cookieから取得
+# ✅ Current implementation
+# 1. Read from Cookie
 cookie_token = request.cookies.get("access_token")
 
-# 2. Headerから取得
+# 2. Read from Header
 authorization = request.headers.get("authorization")
 ```
 
 ---
 
-## ⚠️ 改善提案
+## ⚠️ Suggested Improvements
 
-### 問題点1: 冗長な認証チェック
+### Issue 1: Redundant authentication checks
 
-**現在の実装**:
+**Current implementation**:
 ```python
-# ❌ 全ての管理画面エンドポイントで同じパターンを繰り返し
+# ❌ Same pattern repeated in all admin endpoints
 @router.get("/admin")
 async def dashboard_page(
     request: Request,
@@ -330,12 +332,12 @@ async def animals_list_page(
     # ...
 ```
 
-**問題点**:
-- DRY原則違反（Don't Repeat Yourself）
-- 全てのエンドポイントで同じコードを繰り返し
-- メンテナンス性が低い
+**Problems**:
+- Violates the DRY principle (Don't Repeat Yourself)
+- Same code is repeated in all endpoints
+- Harder to maintain
 
-**推奨される改善案1: カスタム例外ハンドラー**
+**Recommended improvement 1: Custom exception handler**
 
 ```python
 # app/main.py
@@ -345,13 +347,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 async def http_exception_handler(
     request: Request, exc: StarletteHTTPException
 ) -> JSONResponse | RedirectResponse:
-    """
-    HTTPException用のカスタムハンドラー
+    """Custom handler for ``HTTPException``.
 
-    管理画面の401エラーはログインページにリダイレクト。
-    APIエンドポイントはJSONエラーを返す。
+    For admin pages, 401 errors are redirected to the login page.
+    API endpoints return JSON errors.
     """
-    # 管理画面の401エラーはログインページにリダイレクト
+    # For admin pages, redirect 401 errors to the login page
     if (
         exc.status_code == 401
         and request.url.path.startswith("/admin")
@@ -359,7 +360,7 @@ async def http_exception_handler(
     ):
         return RedirectResponse(url="/admin/login", status_code=302)
 
-    # APIエンドポイントはJSONエラーを返す
+    # For API endpoints, return JSON errors
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
@@ -368,33 +369,33 @@ async def http_exception_handler(
 
 
 # app/api/v1/admin_pages.py
-# ✅ 改善後: 認証チェックは依存関数で自動的に行われる
+# ✅ After improvement: auth check is handled by dependency
 @router.get("/admin")
 async def dashboard_page(
     request: Request,
-    current_user: User = Depends(get_current_active_user)  # 401エラーを発生
+    current_user: User = Depends(get_current_active_user)  # raises 401
 ) -> Response:
-    # 認証チェックは不要（依存関数で自動的に行われる）
+    # No manual auth check required (handled by dependency)
     return templates.TemplateResponse(
         "admin/dashboard.html",
         {"request": request, "user": current_user}
     )
 ```
 
-**推奨される改善案2: ルーターレベルの依存関数**
+**Recommended improvement 2: Router-level dependency**
 
 ```python
 # app/api/v1/admin_pages.py
 from fastapi import APIRouter, Depends
 
-# ルーター全体に認証を適用
+# Apply authentication to the whole router
 router = APIRouter(
     prefix="/admin",
     tags=["admin-pages"],
-    dependencies=[Depends(get_current_active_user)]  # 全エンドポイントに適用
+    dependencies=[Depends(get_current_active_user)]  # applied to all endpoints
 )
 
-# ✅ 改善後: 個別のエンドポイントで認証チェック不要
+# ✅ After improvement: no per-endpoint auth checks needed
 @router.get("")
 async def dashboard_page(
     request: Request,

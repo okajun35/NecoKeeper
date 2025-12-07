@@ -2,45 +2,44 @@
 
 ## Introduction
 
-NecoKeeperは、日本の保護猫活動における記録・管理業務をデジタル化するWebシステムです。紙台帳やスプレッドシートで行われている保護猫の個体管理、日々の世話記録、獣医診療記録、里親探し・譲渡管理を、スマートフォンでも簡単に扱える形で統合管理します。QRコードを活用した認証不要の記録入力、PDF帳票出力、SQLiteベースのローカル運用を特徴とし、ITリテラシーが低〜中程度の保護猫団体・地域猫ボランティア・獣医師を対象としています。代表＋スタッフ＋ボランティア10名前後の小規模団体での運用を想定し、紙との併用や段階的なデジタル化にも対応します。団体代表は保護猫活動以外に本業を持つため、管理業務の負担を最小限にする設計を重視します。保護頭数は10〜20頭程度を想定しています。Render、Railway、Fly.ioなどの無料ホスティングサービスへの簡単デプロイにより、小規模団体でも運用コストを抑えられます。
+NecoKeeper is a web system that digitizes record-keeping and management tasks for cat rescue activities in Japan. It unifies and manages individual cat records, daily care logs, veterinary medical records, and adoption management (including finding adopters and handling transfers), which are often maintained on paper ledgers or spreadsheets, into a format that can be easily used even on smartphones. It features QR-code–based, authentication-free input forms, PDF report generation, and SQLite-based local operation, targeting cat rescue organizations, community cat volunteers, and veterinarians with low-to-medium IT literacy. The system is designed for small organizations of around 10 people (representative + staff + volunteers), supports mixed paper/digital workflows and gradual digitization, and prioritizes minimizing the administrative burden on representatives who often have a primary job in addition to rescue activities. The expected number of cats managed is roughly 10–20. By enabling simple deployment to free hosting services such as Render, Railway, and Fly.io, NecoKeeper keeps operational costs low even for small organizations.
 
 ## Glossary
 
-- **NecoKeeper**: 本システムの名称。保護猫管理Webシステム
-- **Animal Master**: 猫の個体情報を管理するマスターデータベース
-- **CareLog**: 日々の世話記録（体重、食事、排泄など）を記録するログシステム
-- **Medical Record**: 獣医による診療記録システム
-- **Public Form**: 認証不要で誰でもアクセス可能な記録入力フォーム
-- **QR Card**: 猫の顔写真・名前・QRコード付きのPDF台帳カード
-- **Volunteer**: ボランティア記録者
-- **Vet**: 獣医師ユーザー
-- **Admin**: システム管理者兼団体の代表
-- **Staff**: スタッフユーザー（CSV取込、帳票閲覧、記録閲覧権限あり）
+- **NecoKeeper**: Name of this system; a web system for managing rescued cats
+- **Animal Master**: Master database for managing individual cat information
+- **CareLog**: Logging system for daily care records (weight, meals, excretion, etc.)
+- **Medical Record**: System for veterinary medical records
+- **Public Form**: Record input form accessible by anyone without authentication
+- **QR Card**: PDF ledger card with cat photo, name, and QR code
+- **Volunteer**: Volunteer who records care logs
+- **Vet**: Veterinarian user
+- **Admin**: System administrator and organization representative
+- **Staff**: Staff user (with permissions for CSV import, report viewing, and record viewing)
 
+- **WeasyPrint**: Library for generating PDFs from HTML
+- **FastAPI**: Backend web framework
+- **SQLite**: Production database
+- **AdminLTE**: Admin UI framework
+- **Tailwind CSS**: CSS framework for public forms
+- **Adoption**: Process of transferring cats to adopters
+- **Applicant**: Person applying to adopt a cat
+- **Status**: Cat status (e.g., in rescue, adoptable, adopted, under treatment)
+- **i18n**: Internationalization; mechanisms for multi-language support
+- **Translation File**: Translation file; JSON files defining UI text per language
+- **OCR**: Optical Character Recognition; technology for recognizing text from images and PDFs
+- **Kiro Hook**: Kiro’s automation feature; starts agent execution triggered by events such as file creation
+- **MCP**: Model Context Protocol; protocol for integration with external services
 
-- **WeasyPrint**: HTMLからPDFを生成するライブラリ
-- **FastAPI**: バックエンドフレームワーク
-- **SQLite**: 本番運用データベース
-- **AdminLTE**: 管理画面UIフレームワーク
-- **Tailwind CSS**: PublicフォームのCSSフレームワーク
-- **Adoption**: 里親への譲渡プロセス
-- **Applicant**: 里親希望者
-- **Status**: 猫の状態（保護中、譲渡可能、譲渡済み、治療中など）
-- **i18n**: 国際化（Internationalization）。多言語対応のための仕組み
-- **Translation File**: 対訳ファイル。言語ごとのUI文言を定義したJSONファイル
-- **OCR**: 光学文字認識（Optical Character Recognition）。画像やPDFから文字を認識する技術
-- **Kiro Hook**: Kiroの自動実行機能。ファイル追加などのイベントをトリガーにエージェント実行を開始
-- **MCP**: Model Context Protocol。外部サービスとの連携プロトコル
-
-- **Render**: クラウドホスティングサービス。無料枠あり
-- **Railway**: クラウドプラットフォーム。無料枠あり
-- **Fly.io**: グローバル分散ホスティングサービス。無料枠あり
+- **Render**: Cloud hosting service with free tier
+- **Railway**: Cloud platform with free tier
+- **Fly.io**: Globally distributed hosting service with free tier
 
 ## Requirements
 
-### Requirement 1: 猫の個体登録と管理
+### Requirement 1: Cat Registration and Management
 
-**User Story:** 保護猫団体の管理者として、保護している猫の個体情報を登録・編集できるようにしたい。これにより、各猫の識別情報を正確に管理できる。
+**User Story:** As an administrator of a cat rescue organization, I want to register and edit information about rescued cats so that I can accurately manage identification information for each cat.
 
 #### Acceptance Criteria
 
@@ -50,9 +49,9 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 4. THE NecoKeeper SHALL 猫の識別項目として顔写真、柄・色、尻尾の長さ、首輪有無・色、年齢（大きさ）、性別、耳カット有無、外傷・特徴・性格を記録する
 5. THE NecoKeeper SHALL 猫レコードの物理削除を行わず、Statusによる論理削除で管理する
 
-### Requirement 2: QRカードと紙記録フォームのPDF出力
+### Requirement 2: QR Cards and Paper Record Form PDFs
 
-**User Story:** 保護猫団体のスタッフとして、猫ごとのQRコード付き台帳カードと紙記録フォームをPDF出力したい。これにより、現場で猫を識別し、スマホまたは紙で記録入力できる。
+**User Story:** As a staff member of a cat rescue organization, I want to output per-cat ledger cards with QR codes and paper record forms as PDFs so that I can identify cats on site and record information using either smartphones or paper.
 
 #### Acceptance Criteria
 
@@ -65,9 +64,9 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 7. THE NecoKeeper SHALL 紙記録フォームの各日付欄に記録者名欄を配置する
 8. WHEN 管理者が複数の猫を選択して紙記録フォーム一括出力ボタンをクリックしたとき、THE NecoKeeper SHALL 選択された全猫の紙記録フォームを1つのPDFにまとめて生成する
 
-### Requirement 3: 認証不要の日々の世話記録入力
+### Requirement 3: Authentication-Free Daily Care Logging
 
-**User Story:** ボランティアとして、QRコードをスキャンして認証なしで猫の世話記録を入力したい。これにより、現場で素早く記録を残せる。
+**User Story:** As a volunteer, I want to scan a QR code and enter care logs for cats without authentication so that I can quickly record information on site.
 
 #### Acceptance Criteria
 
@@ -90,9 +89,9 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 17. WHEN ボランティアが全猫記録状況一覧で猫を選択したとき、THE NecoKeeper SHALL 当該猫のPublic記録フォームに遷移する
 17. WHEN ボランティアが全猫記録状況一覧で猫を選択したとき、THE NecoKeeper SHALL 当該猫のPublic記録フォームに遷移する
 
-### Requirement 4: 記録者管理
+### Requirement 4: Recorder Management
 
-**User Story:** 管理者として、不定期・継続的に活動するボランティア記録者を登録・管理したい。これにより、誰が記録したかを追跡できる。
+**User Story:** As an administrator, I want to register and manage volunteer recorders who participate intermittently or continuously so that I can track who created which records.
 
 #### Acceptance Criteria
 
@@ -102,9 +101,9 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 4. THE NecoKeeper SHALL Public記録フォームの選択リストにアクティブ状態のボランティアのみを表示する
 5. WHEN 管理者がVolunteerマスター画面で記録者を選択したとき、THE NecoKeeper SHALL 当該記録者の活動履歴（記録回数、最終記録日）を表示する
 
-### Requirement 5: 獣医診療記録の登録
+### Requirement 5: Veterinary Medical Record Registration
 
-**User Story:** 獣医師として、診療内容を記録したい。これにより、医療履歴を正確に管理できる。
+**User Story:** As a veterinarian, I want to record details of medical treatments so that I can accurately manage medical histories.
 
 #### Acceptance Criteria
 
@@ -114,396 +113,396 @@ NecoKeeperは、日本の保護猫活動における記録・管理業務をデ�
 4. THE NecoKeeper SHALL 薬品名入力欄でMedicationマスターからの選択または自由入力を可能にする
 5. THE NecoKeeper SHALL 診療記録の一覧画面で猫ごとの診療履歴を時系列で表示する
 
-### Requirement 6: 診療行為マスターデータ管理
+### Requirement 6: Medical Procedure Master Data Management
 
-**User Story:** 管理者として、診療行為（薬剤・ワクチン・検査）のマスターデータを期間別の価格で管理したい。これにより、値上がりや自由診療の原価・請求価格を正確に記録できる。
-
-#### Acceptance Criteria
-
-1. WHEN 管理者が診療行為マスター画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 診療名称、適用開始日、適用終了日、原価、請求価格、投薬・処置料金、通貨単位（JPY/USD）、投薬単位の入力フォームを表示する
-2. THE NecoKeeper SHALL 投薬単位として「錠」「本」「回」「mL」の選択肢を提供する
-3. WHEN 管理者がマスターデータを入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 当該マスターデータをデータベースに保存する
-4. THE NecoKeeper SHALL 適用終了日を未設定（NULL）にすることで、現在も有効な価格として扱う
-5. THE NecoKeeper SHALL 料金計算を「請求価格×投薬量＋投薬・処置料金」で実施する
-6. THE NecoKeeper SHALL 原価、請求価格、投薬・処置料金を小数点2桁までのDECIMAL型で管理する
-7. WHEN 診療記録登録画面で診療行為を選択したとき、THE NecoKeeper SHALL 対応する投薬単位を投薬回数ラベルに表示する
-
-### Requirement 7: 診療明細出力
-
-**User Story:** 獣医師として、診療記録の明細を複数形式で出力したい。これにより、団体への請求書や記録保管、データ分析に使用できる。
+**User Story:** As an administrator, I want to manage master data for medical procedures (medications, vaccines, tests) with prices per period so that I can accurately record cost and billing price changes, including price increases and out-of-pocket treatments.
 
 #### Acceptance Criteria
 
-1. WHEN 獣医師または管理者が診療記録を選択して明細出力ボタンをクリックしたとき、THE NecoKeeper SHALL PDF、CSV、Excelの形式選択オプションを表示する
-2. WHEN 獣医師がPDF形式を選択したとき、THE NecoKeeper SHALL A4縦サイズの診療明細PDFを生成する
-3. THE NecoKeeper SHALL 診療明細PDFに猫の顔写真、診療日、時間帯、体重、体温、症状、薬品名、投薬量、その他、コメントを含める
-4. WHEN 獣医師がCSV形式を選択したとき、THE NecoKeeper SHALL 診療記録データをCSV形式でダウンロード可能にする
-5. WHEN 獣医師がExcel形式を選択したとき、THE NecoKeeper SHALL 診療記録データをExcel形式（.xlsx）でダウンロード可能にする
+1. WHEN the administrator clicks the "New" button on the medical procedure master screen, THE NecoKeeper SHALL display an input form for procedure name, effective start date, effective end date, cost, billing price, procedure/administration fee, currency unit (JPY/USD), and dosage unit.
+2. THE NecoKeeper SHALL provide the following options for dosage units: "tablet", "vial", "time", and "mL".
+3. WHEN the administrator enters master data and clicks the save button, THE NecoKeeper SHALL save the master data to the database.
+4. THE NecoKeeper SHALL treat a NULL effective end date as indicating that the price is still currently valid.
+5. THE NecoKeeper SHALL calculate charges using the formula: `billing price × dosage amount + procedure/administration fee`.
+6. THE NecoKeeper SHALL store cost, billing price, and procedure/administration fee as DECIMAL values with two decimal places.
+7. WHEN a medical procedure is selected on the medical record entry screen, THE NecoKeeper SHALL display the corresponding dosage unit in the dosage label.
 
-### Requirement 8: CSVインポート・エクスポート
+### Requirement 7: Medical Statement Output
 
-**User Story:** 管理者として、猫の個体情報をCSV形式でインポート・エクスポートしたい。これにより、既存データの移行やバックアップが容易になる。
-
-#### Acceptance Criteria
-
-1. WHEN 管理者がAnimal Master画面でCSVエクスポートボタンをクリックしたとき、THE NecoKeeper SHALL 全猫の個体情報をCSV形式でダウンロード可能にする
-2. WHEN 管理者がAnimal Master画面でCSVインポートボタンをクリックしてCSVファイルを選択したとき、THE NecoKeeper SHALL CSVファイルの内容を検証する
-3. WHEN CSVファイルの形式が正しいとき、THE NecoKeeper SHALL CSVデータをAnimal Masterにインポートする
-4. WHEN CSVファイルに形式エラーがあるとき、THE NecoKeeper SHALL エラー内容を表示しインポートを中止する
-
-### Requirement 9: 帳票出力（日報・週報・月次集計）
-
-**User Story:** 管理者として、期間別の世話記録集計や医療費集計を複数形式で出力したい。これにより、活動報告や会計処理、データ分析に使用できる。
+**User Story:** As a veterinarian, I want to output detailed medical records in multiple formats so that they can be used for invoices to the organization, record archiving, and data analysis.
 
 #### Acceptance Criteria
 
-1. WHEN 管理者が帳票出力画面で期間を指定して日報出力ボタンをクリックしたとき、THE NecoKeeper SHALL PDF、CSV、Excelの形式選択オプションを表示する
-2. WHEN 管理者がPDF形式を選択したとき、THE NecoKeeper SHALL 指定期間のCareLog集計をPDF形式で生成する
-3. WHEN 管理者がCSV形式を選択したとき、THE NecoKeeper SHALL 指定期間のCareLog集計をCSV形式でダウンロード可能にする
-4. WHEN 管理者がExcel形式を選択したとき、THE NecoKeeper SHALL 指定期間のCareLog集計をExcel形式（.xlsx）でダウンロード可能にする
-5. WHEN 管理者が帳票出力画面で期間を指定して週報出力ボタンをクリックしたとき、THE NecoKeeper SHALL PDF、CSV、Excelの形式選択オプションを表示する
-6. WHEN 管理者が帳票出力画面で月を指定して月次集計出力ボタンをクリックしたとき、THE NecoKeeper SHALL 指定月の医療費総計、診療件数、対象動物数をPDF、CSV、Excel形式で出力可能にする
-7. WHEN 管理者が猫の詳細画面で個別帳票出力ボタンをクリックしたとき、THE NecoKeeper SHALL 当該猫の世話記録と診療記録をまとめた帳票をPDF、CSV、Excel形式で出力可能にする
-8. THE NecoKeeper SHALL 猫ごとの個別帳票に期間指定オプション（全期間、過去1ヶ月、過去3ヶ月、過去6ヶ月、カスタム期間）を提供する
+1. WHEN a veterinarian or administrator selects a medical record and clicks the "Output Details" button, THE NecoKeeper SHALL display format options for PDF, CSV, and Excel.
+2. WHEN the veterinarian selects PDF format, THE NecoKeeper SHALL generate a vertical A4-sized medical statement PDF.
+3. THE NecoKeeper SHALL include the cat's photo, treatment date, time of day, weight, body temperature, symptoms, medication name, dosage amount, other notes, and comments in the medical statement PDF.
+4. WHEN the veterinarian selects CSV format, THE NecoKeeper SHALL allow the medical record data to be downloaded in CSV format.
+5. WHEN the veterinarian selects Excel format, THE NecoKeeper SHALL allow the medical record data to be downloaded in Excel (.xlsx) format.
 
-### Requirement 10: 権限管理とアクセス制御
+### Requirement 8: CSV Import and Export
 
-**User Story:** システム管理者として、ユーザーごとに適切な権限を設定したい。これにより、セキュリティと業務分担を適切に管理できる。
+**User Story:** As an administrator, I want to import and export cat information in CSV format so that it is easy to migrate existing data and create backups.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL adminロールに全機能（台帳、記録、診療、マスター、設定）へのアクセス権限を付与する
-2. THE NecoKeeper SHALL vetロールに診療記録のCRUD、帳票出力、集計へのアクセス権限を付与する
-3. THE NecoKeeper SHALL staffロールにCSV取込、帳票閲覧、世話記録・診療記録の閲覧へのアクセス権限を付与する
-4. THE NecoKeeper SHALL read_onlyロールに閲覧専用権限を付与する
-5. THE NecoKeeper SHALL volunteerロールにPublicフォーム入力のみを許可し、認証を不要とする
-6. WHEN 権限のないユーザーが制限された機能にアクセスしようとしたとき、THE NecoKeeper SHALL アクセスを拒否しエラーメッセージを表示する
+1. WHEN the administrator clicks the CSV export button on the Animal Master screen, THE NecoKeeper SHALL allow all cat information to be downloaded in CSV format.
+2. WHEN the administrator clicks the CSV import button on the Animal Master screen and selects a CSV file, THE NecoKeeper SHALL validate the contents of the CSV file.
+3. WHEN the CSV file format is valid, THE NecoKeeper SHALL import the CSV data into the Animal Master.
+4. WHEN the CSV file contains format errors, THE NecoKeeper SHALL display the error details and abort the import.
 
-### Requirement 11: データバックアップ
+### Requirement 9: Report Output (Daily, Weekly, Monthly Aggregation)
 
-**User Story:** システム管理者として、データベースとメディアファイルを自動バックアップしたい。これにより、データ損失のリスクを軽減できる。
+**User Story:** As an administrator, I want to output aggregated care logs and medical expenses by period in multiple formats so that they can be used for activity reports, accounting, and data analysis.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 毎晩定時にapp.sqlite3データベースファイルのバックアップを実行する
-2. THE NecoKeeper SHALL 毎晩定時に/mediaディレクトリ（画像ファイル等）のバックアップを実行する
-3. THE NecoKeeper SHALL バックアップファイルに日付タイムスタンプを付与して保存する
-4. WHEN バックアップ処理が失敗したとき、THE NecoKeeper SHALL エラーログを記録する
-5. THE NecoKeeper SHALL 毎日1回、/data/app.sqlite3を日時付きでコピーし7世代保持する
+1. WHEN the administrator specifies a period on the report output screen and clicks the "Daily Report" button, THE NecoKeeper SHALL display format options for PDF, CSV, and Excel.
+2. WHEN the administrator selects PDF format, THE NecoKeeper SHALL generate an aggregated CareLog report for the specified period in PDF format.
+3. WHEN the administrator selects CSV format, THE NecoKeeper SHALL allow the aggregated CareLog report for the specified period to be downloaded in CSV format.
+4. WHEN the administrator selects Excel format, THE NecoKeeper SHALL allow the aggregated CareLog report for the specified period to be downloaded in Excel (.xlsx) format.
+5. WHEN the administrator specifies a period on the report output screen and clicks the "Weekly Report" button, THE NecoKeeper SHALL display format options for PDF, CSV, and Excel.
+6. WHEN the administrator specifies a month on the report output screen and clicks the "Monthly Aggregation" button, THE NecoKeeper SHALL allow the total medical expenses, number of treatments, and number of animals treated for the specified month to be output in PDF, CSV, and Excel formats.
+7. WHEN the administrator clicks the "Individual Report" button on a cat's detail screen, THE NecoKeeper SHALL allow a combined report of that cat's care logs and medical records to be output in PDF, CSV, and Excel formats.
+8. THE NecoKeeper SHALL provide period selection options for per-cat individual reports (all time, last 1 month, last 3 months, last 6 months, custom period).
 
-### Requirement 12: 管理画面UI
+### Requirement 10: Permission Management and Access Control
 
-**User Story:** 管理者として、直感的で使いやすい管理画面を使用したい。これにより、効率的にシステムを操作できる。
-
-#### Acceptance Criteria
-
-1. THE NecoKeeper SHALL 管理画面UIにAdminLTEフレームワークを使用する
-2. THE NecoKeeper SHALL 管理画面に猫台帳、世話記録、診療記録、マスター管理、帳票出力、設定のメニューを配置する
-3. WHEN 管理者が管理画面にログインしたとき、THE NecoKeeper SHALL ダッシュボードに登録猫数、Status別猫数を表示する
-4. THE NecoKeeper SHALL 管理画面の各一覧画面に検索・フィルタ・ソート機能を提供する
-
-### Requirement 13: Publicフォームのモバイル最適化
-
-**User Story:** ボランティアとして、スマートフォンで快適に記録入力したい。これにより、現場での記録作業がスムーズになる。
+**User Story:** As a system administrator, I want to configure appropriate permissions for each user so that security and role-based responsibilities can be managed properly.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL PublicフォームをTailwind CSSでレスポンシブデザインとして実装する
-2. THE NecoKeeper SHALL Publicフォームの入力ボタンを指で押しやすい大きさ（最小44×44px）で配置する
-3. THE NecoKeeper SHALL Publicフォームを1画面完結型とし、スクロールを最小限にする
-4. THE NecoKeeper SHALL Publicフォームの保存ボタンを画面下部に固定配置する
-5. WHEN ユーザーがスマートフォンでPublicフォームにアクセスしたとき、THE NecoKeeper SHALL モバイル最適化されたレイアウトを表示する
+1. THE NecoKeeper SHALL grant the `admin` role access to all features (ledger, records, medical, master data, settings).
+2. THE NecoKeeper SHALL grant the `vet` role access to CRUD operations on medical records, report output, and aggregations.
+3. THE NecoKeeper SHALL grant the `staff` role access to CSV import, report viewing, and viewing of care and medical records.
+4. THE NecoKeeper SHALL grant the `read_only` role view-only permissions.
+5. THE NecoKeeper SHALL allow the `volunteer` role to use only the Public form input, without requiring authentication.
+6. WHEN a user without sufficient permissions attempts to access a restricted feature, THE NecoKeeper SHALL deny access and display an error message.
 
-### Requirement 14: 里親探しと譲渡管理
+### Requirement 11: Data Backup
 
-**User Story:** 保護猫団体の代表として、保護猫の里親希望者を管理し、譲渡プロセスを記録したい。これにより、猫の新しい飼い主を適切にマッチングできる。
-
-#### Acceptance Criteria
-
-1. WHEN 管理者が里親希望者管理画面で新規登録ボタンをクリックしたとき、THE NecoKeeper SHALL 希望者情報（氏名、連絡先、住所、家族構成、飼育環境、希望条件）の入力フォームを表示する
-2. WHEN 管理者が里親希望者情報を入力して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 希望者情報をApplicantマスターに保存する
-3. WHEN 管理者が面談記録登録画面で猫を選択するとき、THE NecoKeeper SHALL Statusが「譲渡可能」の猫のみを選択肢として表示する
-4. WHEN 管理者が猫の詳細画面で譲渡候補者を選択して面談記録を入力したとき、THE NecoKeeper SHALL 面談日、面談内容、判定結果を記録する
-5. WHEN 管理者が譲渡決定ボタンをクリックして譲渡日と譲渡先を入力したとき、THE NecoKeeper SHALL 猫のStatusを「譲渡済み」に更新し、譲渡記録を保存する
-6. THE NecoKeeper SHALL 譲渡後フォロー記録（譲渡後の連絡日、状況確認内容）を登録可能にする
-
-### Requirement 15: 猫のステータス管理と論理削除
-
-**User Story:** スタッフとして、猫の現在の状態を管理したい。これにより、保護中・治療中・譲渡可能・譲渡済みなどの状況を把握でき、監査のために過去の記録も保持できる。
+**User Story:** As a system administrator, I want to automatically back up the database and media files so that the risk of data loss is reduced.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 猫のStatusとして「保護中」「治療中」「譲渡可能」「譲渡済み」「死亡」「その他」を設定可能にする
-2. WHEN 管理者が猫の詳細画面でStatusを変更して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 猫のStatusを更新し、変更履歴（変更日時、変更者、変更前Status、変更後Status）を記録する
-3. WHEN 管理者がAnimal Master一覧画面でStatusフィルタを選択したとき、THE NecoKeeper SHALL 指定Statusの猫のみを表示する
-4. THE NecoKeeper SHALL ダッシュボードにStatus別の猫数を集計表示する
-5. THE NecoKeeper SHALL 猫レコードを物理削除せず、Statusによる論理削除で管理する
-6. WHEN 管理者がAnimal Master一覧画面にアクセスしたとき、THE NecoKeeper SHALL デフォルトで「保護中」「治療中」「譲渡可能」のStatusの猫のみを表示する
-7. WHEN 管理者が「全て表示」フィルタを選択したとき、THE NecoKeeper SHALL 「譲渡済み」「死亡」を含む全Statusの猫を表示する
+1. THE NecoKeeper SHALL back up the `app.sqlite3` database file at a fixed time every night.
+2. THE NecoKeeper SHALL back up the `/media` directory (image files, etc.) at a fixed time every night.
+3. THE NecoKeeper SHALL save backup files with a date timestamp.
+4. WHEN a backup process fails, THE NecoKeeper SHALL record an error log.
+5. THE NecoKeeper SHALL copy `/data/app.sqlite3` once per day with a date-time suffix and retain seven generations.
 
-### Requirement 16: 活動状況の可視化
+### Requirement 12: Admin UI
 
-**User Story:** 保護猫団体の代表として、現在の活動状況を一目で把握したい。これにより、団体運営の意思決定に役立てられる。
+**User Story:** As an administrator, I want to use an intuitive and easy-to-use admin interface so that I can operate the system efficiently.
 
 #### Acceptance Criteria
 
-1. WHEN 管理者がダッシュボードにアクセスしたとき、THE NecoKeeper SHALL 保護中の猫数、譲渡可能な猫数、今月の譲渡数を表示する
-2. WHEN 管理者がダッシュボードにアクセスしたとき、THE NecoKeeper SHALL 今月の診療件数、今月の医療費総額を表示する
-3. WHEN 管理者がダッシュボードにアクセスしたとき、THE NecoKeeper SHALL 直近7日間の世話記録入力数の推移グラフを表示する
-4. WHEN 管理者がダッシュボードにアクセスしたとき、THE NecoKeeper SHALL 長期保護猫（保護期間6ヶ月以上）の一覧を表示する
+1. THE NecoKeeper SHALL use the AdminLTE framework for the admin UI.
+2. THE NecoKeeper SHALL place menus for cat ledger, care logs, medical records, master data management, report output, and settings in the admin interface.
+3. WHEN an administrator logs into the admin interface, THE NecoKeeper SHALL display the number of registered cats and the number of cats per Status on the dashboard.
+4. THE NecoKeeper SHALL provide search, filter, and sort functions on each list screen in the admin interface.
 
-### Requirement 17: 紙記録からのデータ移行支援
+### Requirement 13: Mobile Optimization of the Public Form
 
-**User Story:** スタッフとして、既存の紙記録を効率的にシステムに入力したい。これにより、過去の記録もデジタル化でき、手入力の負担を軽減できる。
-
-#### Acceptance Criteria
-
-1. WHEN スタッフが管理画面で過去日付を指定してCareLogを入力したとき、THE NecoKeeper SHALL 指定日付で記録を保存する
-2. WHEN スタッフが管理画面で過去日付を指定してMedical Recordを入力したとき、THE NecoKeeper SHALL 指定日付で診療記録を保存する
-3. THE NecoKeeper SHALL 記録入力時に「紙記録からの転記」フラグを設定可能にする
-4. THE NecoKeeper SHALL CSVインポート機能で過去の世話記録を一括登録可能にする
-5. WHEN スタッフが管理画面で画像ファイル（JPG、PNG）またはPDFファイルをアップロードしたとき、THE NecoKeeper SHALL OCR処理を実行して文字認識を行う
-6. WHEN OCR処理が完了したとき、THE NecoKeeper SHALL 認識されたテキストを編集可能なフォームに表示する
-7. WHEN スタッフがOCR結果を確認・修正して保存ボタンをクリックしたとき、THE NecoKeeper SHALL 記録をデータベースに保存する
-8. THE NecoKeeper SHALL Kiro Hook機能を使用して、指定フォルダに画像・PDFファイルが追加されたときに自動的にOCR処理を実行する
-9. THE NecoKeeper SHALL MCP（Model Context Protocol）サーバ連携により、外部OCRサービス（Tesseract、Google Cloud Vision API、AWS Textractなど）を利用可能にする
-10. THE NecoKeeper SHALL OCR処理の進捗状況と結果をスタッフに通知する
-
-### Requirement 18: PWA対応とオフライン機能
-
-**User Story:** ボランティアとして、インターネット接続が不安定な現場でも記録入力したい。これにより、オフライン時でも作業を継続できる。
+**User Story:** As a volunteer, I want to enter records comfortably on a smartphone so that record-keeping work on site proceeds smoothly.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL Publicフォームをプログレッシブウェブアプリ（PWA）として実装する
-2. WHEN ユーザーがスマートフォンでPublicフォームに初回アクセスしたとき、THE NecoKeeper SHALL ホーム画面への追加を促すプロンプトを表示する
-3. WHEN ユーザーがオフライン状態でPublicフォームに記録を入力したとき、THE NecoKeeper SHALL 記録をローカルストレージに一時保存する
-4. WHEN ユーザーのデバイスがオンラインに復帰したとき、THE NecoKeeper SHALL ローカルストレージの記録を自動的にサーバーに同期する
-5. THE NecoKeeper SHALL 同期状態（同期済み、同期待ち、同期中）をユーザーに表示する
-6. THE NecoKeeper SHALL 管理画面もPWA対応とし、スマートフォンでの閲覧・操作を最適化する
-7. THE NecoKeeper SHALL 同一レコードの競合は最終保存（updated_at）優先とする
+1. THE NecoKeeper SHALL implement the Public form as a responsive design using Tailwind CSS.
+2. THE NecoKeeper SHALL place input buttons on the Public form with a size that is easy to tap with a finger (minimum 44×44 px).
+3. THE NecoKeeper SHALL design the Public form to be a single-screen form, minimizing the need for scrolling.
+4. THE NecoKeeper SHALL fix the save button for the Public form at the bottom of the screen.
+5. WHEN a user accesses the Public form from a smartphone, THE NecoKeeper SHALL display a mobile-optimized layout.
 
-### Requirement 19: 多言語対応（日本語・英語）
+### Requirement 14: Adoption Matching and Transfer Management
 
-**User Story:** ハッカソン参加者や海外ボランティアとして、英語でもシステムを利用したい。これにより、国際的な保護猫活動にも対応できる。
+**User Story:** As a representative of a cat rescue organization, I want to manage adoption applicants for rescued cats and record the transfer process so that I can properly match cats with their new owners.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 日本語と英語の2言語に対応する
-2. THE NecoKeeper SHALL UI表示文言を対訳ファイル（JSON形式）で管理する
-3. WHEN ユーザーが言語設定画面で言語を選択したとき、THE NecoKeeper SHALL 選択された言語でUI全体を表示する
-4. THE NecoKeeper SHALL ユーザーの言語設定をブラウザのローカルストレージに保存する
-5. WHEN ユーザーが初回アクセス時に言語設定がないとき、THE NecoKeeper SHALL ブラウザの言語設定（navigator.language）から日本語または英語を自動選択する
-6. THE NecoKeeper SHALL 対訳ファイルに以下のカテゴリの文言を含める：共通UI、猫台帳、世話記録、診療記録、里親管理、帳票、エラーメッセージ
-7. THE NecoKeeper SHALL PDF帳票出力時も選択された言語で出力する
+1. WHEN the administrator clicks the "New" button on the adoption applicant management screen, THE NecoKeeper SHALL display an input form for applicant information (name, contact information, address, family structure, living environment, and desired conditions).
+2. WHEN the administrator enters adoption applicant information and clicks the save button, THE NecoKeeper SHALL save the applicant information to the Applicant master.
+3. WHEN the administrator selects a cat on the interview record entry screen, THE NecoKeeper SHALL display only cats whose Status is "adoptable" as options.
+4. WHEN the administrator selects an adoption candidate on a cat's detail screen and enters an interview record, THE NecoKeeper SHALL record the interview date, interview details, and decision result.
+5. WHEN the administrator clicks the "Finalize Adoption" button and enters the adoption date and destination, THE NecoKeeper SHALL update the cat's Status to "adopted" and save the adoption record.
+6. THE NecoKeeper SHALL allow post-adoption follow-up records (post-adoption contact date and status check details) to be registered.
 
-### Requirement 20: 簡単デプロイとホスティング
+### Requirement 15: Cat Status Management and Logical Deletion
 
-**User Story:** システム管理者として、無料または低コストのホスティングサービスに簡単にデプロイしたい。これにより、小規模団体でも運用コストを抑えられる。
-
-#### Acceptance Criteria
-
-1. THE NecoKeeper SHALL Render、Railway、Fly.ioなどの永続化ストレージをサポートする無料枠があるホスティングサービスにデプロイ可能な構成とする
-2. THE NecoKeeper SHALL デプロイ設定ファイル（render.yaml、railway.json、fly.toml等）をプロジェクトに含める
-3. THE NecoKeeper SHALL 環境変数による設定管理（データベースパス、シークレットキー、OCR APIキーなど）をサポートする
-4. THE NecoKeeper SHALL SQLiteデータベースの永続化ストレージ設定（ボリュームマウント）をドキュメント化する
-5. WHEN 管理者がデプロイコマンドを実行したとき、THE NecoKeeper SHALL 必要な依存関係を自動インストールし、アプリケーションを起動する
-6. THE NecoKeeper SHALL デプロイ手順を記載したREADME.mdを提供する
-7. THE NecoKeeper SHALL ワンクリックデプロイボタン（Deploy to Render、Deploy to Railwayなど）をREADME.mdに配置する
-
-### Requirement 21: 認証とユーザー管理
-
-**User Story:** システム管理者として、管理画面へのアクセスを制御し、ユーザーを管理したい。これにより、セキュリティを確保できる。
+**User Story:** As a staff member, I want to manage the current status of cats so that I can understand whether they are in rescue, under treatment, adoptable, adopted, etc., while still retaining past records for audit purposes.
 
 #### Acceptance Criteria
 
-1. WHEN ユーザーが管理画面にアクセスしたとき、THE NecoKeeper SHALL ログイン画面を表示する
-2. WHEN ユーザーがメールアドレスとパスワードを入力してログインボタンをクリックしたとき、THE NecoKeeper SHALL 認証情報を検証する
-3. WHEN 認証が成功したとき、THE NecoKeeper SHALL セッションIDをCookieに保存し管理画面にリダイレクトする
-4. WHEN 認証が失敗したとき、THE NecoKeeper SHALL エラーメッセージを表示する
-5. THE NecoKeeper SHALL 管理者がユーザー管理画面で新規ユーザーを登録できる機能を提供する
-6. THE NecoKeeper SHALL ユーザー登録時にメールアドレス、パスワード、氏名、ロール（admin/vet/staff/read_only）を入力可能にする
-7. THE NecoKeeper SHALL パスワードをbcryptでハッシュ化して保存する
-8. THE NecoKeeper SHALL ログアウト機能を提供する
-9. WHEN ユーザーがログアウトボタンをクリックしたとき、THE NecoKeeper SHALL セッションを破棄しログイン画面にリダイレクトする
+1. THE NecoKeeper SHALL allow the following values to be set as cat Status: "in rescue", "under treatment", "adoptable", "adopted", "deceased", and "other".
+2. WHEN the administrator changes the Status on a cat's detail screen and clicks the save button, THE NecoKeeper SHALL update the cat's Status and record the change history (change date/time, user who changed it, previous Status, new Status).
+3. WHEN the administrator selects a Status filter on the Animal Master list screen, THE NecoKeeper SHALL display only cats with the specified Status.
+4. THE NecoKeeper SHALL display aggregated counts of cats per Status on the dashboard.
+5. THE NecoKeeper SHALL manage cat records using logical deletion via Status and SHALL NOT physically delete cat records.
+6. WHEN the administrator accesses the Animal Master list screen, THE NecoKeeper SHALL, by default, display only cats whose Status is "in rescue", "under treatment", or "adoptable".
+7. WHEN the administrator selects the "Show All" filter, THE NecoKeeper SHALL display cats of all Statuses, including "adopted" and "deceased".
 
-### Requirement 22: セキュリティ対策
+### Requirement 16: Visualization of Activity Status
 
-**User Story:** システム管理者として、システムを安全に運用したい。これにより、不正アクセスやデータ漏洩を防止できる。
+**User Story:** As a representative of a cat rescue organization, I want to grasp the current activity status at a glance so that it can support decision-making for running the organization.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL パスワードに最小8文字、英数字混在のポリシーを適用する
-2. THE NecoKeeper SHALL ログイン試行回数を制限し、5回失敗後15分間アカウントをロックする（データベースで管理）
-3. THE NecoKeeper SHALL セッションタイムアウトを2時間に設定する
-4. WHEN セッションがタイムアウトしたとき、THE NecoKeeper SHALL ユーザーをログイン画面にリダイレクトする
-5. THE NecoKeeper SHALL HTTPS通信を推奨し、本番環境ではHTTPSを必須とする
-6. THE NecoKeeper SHALL SQLAlchemyのORMを使用してSQLインジェクション対策を実施する
-7. THE NecoKeeper SHALL 環境変数でシークレットキー（セッション署名用）を管理する
-8. THE NecoKeeper SHALL Cookieにhttponly、secure、samesiteフラグを設定する
+1. WHEN the administrator accesses the dashboard, THE NecoKeeper SHALL display the number of cats in rescue, the number of adoptable cats, and the number of adoptions this month.
+2. WHEN the administrator accesses the dashboard, THE NecoKeeper SHALL display the number of medical treatments this month and the total medical expenses for this month.
+3. WHEN the administrator accesses the dashboard, THE NecoKeeper SHALL display a trend graph of the number of care log entries for the last 7 days.
+4. WHEN the administrator accesses the dashboard, THE NecoKeeper SHALL display a list of long-term rescue cats (rescue period of 6 months or longer).
 
-### Requirement 23: 監査ログ
+### Requirement 17: Support for Migrating from Paper Records
 
-**User Story:** システム管理者として、重要な操作の履歴を記録したい。これにより、問題発生時の原因究明や監査に対応できる。
+**User Story:** As a staff member, I want to efficiently enter existing paper records into the system so that past records can also be digitized and the burden of manual entry is reduced.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 以下の操作を監査ログに記録する：猫のStatus変更、譲渡決定、ユーザー登録・削除、マスターデータ変更
-2. THE NecoKeeper SHALL 監査ログに操作日時、操作者、操作内容、変更前後の値を記録する
-3. WHEN 管理者が監査ログ画面にアクセスしたとき、THE NecoKeeper SHALL 監査ログ一覧を時系列で表示する
-4. THE NecoKeeper SHALL 監査ログ画面に日付範囲、操作者、操作種別でのフィルタ機能を提供する
-5. THE NecoKeeper SHALL 監査ログをCSV形式でエクスポート可能にする
-6. THE NecoKeeper SHALL 各レコードにlast_updated_at / last_updated_byを保持する（差分本文の記録はしない）
+1. WHEN a staff member specifies a past date in the admin interface and enters a CareLog, THE NecoKeeper SHALL save the record with the specified date.
+2. WHEN a staff member specifies a past date in the admin interface and enters a Medical Record, THE NecoKeeper SHALL save the medical record with the specified date.
+3. THE NecoKeeper SHALL allow a "transcribed from paper records" flag to be set when entering records.
+4. THE NecoKeeper SHALL allow past care logs to be registered in bulk via the CSV import function.
+5. WHEN a staff member uploads an image file (JPG, PNG) or PDF file in the admin interface, THE NecoKeeper SHALL perform OCR processing to recognize text.
+6. WHEN OCR processing is completed, THE NecoKeeper SHALL display the recognized text in an editable form.
+7. WHEN a staff member reviews and corrects the OCR results and clicks the save button, THE NecoKeeper SHALL save the record to the database.
+8. THE NecoKeeper SHALL use the Kiro Hook feature to automatically execute OCR processing when image or PDF files are added to a specified folder.
+9. THE NecoKeeper SHALL support using external OCR services (such as Tesseract, Google Cloud Vision API, and AWS Textract) via MCP (Model Context Protocol) server integration.
+10. THE NecoKeeper SHALL notify staff of the progress and results of OCR processing.
 
-### Requirement 24: 検索機能
+### Requirement 18: PWA Support and Offline Functionality
 
-**User Story:** スタッフとして、猫を素早く検索したい。これにより、目的の猫の情報に迅速にアクセスできる。
-
-#### Acceptance Criteria
-
-1. THE NecoKeeper SHALL Animal Master一覧画面に検索ボックスを配置する
-2. WHEN ユーザーが検索ボックスにキーワードを入力したとき、THE NecoKeeper SHALL 猫の名前、柄・色、特徴、性格を対象に部分一致検索を実行する
-3. THE NecoKeeper SHALL 検索結果をリアルタイムで表示する
-4. THE NecoKeeper SHALL 詳細検索機能（性別、年齢範囲、Status、保護日範囲）を提供する
-5. WHEN ユーザーが詳細検索条件を指定して検索ボタンをクリックしたとき、THE NecoKeeper SHALL 条件に一致する猫のみを表示する
-
-### Requirement 25: 世話記録のCSVエクスポート
-
-**User Story:** 管理者として、世話記録をCSV形式でエクスポートしたい。これにより、外部ツールでのデータ分析が可能になる。
+**User Story:** As a volunteer, I want to enter records even in environments with unstable internet connections so that I can continue working while offline.
 
 #### Acceptance Criteria
 
-1. WHEN 管理者が世話記録一覧画面でCSVエクスポートボタンをクリックしたとき、THE NecoKeeper SHALL 期間指定ダイアログを表示する
-2. WHEN 管理者が期間を指定してエクスポート実行ボタンをクリックしたとき、THE NecoKeeper SHALL 指定期間の全世話記録をCSV形式でダウンロード可能にする
-3. THE NecoKeeper SHALL CSVファイルに猫名、記録日時、記録者、時点、食欲、元気、排尿、清掃、メモを含める
-4. THE NecoKeeper SHALL 猫ごとの世話記録CSVエクスポート機能を提供する
+1. THE NecoKeeper SHALL implement the Public form as a Progressive Web App (PWA).
+2. WHEN a user first accesses the Public form on a smartphone, THE NecoKeeper SHALL display a prompt suggesting the app be added to the home screen.
+3. WHEN a user enters records in the Public form while offline, THE NecoKeeper SHALL temporarily store the records in local storage.
+4. WHEN the user's device comes back online, THE NecoKeeper SHALL automatically synchronize the records from local storage to the server.
+5. THE NecoKeeper SHALL display synchronization status (synced, pending, syncing) to the user.
+6. THE NecoKeeper SHALL also make the admin interface PWA-compatible and optimize it for viewing and operation on smartphones.
+7. THE NecoKeeper SHALL resolve conflicts for the same record by prioritizing the last save (based on `updated_at`).
 
-### Requirement 26: 体重推移の可視化
+### Requirement 19: Multi-language Support (Japanese and English)
 
-**User Story:** スタッフとして、猫の体重推移をグラフで確認したい。これにより、健康状態の変化を視覚的に把握できる。
-
-#### Acceptance Criteria
-
-1. WHEN ユーザーが猫の詳細画面にアクセスしたとき、THE NecoKeeper SHALL 過去3ヶ月の体重推移グラフを表示する
-2. THE NecoKeeper SHALL 体重推移グラフに世話記録と診療記録の体重データを統合して表示する
-3. THE NecoKeeper SHALL 体重推移グラフの期間を変更可能にする（1ヶ月、3ヶ月、6ヶ月、1年、全期間）
-4. WHEN 体重が前回比10%以上増減しているとき、THE NecoKeeper SHALL グラフ上に警告マーカーを表示する
-
-### Requirement 27: 画像ギャラリー
-
-**User Story:** スタッフとして、猫の複数の写真を管理したい。これにより、成長記録や傷の経過を視覚的に記録できる。
+**User Story:** As a hackathon participant or overseas volunteer, I want to use the system in English as well so that it can support international cat rescue activities.
 
 #### Acceptance Criteria
 
-1. WHEN ユーザーが猫の詳細画面の画像ギャラリータブにアクセスしたとき、THE NecoKeeper SHALL 当該猫の全画像をサムネイル表示する
-2. WHEN ユーザーが画像追加ボタンをクリックしたとき、THE NecoKeeper SHALL 画像アップロードダイアログを表示する
-3. WHEN ユーザーが画像ファイルを選択してアップロードボタンをクリックしたとき、THE NecoKeeper SHALL 画像を保存し撮影日、説明を入力可能にする
-4. WHEN ユーザーがサムネイルをクリックしたとき、THE NecoKeeper SHALL 画像を拡大表示する
-5. THE NecoKeeper SHALL 画像ギャラリーを撮影日順または登録日順でソート可能にする
-6. THE NecoKeeper SHALL 管理者が設定画面で1猫あたりの最大画像枚数を設定可能にする
-7. THE NecoKeeper SHALL 管理者が設定画面で1画像あたりの最大ファイルサイズ（MB）を設定可能にする
-8. WHEN 猫の画像枚数が設定された最大枚数に達しているとき、THE NecoKeeper SHALL 画像追加ボタンを無効化しメッセージを表示する
-9. WHEN アップロードしようとする画像が設定された最大ファイルサイズを超えているとき、THE NecoKeeper SHALL アップロードを拒否しエラーメッセージを表示する
-10. THE NecoKeeper SHALL デフォルト設定として最大画像枚数20枚、最大ファイルサイズ5MBを適用する
+1. THE NecoKeeper SHALL support two languages: Japanese and English.
+2. THE NecoKeeper SHALL manage UI text using translation files (in JSON format).
+3. WHEN a user selects a language on the language settings screen, THE NecoKeeper SHALL display the entire UI in the selected language.
+4. THE NecoKeeper SHALL store the user's language setting in the browser's local storage.
+5. WHEN a user accesses the system for the first time and no language setting exists, THE NecoKeeper SHALL automatically select Japanese or English based on the browser language (`navigator.language`).
+6. THE NecoKeeper SHALL include the following text categories in the translation files: common UI, cat ledger, care logs, medical records, adoption management, reports, and error messages.
+7. THE NecoKeeper SHALL output PDF reports in the selected language as well.
 
-### Requirement 28: 非機能要件（パフォーマンス・可用性）
+### Requirement 20: Easy Deployment and Hosting
 
-**User Story:** システム管理者として、安定したシステムパフォーマンスを確保したい。これにより、ユーザーが快適に利用できる。
+**User Story:** As a system administrator, I want to easily deploy the system to free or low-cost hosting services so that even small organizations can keep operational costs low.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 管理画面の画面遷移を3秒以内に完了する
-2. THE NecoKeeper SHALL Publicフォームの記録保存を2秒以内に完了する
-3. THE NecoKeeper SHALL PDF生成を10秒以内に完了する
-4. THE NecoKeeper SHALL 同時接続ユーザー数20名まで対応する
-5. THE NecoKeeper SHALL 猫の登録数100頭まで快適に動作する
-6. THE NecoKeeper SHALL システム稼働率95%以上を目標とする
-7. THE NecoKeeper SHALL Chrome、Firefox、Safari、Edgeの最新版および1つ前のバージョンをサポートする
-8. THE NecoKeeper SHALL iOS 14以降、Android 10以降のモバイルブラウザをサポートする
+1. THE NecoKeeper SHALL be configured so that it can be deployed to hosting services with free tiers that support persistent storage, such as Render, Railway, and Fly.io.
+2. THE NecoKeeper SHALL include deployment configuration files (such as `render.yaml`, `railway.json`, `fly.toml`) in the project.
+3. THE NecoKeeper SHALL support configuration via environment variables (database path, secret keys, OCR API keys, etc.).
+4. THE NecoKeeper SHALL document persistent storage settings (volume mounts) for the SQLite database.
+5. WHEN an administrator runs the deployment command, THE NecoKeeper SHALL automatically install required dependencies and start the application.
+6. THE NecoKeeper SHALL provide a `README.md` file describing the deployment steps.
+7. THE NecoKeeper SHALL place one-click deployment buttons (Deploy to Render, Deploy to Railway, etc.) in `README.md`.
 
-### Requirement 29: エラーハンドリングと例外処理
+### Requirement 21: Authentication and User Management
 
-**User Story:** ユーザーとして、エラー発生時に適切なメッセージを受け取りたい。これにより、問題を理解し対処できる。
-
-#### Acceptance Criteria
-
-1. WHEN システムエラーが発生したとき、THE NecoKeeper SHALL ユーザーにわかりやすいエラーメッセージを表示する
-2. WHEN データベース接続エラーが発生したとき、THE NecoKeeper SHALL エラーログを記録し管理者に通知する
-3. WHEN ファイルアップロードが失敗したとき、THE NecoKeeper SHALL 失敗理由をユーザーに表示し再試行を促す
-4. WHEN ネットワークエラーが発生したとき、THE NecoKeeper SHALL オフラインモードに切り替え（PWA）、復旧後に自動同期する
-5. WHEN データ不整合が検出されたとき、THE NecoKeeper SHALL 管理者に警告を表示し修正を促す
-6. THE NecoKeeper SHALL 全エラーをログファイルに記録し、エラーレベル（INFO、WARNING、ERROR、CRITICAL）を付与する
-
-### Requirement 30: データ保持期間とプライバシーポリシー
-
-**User Story:** システム管理者として、データ保持期間とプライバシーを適切に管理したい。これにより、法令遵守とストレージ管理ができる。
+**User Story:** As a system administrator, I want to control access to the admin interface and manage users so that security can be ensured.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL バックアップファイルを90日間保持する
-2. THE NecoKeeper SHALL 90日を超えたバックアップファイルを自動削除する
-3. THE NecoKeeper SHALL 譲渡済み猫のデータを無期限保持する（監査目的）
-4. THE NecoKeeper SHALL 里親希望者の個人情報を譲渡完了後3年間保持する
-5. THE NecoKeeper SHALL 管理者が個人情報削除リクエストを受けた際、該当データを完全削除する機能を提供する
-6. THE NecoKeeper SHALL プライバシーポリシーページを提供し、データ収集・利用目的を明示する
+1. WHEN a user accesses the admin interface, THE NecoKeeper SHALL display a login screen.
+2. WHEN a user enters an email address and password and clicks the login button, THE NecoKeeper SHALL validate the credentials.
+3. WHEN authentication succeeds, THE NecoKeeper SHALL store a session ID in a cookie and redirect the user to the admin interface.
+4. WHEN authentication fails, THE NecoKeeper SHALL display an error message.
+5. THE NecoKeeper SHALL allow administrators to register new users on the user management screen.
+6. THE NecoKeeper SHALL allow email address, password, name, and role (`admin`/`vet`/`staff`/`read_only`) to be entered when registering a user.
+7. THE NecoKeeper SHALL hash passwords using bcrypt before storing them.
+8. THE NecoKeeper SHALL provide a logout function.
+9. WHEN a user clicks the logout button, THE NecoKeeper SHALL destroy the session and redirect the user to the login screen.
 
-### Requirement 31: 初期セットアップとマスターデータ
+### Requirement 22: Security Measures
 
-**User Story:** システム管理者として、初回セットアップを簡単に実行したい。これにより、迅速にシステムを利用開始できる。
-
-#### Acceptance Criteria
-
-1. WHEN システムを初回起動したとき、THE NecoKeeper SHALL セットアップウィザードを表示する
-2. THE NecoKeeper SHALL セットアップウィザードで初期管理者アカウント（メールアドレス、パスワード、氏名）を作成可能にする
-3. THE NecoKeeper SHALL セットアップウィザードで団体情報（団体名、住所、連絡先）を登録可能にする
-4. THE NecoKeeper SHALL セットアップウィザードで基本設定（言語、タイムゾーン、画像制限）を設定可能にする
-5. WHEN セットアップが完了したとき、THE NecoKeeper SHALL 管理画面にリダイレクトする
-6. THE NecoKeeper SHALL サンプルデータ（猫1頭、ボランティア1名）を初期データとして提供する
-
-### Requirement 32: ヘルプとサポート機能
-
-**User Story:** ユーザーとして、システムの使い方を学びたい。これにより、自己解決できる。
+**User Story:** As a system administrator, I want to operate the system securely so that unauthorized access and data breaches can be prevented.
 
 #### Acceptance Criteria
 
-1. THE NecoKeeper SHALL 管理画面にヘルプボタンを配置する
-2. WHEN ユーザーがヘルプボタンをクリックしたとき、THE NecoKeeper SHALL オンラインヘルプページを表示する
-3. THE NecoKeeper SHALL オンラインヘルプに各機能の使い方を画像付きで説明する
-4. THE NecoKeeper SHALL よくある質問（FAQ）ページを提供する
-5. THE NecoKeeper SHALL 問い合わせフォームを提供する
-6. WHEN ユーザーが問い合わせフォームを送信したとき、THE NecoKeeper SHALL 管理者にメール通知する
+1. THE NecoKeeper SHALL enforce a password policy requiring at least 8 characters and a mix of letters and numbers.
+2. THE NecoKeeper SHALL limit login attempts and lock the account for 15 minutes after 5 failed attempts (managed in the database).
+3. THE NecoKeeper SHALL set the session timeout to 2 hours.
+4. WHEN a session times out, THE NecoKeeper SHALL redirect the user to the login screen.
+5. THE NecoKeeper SHALL recommend HTTPS communication and require HTTPS in production environments.
+6. THE NecoKeeper SHALL use SQLAlchemy ORM to protect against SQL injection.
+7. THE NecoKeeper SHALL manage the secret key (for session signing) via environment variables.
+8. THE NecoKeeper SHALL set `httponly`, `secure`, and `samesite` flags on cookies.
 
-## 制約条件
+### Requirement 23: Audit Logs
 
-### 技術的制約
+**User Story:** As a system administrator, I want to record the history of important operations so that I can investigate causes when problems occur and respond to audits.
 
-1. THE NecoKeeper SHALL FastAPI、SQLite、WeasyPrint、AdminLTE、Tailwind CSSを使用する
-2. THE NecoKeeper SHALL Pythonバージョン3.10以降で動作する（型ヒント `X | None` 構文のため）
-3. THE NecoKeeper SHALL オープンソースライセンス（MIT、Apache 2.0等）のライブラリのみを使用する
-4. THE NecoKeeper SHALL SQLAlchemy 2.0+のモダンなパターン（`Mapped`, `mapped_column`）を使用する
-5. THE NecoKeeper SHALL Mypy strict modeでの型チェックをパスする
-6. THE NecoKeeper SHALL PostgreSQL互換の命名規則を使用する（将来の移行を考慮）
-7. THE NecoKeeper SHALL すべてのコードに完全な型ヒントとDocstringを含める
+#### Acceptance Criteria
 
-### 予算・リソース制約
+1. THE NecoKeeper SHALL record the following operations in audit logs: changes to cat Status, adoption decisions, user registration and deletion, and master data changes.
+2. THE NecoKeeper SHALL record the operation date/time, operator, operation details, and values before and after the change in the audit logs.
+3. WHEN an administrator accesses the audit log screen, THE NecoKeeper SHALL display the audit logs in chronological order.
+4. THE NecoKeeper SHALL provide filters on the audit log screen for date range, operator, and operation type.
+5. THE NecoKeeper SHALL allow audit logs to be exported in CSV format.
+6. THE NecoKeeper SHALL store `last_updated_at` and `last_updated_by` for each record (without storing diff bodies).
 
-1. THE NecoKeeper SHALL 無料または低コスト（月額$10以下）のホスティングサービスで運用可能とする
-2. THE NecoKeeper SHALL 外部有料APIの使用を最小限にする（OCRは任意機能）
+### Requirement 24: Search Functionality
 
-### スケジュール制約
+**User Story:** As a staff member, I want to quickly search for cats so that I can rapidly access information about the target cat.
 
-1. THE NecoKeeper SHALL ハッカソン期間内にMVP（Minimum Viable Product）を完成させる
+#### Acceptance Criteria
 
-## 前提条件
+1. THE NecoKeeper SHALL place a search box on the Animal Master list screen.
+2. WHEN a user enters a keyword in the search box, THE NecoKeeper SHALL perform a partial match search on cat name, pattern/color, distinguishing features, and temperament.
+3. THE NecoKeeper SHALL display search results in real time.
+4. THE NecoKeeper SHALL provide advanced search functionality (sex, age range, Status, rescue date range).
+5. WHEN a user specifies advanced search conditions and clicks the search button, THE NecoKeeper SHALL display only the cats that match the conditions.
 
-### インフラ前提
+### Requirement 25: CSV Export of Care Logs
 
-1. ホスティングサービスがPython 3.9以降をサポートする
-2. ホスティングサービスがSQLiteデータベースの永続化ストレージを提供する
-3. HTTPS通信が利用可能である
+**User Story:** As an administrator, I want to export care logs in CSV format so that the data can be analyzed with external tools.
 
-### ユーザー前提
+#### Acceptance Criteria
 
-1. ユーザーはスマートフォンまたはPCを所有している
-2. ユーザーはインターネット接続環境を利用できる（オフライン機能は補助的）
-3. ボランティアは基本的なスマートフォン操作（QRコードスキャン、フォーム入力）ができる
+1. WHEN the administrator clicks the CSV export button on the care log list screen, THE NecoKeeper SHALL display a dialog for specifying a period.
+2. WHEN the administrator specifies a period and clicks the execute export button, THE NecoKeeper SHALL allow all care logs for the specified period to be downloaded in CSV format.
+3. THE NecoKeeper SHALL include cat name, record date/time, recorder, time of day, appetite, energy level, urination, cleaning, and notes in the CSV file.
+4. THE NecoKeeper SHALL provide a per-cat care log CSV export function.
+
+### Requirement 26: Visualization of Weight Trends
+
+**User Story:** As a staff member, I want to check a cat's weight trend in graph form so that I can visually understand changes in its health condition.
+
+#### Acceptance Criteria
+
+1. WHEN a user accesses a cat's detail screen, THE NecoKeeper SHALL display a weight trend graph for the past 3 months.
+2. THE NecoKeeper SHALL merge and display weight data from both care logs and medical records in the weight trend graph.
+3. THE NecoKeeper SHALL allow the period for the weight trend graph to be changed (1 month, 3 months, 6 months, 1 year, all time).
+4. WHEN the weight has increased or decreased by 10% or more compared to the previous measurement, THE NecoKeeper SHALL display a warning marker on the graph.
+
+### Requirement 27: Image Gallery
+
+**User Story:** As a staff member, I want to manage multiple photos of cats so that I can visually record growth and the progress of injuries.
+
+#### Acceptance Criteria
+
+1. WHEN a user accesses the image gallery tab on a cat's detail screen, THE NecoKeeper SHALL display all images of that cat as thumbnails.
+2. WHEN a user clicks the "Add Image" button, THE NecoKeeper SHALL display an image upload dialog.
+3. WHEN a user selects an image file and clicks the upload button, THE NecoKeeper SHALL save the image and allow the shooting date and description to be entered.
+4. WHEN a user clicks a thumbnail, THE NecoKeeper SHALL display the image in an enlarged view.
+5. THE NecoKeeper SHALL allow the image gallery to be sorted by shooting date or registration date.
+6. THE NecoKeeper SHALL allow administrators to configure the maximum number of images per cat in the settings screen.
+7. THE NecoKeeper SHALL allow administrators to configure the maximum file size (in MB) per image in the settings screen.
+8. WHEN the number of images for a cat has reached the configured maximum, THE NecoKeeper SHALL disable the "Add Image" button and display a message.
+9. WHEN an image being uploaded exceeds the configured maximum file size, THE NecoKeeper SHALL reject the upload and display an error message.
+10. THE NecoKeeper SHALL apply default settings of a maximum of 20 images per cat and a maximum file size of 5 MB per image.
+
+### Requirement 28: Non-functional Requirements (Performance and Availability)
+
+**User Story:** As a system administrator, I want to ensure stable system performance so that users can use the system comfortably.
+
+#### Acceptance Criteria
+
+1. THE NecoKeeper SHALL complete screen transitions in the admin interface within 3 seconds.
+2. THE NecoKeeper SHALL complete saving records on the Public form within 2 seconds.
+3. THE NecoKeeper SHALL complete PDF generation within 10 seconds.
+4. THE NecoKeeper SHALL support up to 20 concurrent users.
+5. THE NecoKeeper SHALL operate comfortably with up to 100 registered cats.
+6. THE NecoKeeper SHALL target a system uptime of 95% or higher.
+7. THE NecoKeeper SHALL support the latest and one previous version of Chrome, Firefox, Safari, and Edge.
+8. THE NecoKeeper SHALL support mobile browsers on iOS 14 and later and Android 10 and later.
+
+### Requirement 29: Error Handling and Exception Processing
+
+**User Story:** As a user, I want to receive appropriate messages when errors occur so that I can understand and deal with the problem.
+
+#### Acceptance Criteria
+
+1. WHEN a system error occurs, THE NecoKeeper SHALL display a clear error message to the user.
+2. WHEN a database connection error occurs, THE NecoKeeper SHALL record an error log and notify the administrator.
+3. WHEN a file upload fails, THE NecoKeeper SHALL display the reason for failure to the user and prompt them to retry.
+4. WHEN a network error occurs, THE NecoKeeper SHALL switch to offline mode (PWA) and automatically synchronize after recovery.
+5. WHEN data inconsistencies are detected, THE NecoKeeper SHALL display a warning to the administrator and prompt for correction.
+6. THE NecoKeeper SHALL record all errors in a log file and assign an error level (INFO, WARNING, ERROR, CRITICAL).
+
+### Requirement 30: Data Retention Period and Privacy Policy
+
+**User Story:** As a system administrator, I want to properly manage data retention periods and privacy so that legal compliance and storage management can be achieved.
+
+#### Acceptance Criteria
+
+1. THE NecoKeeper SHALL retain backup files for 90 days.
+2. THE NecoKeeper SHALL automatically delete backup files older than 90 days.
+3. THE NecoKeeper SHALL retain data for adopted cats indefinitely (for audit purposes).
+4. THE NecoKeeper SHALL retain adoption applicants' personal information for 3 years after adoption is completed.
+5. THE NecoKeeper SHALL provide a function to completely delete relevant data when an administrator receives a personal data deletion request.
+6. THE NecoKeeper SHALL provide a privacy policy page that clearly states the purposes of data collection and use.
+
+### Requirement 31: Initial Setup and Master Data
+
+**User Story:** As a system administrator, I want to easily perform the initial setup so that the system can be put into use quickly.
+
+#### Acceptance Criteria
+
+1. WHEN the system is started for the first time, THE NecoKeeper SHALL display a setup wizard.
+2. THE NecoKeeper SHALL allow the creation of an initial administrator account (email address, password, name) in the setup wizard.
+3. THE NecoKeeper SHALL allow organization information (organization name, address, contact information) to be registered in the setup wizard.
+4. THE NecoKeeper SHALL allow basic settings (language, time zone, image limits) to be configured in the setup wizard.
+5. WHEN setup is completed, THE NecoKeeper SHALL redirect the user to the admin interface.
+6. THE NecoKeeper SHALL provide sample data (one cat and one volunteer) as initial data.
+
+### Requirement 32: Help and Support Functions
+
+**User Story:** As a user, I want to learn how to use the system so that I can resolve issues on my own.
+
+#### Acceptance Criteria
+
+1. THE NecoKeeper SHALL place a help button in the admin interface.
+2. WHEN a user clicks the help button, THE NecoKeeper SHALL display an online help page.
+3. THE NecoKeeper SHALL explain how to use each feature in the online help, with screenshots or images.
+4. THE NecoKeeper SHALL provide a Frequently Asked Questions (FAQ) page.
+5. THE NecoKeeper SHALL provide an inquiry form.
+6. WHEN a user submits the inquiry form, THE NecoKeeper SHALL send an email notification to the administrator.
+
+## Constraints
+
+### Technical Constraints
+
+1. THE NecoKeeper SHALL use FastAPI, SQLite, WeasyPrint, AdminLTE, and Tailwind CSS.
+2. THE NecoKeeper SHALL run on Python version 3.10 or later (for type hint syntax such as `X | None`).
+3. THE NecoKeeper SHALL use only libraries under open-source licenses (MIT, Apache 2.0, etc.).
+4. THE NecoKeeper SHALL use modern SQLAlchemy 2.0+ patterns (`Mapped`, `mapped_column`).
+5. THE NecoKeeper SHALL pass type checking in Mypy strict mode.
+6. THE NecoKeeper SHALL use PostgreSQL-compatible naming conventions (to allow for future migration).
+7. THE NecoKeeper SHALL include full type hints and docstrings in all code.
+
+### Budget and Resource Constraints
+
+1. THE NecoKeeper SHALL be operable on free or low-cost (≤ USD $10/month) hosting services.
+2. THE NecoKeeper SHALL minimize the use of paid external APIs (OCR is an optional feature).
+
+### Schedule Constraints
+
+1. THE NecoKeeper SHALL complete the MVP (Minimum Viable Product) within the hackathon period.
+
+## Assumptions
+
+### Infrastructure Assumptions
+
+1. The hosting service supports Python 3.9 or later.
+2. The hosting service provides persistent storage for SQLite databases.
+3. HTTPS communication is available.
+
+### User Assumptions
+
+1. Users own a smartphone or PC.
+2. Users have access to an internet connection (offline functionality is supplemental).
+3. Volunteers can perform basic smartphone operations (QR code scanning, form input).
