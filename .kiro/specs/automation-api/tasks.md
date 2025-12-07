@@ -2,339 +2,339 @@
 
 ## Overview
 
-Automation API機能の実装タスクリストです。優先度順に実装を進めます。
+Implementation task list for Automation API features. Proceed with implementation in priority order.
 
-**実装方針**:
-- テストファーストで開発（TDD）
-- 既存コードへの影響を最小化
-- セキュリティを最優先
+**Implementation Policy**:
+- Test-first development (TDD)
+- Minimize impact on existing code
+- Security as top priority
 
 ---
 
 ## Tasks
 
-### Phase 1: 基盤実装（必須）
+### Phase 1: Foundation Implementation (Required)
 
-- [x] 1. API Key認証モジュールの実装
-  - `app/auth/api_key.py` の作成
-  - `APIKeyHeader` スキームの定義
-  - `get_automation_api_key()` 依存関数の実装
-  - `verify_automation_api_key_optional()` 依存関数の実装
-  - エラーハンドリング（401, 403, 503）
+- [x] 1. Implement API Key Authentication Module
+  - Create `app/auth/api_key.py`
+  - Define `APIKeyHeader` scheme
+  - Implement `get_automation_api_key()` dependency function
+  - Implement `verify_automation_api_key_optional()` dependency function
+  - Error handling (401, 403, 503)
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
   - _Context7: /fastapi/fastapi - APIKeyHeader, Security_
 
-- [x] 1.1 API Key認証のユニットテストを作成
-  - `tests/auth/test_api_key.py` の作成
-  - 有効なAPI Keyのテスト
-  - 無効なAPI Keyのテスト（403）
-  - API Key未設定のテスト（401）
-  - Automation API無効のテスト（503）
-  - オプショナル検証のテスト
+- [x] 1.1 Create Unit Tests for API Key Authentication
+  - Create `tests/auth/test_api_key.py`
+  - Test valid API Key
+  - Test invalid API Key (403)
+  - Test missing API Key (401)
+  - Test disabled Automation API (503)
+  - Test optional validation
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [x] 2. 設定管理の拡張
-  - `app/config.py` の更新
-  - `enable_automation_api` 設定の追加
-  - `automation_api_key` 設定の追加
-  - `is_automation_api_secure` プロパティの実装
-  - 本番環境でのバリデーション（32文字以上）
+- [x] 2. Extend Configuration Management
+  - Update `app/config.py`
+  - Add `enable_automation_api` setting
+  - Add `automation_api_key` setting
+  - Implement `is_automation_api_secure` property
+  - Production environment validation (32+ characters)
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
 
-- [x] 2.1 設定管理のユニットテストを作成
-  - `tests/test_config.py` の更新
-  - 本番環境でのAPI Key検証テスト
-  - API Key長さ検証テスト
-  - セキュリティプロパティのテスト
+- [x] 2.1 Create Unit Tests for Configuration Management
+  - Update `tests/test_config.py`
+  - Test API Key validation in production
+  - Test API Key length validation
+  - Test security property
   - _Requirements: 2.3, 2.4, 2.5_
 
-- [x] 3. Automation APIルーターの作成
-  - `app/api/automation/__init__.py` の作成
-  - ルーター設定（prefix, tags, dependencies）
-  - 共通エラーレスポンスの定義
+- [x] 3. Create Automation API Router
+  - Create `app/api/automation/__init__.py`
+  - Router configuration (prefix, tags, dependencies)
+  - Define common error responses
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
   - _Context7: /fastapi/fastapi - APIRouter with dependencies_
 
-- [x] 4. 世話記録登録Automation APIの実装
-  - `app/api/automation/care_logs.py` の作成
-  - `POST /api/automation/care-logs` エンドポイント
-  - リクエストスキーマの定義
-  - レスポンススキーマの定義
-  - エラーハンドリング
+- [x] 4. Implement Care Log Registration Automation API
+  - Create `app/api/automation/care_logs.py`
+  - `POST /api/automation/care-logs` endpoint
+  - Define request schema
+  - Define response schema
+  - Error handling
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [x] 4.1 世話記録登録APIのユニットテストを作成
-  - `tests/api/automation/test_care_logs.py` の作成
-  - 正常系: 世話記録登録成功
-  - 異常系: API Key未設定（401）
-  - 異常系: API Key無効（403）
-  - 異常系: データ不正（400）
-  - 異常系: 猫が存在しない（404）
+- [x] 4.1 Create Unit Tests for Care Log Registration API
+  - Create `tests/api/automation/test_care_logs.py`
+  - Normal case: Successful care log registration
+  - Error case: Missing API Key (401)
+  - Error case: Invalid API Key (403)
+  - Error case: Invalid data (400)
+  - Error case: Cat not found (404)
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-- [x] 5. メインアプリケーションへの統合
-  - `app/main.py` の更新
-  - Automation APIルーターの登録
-  - 既存ルーターとの共存確認
-  - OpenAPIドキュメントの確認
+- [x] 5. Integrate into Main Application
+  - Update `app/main.py`
+  - Register Automation API router
+  - Verify coexistence with existing routers
+  - Verify OpenAPI documentation
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [x] 5.1 統合テストを作成
-  - `tests/test_integration_automation_api.py` の作成
-  - ユーザーAPIとAutomation APIの分離確認
-  - 認証方式の独立性確認
-  - OpenAPIドキュメント生成確認
+- [x] 5.1 Create Integration Tests
+  - Create `tests/test_integration_automation_api.py`
+  - Verify separation of User API and Automation API
+  - Verify independence of authentication methods
+  - Verify OpenAPI documentation generation
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [x] 6. Kiro Hook統合
-  - `scripts/hooks/register_care_logs.py` の更新
-  - `/api/automation/care-logs` エンドポイントに変更
-  - `X-Automation-Key` ヘッダーの追加
-  - `AUTOMATION_API_KEY` 環境変数の読み込み
-  - エラーハンドリングの改善
+- [x] 6. Kiro Hook Integration
+  - Update `scripts/hooks/register_care_logs.py`
+  - Change to `/api/automation/care-logs` endpoint
+  - Add `X-Automation-Key` header
+  - Load `AUTOMATION_API_KEY` environment variable
+  - Improve error handling
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [x] 6.1 Kiro Hook統合テストを作成
-  - `tests/hooks/test_register_care_logs_automation.py` の作成
-  - Automation API経由での登録テスト
-  - API Key認証のテスト
-  - エラーハンドリングのテスト
+- [x] 6.1 Create Kiro Hook Integration Tests
+  - Create `tests/hooks/test_register_care_logs_automation.py`
+  - Test registration via Automation API
+  - Test API Key authentication
+  - Test error handling
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [x] 7. 環境変数テンプレート更新
-  - `.env.example` の更新
-  - `ENABLE_AUTOMATION_API` の追加
-  - `AUTOMATION_API_KEY` の追加
-  - API Key生成コマンドの記載
-  - セキュリティ警告の追加
+- [x] 7. Update Environment Variable Template
+  - Update `.env.example`
+  - Add `ENABLE_AUTOMATION_API`
+  - Add `AUTOMATION_API_KEY`
+  - Include API Key generation command
+  - Add security warnings
   - _Requirements: 9.1, 9.2, 9.3, 9.4_
 
-- [x] 8. Checkpoint - すべてのテストが通ることを確認
-  - すべてのユニットテストがPass
-  - すべての統合テストがPass
-  - カバレッジ70%以上
-  - 問題があればユーザーに質問
+- [x] 8. Checkpoint - Verify All Tests Pass
+  - All unit tests pass
+  - All integration tests pass
+  - Coverage 70%+
+  - Ask user if issues arise
 
-### Phase 2: 拡張実装（推奨）
+### Phase 2: Extended Implementation (Recommended)
 
-- [x] 9. 猫登録Automation APIの実装
-  - `app/api/automation/animals.py` の作成
-  - `POST /api/automation/animals` エンドポイント
-  - `GET /api/automation/animals/{animal_id}` エンドポイント
-  - エラーハンドリング
+- [x] 9. Implement Cat Registration Automation API
+  - Create `app/api/automation/animals.py`
+  - `POST /api/automation/animals` endpoint
+  - `GET /api/automation/animals/{animal_id}` endpoint
+  - Error handling
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
 
-- [x] 9.1 猫登録APIのユニットテストを作成
-  - `tests/api/automation/test_animals.py` の作成
-  - 正常系: 猫登録成功
-  - 正常系: 猫情報取得成功
-  - 異常系: API Key未設定（401）
-  - 異常系: 猫が存在しない（404）
+- [x] 9.1 Create Unit Tests for Cat Registration API
+  - Create `tests/api/automation/test_animals.py`
+  - Normal case: Successful cat registration
+  - Normal case: Successful cat information retrieval
+  - Error case: Missing API Key (401)
+  - Error case: Cat not found (404)
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [x] 10. ドキュメント作成
-  - `docs/automation-api-guide.md` の作成
-  - デュアル認証アーキテクチャの説明
-  - API Key生成方法
-  - curlコマンド例
-  - Pythonコード例
-  - セキュリティ考慮事項
-  - トラブルシューティング
+- [x] 10. Create Documentation
+  - Create `docs/automation-api-guide.md`
+  - Explain dual authentication architecture
+  - API Key generation method
+  - curl command examples
+  - Python code examples
+  - Security considerations
+  - Troubleshooting
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
-- [x] 11. OCR Import Guide更新
-  - `docs/ocr-import-guide.md` の更新
-  - Automation API使用方法の追加
-  - 環境変数設定手順の更新
-  - トラブルシューティングの更新
+- [x] 11. Update OCR Import Guide
+  - Update `docs/ocr-import-guide.md`
+  - Add Automation API usage instructions
+  - Update environment variable setup steps
+  - Update troubleshooting
   - _Requirements: 8.4, 8.5_
 
-### Phase 3: 最適化（オプション）
+### Phase 3: Optimization (Optional)
 
-- [ ] 12. Rate Limitingの実装
-  - `slowapi` ライブラリの追加
-  - Automation APIへのRate Limiting適用
-  - 1分間に100リクエストまで
+- [ ] 12. Implement Rate Limiting
+  - Add `slowapi` library
+  - Apply Rate Limiting to Automation API
+  - Limit to 100 requests per minute
   - _Requirements: 7.7_
 
-- [ ] 13. 監査ログの強化
-  - Automation API操作の詳細ログ
-  - API Key使用統計
-  - 異常アクセスの検知
+- [ ] 13. Enhance Audit Logging
+  - Detailed logs for Automation API operations
+  - API Key usage statistics
+  - Anomaly detection
   - _Requirements: 7.4_
 
-- [ ] 14. セキュリティテストの追加
-  - `tests/security/test_automation_api_security.py` の作成
-  - API Key漏洩シミュレーション
-  - Brute Forceテスト
-  - 権限昇格テスト
+- [ ] 14. Add Security Tests
+  - Create `tests/security/test_automation_api_security.py`
+  - API Key leak simulation
+  - Brute Force test
+  - Privilege escalation test
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7_
 
-- [ ] 15. 最終Checkpoint - すべてのテストが通ることを確認
-  - すべてのテストがPass
-  - カバレッジ80%以上
-  - セキュリティテストPass
-  - ドキュメント完成
+- [ ] 15. Final Checkpoint - Verify All Tests Pass
+  - All tests pass
+  - Coverage 80%+
+  - Security tests pass
+  - Documentation complete
 
 ---
 
 ## Implementation Notes
 
-### タスク実行順序
+### Task Execution Order
 
-**Phase 1（POC必須）**:
-1. API Key認証モジュール（Task 1, 1.1）
-2. 設定管理の拡張（Task 2, 2.1）
-3. Automation APIルーター（Task 3）
-4. 世話記録登録API（Task 4, 4.1）
-5. メインアプリ統合（Task 5, 5.1）
-6. Kiro Hook統合（Task 6, 6.1）
-7. 環境変数テンプレート（Task 7）
-8. Checkpoint（Task 8）
+**Phase 1 (POC Required)**:
+1. API Key authentication module (Task 1, 1.1)
+2. Configuration management extension (Task 2, 2.1)
+3. Automation API router (Task 3)
+4. Care log registration API (Task 4, 4.1)
+5. Main app integration (Task 5, 5.1)
+6. Kiro Hook integration (Task 6, 6.1)
+7. Environment variable template (Task 7)
+8. Checkpoint (Task 8)
 
-**Phase 2（本番推奨）**:
-9. 猫登録API（Task 9, 9.1）
-10. ドキュメント作成（Task 10, 11）
+**Phase 2 (Production Recommended)**:
+9. Cat registration API (Task 9, 9.1)
+10. Documentation creation (Task 10, 11)
 
-**Phase 3（運用最適化）**:
-11. Rate Limiting（Task 12）
-12. 監査ログ強化（Task 13）
-13. セキュリティテスト（Task 14）
-14. 最終Checkpoint（Task 15）
+**Phase 3 (Operational Optimization)**:
+11. Rate Limiting (Task 12)
+12. Audit log enhancement (Task 13)
+13. Security tests (Task 14)
+14. Final Checkpoint (Task 15)
 
-### タスク間の依存関係
+### Task Dependencies
 
 ```
-Task 1 (API Key認証)
-  ├─> Task 1.1 (テスト)
-  └─> Task 3 (ルーター)
-        └─> Task 4 (世話記録API)
-              ├─> Task 4.1 (テスト)
-              └─> Task 5 (統合)
-                    ├─> Task 5.1 (テスト)
-                    └─> Task 6 (Hook統合)
-                          └─> Task 6.1 (テスト)
+Task 1 (API Key Auth)
+  ├─> Task 1.1 (Tests)
+  └─> Task 3 (Router)
+        └─> Task 4 (Care Log API)
+              ├─> Task 4.1 (Tests)
+              └─> Task 5 (Integration)
+                    ├─> Task 5.1 (Tests)
+                    └─> Task 6 (Hook Integration)
+                          └─> Task 6.1 (Tests)
 
-Task 2 (設定管理)
-  └─> Task 2.1 (テスト)
+Task 2 (Config Management)
+  └─> Task 2.1 (Tests)
 
-Task 7 (環境変数) - 独立
+Task 7 (Env Variables) - Independent
 
-Task 8 (Checkpoint) - Phase 1完了後
+Task 8 (Checkpoint) - After Phase 1 completion
 
-Task 9 (猫登録API) - Task 5完了後
-  └─> Task 9.1 (テスト)
+Task 9 (Cat Registration API) - After Task 5 completion
+  └─> Task 9.1 (Tests)
 
-Task 10, 11 (ドキュメント) - Task 6完了後
+Task 10, 11 (Documentation) - After Task 6 completion
 
-Task 12, 13, 14 (最適化) - Phase 2完了後
+Task 12, 13, 14 (Optimization) - After Phase 2 completion
 
-Task 15 (最終Checkpoint) - 全タスク完了後
+Task 15 (Final Checkpoint) - After all tasks completion
 ```
 
-### テスト戦略
+### Testing Strategy
 
-**ユニットテスト**:
-- 各モジュールの単体テスト
-- モックを使用して依存関係を分離
-- カバレッジ80%以上を目標
+**Unit Tests**:
+- Individual module tests
+- Use mocks to isolate dependencies
+- Target 80%+ coverage
 
-**統合テスト**:
-- エンドツーエンドのフローテスト
-- 実際のデータベースを使用
-- 認証方式の分離を確認
+**Integration Tests**:
+- End-to-end flow tests
+- Use actual database
+- Verify authentication method separation
 
-**セキュリティテスト**:
-- API Key検証のテスト
-- 権限分離のテスト
-- エラーハンドリングのテスト
+**Security Tests**:
+- API Key validation tests
+- Permission separation tests
+- Error handling tests
 
-### 環境セットアップ
+### Environment Setup
 
-**開発環境**:
+**Development Environment**:
 ```bash
 # .env
 ENABLE_AUTOMATION_API=true
 AUTOMATION_API_KEY=dev-test-key-for-local-development-only
 ```
 
-**テスト環境**:
+**Test Environment**:
 ```bash
-# pytest実行時に自動設定
+# Auto-configured during pytest execution
 ENABLE_AUTOMATION_API=true
 AUTOMATION_API_KEY=test-key-32-characters-long-xxx
 ```
 
-**本番環境**:
+**Production Environment**:
 ```bash
-# Render Dashboard等で設定
+# Configure in Render Dashboard, etc.
 ENABLE_AUTOMATION_API=true
-AUTOMATION_API_KEY=<secrets.token_urlsafe(32)で生成>
+AUTOMATION_API_KEY=<generated with secrets.token_urlsafe(32)>
 ```
 
-### コミット戦略
+### Commit Strategy
 
-**コミット単位**:
-- 1タスク = 1コミット
-- テストとコードは同じコミット
-- コミットメッセージは明確に
+**Commit Units**:
+- 1 task = 1 commit
+- Tests and code in same commit
+- Clear commit messages
 
-**コミットメッセージ例**:
+**Commit Message Example**:
 ```bash
-feat(auth): API Key認証モジュールを追加
+feat(auth): Add API Key authentication module
 
-- APIKeyHeaderスキームを定義
-- get_automation_api_key()依存関数を実装
-- エラーハンドリング（401, 403, 503）を追加
-- ユニットテストを追加（カバレッジ95%）
+- Define APIKeyHeader scheme
+- Implement get_automation_api_key() dependency function
+- Add error handling (401, 403, 503)
+- Add unit tests (95% coverage)
 
 Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7
 Context7: /fastapi/fastapi - APIKeyHeader, Security
 ```
 
-### 成功基準
+### Success Criteria
 
-**Phase 1完了**:
-- [ ] すべてのPhase 1タスクが完了
-- [ ] すべてのテストがPass
-- [ ] カバレッジ70%以上
-- [ ] Kiro HookからAutomation APIで世話記録登録成功
-- [ ] ユーザーAPIとAutomation APIが独立動作
+**Phase 1 Complete**:
+- [ ] All Phase 1 tasks completed
+- [ ] All tests pass
+- [ ] Coverage 70%+
+- [ ] Successful care log registration from Kiro Hook via Automation API
+- [ ] User API and Automation API operate independently
 
-**Phase 2完了**:
-- [ ] すべてのPhase 2タスクが完了
-- [ ] ドキュメント完成
-- [ ] カバレッジ75%以上
+**Phase 2 Complete**:
+- [ ] All Phase 2 tasks completed
+- [ ] Documentation complete
+- [ ] Coverage 75%+
 
-**Phase 3完了**:
-- [ ] すべてのPhase 3タスクが完了
-- [ ] セキュリティテストPass
-- [ ] カバレッジ80%以上
-- [ ] 本番環境デプロイ準備完了
+**Phase 3 Complete**:
+- [ ] All Phase 3 tasks completed
+- [ ] Security tests pass
+- [ ] Coverage 80%+
+- [ ] Production deployment ready
 
 ---
 
 ## Risk Management
 
-### リスクと対策
+### Risks and Countermeasures
 
-**リスク1: 既存APIへの影響**
-- 対策: 完全分離アーキテクチャ
-- 検証: 統合テストで既存APIの動作確認
+**Risk 1: Impact on Existing APIs**
+- Countermeasure: Complete separation architecture
+- Verification: Verify existing API operation with integration tests
 
-**リスク2: API Key漏洩**
-- 対策: 環境変数で管理、コードに含めない
-- 検証: セキュリティテストで検証
+**Risk 2: API Key Leakage**
+- Countermeasure: Manage via environment variables, don't include in code
+- Verification: Verify with security tests
 
-**リスク3: 本番環境での設定ミス**
-- 対策: バリデーション機能を実装
-- 検証: 起動時にセキュリティチェック
+**Risk 3: Production Configuration Errors**
+- Countermeasure: Implement validation functionality
+- Verification: Security check at startup
 
-**リスク4: パフォーマンス低下**
-- 対策: 既存サービスを再利用、新規ロジック最小化
-- 検証: パフォーマンステスト
+**Risk 4: Performance Degradation**
+- Countermeasure: Reuse existing services, minimize new logic
+- Verification: Performance tests
 
 ---
 
-**最終更新**: 2025-11-24
-**Context7参照**: `/fastapi/fastapi` - APIRouter, Security, APIKeyHeader
+**Last Updated**: 2025-11-24
+**Context7 Reference**: `/fastapi/fastapi` - APIRouter, Security, APIKeyHeader
