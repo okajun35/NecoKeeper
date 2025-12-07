@@ -4,13 +4,13 @@ inclusion: always
 
 # Codegen Rule: Always use Context7 MCP
 
-次の方針を**すべてのコード生成・リファクタ**に適用すること：
+Apply the following policy to **all code generation and refactoring**:
 
-1. 対象言語/フレームワーク/ライブラリを特定し、まず **Context7 MCP** を用いて最新ドキュメントを取得する。手順は以下：
-   - `resolve-library-id` でライブラリ名から Context7 互換の ID を解決する
-   - `get-library-docs` を **tokens: 5000 目安**で呼び、該当 API/ガイドの要点を抽出する
-2. 以降の設計・実装判断は、取得したドキュメントを**一次根拠**として説明・根拠付けること。
-3. バージョン差分・非推奨 API が疑われる場合は **Context7 の結果を再取得**して確認する。
-4. Context7 に到達できない場合は、その旨を明示し、生成物に「一時的な代替根拠（公式Docsリンク等）」と**TODO: Context7再確認**を残す。
+1. Identify the target language/framework/library, and first obtain the latest documentation using **Context7 MCP**. Follow these steps:
+   - Use `resolve-library-id` to resolve the Context7-compatible ID from the library name
+   - Call `get-library-docs` with **approximately 5000 tokens** to extract key points of the relevant API/guide
+2. For all subsequent design and implementation decisions, use the retrieved documentation as the **primary basis** for explanation and justification.
+3. If version differences or deprecated APIs are suspected, **re-fetch Context7 results** to verify.
+4. If Context7 cannot be reached, explicitly state this and leave a "temporary alternative basis (official docs link, etc.)" and **TODO: Re-verify with Context7** in the generated output.
 
-> 期待する結果：PR やコミット説明には「Context7 参照済み」であること、参照 API 名・バージョン・主要根拠を簡潔に記す。
+> Expected result: PR and commit descriptions should state "Context7 referenced", briefly noting the referenced API name, version, and main basis.
