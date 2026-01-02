@@ -30,6 +30,8 @@ services:
       - ./media:/app/media
       - ./backups:/app/backups
       - ./logs:/app/logs
+      # ホストの scripts をマウントすると init SQL の編集が即時反映されます（開発時推奨）
+      - ./scripts:/app/scripts:rw
       # ホットリロード用（開発時のみ）
       - ./app:/app/app:ro
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
