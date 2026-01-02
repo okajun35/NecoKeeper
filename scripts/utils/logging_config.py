@@ -91,7 +91,7 @@ def _resolve_writable_log_path(preferred_path: Path) -> Path:
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
             # 書き込み可能か試す
-            with open(path, "a", encoding="utf-8"):
+            with path.open("a", encoding="utf-8"):
                 os.utime(path, None)
             return path
         except PermissionError:

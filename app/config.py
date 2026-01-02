@@ -287,7 +287,11 @@ class Settings(BaseSettings):
                     raise ValueError("CORS_ORIGINS JSON must be a list")
                 return [str(origin).strip() for origin in parsed if str(origin).strip()]
             return [origin.strip() for origin in raw.split(",") if origin.strip()]
-        return value
+        if isinstance(value, list):
+            return [str(origin).strip() for origin in value if str(origin).strip()]
+        if value is None:
+            return []
+        raise ValueError("CORS_ORIGINS must be a string, JSON array, or list")
 
     @field_validator("secret_key")
     @classmethod

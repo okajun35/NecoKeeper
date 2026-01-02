@@ -8,12 +8,11 @@ from __future__ import annotations
 
 from datetime import date as date_type
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
-import pytz
-
-# タイムゾーン定義
-JST = pytz.timezone("Asia/Tokyo")
-UTC = pytz.utc
+# タイムゾーン定義（標準ライブラリ zoneinfo を使用）
+JST = ZoneInfo("Asia/Tokyo")
+UTC = ZoneInfo("UTC")
 
 
 def get_jst_now() -> datetime:
@@ -46,7 +45,7 @@ def get_jst_date() -> date_type:
     return datetime.now(JST).date()
 
 
-def utc_to_jst(dt: datetime) -> datetime:
+def utc_to_jst(dt: datetime | None) -> datetime | None:
     """
     UTC時刻をJST時刻に変換
 
@@ -67,13 +66,13 @@ def utc_to_jst(dt: datetime) -> datetime:
 
     # タイムゾーン情報がない場合はUTCとして扱う
     if dt.tzinfo is None:
-        dt = UTC.localize(dt)
+        dt = dt.replace(tzinfo=UTC)
 
     # JSTに変換してタイムゾーン情報を削除
     return dt.astimezone(JST).replace(tzinfo=None)
 
 
-def jst_to_utc(dt: datetime) -> datetime:
+def jst_to_utc(dt: datetime | None) -> datetime | None:
     """
     JST時刻をUTC時刻に変換
 
@@ -94,7 +93,7 @@ def jst_to_utc(dt: datetime) -> datetime:
 
     # タイムゾーン情報がない場合はJSTとして扱う
     if dt.tzinfo is None:
-        dt = JST.localize(dt)
+        dt = dt.replace(tzinfo=JST)
 
     # UTCに変換してタイムゾーン情報を削除
     return dt.astimezone(UTC).replace(tzinfo=None)
