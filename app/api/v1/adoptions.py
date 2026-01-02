@@ -33,7 +33,7 @@ router = APIRouter(prefix="/adoptions", tags=["adoptions"])
 
 
 @router.get("/applicants", response_model=list[ApplicantResponse])
-async def list_applicants(  # type: ignore[no-untyped-def]
+def list_applicants(  # type: ignore[no-untyped-def]
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
@@ -60,7 +60,7 @@ async def list_applicants(  # type: ignore[no-untyped-def]
     response_model=ApplicantResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_applicant(  # type: ignore[no-untyped-def]
+def create_applicant(  # type: ignore[no-untyped-def]
     applicant_data: ApplicantCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie_or_header),
@@ -83,7 +83,7 @@ async def create_applicant(  # type: ignore[no-untyped-def]
 
 
 @router.get("/applicants/{applicant_id}", response_model=ApplicantResponse)
-async def get_applicant(  # type: ignore[no-untyped-def]
+def get_applicant(  # type: ignore[no-untyped-def]
     applicant_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie_or_header),
@@ -104,7 +104,7 @@ async def get_applicant(  # type: ignore[no-untyped-def]
 
 
 @router.put("/applicants/{applicant_id}", response_model=ApplicantResponse)
-async def update_applicant(  # type: ignore[no-untyped-def]
+def update_applicant(  # type: ignore[no-untyped-def]
     applicant_id: int,
     applicant_data: ApplicantUpdate,
     db: Session = Depends(get_db),
@@ -134,7 +134,7 @@ async def update_applicant(  # type: ignore[no-untyped-def]
 
 
 @router.get("/records", response_model=list[AdoptionRecordResponse])
-async def list_adoption_records(  # type: ignore[no-untyped-def]
+def list_adoption_records(  # type: ignore[no-untyped-def]
     animal_id: int | None = None,
     skip: int = 0,
     limit: int = 100,
@@ -165,7 +165,7 @@ async def list_adoption_records(  # type: ignore[no-untyped-def]
     response_model=AdoptionRecordResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_interview_record(  # type: ignore[no-untyped-def]
+def create_interview_record(  # type: ignore[no-untyped-def]
     record_data: AdoptionRecordCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie_or_header),
@@ -192,7 +192,7 @@ async def create_interview_record(  # type: ignore[no-untyped-def]
     response_model=AdoptionRecordResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_adoption(  # type: ignore[no-untyped-def]
+def create_adoption(  # type: ignore[no-untyped-def]
     animal_id: int,
     applicant_id: int,
     adoption_date: date,
@@ -219,7 +219,7 @@ async def create_adoption(  # type: ignore[no-untyped-def]
 
 
 @router.get("/records/{record_id}", response_model=AdoptionRecordResponse)
-async def get_adoption_record(  # type: ignore[no-untyped-def]
+def get_adoption_record(  # type: ignore[no-untyped-def]
     record_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user_from_cookie_or_header),
@@ -240,7 +240,7 @@ async def get_adoption_record(  # type: ignore[no-untyped-def]
 
 
 @router.put("/records/{record_id}", response_model=AdoptionRecordResponse)
-async def update_adoption_record(  # type: ignore[no-untyped-def]
+def update_adoption_record(  # type: ignore[no-untyped-def]
     record_id: int,
     record_data: AdoptionRecordUpdate,
     db: Session = Depends(get_db),

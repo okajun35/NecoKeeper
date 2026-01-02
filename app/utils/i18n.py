@@ -17,11 +17,11 @@ import json
 from pathlib import Path
 from typing import Annotated, Any
 
-from babel.support import LazyProxy, Translations
+from babel.support import LazyProxy, NullTranslations, Translations
 from fastapi import Depends, Header, Request
 
 # 翻訳カタログのキャッシュ
-_translations_cache: dict[str, Translations] = {}
+_translations_cache: dict[str, Translations | NullTranslations] = {}
 
 # JSON翻訳データのキャッシュ
 _json_translations: dict[str, dict[str, Any]] = {}
@@ -72,7 +72,7 @@ def get_locale(
 
 def get_translations(
     locale: Annotated[str, Depends(get_locale)],
-) -> Translations:
+) -> Translations | NullTranslations:
     """
     翻訳カタログを取得（FastAPI依存性注入）
 
@@ -92,10 +92,10 @@ def get_translations(
         >>>     return {"message": _("Items list")}
     """
     if locale in _translations_cache:
-        cached: Translations = _translations_cache[locale]
+        cached = _translations_cache[locale]
         return cached
 
-    translations: Translations = Translations.load(str(LOCALES_DIR), [locale])
+    translations = Translations.load(str(LOCALES_DIR), [locale])
     _translations_cache[locale] = translations
     return translations
 
@@ -125,7 +125,7 @@ def lazy_gettext(string: str) -> LazyProxy:
 
 
 def create_jinja2_i18n_functions(
-    translations: Translations,
+    translations: Translations | NullTranslations,
 ) -> dict[str, Any]:
     """
     Jinja2テンプレート用のi18n関数を作成
@@ -172,7 +172,7 @@ def translate(key: str, language: str = "ja", **kwargs: Any) -> str:
 
     新しいコードでは Translations.gettext を使用してください。
     """
-    translations: Translations = Translations.load(str(LOCALES_DIR), [language])
+    translations = Translations.load(str(LOCALES_DIR), [language])
     text: str = translations.gettext(key)
 
     # 補間処理

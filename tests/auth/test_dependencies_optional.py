@@ -7,7 +7,6 @@ Context7参照: /pytest-dev/pytest (Trust Score: 9.5)
 
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -17,8 +16,7 @@ from app.models.user import User
 class TestGetCurrentUserOptional:
     """get_current_user_optional のテスト"""
 
-    @pytest.mark.asyncio
-    async def test_returns_user_when_authenticated(
+    def test_returns_user_when_authenticated(
         self, test_client: TestClient, auth_token: str, test_db: Session
     ):
         """
@@ -42,15 +40,14 @@ class TestGetCurrentUserOptional:
         request.headers.get = Mock(return_value=f"Bearer {auth_token}")
 
         # When
-        result = await get_current_user_optional(request, test_db)
+        result = get_current_user_optional(request, test_db)
 
         # Then
         assert result is not None
         assert isinstance(result, User)
         assert result.email == "test@example.com"
 
-    @pytest.mark.asyncio
-    async def test_returns_none_when_unauthenticated(
+    def test_returns_none_when_unauthenticated(
         self, test_client: TestClient, test_db: Session
     ):
         """
@@ -74,13 +71,12 @@ class TestGetCurrentUserOptional:
         request.headers.get = Mock(return_value=None)
 
         # When
-        result = await get_current_user_optional(request, test_db)
+        result = get_current_user_optional(request, test_db)
 
         # Then
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_returns_none_when_invalid_token(
+    def test_returns_none_when_invalid_token(
         self, test_client: TestClient, test_db: Session
     ):
         """
@@ -104,13 +100,12 @@ class TestGetCurrentUserOptional:
         request.headers.get = Mock(return_value="Bearer invalid-token")
 
         # When
-        result = await get_current_user_optional(request, test_db)
+        result = get_current_user_optional(request, test_db)
 
         # Then
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_returns_none_when_expired_token(
+    def test_returns_none_when_expired_token(
         self, test_client: TestClient, test_db: Session
     ):
         """
@@ -141,7 +136,7 @@ class TestGetCurrentUserOptional:
         request.headers.get = Mock(return_value=f"Bearer {expired_token}")
 
         # When
-        result = await get_current_user_optional(request, test_db)
+        result = get_current_user_optional(request, test_db)
 
         # Then
         assert result is None

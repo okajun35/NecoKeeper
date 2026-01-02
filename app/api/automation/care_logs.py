@@ -102,7 +102,7 @@ router = APIRouter()
         },
     },
 )
-async def create_care_log_automation(
+def create_care_log_automation(
     care_log_data: CareLogCreate,
     db: Session = Depends(get_db),
 ) -> CareLogResponse:

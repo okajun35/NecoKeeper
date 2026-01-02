@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
     summary="画像をアップロード",
     description="猫の画像をアップロードします。枚数制限とファイルサイズ制限があります。",
 )
-async def upload_animal_image(
+def upload_animal_image(
     animal_id: int,
     file: UploadFile = File(..., description="画像ファイル"),
     taken_at: date | None = Form(None, description="撮影日"),
@@ -61,7 +61,7 @@ async def upload_animal_image(
         f"画像アップロードリクエスト: animal_id={animal_id}, filename={file.filename}"
     )
 
-    image = await image_service.upload_image(
+    image = image_service.upload_image(
         db=db,
         animal_id=animal_id,
         file=file,

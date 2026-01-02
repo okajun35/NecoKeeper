@@ -27,7 +27,7 @@ automation_api_key_header = APIKeyHeader(
 )
 
 
-async def get_automation_api_key(
+def get_automation_api_key(
     api_key: Annotated[str | None, Security(automation_api_key_header)],
 ) -> str:
     """
@@ -95,7 +95,7 @@ async def get_automation_api_key(
     return api_key
 
 
-async def verify_automation_api_key_optional(
+def verify_automation_api_key_optional(
     api_key: Annotated[str | None, Security(automation_api_key_header)],
 ) -> str | None:
     """

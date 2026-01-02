@@ -17,8 +17,7 @@ from sqlalchemy.orm import Session
 class TestGetAutomationApiKey:
     """get_automation_api_key のテスト"""
 
-    @pytest.mark.asyncio
-    async def test_valid_api_key_success(self, test_db: Session, monkeypatch):
+    def test_valid_api_key_success(self, test_db: Session, monkeypatch):
         """
         正常系: 有効なAPI Keyで認証成功
 
@@ -40,7 +39,7 @@ class TestGetAutomationApiKey:
         get_settings.cache_clear()
 
         # When
-        result = await get_automation_api_key(api_key="test-api-key-32-characters-long")
+        result = get_automation_api_key(api_key="test-api-key-32-characters-long")
 
         # Then
         assert result == "test-api-key-32-characters-long"
@@ -48,8 +47,7 @@ class TestGetAutomationApiKey:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_invalid_api_key_returns_403(self, test_db: Session, monkeypatch):
+    def test_invalid_api_key_returns_403(self, test_db: Session, monkeypatch):
         """
         異常系: 無効なAPI Keyで403エラー
 
@@ -70,7 +68,7 @@ class TestGetAutomationApiKey:
 
         # When / Then
         with pytest.raises(HTTPException) as exc_info:
-            await get_automation_api_key(api_key="wrong-api-key")
+            get_automation_api_key(api_key="wrong-api-key")
 
         assert exc_info.value.status_code == 403
         assert exc_info.value.detail == "Invalid Automation API Key"
@@ -79,8 +77,7 @@ class TestGetAutomationApiKey:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_missing_api_key_returns_401(self, test_db: Session, monkeypatch):
+    def test_missing_api_key_returns_401(self, test_db: Session, monkeypatch):
         """
         異常系: API Key未設定で401エラー
 
@@ -101,7 +98,7 @@ class TestGetAutomationApiKey:
 
         # When / Then
         with pytest.raises(HTTPException) as exc_info:
-            await get_automation_api_key(api_key=None)
+            get_automation_api_key(api_key=None)
 
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == "X-Automation-Key header is required"
@@ -110,10 +107,7 @@ class TestGetAutomationApiKey:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_automation_api_disabled_returns_503(
-        self, test_db: Session, monkeypatch
-    ):
+    def test_automation_api_disabled_returns_503(self, test_db: Session, monkeypatch):
         """
         異常系: Automation API無効で503エラー
 
@@ -133,7 +127,7 @@ class TestGetAutomationApiKey:
 
         # When / Then
         with pytest.raises(HTTPException) as exc_info:
-            await get_automation_api_key(api_key="any-key")
+            get_automation_api_key(api_key="any-key")
 
         assert exc_info.value.status_code == 503
         assert exc_info.value.detail == "Automation API is disabled"
@@ -142,10 +136,7 @@ class TestGetAutomationApiKey:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_api_key_not_configured_returns_503(
-        self, test_db: Session, monkeypatch
-    ):
+    def test_api_key_not_configured_returns_503(self, test_db: Session, monkeypatch):
         """
         異常系: API Key未設定（空文字列）で503エラー
 
@@ -167,7 +158,7 @@ class TestGetAutomationApiKey:
 
         # When / Then
         with pytest.raises(HTTPException) as exc_info:
-            await get_automation_api_key(api_key="any-key")
+            get_automation_api_key(api_key="any-key")
 
         assert exc_info.value.status_code == 503
         assert exc_info.value.detail == "Automation API Key is not configured"
@@ -180,8 +171,7 @@ class TestGetAutomationApiKey:
 class TestVerifyAutomationApiKeyOptional:
     """verify_automation_api_key_optional のテスト"""
 
-    @pytest.mark.asyncio
-    async def test_valid_api_key_returns_key(self, test_db: Session, monkeypatch):
+    def test_valid_api_key_returns_key(self, test_db: Session, monkeypatch):
         """
         正常系: 有効なAPI Keyが提供された場合はキーを返す
 
@@ -201,7 +191,7 @@ class TestVerifyAutomationApiKeyOptional:
         get_settings.cache_clear()
 
         # When
-        result = await verify_automation_api_key_optional(api_key="test-api-key")
+        result = verify_automation_api_key_optional(api_key="test-api-key")
 
         # Then
         assert result == "test-api-key"
@@ -209,8 +199,7 @@ class TestVerifyAutomationApiKeyOptional:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_invalid_api_key_returns_none(self, test_db: Session, monkeypatch):
+    def test_invalid_api_key_returns_none(self, test_db: Session, monkeypatch):
         """
         正常系: 無効なAPI Keyの場合はNoneを返す（エラーにしない）
 
@@ -230,7 +219,7 @@ class TestVerifyAutomationApiKeyOptional:
         get_settings.cache_clear()
 
         # When
-        result = await verify_automation_api_key_optional(api_key="wrong-api-key")
+        result = verify_automation_api_key_optional(api_key="wrong-api-key")
 
         # Then
         assert result is None
@@ -238,8 +227,7 @@ class TestVerifyAutomationApiKeyOptional:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_missing_api_key_returns_none(self, test_db: Session, monkeypatch):
+    def test_missing_api_key_returns_none(self, test_db: Session, monkeypatch):
         """
         正常系: API Key未提供の場合はNoneを返す
 
@@ -259,7 +247,7 @@ class TestVerifyAutomationApiKeyOptional:
         get_settings.cache_clear()
 
         # When
-        result = await verify_automation_api_key_optional(api_key=None)
+        result = verify_automation_api_key_optional(api_key=None)
 
         # Then
         assert result is None
@@ -267,10 +255,7 @@ class TestVerifyAutomationApiKeyOptional:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_automation_api_disabled_returns_none(
-        self, test_db: Session, monkeypatch
-    ):
+    def test_automation_api_disabled_returns_none(self, test_db: Session, monkeypatch):
         """
         正常系: Automation API無効の場合はNoneを返す
 
@@ -289,7 +274,7 @@ class TestVerifyAutomationApiKeyOptional:
         get_settings.cache_clear()
 
         # When
-        result = await verify_automation_api_key_optional(api_key="any-key")
+        result = verify_automation_api_key_optional(api_key="any-key")
 
         # Then
         assert result is None
@@ -297,10 +282,7 @@ class TestVerifyAutomationApiKeyOptional:
         # クリーンアップ
         get_settings.cache_clear()
 
-    @pytest.mark.asyncio
-    async def test_api_key_not_configured_returns_none(
-        self, test_db: Session, monkeypatch
-    ):
+    def test_api_key_not_configured_returns_none(self, test_db: Session, monkeypatch):
         """
         正常系: API Key未設定の場合はNoneを返す
 
@@ -320,7 +302,7 @@ class TestVerifyAutomationApiKeyOptional:
         get_settings.cache_clear()
 
         # When
-        result = await verify_automation_api_key_optional(api_key="any-key")
+        result = verify_automation_api_key_optional(api_key="any-key")
 
         # Then
         assert result is None

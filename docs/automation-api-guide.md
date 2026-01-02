@@ -676,8 +676,8 @@ limiter = Limiter(key_func=get_remote_address)
 
 @app.post("/api/automation/care-logs")
 @limiter.limit("100/minute")
-async def create_care_log(...):
-    pass
+def create_care_log(...):
+  pass
 ```
 
 ---

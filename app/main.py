@@ -135,7 +135,7 @@ if Path("app/static").exists():
 
 # ルートエンドポイント - ランディングページ
 @app.get("/", response_class=HTMLResponse, tags=["Root"])
-async def root(request: Request) -> HTMLResponse:
+def root(request: Request) -> HTMLResponse:
     """
     ルートエンドポイント - 公開ランディングページ
 
@@ -162,7 +162,7 @@ async def root(request: Request) -> HTMLResponse:
 
 # ヘルスチェックエンドポイント
 @app.get("/health", tags=["Health"])
-async def health_check() -> dict[str, str]:
+def health_check() -> dict[str, str]:
     """
     ヘルスチェックエンドポイント
 
@@ -178,7 +178,7 @@ async def health_check() -> dict[str, str]:
 
 # robots.txt エンドポイント（検索エンジンクローラー制御）
 @app.get("/robots.txt", tags=["SEO"])
-async def robots_txt() -> PlainTextResponse:
+def robots_txt() -> PlainTextResponse:
     """
     robots.txt エンドポイント
 
@@ -199,7 +199,7 @@ Disallow: /
 
 # PWA Manifest エンドポイント（動的生成）
 @app.get("/manifest.json", tags=["PWA"])
-async def get_manifest() -> dict[str, Any]:
+def get_manifest() -> dict[str, Any]:
     """
     PWA Manifest を動的に生成
 
@@ -309,7 +309,7 @@ async def get_manifest() -> dict[str, Any]:
 
 # HTTPException用のカスタムハンドラー
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(
+def http_exception_handler(
     request: Request, exc: StarletteHTTPException
 ) -> JSONResponse | RedirectResponse:
     """
@@ -346,7 +346,7 @@ async def http_exception_handler(
 
 # グローバル例外ハンドラー
 @app.exception_handler(Exception)
-async def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: ignore[no-untyped-def]
+def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: ignore[no-untyped-def]
     """
     グローバル例外ハンドラー
 

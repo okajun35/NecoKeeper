@@ -29,7 +29,7 @@ router = APIRouter(prefix="/care-logs", tags=["世話記録"])
 
 
 @router.get("", response_model=CareLogListResponse)
-async def list_care_logs(
+def list_care_logs(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: int = Query(1, ge=1, description="ページ番号"),
@@ -70,7 +70,7 @@ async def list_care_logs(
 
 
 @router.post("", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED)
-async def create_care_log(
+def create_care_log(
     care_log_data: CareLogCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -93,7 +93,7 @@ async def create_care_log(
 
 
 @router.get("/daily-view", response_model=dict)
-async def get_daily_view(
+def get_daily_view(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     animal_id: int | None = Query(None, description="猫IDフィルター"),
@@ -136,7 +136,7 @@ async def get_daily_view(
 
 
 @router.get("/latest/{animal_id}", response_model=CareLogResponse | None)
-async def get_latest_care_log(
+def get_latest_care_log(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -159,7 +159,7 @@ async def get_latest_care_log(
 
 
 @router.get("/export", response_class=Response)
-async def export_care_logs(
+def export_care_logs(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("csv:export"))],
     animal_id: int | None = Query(None, description="猫IDフィルター"),
@@ -193,7 +193,7 @@ async def export_care_logs(
 
 
 @router.get("/{care_log_id}", response_model=CareLogResponse)
-async def get_care_log(
+def get_care_log(
     care_log_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -218,7 +218,7 @@ async def get_care_log(
 
 
 @router.put("/{care_log_id}", response_model=CareLogResponse)
-async def update_care_log(
+def update_care_log(
     care_log_id: int,
     care_log_data: CareLogUpdate,
     db: Annotated[Session, Depends(get_db)],

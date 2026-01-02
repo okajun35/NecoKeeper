@@ -28,7 +28,7 @@ router = APIRouter(prefix="/auth", tags=["認証"])
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
-async def login_for_access_token(
+def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[Session, Depends(get_db)],
@@ -138,7 +138,7 @@ async def login_for_access_token(
 
 
 @router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def read_users_me(
+def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> User:
     """
@@ -189,7 +189,7 @@ async def read_users_me(
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(response: Response) -> dict[str, str]:
+def logout(response: Response) -> dict[str, str]:
     """
     ログアウト
 

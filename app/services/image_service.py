@@ -28,8 +28,9 @@ settings = get_settings()
 logger = logging.getLogger(__name__)
 
 # デフォルト設定
-DEFAULT_MAX_IMAGES_PER_ANIMAL = 20
-DEFAULT_MAX_IMAGE_SIZE_MB = 5
+DEFAULT_MAX_IMAGES_PER_ANIMAL = settings.max_image_count
+DEFAULT_MAX_IMAGE_SIZE_MB = settings.max_image_size_mb
+DEFAULT_MAX_IMAGE_SIZE_BYTES = settings.max_image_size_bytes
 
 
 def get_image_limits(db: Session) -> tuple[int, int]:
@@ -75,9 +76,9 @@ def get_image_limits(db: Session) -> tuple[int, int]:
             max_size_bytes = int(max_size_mb * 1024 * 1024)
         except ValueError:
             logger.warning(f"max_image_size_mbの値が不正です: {max_size_setting.value}")
-            max_size_bytes = DEFAULT_MAX_IMAGE_SIZE_MB * 1024 * 1024
+            max_size_bytes = DEFAULT_MAX_IMAGE_SIZE_BYTES
     else:
-        max_size_bytes = DEFAULT_MAX_IMAGE_SIZE_MB * 1024 * 1024
+        max_size_bytes = DEFAULT_MAX_IMAGE_SIZE_BYTES
 
     return max_images, max_size_bytes
 
@@ -102,7 +103,7 @@ def count_animal_images(db: Session, animal_id: int) -> int:
     return len(result.scalars().all())
 
 
-async def upload_image(
+def upload_image(
     db: Session,
     animal_id: int,
     file: UploadFile,
@@ -128,7 +129,7 @@ async def upload_image(
     Example:
         >>> from fastapi import UploadFile
         >>> file = UploadFile(filename="cat.jpg", file=open("cat.jpg", "rb"))
-        >>> image = await upload_image(db, 1, file, description="元気な様子")
+        >>> image = upload_image(db, 1, file, description="元気な様子")
         >>> print(f"画像ID: {image.id}")
     """
     # 猫の存在確認
@@ -166,8 +167,8 @@ async def upload_image(
     file.file.seek(0)
 
     try:
-        # 画像を保存・最適化
-        relative_path = await save_and_optimize_image(
+        # 画像を保存・最適化（同期処理）
+        relative_path = save_and_optimize_image(
             file, destination_dir=f"animals/{animal_id}/gallery"
         )
 

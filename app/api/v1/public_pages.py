@@ -26,7 +26,7 @@ settings = get_settings()
 
 
 @router.get("/", response_class=HTMLResponse)
-async def landing_page(request: Request):  # type: ignore[no-untyped-def]
+def landing_page(request: Request):  # type: ignore[no-untyped-def]
     """
     公開ランディングページを表示
 
@@ -58,7 +58,7 @@ async def landing_page(request: Request):  # type: ignore[no-untyped-def]
 
 
 @router.get("/care", response_class=HTMLResponse)
-async def care_form_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+def care_form_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
     """
     世話記録入力フォームページを表示
 
@@ -82,7 +82,7 @@ async def care_form_page(request: Request, animal_id: int):  # type: ignore[no-u
 
 
 @router.get("/care-logs", response_class=HTMLResponse)
-async def care_log_list_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
+def care_log_list_page(request: Request, animal_id: int):  # type: ignore[no-untyped-def]
     """
     個別猫の記録一覧ページを表示
 
@@ -106,7 +106,7 @@ async def care_log_list_page(request: Request, animal_id: int):  # type: ignore[
 
 
 @router.get("/animals/status", response_class=HTMLResponse)
-async def all_animals_status_page(request: Request):  # type: ignore[no-untyped-def]
+def all_animals_status_page(request: Request):  # type: ignore[no-untyped-def]
     """
     全猫の記録状況一覧ページを表示
 

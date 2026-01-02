@@ -35,7 +35,7 @@ settings = get_settings()
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def login_page(
+def login_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -66,7 +66,7 @@ async def login_page(
 
 
 @router.get("", response_class=HTMLResponse)
-async def dashboard_page(
+def dashboard_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -98,7 +98,7 @@ async def dashboard_page(
 
 
 @router.get("/animals", response_class=HTMLResponse)
-async def animals_list_page(
+def animals_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -128,7 +128,7 @@ async def animals_list_page(
 
 
 @router.get("/animals/new", response_class=HTMLResponse)
-async def animal_new_page(
+def animal_new_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -157,7 +157,7 @@ async def animal_new_page(
 
 
 @router.get("/animals/{animal_id}", response_class=HTMLResponse)
-async def animal_detail_page(
+def animal_detail_page(
     request: Request,
     animal_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -206,7 +206,7 @@ async def animal_detail_page(
 
 
 @router.get("/animals/{animal_id}/edit", response_class=HTMLResponse)
-async def animal_edit_page(
+def animal_edit_page(
     request: Request,
     animal_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -241,7 +241,7 @@ async def animal_edit_page(
 
 
 @router.get("/care-logs", response_class=HTMLResponse)
-async def care_logs_list_page(
+def care_logs_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -270,7 +270,7 @@ async def care_logs_list_page(
 
 
 @router.get("/care-logs/new", response_class=HTMLResponse)
-async def care_log_new_page(
+def care_log_new_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -298,7 +298,7 @@ async def care_log_new_page(
 
 
 @router.get("/care-logs/{care_log_id}", response_class=HTMLResponse)
-async def care_log_detail_page(
+def care_log_detail_page(
     request: Request,
     care_log_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -333,7 +333,7 @@ async def care_log_detail_page(
 
 
 @router.get("/care-logs/{care_log_id}/edit", response_class=HTMLResponse)
-async def care_log_edit_page(
+def care_log_edit_page(
     request: Request,
     care_log_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -368,7 +368,7 @@ async def care_log_edit_page(
 
 
 @router.get("/volunteers", response_class=HTMLResponse)
-async def volunteers_list_page(
+def volunteers_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -397,7 +397,7 @@ async def volunteers_list_page(
 
 
 @router.get("/volunteers/new", response_class=HTMLResponse)
-async def volunteer_new_page(
+def volunteer_new_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -412,7 +412,7 @@ async def volunteer_new_page(
 
 
 @router.get("/volunteers/{volunteer_id}/edit", response_class=HTMLResponse)
-async def volunteer_edit_page(
+def volunteer_edit_page(
     request: Request,
     volunteer_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -433,7 +433,7 @@ async def volunteer_edit_page(
 
 
 @router.get("/volunteers/{volunteer_id}", response_class=HTMLResponse)
-async def volunteer_detail_page(
+def volunteer_detail_page(
     request: Request,
     volunteer_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -454,7 +454,7 @@ async def volunteer_detail_page(
 
 
 @router.get("/medical-records", response_class=HTMLResponse)
-async def medical_records_list_page(
+def medical_records_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -483,7 +483,7 @@ async def medical_records_list_page(
 
 
 @router.get("/medical-records/new", response_class=HTMLResponse)
-async def medical_record_new_page(
+def medical_record_new_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -511,7 +511,7 @@ async def medical_record_new_page(
 
 
 @router.get("/medical-records/{record_id}", response_class=HTMLResponse)
-async def medical_record_detail_page(
+def medical_record_detail_page(
     request: Request,
     record_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -546,7 +546,7 @@ async def medical_record_detail_page(
 
 
 @router.get("/medical-records/{record_id}/edit", response_class=HTMLResponse)
-async def medical_record_edit_page(
+def medical_record_edit_page(
     request: Request,
     record_id: int,
     current_user: User | None = Depends(get_current_user_optional),
@@ -581,7 +581,7 @@ async def medical_record_edit_page(
 
 
 @router.get("/medical-actions", response_class=HTMLResponse)
-async def medical_actions_list_page(
+def medical_actions_list_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -610,7 +610,7 @@ async def medical_actions_list_page(
 
 
 @router.get("/adoptions/applicants", response_class=HTMLResponse)
-async def adoptions_applicants_page(
+def adoptions_applicants_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -639,7 +639,7 @@ async def adoptions_applicants_page(
 
 
 @router.get("/adoptions/records", response_class=HTMLResponse)
-async def adoptions_records_page(
+def adoptions_records_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -668,7 +668,7 @@ async def adoptions_records_page(
 
 
 @router.get("/reports", response_class=HTMLResponse)
-async def reports_page(
+def reports_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
@@ -697,7 +697,7 @@ async def reports_page(
 
 
 @router.get("/settings", response_class=HTMLResponse)
-async def settings_page(
+def settings_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:

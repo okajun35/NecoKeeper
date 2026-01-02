@@ -32,7 +32,7 @@ router = APIRouter(prefix="/animals", tags=["猫管理"])
 
 
 @router.get("", response_model=AnimalListResponse)
-async def list_animals(
+def list_animals(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: int = Query(1, ge=1, description="ページ番号"),
@@ -61,7 +61,7 @@ async def list_animals(
 
 
 @router.post("", response_model=AnimalResponse, status_code=status.HTTP_201_CREATED)
-async def create_animal(
+def create_animal(
     animal_data: AnimalCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:write"))],
@@ -86,7 +86,7 @@ async def create_animal(
 
 
 @router.get("/search", response_model=AnimalListResponse)
-async def search_animals(
+def search_animals(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     q: str = Query(..., min_length=1, description="検索クエリ"),
@@ -112,7 +112,7 @@ async def search_animals(
 
 
 @router.get("/{animal_id}", response_model=AnimalResponse)
-async def get_animal(
+def get_animal(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -137,7 +137,7 @@ async def get_animal(
 
 
 @router.put("/{animal_id}", response_model=AnimalResponse)
-async def update_animal(
+def update_animal(
     animal_id: int,
     animal_data: AnimalUpdate,
     db: Annotated[Session, Depends(get_db)],
@@ -167,7 +167,7 @@ async def update_animal(
 
 
 @router.delete("/{animal_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_animal(  # type: ignore[no-untyped-def]
+def delete_animal(  # type: ignore[no-untyped-def]
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:delete"))],
@@ -192,7 +192,7 @@ async def delete_animal(  # type: ignore[no-untyped-def]
 
 
 @router.get("/{animal_id}/qr")
-async def get_animal_qr_code(
+def get_animal_qr_code(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> Response:
@@ -248,7 +248,7 @@ async def get_animal_qr_code(
 
 
 @router.get("/{animal_id}/display-image")
-async def get_animal_display_image(
+def get_animal_display_image(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -274,7 +274,7 @@ async def get_animal_display_image(
 
 
 @router.post("/{animal_id}/profile-image")
-async def upload_profile_image(
+def upload_profile_image(
     animal_id: int,
     file: UploadFile,
     db: Annotated[Session, Depends(get_db)],
@@ -298,7 +298,7 @@ async def upload_profile_image(
     from app.services import image_service
 
     # 画像をアップロード（画像ギャラリーに追加）
-    image = await image_service.upload_image(
+    image = image_service.upload_image(
         db=db,
         animal_id=animal_id,
         file=file,
@@ -316,7 +316,7 @@ async def upload_profile_image(
 
 
 @router.put("/{animal_id}/profile-image")
-async def update_profile_image(
+def update_profile_image(
     animal_id: int,
     file: UploadFile,
     db: Annotated[Session, Depends(get_db)],
@@ -340,7 +340,7 @@ async def update_profile_image(
     from app.services import image_service
 
     # 画像をアップロード（画像ギャラリーに追加）
-    image = await image_service.upload_image(
+    image = image_service.upload_image(
         db=db,
         animal_id=animal_id,
         file=file,
@@ -358,7 +358,7 @@ async def update_profile_image(
 
 
 @router.put("/{animal_id}/profile-image/from-gallery/{image_id}")
-async def set_profile_image_from_gallery(
+def set_profile_image_from_gallery(
     animal_id: int,
     image_id: int,
     db: Annotated[Session, Depends(get_db)],

@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
+from starlette.datastructures import Headers
 
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
@@ -36,7 +37,7 @@ def mock_image_file() -> UploadFile:
     file = io.BytesIO(png_data)
     # headers引数でcontent_typeを設定
     upload_file = UploadFile(
-        filename="test.png", file=file, headers={"content-type": "image/png"}
+        filename="test.png", file=file, headers=Headers({"content-type": "image/png"})
     )
     return upload_file
 
@@ -131,8 +132,7 @@ class TestCountAnimalImages:
 class TestUploadImage:
     """画像アップロードのテスト"""
 
-    @pytest.mark.asyncio
-    async def test_upload_image_success(
+    def test_upload_image_success(
         self,
         test_db: Session,
         test_animal: Animal,
@@ -145,7 +145,7 @@ class TestUploadImage:
         description = "元気な様子"
 
         # When
-        result = await image_service.upload_image(
+        result = image_service.upload_image(
             db=test_db,
             animal_id=test_animal.id,
             file=mock_image_file,
@@ -161,8 +161,7 @@ class TestUploadImage:
         assert result.file_size > 0
         assert result.image_path.startswith(f"animals/{test_animal.id}/gallery/")
 
-    @pytest.mark.asyncio
-    async def test_upload_image_without_optional_fields(
+    def test_upload_image_without_optional_fields(
         self,
         test_db: Session,
         test_animal: Animal,
@@ -171,7 +170,7 @@ class TestUploadImage:
     ):
         """正常系: オプションフィールドなしで画像をアップロードできる"""
         # When
-        result = await image_service.upload_image(
+        result = image_service.upload_image(
             db=test_db,
             animal_id=test_animal.id,
             file=mock_image_file,
@@ -181,22 +180,20 @@ class TestUploadImage:
         assert result.taken_at is None
         assert result.description is None
 
-    @pytest.mark.asyncio
-    async def test_upload_image_nonexistent_animal(
+    def test_upload_image_nonexistent_animal(
         self, test_db: Session, mock_image_file: UploadFile, temp_media_dir
     ):
         """異常系: 存在しない猫IDの場合は404エラー"""
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
-            await image_service.upload_image(
+            image_service.upload_image(
                 db=test_db,
                 animal_id=99999,
                 file=mock_image_file,
             )
         assert exc_info.value.status_code == 404
 
-    @pytest.mark.asyncio
-    async def test_upload_image_exceeds_limit(
+    def test_upload_image_exceeds_limit(
         self,
         test_db: Session,
         test_animal: Animal,
@@ -225,7 +222,7 @@ class TestUploadImage:
 
         # When/Then: 3枚目をアップロードしようとすると失敗
         with pytest.raises(HTTPException) as exc_info:
-            await image_service.upload_image(
+            image_service.upload_image(
                 db=test_db,
                 animal_id=test_animal.id,
                 file=mock_image_file,

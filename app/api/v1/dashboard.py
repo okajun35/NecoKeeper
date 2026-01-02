@@ -38,7 +38,7 @@ class DashboardStats(BaseModel):
 
 
 @router.get("/stats", response_model=DashboardStats)
-async def get_dashboard_stats(
+def get_dashboard_stats(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> DashboardStats:

@@ -118,12 +118,12 @@ Automation API is a dedicated API endpoint for Kiro Hook, MCP, and automation sc
 
 **Public Interface**:
 ```python
-async def get_automation_api_key(
+def get_automation_api_key(
     api_key: str | None = Security(automation_api_key_header)
 ) -> str:
     """Validate and return API Key"""
 
-async def verify_automation_api_key_optional(
+def verify_automation_api_key_optional(
     api_key: str | None = Security(automation_api_key_header)
 ) -> str | None:
     """Optionally validate API Key"""
