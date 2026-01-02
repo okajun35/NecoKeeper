@@ -28,7 +28,7 @@ from app.models.user import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 
-async def get_current_user(
+def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
@@ -79,7 +79,7 @@ async def get_current_user(
     return user
 
 
-async def get_current_user_optional(
+def get_current_user_optional(
     request: Request, db: Annotated[Session, Depends(get_db)]
 ) -> User | None:
     """
@@ -155,7 +155,7 @@ async def get_current_user_optional(
         return None
 
 
-async def get_current_user_from_cookie_or_header(
+def get_current_user_from_cookie_or_header(
     request: Request, db: Annotated[Session, Depends(get_db)]
 ) -> User:
     """
@@ -227,7 +227,7 @@ async def get_current_user_from_cookie_or_header(
         raise credentials_exception from e
 
 
-async def get_current_active_user(
+def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user_from_cookie_or_header)],
 ) -> User:
     """

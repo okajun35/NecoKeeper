@@ -37,7 +37,7 @@ class ReportExportRequest(BaseModel):
 
 
 @router.post("/export")
-async def export_report(
+def export_report(
     request: ReportExportRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("report:read"))],

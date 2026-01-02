@@ -174,8 +174,7 @@ class TestPermissionsMatrix:
 class TestRequireRole:
     """ロール要求のテスト（認可ロジック）"""
 
-    @pytest.mark.asyncio
-    async def test_require_role_allows_correct_role(self):
+    def test_require_role_allows_correct_role(self):
         """正しいロールのユーザーは許可される"""
         # Given
         admin = User(
@@ -188,13 +187,12 @@ class TestRequireRole:
         checker = require_role(["admin", "staff"])
 
         # When
-        result = await checker(admin)
+        result = checker(admin)
 
         # Then
         assert result == admin
 
-    @pytest.mark.asyncio
-    async def test_require_role_denies_incorrect_role(self):
+    def test_require_role_denies_incorrect_role(self):
         """間違ったロールのユーザーは拒否される"""
         # Given
         read_only = User(
@@ -208,13 +206,12 @@ class TestRequireRole:
 
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
-            await checker(read_only)
+            checker(read_only)
 
         assert exc_info.value.status_code == 403
         assert "admin, staff" in exc_info.value.detail
 
-    @pytest.mark.asyncio
-    async def test_require_role_allows_any_of_multiple_roles(self):
+    def test_require_role_allows_any_of_multiple_roles(self):
         """複数のロールのいずれかを持つユーザーは許可される"""
         # Given
         staff = User(
@@ -227,7 +224,7 @@ class TestRequireRole:
         checker = require_role(["admin", "staff", "vet"])
 
         # When
-        result = await checker(staff)
+        result = checker(staff)
 
         # Then
         assert result == staff
@@ -236,8 +233,7 @@ class TestRequireRole:
 class TestRequirePermission:
     """権限要求のテスト（認可ロジック）"""
 
-    @pytest.mark.asyncio
-    async def test_require_permission_allows_user_with_permission(self):
+    def test_require_permission_allows_user_with_permission(self):
         """権限を持つユーザーは許可される"""
         # Given
         staff = User(
@@ -250,13 +246,12 @@ class TestRequirePermission:
         checker = require_permission("animal:write")
 
         # When
-        result = await checker(staff)
+        result = checker(staff)
 
         # Then
         assert result == staff
 
-    @pytest.mark.asyncio
-    async def test_require_permission_denies_user_without_permission(self):
+    def test_require_permission_denies_user_without_permission(self):
         """権限を持たないユーザーは拒否される"""
         # Given
         read_only = User(
@@ -270,13 +265,12 @@ class TestRequirePermission:
 
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
-            await checker(read_only)
+            checker(read_only)
 
         assert exc_info.value.status_code == 403
         assert "animal:write" in exc_info.value.detail
 
-    @pytest.mark.asyncio
-    async def test_require_permission_allows_admin_any_permission(self):
+    def test_require_permission_allows_admin_any_permission(self):
         """管理者は任意の権限を持つ"""
         # Given
         admin = User(
@@ -289,13 +283,12 @@ class TestRequirePermission:
         checker = require_permission("any:permission")
 
         # When
-        result = await checker(admin)
+        result = checker(admin)
 
         # Then
         assert result == admin
 
-    @pytest.mark.asyncio
-    async def test_require_permission_medical_delete_vet_only(self):
+    def test_require_permission_medical_delete_vet_only(self):
         """診療記録削除は獣医のみ可能"""
         # Given
         vet = User(
@@ -315,12 +308,12 @@ class TestRequirePermission:
         checker = require_permission("medical:delete")
 
         # When/Then: 獣医は許可される
-        result = await checker(vet)
+        result = checker(vet)
         assert result == vet
 
         # When/Then: スタッフは拒否される
         with pytest.raises(HTTPException) as exc_info:
-            await checker(staff)
+            checker(staff)
         assert exc_info.value.status_code == 403
 
 

@@ -28,7 +28,7 @@ router = APIRouter(prefix="/volunteers", tags=["ボランティア管理"])
 
 
 @router.get("", response_model=VolunteerListResponse)
-async def list_volunteers(
+def list_volunteers(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: int = Query(1, ge=1, description="ページ番号"),
@@ -59,7 +59,7 @@ async def list_volunteers(
 
 
 @router.post("", response_model=VolunteerResponse, status_code=status.HTTP_201_CREATED)
-async def create_volunteer(
+def create_volunteer(
     volunteer_data: VolunteerCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("volunteer:write"))],
@@ -81,7 +81,7 @@ async def create_volunteer(
 
 
 @router.get("/{volunteer_id}", response_model=VolunteerResponse)
-async def get_volunteer(
+def get_volunteer(
     volunteer_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -103,7 +103,7 @@ async def get_volunteer(
 
 
 @router.put("/{volunteer_id}", response_model=VolunteerResponse)
-async def update_volunteer(
+def update_volunteer(
     volunteer_id: int,
     volunteer_data: VolunteerUpdate,
     db: Annotated[Session, Depends(get_db)],
@@ -129,7 +129,7 @@ async def update_volunteer(
 
 
 @router.get("/{volunteer_id}/activity", response_model=dict)
-async def get_activity_history(
+def get_activity_history(
     volunteer_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],

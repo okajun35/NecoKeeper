@@ -20,8 +20,8 @@ from app.config import get_settings
 settings = get_settings()
 
 # JWT設定
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 2
+ALGORITHM = settings.jwt_algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.jwt_access_token_expire_minutes
 
 
 def create_access_token(
@@ -47,7 +47,7 @@ def create_access_token(
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # 標準クレームを追加
     to_encode.update(

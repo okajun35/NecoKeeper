@@ -77,7 +77,7 @@ class QRCardGridRequest(BaseModel):
         },
     },
 )
-async def generate_qr_card_automation(
+def generate_qr_card_automation(
     request: QRCardRequest,
     db: Session = Depends(get_db),
 ) -> Response:
@@ -174,7 +174,7 @@ async def generate_qr_card_automation(
         },
     },
 )
-async def generate_qr_card_grid_automation(
+def generate_qr_card_grid_automation(
     request: QRCardGridRequest,
     db: Session = Depends(get_db),
 ) -> Response:

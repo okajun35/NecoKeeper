@@ -5,6 +5,7 @@
 Pydantic Settingsを使用して環境変数の検証と型変換を行います。
 """
 
+import json
 import os
 from datetime import datetime
 from functools import lru_cache
@@ -50,6 +51,17 @@ class Settings(BaseSettings):
         description="セッション暗号化用の秘密鍵",
         min_length=32,
     )
+    jwt_algorithm: Literal[
+        "HS256",
+        "HS384",
+        "HS512",
+        "ES256",
+        "ES384",
+        "ES512",
+    ] = Field(default="HS256", description="JWT署名アルゴリズム")
+    jwt_access_token_expire_minutes: int = Field(
+        default=120, description="JWTアクセストークンの有効期限（分）", gt=0
+    )
     session_cookie_name: str = Field(
         default="necokeeper_session", description="セッションCookie名"
     )
@@ -72,10 +84,17 @@ class Settings(BaseSettings):
     backup_dir: str = Field(
         default="./backups", description="バックアップファイル保存ディレクトリ"
     )
-    max_upload_size: int = Field(
-        default=10 * 1024 * 1024,  # 10MB
-        description="最大アップロードサイズ（バイト）",
+    max_image_count: int = Field(
+        default=20,
+        description="1猫あたりの最大画像枚数（設定が存在しない場合のデフォルト）",
+        ge=1,
+        le=100,
+    )
+    max_image_size_mb: float = Field(
+        default=5.0,
+        description="1画像あたりの最大ファイルサイズ（MB）",
         gt=0,
+        le=100.0,
     )
 
     # ログ設定
@@ -105,9 +124,11 @@ class Settings(BaseSettings):
     )
 
     # バックアップ設定
-    backup_enabled: bool = Field(default=True, description="自動バックアップの有効化")
-    backup_schedule_hour: int = Field(
-        default=3, description="バックアップ実行時刻（時）", ge=0, le=23
+    auto_backup_enabled: bool = Field(
+        default=True, description="自動バックアップ機能の有効化"
+    )
+    backup_schedule: str = Field(
+        default="0 2 * * *", description="自動バックアップの実行スケジュール（cron式）"
     )
     backup_retention_days: int = Field(
         default=30, description="バックアップ保持日数", ge=1
@@ -115,7 +136,10 @@ class Settings(BaseSettings):
 
     # CORS設定
     cors_origins: list[str] = Field(
-        default=["http://localhost:3000", "http://localhost:8000"],
+        default_factory=lambda: [
+            "http://localhost:3000",
+            "http://localhost:8000",
+        ],
         description="CORS許可オリジン",
     )
 
@@ -232,6 +256,38 @@ class Settings(BaseSettings):
             return len(self.automation_api_key) >= 32
 
         return True
+
+    @property
+    def max_image_size_bytes(self) -> int:
+        """画像アップロード制限（バイト）"""
+
+        return int(self.max_image_size_mb * 1024 * 1024)
+
+    @property
+    def max_upload_size(self) -> int:
+        """後方互換性のためのエイリアス"""
+
+        return self.max_image_size_bytes
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: Any) -> list[str]:
+        """文字列で定義されたCORS_ORIGINSをリストに変換"""
+
+        if isinstance(value, str):
+            raw = value.strip()
+            if not raw:
+                return []
+            if raw.startswith("["):
+                try:
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError as exc:
+                    raise ValueError("CORS_ORIGINS must be valid JSON array") from exc
+                if not isinstance(parsed, list):
+                    raise ValueError("CORS_ORIGINS JSON must be a list")
+                return [str(origin).strip() for origin in parsed if str(origin).strip()]
+            return [origin.strip() for origin in raw.split(",") if origin.strip()]
+        return value
 
     @field_validator("secret_key")
     @classmethod

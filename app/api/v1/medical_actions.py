@@ -30,7 +30,7 @@ router = APIRouter(prefix="/medical-actions", tags=["診療行為マスター"])
 
 
 @router.get("", response_model=MedicalActionListResponse)
-async def list_medical_actions(
+def list_medical_actions(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: Annotated[int, Query(ge=1)] = 1,
@@ -64,7 +64,7 @@ async def list_medical_actions(
 @router.post(
     "", response_model=MedicalActionResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_medical_action(
+def create_medical_action(
     medical_action_data: MedicalActionCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("medical:write"))],
@@ -88,7 +88,7 @@ async def create_medical_action(
 
 
 @router.get("/{medical_action_id}", response_model=MedicalActionResponse)
-async def get_medical_action(
+def get_medical_action(
     medical_action_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -113,7 +113,7 @@ async def get_medical_action(
 
 
 @router.put("/{medical_action_id}", response_model=MedicalActionResponse)
-async def update_medical_action(
+def update_medical_action(
     medical_action_id: int,
     medical_action_data: MedicalActionUpdate,
     db: Annotated[Session, Depends(get_db)],
@@ -143,7 +143,7 @@ async def update_medical_action(
 
 
 @router.get("/{medical_action_id}/calculate", response_model=BillingCalculation)
-async def calculate_billing(
+def calculate_billing(
     medical_action_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -172,7 +172,7 @@ async def calculate_billing(
 
 
 @router.get("/active/list", response_model=list[MedicalActionResponse])
-async def get_active_medical_actions(
+def get_active_medical_actions(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     target_date: Annotated[date | None, Query()] = None,

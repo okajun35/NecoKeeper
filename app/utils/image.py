@@ -14,6 +14,30 @@ from app.config import get_settings
 
 settings = get_settings()
 
+
+def _resolve_media_dir() -> Path:
+    preferred = Path(settings.media_dir)
+    fallback = Path.cwd() / "tmp" / "media"
+    candidates = [preferred]
+    if preferred.resolve() != fallback.resolve():
+        candidates.append(fallback)
+
+    for candidate in candidates:
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            test_file = candidate / ".write_test"
+            test_file.write_text("", encoding="utf-8")
+            test_file.unlink(missing_ok=True)
+            settings.media_dir = str(candidate)
+            return candidate
+        except PermissionError:
+            continue
+
+    raise PermissionError("mediaディレクトリに書き込めません。権限を確認してください。")
+
+
+MEDIA_BASE_DIR = _resolve_media_dir()
+
 # 許可される画像拡張子
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
@@ -61,7 +85,7 @@ def validate_image_file(file: UploadFile, max_size: int | None = None) -> None:
 
     # ファイルサイズの検証
     if max_size is None:
-        max_size = settings.max_upload_size
+        max_size = settings.max_image_size_bytes
 
     # ファイルサイズを取得（ファイルの最後まで読んでサイズを確認）
     file.file.seek(0, 2)  # ファイルの最後に移動
@@ -91,7 +115,7 @@ def generate_unique_filename(original_filename: str) -> str:
     return f"{unique_id}{file_ext}"
 
 
-async def save_upload_file(file: UploadFile, destination_dir: str = "animals") -> str:
+def save_upload_file(file: UploadFile, destination_dir: str = "animals") -> str:
     """
     アップロードされたファイルを保存
 
@@ -103,7 +127,7 @@ async def save_upload_file(file: UploadFile, destination_dir: str = "animals") -
         str: 保存されたファイルの相対パス
     """
     # 保存先ディレクトリを作成
-    save_dir = Path(settings.media_dir) / destination_dir
+    save_dir = MEDIA_BASE_DIR / destination_dir
     save_dir.mkdir(parents=True, exist_ok=True)
 
     # ユニークなファイル名を生成
@@ -115,8 +139,9 @@ async def save_upload_file(file: UploadFile, destination_dir: str = "animals") -
     filename = generate_unique_filename(file.filename)
     file_path = save_dir / filename
 
-    # ファイルを保存
-    contents = await file.read()
+    # ファイルを保存（同期I/O）
+    file.file.seek(0)
+    contents = file.file.read()
     file_path.write_bytes(contents)
 
     # 相対パスを返す
@@ -139,7 +164,7 @@ def optimize_image(
             # RGBAをRGBに変換（JPEGはアルファチャンネルをサポートしない）
             if img.mode in ("RGBA", "LA", "P"):
                 # 白背景を作成
-                background = Image.new("RGB", img.size, (255, 255, 255))
+                background = Image.new("RGB", img.size, color=255)
                 if img.mode == "P":
                     img = img.convert("RGBA")
                 background.paste(
@@ -157,7 +182,7 @@ def optimize_image(
         print(f"画像の最適化に失敗しました: {e}")
 
 
-async def save_and_optimize_image(
+def save_and_optimize_image(
     file: UploadFile,
     destination_dir: str = "animals",
     max_size: tuple[int, int] = (1920, 1080),
@@ -176,10 +201,10 @@ async def save_and_optimize_image(
         str: 保存されたファイルの相対パス
     """
     # ファイルを保存
-    relative_path = await save_upload_file(file, destination_dir)
+    relative_path = save_upload_file(file, destination_dir)
 
     # 絶対パスを取得
-    absolute_path = Path(settings.media_dir) / relative_path
+    absolute_path = MEDIA_BASE_DIR / relative_path
 
     # 画像を最適化
     optimize_image(absolute_path, max_size, quality)
@@ -198,7 +223,7 @@ def delete_image_file(relative_path: str) -> bool:
         bool: 削除に成功した場合True
     """
     try:
-        file_path = Path(settings.media_dir) / relative_path
+        file_path = MEDIA_BASE_DIR / relative_path
         if file_path.exists():
             file_path.unlink()
             return True

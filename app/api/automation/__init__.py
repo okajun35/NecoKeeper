@@ -88,7 +88,7 @@ router.include_router(pdf.router)
 # テスト用エンドポイント（開発時のみ）
 # 実際のエンドポイントは別ファイル（care_logs.py, animals.py）で定義
 @router.get("/test", include_in_schema=False)
-async def test_endpoint() -> dict[str, str]:
+def test_endpoint() -> dict[str, str]:
     """
     テスト用エンドポイント
 

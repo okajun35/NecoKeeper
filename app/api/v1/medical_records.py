@@ -29,7 +29,7 @@ router = APIRouter(prefix="/medical-records", tags=["診療記録"])
 
 
 @router.get("", response_model=MedicalRecordListResponse)
-async def list_medical_records(
+def list_medical_records(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: Annotated[int, Query(ge=1)] = 1,
@@ -71,7 +71,7 @@ async def list_medical_records(
 @router.post(
     "", response_model=MedicalRecordResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_medical_record(
+def create_medical_record(
     medical_record_data: MedicalRecordCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("medical:write"))],
@@ -95,7 +95,7 @@ async def create_medical_record(
 
 
 @router.get("/{medical_record_id}", response_model=MedicalRecordResponse)
-async def get_medical_record(
+def get_medical_record(
     medical_record_id: int,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_active_user)],
@@ -120,7 +120,7 @@ async def get_medical_record(
 
 
 @router.put("/{medical_record_id}", response_model=MedicalRecordResponse)
-async def update_medical_record(
+def update_medical_record(
     medical_record_id: int,
     medical_record_data: MedicalRecordUpdate,
     db: Annotated[Session, Depends(get_db)],

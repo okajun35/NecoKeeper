@@ -32,7 +32,7 @@ router = APIRouter(prefix="/public", tags=["Public API（認証不要）"])
 
 
 @router.get("/animals/{animal_id}")
-async def get_animal_info(
+def get_animal_info(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> dict[str, int | str | None]:
@@ -71,7 +71,7 @@ async def get_animal_info(
 
 
 @router.get("/volunteers", response_model=list[VolunteerResponse])
-async def get_active_volunteers(
+def get_active_volunteers(
     db: Annotated[Session, Depends(get_db)],
 ) -> list[VolunteerResponse]:
     """
@@ -96,7 +96,7 @@ async def get_active_volunteers(
 @router.post(
     "/care-logs", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED
 )
-async def create_care_log_public(
+def create_care_log_public(
     care_log_data: CareLogCreate,
     request: Request,
     db: Annotated[Session, Depends(get_db)],
@@ -153,7 +153,7 @@ async def create_care_log_public(
 
 
 @router.get("/care-logs/latest/{animal_id}")
-async def get_latest_care_log(
+def get_latest_care_log(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> CareLogResponse | None:
@@ -189,7 +189,7 @@ async def get_latest_care_log(
 
 
 @router.get("/care-logs/animal/{animal_id}", response_model=AnimalCareLogListResponse)
-async def get_animal_care_logs(
+def get_animal_care_logs(
     animal_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> AnimalCareLogListResponse:
@@ -276,7 +276,7 @@ async def get_animal_care_logs(
 
 
 @router.get("/care-logs/animal/{animal_id}/{log_id}", response_model=CareLogResponse)
-async def get_care_log_detail(
+def get_care_log_detail(
     animal_id: int,
     log_id: int,
     db: Annotated[Session, Depends(get_db)],
@@ -339,7 +339,7 @@ async def get_care_log_detail(
 
 
 @router.get("/care-logs/status/today", response_model=AllAnimalsStatusResponse)
-async def get_all_animals_status_today(
+def get_all_animals_status_today(
     db: Annotated[Session, Depends(get_db)],
 ) -> AllAnimalsStatusResponse:
     """

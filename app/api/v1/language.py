@@ -26,7 +26,7 @@ class LanguageResponse(BaseModel):
 
 
 @router.post("/set", response_model=LanguageResponse)
-async def set_language(
+def set_language(
     request: LanguageRequest,
     response: Response,
 ) -> LanguageResponse:
@@ -66,7 +66,7 @@ async def set_language(
 
 
 @router.get("/current", response_model=LanguageResponse)
-async def get_current_language(
+def get_current_language(
     response: Response,
 ) -> LanguageResponse:
     """

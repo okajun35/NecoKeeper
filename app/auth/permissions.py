@@ -87,7 +87,7 @@ def require_role(allowed_roles: list[str]) -> Any:
             return {"message": "Admin only"}
     """
 
-    async def role_checker(
+    def role_checker(
         current_user: Annotated[User, Depends(get_current_active_user)],
     ) -> User:
         if current_user.role not in allowed_roles:
@@ -116,7 +116,7 @@ def require_permission(required_permission: str) -> Any:
             return {"message": "Animal created"}
     """
 
-    async def permission_checker(
+    def permission_checker(
         current_user: Annotated[User, Depends(get_current_active_user)],
     ) -> User:
         if not has_permission(current_user, required_permission):

@@ -72,7 +72,7 @@ class ReportRequest(BaseModel):
 
 
 @router.post("/qr-card")
-async def generate_qr_card(
+def generate_qr_card(
     request: QRCardRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:read"))],
@@ -117,7 +117,7 @@ async def generate_qr_card(
 
 
 @router.post("/qr-card-grid")
-async def generate_qr_card_grid(
+def generate_qr_card_grid(
     request: QRCardGridRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:read"))],
@@ -164,7 +164,7 @@ async def generate_qr_card_grid(
 
 
 @router.post("/paper-form")
-async def generate_paper_form(
+def generate_paper_form(
     request: PaperFormRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:read"))],
@@ -206,7 +206,7 @@ async def generate_paper_form(
 
 
 @router.post("/medical-detail")
-async def generate_medical_detail(
+def generate_medical_detail(
     request: MedicalDetailRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("medical:read"))],
@@ -250,7 +250,7 @@ async def generate_medical_detail(
 
 
 @router.post("/report")
-async def generate_report(
+def generate_report(
     request: ReportRequest,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("report:read"))],

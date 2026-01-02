@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import os
 from collections.abc import Generator
+from pathlib import Path
+from typing import Final
 
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
@@ -21,8 +23,30 @@ settings = get_settings()
 # DB パスの決定（環境変数で制御可能）
 # Free Plan: data/necokeeper.db（イメージに含まれる）
 # Starter Plan: 永続ディスクのパスを NECOKEEPER_DB_PATH で指定
-DB_PATH = os.getenv("NECOKEEPER_DB_PATH", "data/necokeeper.db")
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+DB_PATH: Final[str] = os.getenv("NECOKEEPER_DB_PATH", "data/necokeeper.db")
+DATABASE_URL: Final[str] = f"sqlite:///{DB_PATH}"
+
+
+def _ensure_sqlite_dir(db_url: str) -> None:
+    """SQLiteパスの親ディレクトリを事前作成しておく。
+
+    seedスクリプトやスタンドアロン実行時はFastAPIのlifespanが通らないため、
+    ここでディレクトリを作っておかないと「unable to open database file」になる。
+    """
+
+    if not db_url.startswith("sqlite"):
+        return
+
+    # sqlite:///./data/foo.db -> ./data/foo.db
+    if db_url.startswith("sqlite:////"):
+        # absolute path, keep leading slash (e.g. /app/data/foo.db)
+        raw_path = db_url.replace("sqlite:////", "/", 1)
+    else:
+        # relative path under working dir (e.g. ./data/foo.db)
+        raw_path = db_url.replace("sqlite:///", "", 1)
+    db_file = Path(raw_path)
+    db_file.parent.mkdir(parents=True, exist_ok=True)
+
 
 # PostgreSQL互換の命名規則
 # Alembicマイグレーションと統合し、一貫性のある制約名を生成
@@ -37,13 +61,15 @@ NAMING_CONVENTION = {
 # SQLAlchemyエンジンの作成
 # SQLiteの場合、check_same_threadをFalseに設定してマルチスレッド対応
 # NECOKEEPER_DB_PATH が設定されている場合はそちらを優先
+effective_db_url = (
+    DATABASE_URL if os.getenv("NECOKEEPER_DB_PATH") else settings.database_url
+)
+_ensure_sqlite_dir(effective_db_url)
+
 engine = create_engine(
-    DATABASE_URL if os.getenv("NECOKEEPER_DB_PATH") else settings.database_url,
+    effective_db_url,
     echo=settings.database_echo,
-    connect_args={"check_same_thread": False}
-    if "sqlite"
-    in (DATABASE_URL if os.getenv("NECOKEEPER_DB_PATH") else settings.database_url)
-    else {},
+    connect_args={"check_same_thread": False} if "sqlite" in effective_db_url else {},
 )
 
 

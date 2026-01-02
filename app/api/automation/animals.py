@@ -86,7 +86,7 @@ router = APIRouter()
         },
     },
 )
-async def create_animal_automation(
+def create_animal_automation(
     animal_data: AnimalCreate,
     db: Session = Depends(get_db),
 ) -> AnimalResponse:
@@ -185,7 +185,7 @@ async def create_animal_automation(
         },
     },
 )
-async def get_animal_automation(
+def get_animal_automation(
     animal_id: int,
     db: Session = Depends(get_db),
 ) -> AnimalResponse:
@@ -311,7 +311,7 @@ async def get_animal_automation(
         },
     },
 )
-async def upload_animal_image_automation(
+def upload_animal_image_automation(
     animal_id: int,
     file: UploadFile = File(..., description="アップロードする画像ファイル"),
     db: Session = Depends(get_db),
@@ -334,7 +334,7 @@ async def upload_animal_image_automation(
     """
     try:
         # image_service.upload_image を使用して画像をアップロード
-        animal_image = await image_service.upload_image(
+        animal_image = image_service.upload_image(
             db=db,
             animal_id=animal_id,
             file=file,
