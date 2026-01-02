@@ -74,8 +74,8 @@ COPY alembic.ini .
 # リポジトリの DB をイメージに含める（Free Plan 用）
 # COPY data ./data
 
-# 初期化スクリプトをコピー（パーミッション設定前）
-COPY scripts/init_db.sh /app/scripts/init_db.sh
+# 初期化スクリプトと seed スクリプトを含む scripts ディレクトリをコピー
+COPY scripts/ /app/scripts/
 
 # エフェメラルディレクトリの作成（Free Plan用）
 # 注意: これらのディレクトリは再デプロイで消える
@@ -83,7 +83,8 @@ COPY scripts/init_db.sh /app/scripts/init_db.sh
 #    chmod 777 /tmp/data /tmp/media /tmp/backups /tmp/logs && \
 #    chmod +x /app/scripts/init_db.sh
 
-RUN chmod +x /app/scripts/init_db.sh
+RUN chmod +x /app/scripts/init_db.sh || true
+RUN if [ -d /app/scripts ]; then chmod +x /app/scripts/*.sh || true; fi
 
 # 非rootユーザーの作成（セキュリティ）
 #RUN useradd -m -u 1000 necokeeper && \
