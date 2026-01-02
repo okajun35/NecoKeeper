@@ -164,7 +164,7 @@ def optimize_image(
             # RGBAをRGBに変換（JPEGはアルファチャンネルをサポートしない）
             if img.mode in ("RGBA", "LA", "P"):
                 # 白背景を作成
-                background = Image.new("RGB", img.size, color=255)
+                background = Image.new("RGB", img.size, (255, 255, 255))
                 if img.mode == "P":
                     img = img.convert("RGBA")
                 background.paste(
