@@ -9,7 +9,9 @@ from __future__ import annotations
 from datetime import date as date_type
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
+
+from app.utils.stool_condition import StoolCondition
 
 
 class CareLogBase(BaseModel):
@@ -22,8 +24,15 @@ class CareLogBase(BaseModel):
     appetite: int = Field(3, ge=1, le=5, description="食欲（1〜5段階、5が最良）")
     energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
     urination: bool = Field(False, description="排尿有無")
+    defecation: bool = Field(False, description="排便有無")
+    stool_condition: StoolCondition | None = Field(None, description="便の状態（1〜5）")
     cleaning: bool = Field(False, description="清掃済み")
-    memo: str | None = Field(None, description="メモ")
+    memo: str | None = Field(
+        None,
+        description="メモ",
+        validation_alias=AliasChoices("memo", "notes"),
+        serialization_alias="memo",
+    )
     from_paper: bool = Field(False, description="紙記録からの転記フラグ")
 
     @field_validator("time_slot")
@@ -60,8 +69,14 @@ class CareLogUpdate(BaseModel):
     appetite: int | None = Field(None, ge=1, le=5)
     energy: int | None = Field(None, ge=1, le=5)
     urination: bool | None = None
+    defecation: bool | None = None
+    stool_condition: StoolCondition | None = None
     cleaning: bool | None = None
-    memo: str | None = None
+    memo: str | None = Field(
+        None,
+        validation_alias=AliasChoices("memo", "notes"),
+        serialization_alias="memo",
+    )
     from_paper: bool | None = None
 
     @field_validator("time_slot")

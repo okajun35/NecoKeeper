@@ -130,6 +130,113 @@ class TestCreateCareLogPublic:
         assert data["ip_address"] is not None  # IPアドレスが記録される
         assert data["user_agent"] is not None  # User-Agentが記録される
 
+    def test_create_care_log_public_with_defecation_and_stool_condition_success(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """正常系: 排便あり+便状態ありで登録できる"""
+        # Given
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        care_log_data = {
+            "animal_id": test_animal.id,
+            "recorder_id": volunteer.id,
+            "recorder_name": "テストボランティア",
+            "log_date": "2025-11-15",
+            "time_slot": "morning",
+            "appetite": 5,
+            "energy": 5,
+            "urination": True,
+            "defecation": True,
+            "stool_condition": 2,
+            "cleaning": True,
+            "memo": "元気です",
+        }
+
+        # When
+        response = test_client.post("/api/v1/public/care-logs", json=care_log_data)
+
+        # Then
+        assert response.status_code == 201
+        data = response.json()
+        assert data["defecation"] is True
+        assert data["stool_condition"] == 2
+
+    def test_create_care_log_public_defecation_true_without_stool_condition_returns_422(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """異常系: defecation=true で stool_condition 未指定は422"""
+        # Given
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        care_log_data = {
+            "animal_id": test_animal.id,
+            "recorder_id": volunteer.id,
+            "recorder_name": "テストボランティア",
+            "log_date": "2025-11-15",
+            "time_slot": "morning",
+            "appetite": 5,
+            "energy": 5,
+            "urination": True,
+            "defecation": True,
+            "cleaning": True,
+        }
+
+        # When
+        response = test_client.post("/api/v1/public/care-logs", json=care_log_data)
+
+        # Then
+        assert response.status_code == 422
+
+    def test_create_care_log_public_accepts_notes_alias_and_returns_memo(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """正常系: 入力はnotesでも受理し、レスポンスはmemoで返す"""
+        # Given
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        care_log_data = {
+            "animal_id": test_animal.id,
+            "recorder_id": volunteer.id,
+            "recorder_name": "テストボランティア",
+            "log_date": "2025-11-15",
+            "time_slot": "morning",
+            "appetite": 5,
+            "energy": 5,
+            "urination": True,
+            "cleaning": True,
+            "notes": "notesでもOK",
+        }
+
+        # When
+        response = test_client.post("/api/v1/public/care-logs", json=care_log_data)
+
+        # Then
+        assert response.status_code == 201
+        data = response.json()
+        assert data["memo"] == "notesでもOK"
+        assert "notes" not in data
+
     def test_create_care_log_public_minimal_fields(
         self, test_client: TestClient, test_animal: Animal, test_db: Session
     ):
@@ -271,6 +378,8 @@ class TestGetLatestCareLog:
             appetite=5,
             energy=5,
             urination=False,
+            defecation=True,
+            stool_condition=2,
             cleaning=False,
             memo="最新の記録",
         )
@@ -289,6 +398,8 @@ class TestGetLatestCareLog:
         assert data["appetite"] == 5
         assert data["energy"] == 5
         assert data["memo"] == "最新の記録"
+        assert data["defecation"] is True
+        assert data["stool_condition"] == 2
 
     def test_get_latest_care_log_no_records(
         self, test_client: TestClient, test_animal: Animal

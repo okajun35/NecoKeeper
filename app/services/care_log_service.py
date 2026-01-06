@@ -25,6 +25,25 @@ from app.schemas.care_log import (
 logger = logging.getLogger(__name__)
 
 
+def _validate_defecation_fields(defecation: bool, stool_condition: int | None) -> None:
+    if defecation is False and stool_condition is not None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="defecation=false の場合、stool_condition は null である必要があります",
+        )
+    if defecation is True:
+        if stool_condition is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="defecation=true の場合、stool_condition は必須です",
+            )
+        if not (1 <= stool_condition <= 5):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="stool_condition は 1〜5 の範囲である必要があります",
+            )
+
+
 def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
     """
     世話記録を登録
@@ -40,6 +59,13 @@ def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
         HTTPException: データベースエラーが発生した場合
     """
     try:
+        _validate_defecation_fields(
+            care_log_data.defecation,
+            None
+            if care_log_data.stool_condition is None
+            else int(care_log_data.stool_condition),
+        )
+
         care_log = CareLog(**care_log_data.model_dump())
         db.add(care_log)
         db.commit()
@@ -49,6 +75,9 @@ def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
             f"世話記録を登録しました: ID={care_log.id}, 猫ID={care_log.animal_id}"
         )
         return care_log
+
+    except HTTPException:
+        raise
 
     except Exception as e:
         db.rollback()
@@ -100,6 +129,8 @@ def get_care_log(db: Session, care_log_id: int) -> CareLogResponse:
             appetite=care_log.appetite,
             energy=care_log.energy,
             urination=care_log.urination,
+            defecation=care_log.defecation,
+            stool_condition=care_log.stool_condition,
             cleaning=care_log.cleaning,
             memo=care_log.memo,
             from_paper=care_log.from_paper,
@@ -152,6 +183,16 @@ def update_care_log(
 
         # 世話記録を更新
         update_dict = care_log_data.model_dump(exclude_unset=True)
+
+        updated_defecation = update_dict.get("defecation", care_log.defecation)
+        updated_stool_condition = update_dict.get(
+            "stool_condition", care_log.stool_condition
+        )
+        _validate_defecation_fields(
+            bool(updated_defecation),
+            None if updated_stool_condition is None else int(updated_stool_condition),
+        )
+
         for key, value in update_dict.items():
             setattr(care_log, key, value)
 
@@ -179,6 +220,8 @@ def update_care_log(
             appetite=care_log.appetite,
             energy=care_log.energy,
             urination=care_log.urination,
+            defecation=care_log.defecation,
+            stool_condition=care_log.stool_condition,
             cleaning=care_log.cleaning,
             memo=care_log.memo,
             from_paper=care_log.from_paper,
@@ -275,6 +318,8 @@ def list_care_logs(
             appetite=log.appetite,
             energy=log.energy,
             urination=log.urination,
+            defecation=log.defecation,
+            stool_condition=log.stool_condition,
             cleaning=log.cleaning,
             memo=log.memo,
             from_paper=log.from_paper,

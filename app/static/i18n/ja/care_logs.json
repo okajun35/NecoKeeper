@@ -18,6 +18,8 @@
     "energy": "元気",
     "urination": "排尿",
     "cleaning": "清掃",
+    "defecation": "排便",
+    "stool_condition": "便の状態",
     "memo": "メモ",
     "log_date": "記録日",
     "created_at": "登録日時"
@@ -46,10 +48,29 @@
     "yes": "あり",
     "no": "なし"
   },
+  "defecation_status": {
+    "yes": "あり",
+    "no": "なし"
+  },
   "cleaning_status": {
     "done": "済",
     "not_done": "未"
   },
+  "stool_condition_levels": {
+    "1": "硬い",
+    "2": "良好",
+    "3": "やや柔らかい",
+    "4": "下痢",
+    "5": "水様"
+  },
+  "stool_condition_help": "ⓘ 判断に迷ったら",
+  "stool_condition_help_title": "排泄の状態の目安",
+  "stool_condition_help_intro": "写真ではありません。いちばん近い状態を選んでください。迷った場合は「良好」で問題ありません。",
+  "stool_condition_desc_1": "水分が少なく、乾いた見た目。小さく分かれていることがあります。",
+  "stool_condition_desc_2": "形があり、適度なやわらかさ。日常的にはこの状態が目安です。",
+  "stool_condition_desc_3": "形はあるが少しつぶれやすい。一時的な変化として見られることもあります。",
+  "stool_condition_desc_4": "形がほとんど保てない。まとまりがなく柔らかい状態です。",
+  "stool_condition_desc_5": "ほぼ液体に近い。広がりやすく形がない状態です。",
   "filter": {
     "by_animal": "猫で絞り込み",
     "by_date": "日付で絞り込み",

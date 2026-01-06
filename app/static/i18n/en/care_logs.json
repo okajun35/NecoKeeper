@@ -18,6 +18,8 @@
     "energy": "Energy",
     "urination": "Urination",
     "cleaning": "Cage Cleaning",
+    "defecation": "Defecation",
+    "stool_condition": "Stool Condition",
     "memo": "Notes",
     "log_date": "Log Date",
     "created_at": "Created At"
@@ -46,10 +48,29 @@
     "yes": "Yes",
     "no": "No"
   },
+  "defecation_status": {
+    "yes": "Yes",
+    "no": "No"
+  },
   "cleaning_status": {
     "done": "Done",
     "not_done": "Not done"
   },
+  "stool_condition_levels": {
+    "1": "Hard",
+    "2": "Good",
+    "3": "Slightly soft",
+    "4": "Diarrhea",
+    "5": "Watery"
+  },
+  "stool_condition_help": "ⓘ Not sure?",
+  "stool_condition_help_title": "Stool condition guide",
+  "stool_condition_help_intro": "These are not photos. Choose the closest condition. If you're unsure, selecting \"Good\" is fine.",
+  "stool_condition_desc_1": "Low moisture and dry-looking. It may be small and segmented.",
+  "stool_condition_desc_2": "Well-formed with appropriate softness. This is the typical target.",
+  "stool_condition_desc_3": "Formed but slightly easy to flatten. Can be a temporary change.",
+  "stool_condition_desc_4": "Hard to keep its shape. Soft and unformed.",
+  "stool_condition_desc_5": "Almost liquid. Spreads easily with no shape.",
   "filter": {
     "by_animal": "Filter by cat",
     "by_date": "Filter by date",

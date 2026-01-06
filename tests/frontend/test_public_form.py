@@ -48,9 +48,18 @@ class TestPublicFormRendering:
         assert 'id="appetite"' in html
         assert 'id="energy"' in html
         assert 'id="urination"' in html
+        assert 'id="defecation"' in html
+        assert 'id="stoolConditionSection"' in html
+        assert 'id="stoolCondition"' in html
         assert 'id="cleaning"' in html
-        assert 'id="notes"' in html
+        assert 'id="memo"' in html
         assert 'id="volunteer"' in html
+
+        # 便状態ヘルプモーダル
+        assert 'id="stoolConditionHelpOpen"' in html
+        assert 'id="stoolConditionHelpModal"' in html
+        assert 'id="stoolConditionHelpBackdrop"' in html
+        assert 'id="stoolConditionHelpClose"' in html
 
         # ボタン
         assert 'id="copyLastBtn"' in html
