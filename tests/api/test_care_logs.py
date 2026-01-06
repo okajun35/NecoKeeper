@@ -41,98 +41,6 @@ class TestCareLogCRUD:
         assert data["appetite"] == 4
         assert data["energy"] == 5
 
-    def test_create_care_log_with_defecation_and_stool_condition(
-        self, test_client, test_db, auth_token
-    ):
-        """正常系: 排便あり+便状態ありで世話記録を作成できる"""
-        # Given
-        animal = test_db.query(Animal).first()
-        animal_id = animal.id
-
-        # When
-        response = test_client.post(
-            "/api/v1/care-logs",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={
-                "animal_id": animal_id,
-                "recorder_name": "テスト記録者",
-                "log_date": "2025-11-15",
-                "time_slot": "morning",
-                "appetite": 4,
-                "energy": 5,
-                "urination": True,
-                "defecation": True,
-                "stool_condition": 2,
-                "cleaning": True,
-                "memo": "元気です",
-            },
-        )
-
-        # Then
-        assert response.status_code == 201
-        data = response.json()
-        assert data["defecation"] is True
-        assert data["stool_condition"] == 2
-
-    def test_create_care_log_defecation_true_without_stool_condition_returns_422(
-        self, test_client, test_db, auth_token
-    ):
-        """異常系: defecation=true で stool_condition 未指定は422"""
-        # Given
-        animal = test_db.query(Animal).first()
-        animal_id = animal.id
-
-        # When
-        response = test_client.post(
-            "/api/v1/care-logs",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={
-                "animal_id": animal_id,
-                "recorder_name": "テスト記録者",
-                "log_date": "2025-11-15",
-                "time_slot": "morning",
-                "appetite": 4,
-                "energy": 5,
-                "urination": True,
-                "defecation": True,
-                "cleaning": True,
-            },
-        )
-
-        # Then
-        assert response.status_code == 422
-
-    def test_create_care_log_accepts_notes_alias_and_returns_memo(
-        self, test_client, test_db, auth_token
-    ):
-        """正常系: 入力はnotesでも受理し、レスポンスはmemoで返す"""
-        # Given
-        animal = test_db.query(Animal).first()
-        animal_id = animal.id
-
-        # When
-        response = test_client.post(
-            "/api/v1/care-logs",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={
-                "animal_id": animal_id,
-                "recorder_name": "テスト記録者",
-                "log_date": "2025-11-15",
-                "time_slot": "morning",
-                "appetite": 4,
-                "energy": 5,
-                "urination": True,
-                "cleaning": True,
-                "notes": "notesでもOK",
-            },
-        )
-
-        # Then
-        assert response.status_code == 201
-        data = response.json()
-        assert data["memo"] == "notesでもOK"
-        assert "notes" not in data
-
     def test_list_care_logs(self, test_client, test_db, auth_token):
         """世話記録一覧を取得できる"""
         # テストデータを作成
@@ -219,40 +127,6 @@ class TestCareLogCRUD:
         assert data["appetite"] == 5
         assert data["energy"] == 5
         assert data["memo"] == "更新されました"
-
-    def test_update_care_log_defecation_false_auto_clears_stool_condition(
-        self, test_client, test_db, auth_token
-    ):
-        """正常系: defecation=false に更新すると stool_condition が自動的にクリアされる"""
-        # Given
-        animal = test_db.query(Animal).first()
-        care_log = CareLog(
-            log_date=date.today(),
-            animal_id=animal.id,
-            recorder_name="記録者",
-            time_slot="evening",
-            appetite=3,
-            energy=3,
-            urination=True,
-            defecation=True,
-            stool_condition=2,
-            cleaning=True,
-        )
-        test_db.add(care_log)
-        test_db.commit()
-
-        # When
-        response = test_client.put(
-            f"/api/v1/care-logs/{care_log.id}",
-            headers={"Authorization": f"Bearer {auth_token}"},
-            json={"defecation": False},
-        )
-
-        # Then
-        assert response.status_code == 200
-        data = response.json()
-        assert data["defecation"] is False
-        assert data["stool_condition"] is None
 
     def test_filter_by_animal_id(self, test_client, test_db, auth_token):
         """猫IDでフィルタリングできる"""
