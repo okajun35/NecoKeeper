@@ -38,7 +38,8 @@ def parse_date(date_str: str) -> date | None:
         if len(parts) == 3:
             return datetime(int(parts[0]), int(parts[1]), int(parts[2])).date()
     except (ValueError, IndexError):
-        pass
+        # 手動パースに失敗した場合は無効な日付として扱う
+        return None
     return None
 
 
