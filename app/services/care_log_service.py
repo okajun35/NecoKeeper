@@ -184,13 +184,21 @@ def update_care_log(
         # 世話記録を更新
         update_dict = care_log_data.model_dump(exclude_unset=True)
 
-        # defecation / stool_condition の最終的な更新後状態を明示的にマージしてからバリデーションする
-        proposed_defecation = care_log.defecation
-        proposed_stool_condition = care_log.stool_condition
-        if "defecation" in update_dict:
-            proposed_defecation = update_dict["defecation"]
-        if "stool_condition" in update_dict:
-            proposed_stool_condition = update_dict["stool_condition"]
+        # defecation=False に変更する場合、stool_condition が明示的に指定されていなければ自動的にクリアする。
+        # ただし defecation=False と同時に stool_condition に値が指定された場合は不整合として弾く。
+        if "defecation" in update_dict and update_dict["defecation"] is False:
+            if "stool_condition" not in update_dict:
+                update_dict["stool_condition"] = None
+            elif update_dict["stool_condition"] is not None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="defecation=false の場合、stool_condition は null である必要があります",
+                )
+
+        proposed_defecation = update_dict.get("defecation", care_log.defecation)
+        proposed_stool_condition = update_dict.get(
+            "stool_condition", care_log.stool_condition
+        )
 
         _validate_defecation_fields(
             bool(proposed_defecation),
