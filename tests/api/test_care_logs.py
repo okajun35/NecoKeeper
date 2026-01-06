@@ -220,10 +220,10 @@ class TestCareLogCRUD:
         assert data["energy"] == 5
         assert data["memo"] == "更新されました"
 
-    def test_update_care_log_defecation_false_with_stool_condition_returns_422(
+    def test_update_care_log_defecation_false_auto_clears_stool_condition(
         self, test_client, test_db, auth_token
     ):
-        """異常系: defecation=false で stool_condition が残る更新は422"""
+        """正常系: defecation=false に更新すると stool_condition が自動的にクリアされる"""
         # Given
         animal = test_db.query(Animal).first()
         care_log = CareLog(
@@ -249,7 +249,10 @@ class TestCareLogCRUD:
         )
 
         # Then
-        assert response.status_code == 422
+        assert response.status_code == 200
+        data = response.json()
+        assert data["defecation"] is False
+        assert data["stool_condition"] is None
 
     def test_filter_by_animal_id(self, test_client, test_db, auth_token):
         """猫IDでフィルタリングできる"""

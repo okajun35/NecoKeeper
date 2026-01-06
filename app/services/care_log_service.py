@@ -191,6 +191,12 @@ def update_care_log(
             proposed_defecation = update_dict["defecation"]
         if "stool_condition" in update_dict:
             proposed_stool_condition = update_dict["stool_condition"]
+        
+        # defecation=False に変更する場合、stool_condition が明示的に指定されていなければ自動的にクリアする
+        if "defecation" in update_dict and update_dict["defecation"] is False:
+            if "stool_condition" not in update_dict:
+                update_dict["stool_condition"] = None
+                proposed_stool_condition = None
 
         _validate_defecation_fields(
             bool(proposed_defecation),

@@ -325,10 +325,10 @@ class TestUpdateCareLog:
 
         assert exc_info.value.status_code == 422
 
-    def test_update_care_log_defecation_false_with_stool_condition_raises_422(
+    def test_update_care_log_defecation_false_auto_clears_stool_condition(
         self, test_db: Session, test_animal: Animal, test_user: User
     ):
-        """異常系: 更新時も defecation=false の場合 stool_condition はnull必須"""
+        """正常系: defecation=false に更新すると stool_condition が自動的にクリアされる"""
         # Given
         care_log = CareLog(
             log_date=date.today(),
@@ -347,6 +347,38 @@ class TestUpdateCareLog:
         test_db.refresh(care_log)
 
         update_data = CareLogUpdate(defecation=False)
+
+        # When
+        result = care_log_service.update_care_log(
+            test_db, care_log.id, update_data, test_user.id
+        )
+
+        # Then
+        assert result.defecation is False
+        assert result.stool_condition is None
+
+    def test_update_care_log_defecation_false_with_explicit_stool_condition_raises_422(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """異常系: defecation=false の場合、明示的に stool_condition を指定するとエラー"""
+        # Given
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=True,
+            stool_condition=2,
+            cleaning=True,
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        update_data = CareLogUpdate(defecation=False, stool_condition=3)
 
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
