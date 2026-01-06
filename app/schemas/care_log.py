@@ -25,7 +25,15 @@ class CareLogBase(BaseModel):
     energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
     urination: bool = Field(False, description="排尿有無")
     defecation: bool = Field(False, description="排便有無")
-    stool_condition: StoolCondition | None = Field(None, description="便の状態（1〜5）")
+    stool_condition: StoolCondition | None = Field(
+        None,
+        description=(
+            "便の状態（排便ありの場合のみ）。"
+            "値の意味: 1=HARD(硬い), 2=GOOD(良好), 3=SLIGHTLY_SOFT(やや柔らかい), "
+            "4=DIARRHEA(下痢), 5=WATERY(水様)"
+        ),
+        examples=[2],
+    )
     cleaning: bool = Field(False, description="清掃済み")
     memo: str | None = Field(
         None,
@@ -70,7 +78,15 @@ class CareLogUpdate(BaseModel):
     energy: int | None = Field(None, ge=1, le=5)
     urination: bool | None = None
     defecation: bool | None = None
-    stool_condition: StoolCondition | None = None
+    stool_condition: StoolCondition | None = Field(
+        None,
+        description=(
+            "便の状態（排便ありの場合のみ）。"
+            "値の意味: 1=HARD(硬い), 2=GOOD(良好), 3=SLIGHTLY_SOFT(やや柔らかい), "
+            "4=DIARRHEA(下痢), 5=WATERY(水様)"
+        ),
+        examples=[2],
+    )
     cleaning: bool | None = None
     memo: str | None = Field(
         None,
