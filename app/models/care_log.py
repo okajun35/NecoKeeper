@@ -9,7 +9,17 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    SmallInteger,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -35,6 +45,8 @@ class CareLog(Base):
         appetite: 食欲（1〜5段階、5が最良、デフォルト: 3）
         energy: 元気（1〜5段階、5が最良、デフォルト: 3）
         urination: 排尿有無（True=有り、False=無し）
+        defecation: 排便有無（True=有り、False=無し）
+        stool_condition: 便の状態（1〜5、排便が有りの場合のみ）
         cleaning: 清掃済み（True=済、False=未）
         memo: メモ（任意）
         ip_address: IPアドレス（記録時の接続元）
@@ -107,6 +119,20 @@ class CareLog(Base):
         default=False,
         server_default="0",
         comment="排尿有無（True=有り、False=無し）",
+    )
+
+    defecation: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="0",
+        comment="排便有無（True=有り、False=無し）",
+    )
+
+    stool_condition: Mapped[int | None] = mapped_column(
+        SmallInteger,
+        nullable=True,
+        comment="便の状態（1〜5、排便が有りの場合のみ）",
     )
 
     cleaning: Mapped[bool] = mapped_column(

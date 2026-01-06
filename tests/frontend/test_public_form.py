@@ -48,9 +48,18 @@ class TestPublicFormRendering:
         assert 'id="appetite"' in html
         assert 'id="energy"' in html
         assert 'id="urination"' in html
+        assert 'id="defecation"' in html
+        assert 'id="stoolConditionSection"' in html
+        assert 'id="stoolCondition"' in html
         assert 'id="cleaning"' in html
-        assert 'id="notes"' in html
+        assert 'id="memo"' in html
         assert 'id="volunteer"' in html
+
+        # 便状態ヘルプモーダル
+        assert 'id="stoolConditionHelpOpen"' in html
+        assert 'id="stoolConditionHelpModal"' in html
+        assert 'id="stoolConditionHelpBackdrop"' in html
+        assert 'id="stoolConditionHelpClose"' in html
 
         # ボタン
         assert 'id="copyLastBtn"' in html
@@ -122,6 +131,50 @@ class TestPublicFormDataFlow:
         test_db.commit()
         test_db.refresh(volunteer)
 
+    def test_form_submission_flow_accepts_notes_alias(
+        self, test_client: TestClient, test_animal: Animal, test_db: Session
+    ):
+        """統合テスト: 旧フィールド名 notes（input alias）で送信しても memo として扱われる"""
+        # Given: ボランティアを作成
+        volunteer = Volunteer(
+            name="テストボランティア",
+            contact="090-1234-5678",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        # When: notes（旧フィールド）で世話記録を送信
+        care_log_data = {
+            "animal_id": test_animal.id,
+            "recorder_id": volunteer.id,
+            "recorder_name": volunteer.name,
+            "log_date": "2025-11-15",
+            "time_slot": "morning",
+            "appetite": 5,
+            "energy": 5,
+            "urination": True,
+            "cleaning": True,
+            "notes": "旧notesフィールドで送信",
+        }
+        submit_response = test_client.post(
+            "/api/v1/public/care-logs", json=care_log_data
+        )
+
+        # Then: 受理され、レスポンスは memo として返る
+        assert submit_response.status_code == 201
+        created_data = submit_response.json()
+        assert created_data["memo"] == "旧notesフィールドで送信"
+
+        # And: 最新記録取得でも memo として参照できる
+        latest_response = test_client.get(
+            f"/api/v1/public/care-logs/latest/{test_animal.id}"
+        )
+        assert latest_response.status_code == 200
+        latest_data = latest_response.json()
+        assert latest_data["memo"] == "旧notesフィールドで送信"
+
         # Step 1: フォームページを読み込む
         form_response = test_client.get(
             f"/public/care?animal_id={test_animal.id}",
@@ -158,6 +211,8 @@ class TestPublicFormDataFlow:
             "/api/v1/public/care-logs", json=care_log_data
         )
         assert submit_response.status_code == 201
+        created_data = submit_response.json()
+        assert created_data["memo"] == "元気です"
 
         # Step 5: 最新記録を取得（前回値コピー機能）
         latest_response = test_client.get(
@@ -167,6 +222,7 @@ class TestPublicFormDataFlow:
         latest_data = latest_response.json()
         assert latest_data["time_slot"] == "morning"
         assert latest_data["appetite"] == 5
+        assert latest_data["memo"] == "元気です"
 
     def test_copy_last_values_flow(
         self, test_client: TestClient, test_animal: Animal, test_db: Session

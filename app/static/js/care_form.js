@@ -33,6 +33,7 @@ const REQUIRED_FIELD_CONFIG = [
   { id: 'appetite', key: 'appetite' },
   { id: 'energy', key: 'energy' },
   { id: 'urination', key: 'urination' },
+  { id: 'defecation', key: 'defecation' },
   { id: 'cleaning', key: 'cleaning' },
   { id: 'volunteer', key: 'recorder' },
 ];
@@ -142,6 +143,55 @@ function setFieldErrorState(fieldId, hasError, message = '') {
 
 function clearAllFieldErrors() {
   REQUIRED_FIELD_CONFIG.forEach(field => setFieldErrorState(field.id, false));
+  setFieldErrorState('stoolCondition', false);
+}
+
+function updateStoolConditionVisibility() {
+  const defecationInput = document.getElementById('defecation');
+  const section = document.getElementById('stoolConditionSection');
+  const stoolInput = document.getElementById('stoolCondition');
+
+  if (!defecationInput || !section || !stoolInput) return;
+
+  const isDefecationYes = defecationInput.value === 'true';
+  section.classList.toggle('hidden', !isDefecationYes);
+
+  if (!isDefecationYes) {
+    // defecation=false の場合は stool_condition を必ずクリア
+    stoolInput.value = '';
+    document.querySelectorAll('.stool-condition-btn.selected').forEach(btn => {
+      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.add('border-gray-300');
+    });
+    setFieldErrorState('stoolCondition', false);
+  }
+}
+
+function setupStoolConditionHelpModal() {
+  const modal = document.getElementById('stoolConditionHelpModal');
+  const openBtn = document.getElementById('stoolConditionHelpOpen');
+  const closeBtn = document.getElementById('stoolConditionHelpClose');
+  const backdrop = document.getElementById('stoolConditionHelpBackdrop');
+
+  if (!modal || !openBtn || !closeBtn || !backdrop) return;
+
+  const open = () => {
+    modal.classList.remove('hidden');
+  };
+
+  const close = () => {
+    modal.classList.add('hidden');
+  };
+
+  openBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      close();
+    }
+  });
 }
 
 function focusField(fieldId) {
@@ -214,6 +264,48 @@ function validateForm() {
       message: summaryMessageParts.join(' '),
       firstInvalidFieldId: missingFields[0].id,
     };
+  }
+
+  // 条件付き必須: defecation=true の場合は stool_condition 必須
+  const defecationValue = document.getElementById('defecation')?.value;
+  const stoolConditionValue = document.getElementById('stoolCondition')?.value;
+  if (defecationValue === 'true' && (!stoolConditionValue || stoolConditionValue.trim() === '')) {
+    const fieldLabel = translateCare(
+      'stool_condition',
+      isKiroweenMode ? 'Stool condition' : '便の状態'
+    );
+    const fieldMessage = translateCare(
+      'validation_required',
+      fallbackText('{{field}} is required.', '{{field}}は必須です'),
+      {
+        field: fieldLabel,
+      }
+    );
+    setFieldErrorState('stoolCondition', true, fieldMessage);
+    return {
+      isValid: false,
+      message: translateCare(
+        'save_validation_error',
+        fallbackText(
+          'Some fields are missing or invalid. Please review the highlighted sections.',
+          '未入力または不正な項目があります。赤枠の欄を確認してください。'
+        )
+      ),
+      firstInvalidFieldId: 'stoolCondition',
+    };
+  }
+
+  // defecation=false の場合は stool_condition は送らない（UI側でクリア済みだが念のため）
+  if (defecationValue === 'false' && stoolConditionValue && stoolConditionValue.trim() !== '') {
+    const message = translateCare(
+      'validation_invalid_combo',
+      fallbackText(
+        'Stool condition must be empty when defecation is No.',
+        '排便が「なし」の場合、便の状態は選択できません。'
+      )
+    );
+    setFieldErrorState('stoolCondition', true, message);
+    return { isValid: false, message, firstInvalidFieldId: 'stoolCondition' };
   }
 
   return { isValid: true, message: '' };
@@ -383,6 +475,20 @@ async function copyLastValues() {
       if (urinationBtn) urinationBtn.click();
     }
 
+    if (typeof lastLog.defecation === 'boolean') {
+      const defecationBtn = document.querySelector(
+        `.defecation-btn[data-value="${lastLog.defecation}"]`
+      );
+      if (defecationBtn) defecationBtn.click();
+    }
+
+    if (lastLog.defecation === true && lastLog.stool_condition) {
+      const stoolBtn = document.querySelector(
+        `.stool-condition-btn[data-value="${lastLog.stool_condition}"]`
+      );
+      if (stoolBtn) stoolBtn.click();
+    }
+
     if (typeof lastLog.cleaning === 'boolean') {
       const cleaningBtn = document.querySelector(`.cleaning-btn[data-value="${lastLog.cleaning}"]`);
       if (cleaningBtn) cleaningBtn.click();
@@ -420,9 +526,19 @@ function resetForm() {
     btn.classList.add('border-gray-300');
   });
   // hidden inputをクリア
-  ['timeSlot', 'appetite', 'energy', 'urination', 'cleaning'].forEach(id => {
+  [
+    'timeSlot',
+    'appetite',
+    'energy',
+    'urination',
+    'defecation',
+    'stoolCondition',
+    'cleaning',
+  ].forEach(id => {
     document.getElementById(id).value = '';
   });
+
+  updateStoolConditionVisibility();
 
   clearAllFieldErrors();
   hideToast();
@@ -466,13 +582,22 @@ async function handleSubmit(e) {
           : document.getElementById('urination').value === 'false'
             ? false
             : null,
+      defecation:
+        document.getElementById('defecation').value === 'true'
+          ? true
+          : document.getElementById('defecation').value === 'false'
+            ? false
+            : null,
+      stool_condition: document.getElementById('stoolCondition').value
+        ? parseInt(document.getElementById('stoolCondition').value)
+        : null,
       cleaning:
         document.getElementById('cleaning').value === 'true'
           ? true
           : document.getElementById('cleaning').value === 'false'
             ? false
             : null,
-      notes: document.getElementById('notes').value || null,
+      memo: document.getElementById('memo').value || null,
       recorder_id: parseInt(document.getElementById('volunteer').value),
       recorder_name: recorderName,
     };
@@ -518,7 +643,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupButtonGroup('appetite-btn', 'appetite');
   setupButtonGroup('energy-btn', 'energy');
   setupButtonGroup('urination-btn', 'urination');
+  setupButtonGroup('defecation-btn', 'defecation');
+  setupButtonGroup('stool-condition-btn', 'stoolCondition');
   setupButtonGroup('cleaning-btn', 'cleaning');
+
+  // defecation の選択に応じて stool_condition を表示/非表示
+  document.querySelectorAll('.defecation-btn').forEach(btn => {
+    btn.addEventListener('click', updateStoolConditionVisibility);
+  });
+
+  updateStoolConditionVisibility();
+  setupStoolConditionHelpModal();
 
   // 前回値コピーボタン
   document.getElementById('copyLastBtn').addEventListener('click', copyLastValues);

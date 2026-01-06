@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const detailContainer = document.getElementById('care-log-detail');
   const careLogId = parseInt(detailContainer.dataset.careLogId);
 
+  setupStoolConditionHelpModal();
+
   try {
     const careLog = await apiRequest(`/api/v1/care-logs/${careLogId}`);
 
@@ -83,6 +85,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
 
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.defecation">${t('fields.defecation')}</label>
+                    <p class="mt-1 text-lg" data-i18n="care_logs:defecation_status.${careLog.defecation ? 'yes' : 'no'}">${careLog.defecation ? t('defecation_status.yes') : t('defecation_status.no')}</p>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.stool_condition">${t('fields.stool_condition')}</label>
+                      <button type="button" id="stoolConditionHelpOpen" class="text-sm text-indigo-600 hover:text-indigo-800" data-i18n="care_logs:stool_condition_help">${t('stool_condition_help')}</button>
+                    </div>
+                    ${
+                      careLog.defecation && careLog.stool_condition
+                        ? `
+                    <div class="mt-1 flex items-center gap-3">
+                      <img src="/static/images/cat_poops/cat_poop_${careLog.stool_condition}.png" alt="stool" class="w-10 h-10">
+                      <div class="text-lg" data-i18n="care_logs:stool_condition_levels.${careLog.stool_condition}">${t('stool_condition_levels.' + careLog.stool_condition)}</div>
+                    </div>
+                    `
+                        : `<p class="mt-1 text-lg text-gray-500">-</p>`
+                    }
+                  </div>
+                </div>
+
                 ${
                   careLog.memo
                     ? `
@@ -115,6 +140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         `;
+
+    // innerHTML差し替え後にopenボタンへ紐付け
+    setupStoolConditionHelpModal();
   } catch (error) {
     console.error('Error loading care log:', error);
     const errorMessage =
@@ -127,6 +155,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
   }
 });
+
+function setupStoolConditionHelpModal() {
+  const modal = document.getElementById('stoolConditionHelpModal');
+  const openBtn = document.getElementById('stoolConditionHelpOpen');
+  const closeBtn = document.getElementById('stoolConditionHelpClose');
+  const backdrop = document.getElementById('stoolConditionHelpBackdrop');
+
+  if (!modal || !openBtn || !closeBtn || !backdrop) return;
+
+  const open = () => modal.classList.remove('hidden');
+  const close = () => modal.classList.add('hidden');
+
+  // 多重登録を避けるため、一度クローンして置換
+  const openClone = openBtn.cloneNode(true);
+  openBtn.parentNode.replaceChild(openClone, openBtn);
+  const closeClone = closeBtn.cloneNode(true);
+  closeBtn.parentNode.replaceChild(closeClone, closeBtn);
+
+  openClone.addEventListener('click', open);
+  closeClone.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      close();
+    }
+  });
+}
 
 /**
  * 時間帯のラベルを取得

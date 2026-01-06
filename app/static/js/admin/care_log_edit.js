@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 猫一覧を読み込み
   await loadAnimals();
 
+  // 排便・便状態 UI
+  setupDefecationAndStoolConditionUI();
+
+  // 便状態ヘルプモーダル
+  setupStoolConditionHelpModal();
+
   // 既存データを読み込み
   await loadCareLog(careLogId);
 
@@ -30,6 +36,87 @@ document.addEventListener('DOMContentLoaded', async () => {
     .getElementById('care-log-form')
     .addEventListener('submit', e => handleFormSubmit(e, careLogId));
 });
+
+function setupStoolConditionHelpModal() {
+  const modal = document.getElementById('stoolConditionHelpModal');
+  const openBtn = document.getElementById('stoolConditionHelpOpen');
+  const closeBtn = document.getElementById('stoolConditionHelpClose');
+  const backdrop = document.getElementById('stoolConditionHelpBackdrop');
+
+  if (!modal || !openBtn || !closeBtn || !backdrop) return;
+
+  const open = () => modal.classList.remove('hidden');
+  const close = () => modal.classList.add('hidden');
+
+  openBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      close();
+    }
+  });
+}
+
+function setSelectedButton(buttons, selectedButton) {
+  buttons.forEach(btn => {
+    if (btn === selectedButton) {
+      btn.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.remove('border-gray-300');
+    } else {
+      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.add('border-gray-300');
+    }
+  });
+}
+
+function clearSelectedButtons(buttons) {
+  buttons.forEach(btn => {
+    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+    btn.classList.add('border-gray-300');
+  });
+}
+
+function updateStoolConditionVisibility() {
+  const defecationInput = document.getElementById('defecation');
+  const section = document.getElementById('stoolConditionSection');
+  const stoolInput = document.getElementById('stoolCondition');
+  if (!defecationInput || !section || !stoolInput) return;
+
+  const isYes = defecationInput.value === 'true';
+  section.classList.toggle('hidden', !isYes);
+
+  if (!isYes) {
+    stoolInput.value = '';
+    clearSelectedButtons(document.querySelectorAll('.stool-condition-btn'));
+  }
+}
+
+function setupDefecationAndStoolConditionUI() {
+  const defecationInput = document.getElementById('defecation');
+  const stoolInput = document.getElementById('stoolCondition');
+  if (!defecationInput || !stoolInput) return;
+
+  const defecationButtons = Array.from(document.querySelectorAll('.defecation-btn'));
+  defecationButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      defecationInput.value = btn.dataset.value;
+      setSelectedButton(defecationButtons, btn);
+      updateStoolConditionVisibility();
+    });
+  });
+
+  const stoolButtons = Array.from(document.querySelectorAll('.stool-condition-btn'));
+  stoolButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      stoolInput.value = btn.dataset.value;
+      setSelectedButton(stoolButtons, btn);
+    });
+  });
+
+  updateStoolConditionVisibility();
+}
 
 /**
  * 猫一覧を読み込み
@@ -67,6 +154,29 @@ async function loadCareLog(id) {
     document.getElementById('urination').checked = data.urination;
     document.getElementById('cleaning').checked = data.cleaning;
     document.getElementById('memo').value = data.memo || '';
+
+    // 排便/便状態
+    const defecationInput = document.getElementById('defecation');
+    const stoolInput = document.getElementById('stoolCondition');
+    if (defecationInput) {
+      defecationInput.value = typeof data.defecation === 'boolean' ? String(data.defecation) : '';
+      const defBtn = document.querySelector(
+        `.defecation-btn[data-value="${defecationInput.value}"]`
+      );
+      if (defBtn)
+        setSelectedButton(Array.from(document.querySelectorAll('.defecation-btn')), defBtn);
+    }
+
+    if (stoolInput) {
+      stoolInput.value = data.stool_condition ? String(data.stool_condition) : '';
+      const stoolBtn = stoolInput.value
+        ? document.querySelector(`.stool-condition-btn[data-value="${stoolInput.value}"]`)
+        : null;
+      if (stoolBtn)
+        setSelectedButton(Array.from(document.querySelectorAll('.stool-condition-btn')), stoolBtn);
+    }
+
+    updateStoolConditionVisibility();
   } catch (error) {
     console.error('Failed to load care log:', error);
     showToast(translate('messages.load_failed', { ns: 'care_logs' }), 'error');
@@ -91,16 +201,33 @@ async function handleFormSubmit(e, id) {
       memo: document.getElementById('memo').value || null,
     };
 
+    const defecationRaw = document.getElementById('defecation')?.value;
+    const stoolConditionRaw = document.getElementById('stoolCondition')?.value;
+
     // バリデーション
     if (
       !formData.animal_id ||
       !formData.log_date ||
       !formData.time_slot ||
       !formData.appetite ||
-      !formData.energy
+      !formData.energy ||
+      (defecationRaw !== 'true' && defecationRaw !== 'false')
     ) {
       showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
       return;
+    }
+
+    formData.defecation = defecationRaw === 'true';
+
+    // 条件付き必須: defecation=true の場合は stool_condition 必須
+    if (formData.defecation) {
+      if (!stoolConditionRaw || stoolConditionRaw.trim() === '') {
+        showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
+        return;
+      }
+      formData.stool_condition = parseInt(stoolConditionRaw);
+    } else {
+      formData.stool_condition = null;
     }
 
     // API呼び出し

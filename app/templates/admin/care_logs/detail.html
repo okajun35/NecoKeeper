@@ -25,6 +25,60 @@
     </div>
 </div>
 
+<!-- 便の状態の目安モーダル -->
+<div id="stoolConditionHelpModal" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/40" id="stoolConditionHelpBackdrop"></div>
+    <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div class="flex items-start justify-between gap-4">
+                <h2 class="text-lg font-bold text-gray-800" data-i18n="stool_condition_help_title" data-i18n-ns="care_logs">排泄の状態の目安</h2>
+                <button type="button" id="stoolConditionHelpClose" class="text-gray-500 hover:text-gray-700" aria-label="Close">×</button>
+            </div>
+            <p class="mt-3 text-sm text-gray-600" data-i18n="stool_condition_help_intro" data-i18n-ns="care_logs">
+                写真ではありません。いちばん近い状態を選んでください。迷った場合は「良好」で問題ありません。
+            </p>
+
+            <div class="mt-4 space-y-4 text-sm text-gray-700">
+                <div class="flex gap-3">
+                    <img src="/static/images/cat_poops/cat_poop_1.png" alt="" class="w-10 h-10 flex-none">
+                    <div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.1" data-i18n-ns="care_logs">硬い</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_1" data-i18n-ns="care_logs">水分が少なく、乾いた見た目。小さく分かれていることがあります。</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <img src="/static/images/cat_poops/cat_poop_2.png" alt="" class="w-10 h-10 flex-none">
+                    <div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.2" data-i18n-ns="care_logs">良好</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_2" data-i18n-ns="care_logs">形があり、適度なやわらかさ。日常的にはこの状態が目安です。</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <img src="/static/images/cat_poops/cat_poop_3.png" alt="" class="w-10 h-10 flex-none">
+                    <div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.3" data-i18n-ns="care_logs">やや柔らかい</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_3" data-i18n-ns="care_logs">形はあるが少しつぶれやすい。一時的な変化として見られることもあります。</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <img src="/static/images/cat_poops/cat_poop_4.png" alt="" class="w-10 h-10 flex-none">
+                    <div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.4" data-i18n-ns="care_logs">下痢</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_4" data-i18n-ns="care_logs">形がほとんど保てない。まとまりがなく柔らかい状態です。</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <img src="/static/images/cat_poops/cat_poop_5.png" alt="" class="w-10 h-10 flex-none">
+                    <div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.5" data-i18n-ns="care_logs">水様</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_5" data-i18n-ns="care_logs">ほぼ液体に近い。広がりやすく形がない状態です。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block extra_scripts %}
 <script src="/static/js/admin/care_log_detail.js?v=1"></script>
 {% endblock %}
