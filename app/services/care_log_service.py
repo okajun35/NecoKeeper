@@ -184,13 +184,17 @@ def update_care_log(
         # 世話記録を更新
         update_dict = care_log_data.model_dump(exclude_unset=True)
 
-        updated_defecation = update_dict.get("defecation", care_log.defecation)
-        updated_stool_condition = update_dict.get(
-            "stool_condition", care_log.stool_condition
-        )
+        # defecation / stool_condition の最終的な更新後状態を明示的にマージしてからバリデーションする
+        proposed_defecation = care_log.defecation
+        proposed_stool_condition = care_log.stool_condition
+        if "defecation" in update_dict:
+            proposed_defecation = update_dict["defecation"]
+        if "stool_condition" in update_dict:
+            proposed_stool_condition = update_dict["stool_condition"]
+
         _validate_defecation_fields(
-            bool(updated_defecation),
-            None if updated_stool_condition is None else int(updated_stool_condition),
+            bool(proposed_defecation),
+            None if proposed_stool_condition is None else int(proposed_stool_condition),
         )
 
         for key, value in update_dict.items():
