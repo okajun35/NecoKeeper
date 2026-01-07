@@ -178,6 +178,7 @@ def update_care_log(
 
     Raises:
         HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
+        ValueError: care_logのIDがcare_log_idと一致しない場合
     """
     try:
         # CareLogオブジェクトを直接取得（未提供の場合のみ）
@@ -278,6 +279,13 @@ def update_care_log(
 
     except HTTPException:
         raise
+    except ValueError as e:
+        # プログラミングエラー（care_logとcare_log_idの不一致）
+        logger.error(f"無効なパラメータ: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="無効なリクエストです",
+        ) from e
     except Exception as e:
         db.rollback()
         logger.error(f"世話記録の更新に失敗しました: ID={care_log_id}, エラー={e}")
