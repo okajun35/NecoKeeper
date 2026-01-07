@@ -169,18 +169,24 @@ def update_care_log(
         care_log_id: 世話記録ID
         care_log_data: 更新データ
         user_id: 更新者のユーザーID
-        care_log: 既に取得済みのCareLogオブジェクト（指定時はDBクエリをスキップ）
+        care_log: 既に取得済みのCareLogオブジェクト（指定時はDBクエリをスキップ。IDはcare_log_idと一致する必要がある）
 
     Returns:
         CareLogResponse: 更新された世話記録（猫の名前を含む）
 
     Raises:
         HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
+        ValueError: care_logのIDがcare_log_idと一致しない場合
     """
     try:
         # CareLogオブジェクトを取得（未指定の場合のみDBから取得）
         if care_log is None:
             care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+        elif care_log.id != care_log_id:
+            # 提供されたcare_logのIDが一致しない場合はエラー
+            raise ValueError(
+                f"Provided care_log.id ({care_log.id}) does not match care_log_id ({care_log_id})"
+            )
 
         if not care_log:
             logger.warning(f"世話記録が見つかりません: ID={care_log_id}")
