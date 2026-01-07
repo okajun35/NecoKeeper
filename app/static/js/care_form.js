@@ -707,11 +707,28 @@ async function handleSubmit(e) {
       recorder_name: recorderName,
     };
 
+    const requestBody = (() => {
+      if (!isEditMode) {
+        // 作成時は全てのフィールドを送信
+        return formData;
+      }
+      // 更新時は変更可能なフィールドのみ送信（不変フィールドは除外）
+      const {
+        animal_id,
+        log_date,
+        time_slot,
+        recorder_id,
+        recorder_name,
+        ...mutableFields
+      } = formData;
+      return mutableFields;
+    })();
+
     if (isEditMode) {
       const response = await fetch(`${API_BASE}/care-logs/animal/${animalId}/${logId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
