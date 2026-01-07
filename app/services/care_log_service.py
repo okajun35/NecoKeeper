@@ -159,6 +159,7 @@ def update_care_log(
     user_id: int | None,
     expected_animal_id: int | None = None,
     enforce_time_slot: str | None = None,
+    care_log: CareLog | None = None,
 ) -> CareLogResponse:
     """
     世話記録を更新
@@ -168,6 +169,9 @@ def update_care_log(
         care_log_id: 世話記録ID
         care_log_data: 更新データ
         user_id: 更新者のユーザーID
+        expected_animal_id: 期待される猫ID（検証用）
+        enforce_time_slot: 時点の変更を防ぐための期待値
+        care_log: 既に取得済みのCareLogオブジェクト（指定時はDBクエリをスキップ）
 
     Returns:
         CareLogResponse: 更新された世話記録（猫の名前を含む）
@@ -176,8 +180,9 @@ def update_care_log(
         HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
     """
     try:
-        # CareLogオブジェクトを直接取得
-        care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+        # CareLogオブジェクトを取得（未指定の場合のみDBから取得）
+        if care_log is None:
+            care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
 
         if not care_log:
             logger.warning(f"世話記録が見つかりません: ID={care_log_id}")
