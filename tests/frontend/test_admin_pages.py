@@ -93,6 +93,50 @@ class TestCareLogPages:
         assert response.status_code == 200
         assert b"text/html" in response.headers["content-type"].encode()
 
+    def test_care_log_new_page_includes_defecation_elements(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
+        """正常系: 世話記録新規登録ページに排便/便状態のUI要素が含まれる"""
+        # When
+        response = test_client.get(
+            "/admin/care-logs/new",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        # Then
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert b'id="defecation"' in response.content
+        assert b'id="stoolConditionSection"' in response.content
+        assert b'id="stoolCondition"' in response.content
+        assert b'id="stoolConditionHelpOpen"' in response.content
+        assert b'id="stoolConditionHelpModal"' in response.content
+        assert b'id="stoolConditionHelpBackdrop"' in response.content
+        assert b'id="stoolConditionHelpClose"' in response.content
+
+    def test_care_log_edit_page_includes_defecation_elements(
+        self, test_client: TestClient, auth_token: str, test_care_logs
+    ) -> None:
+        """正常系: 世話記録編集ページに排便/便状態のUI要素が含まれる"""
+        care_log_id = test_care_logs[0].id
+
+        # When
+        response = test_client.get(
+            f"/admin/care-logs/{care_log_id}/edit",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        # Then
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert b'id="defecation"' in response.content
+        assert b'id="stoolConditionSection"' in response.content
+        assert b'id="stoolCondition"' in response.content
+        assert b'id="stoolConditionHelpOpen"' in response.content
+        assert b'id="stoolConditionHelpModal"' in response.content
+        assert b'id="stoolConditionHelpBackdrop"' in response.content
+        assert b'id="stoolConditionHelpClose"' in response.content
+
 
 class TestMedicalRecordPages:
     """診療記録管理画面のテスト"""

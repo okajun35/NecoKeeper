@@ -103,6 +103,83 @@ class TestCreateCareLog:
             # Then
             assert result.time_slot == time_slot
 
+    def test_create_care_log_with_defecation_false_requires_stool_condition_none(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """異常系: defecation=false の場合 stool_condition を指定すると422"""
+        # Given
+        care_log_data = CareLogCreate(
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            log_date=date.today(),
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=False,
+            stool_condition=2,
+            cleaning=True,
+        )
+
+        # When/Then
+        with pytest.raises(HTTPException) as exc_info:
+            care_log_service.create_care_log(test_db, care_log_data)
+
+        assert exc_info.value.status_code == 422
+
+    def test_create_care_log_with_defecation_true_requires_stool_condition(
+        self, test_db: Session, test_animal: Animal
+    ):
+        """異常系: defecation=true の場合 stool_condition 未指定は422"""
+        # Given
+        care_log_data = CareLogCreate(
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            log_date=date.today(),
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=True,
+            stool_condition=None,
+            cleaning=True,
+        )
+
+        # When/Then
+        with pytest.raises(HTTPException) as exc_info:
+            care_log_service.create_care_log(test_db, care_log_data)
+
+        assert exc_info.value.status_code == 422
+
+    @pytest.mark.parametrize("stool_condition", [1, 5])
+    def test_create_care_log_with_defecation_true_accepts_boundary_values(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        stool_condition: int,
+    ):
+        """正常系: defecation=true の場合 stool_condition は1/5を受け入れる"""
+        # Given
+        care_log_data = CareLogCreate(
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            log_date=date.today(),
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=True,
+            stool_condition=stool_condition,
+            cleaning=True,
+        )
+
+        # When
+        result = care_log_service.create_care_log(test_db, care_log_data)
+
+        # Then
+        assert result.defecation is True
+        assert result.stool_condition == stool_condition
+
 
 class TestGetCareLog:
     """世話記録取得のテスト"""
@@ -216,6 +293,100 @@ class TestUpdateCareLog:
         # Then
         assert result.energy == 5
         assert result.appetite == original_appetite  # 変更されていない
+
+    def test_update_care_log_defecation_true_without_stool_condition_raises_422(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """異常系: 更新時も defecation=true の場合 stool_condition は必須"""
+        # Given
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=False,
+            stool_condition=None,
+            cleaning=True,
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        update_data = CareLogUpdate(defecation=True)
+
+        # When/Then
+        with pytest.raises(HTTPException) as exc_info:
+            care_log_service.update_care_log(
+                test_db, care_log.id, update_data, test_user.id
+            )
+
+        assert exc_info.value.status_code == 422
+
+    def test_update_care_log_defecation_false_auto_clears_stool_condition(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """正常系: defecation=false に更新すると stool_condition が自動的にクリアされる"""
+        # Given
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=True,
+            stool_condition=2,
+            cleaning=True,
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        update_data = CareLogUpdate(defecation=False)
+
+        # When
+        result = care_log_service.update_care_log(
+            test_db, care_log.id, update_data, test_user.id
+        )
+
+        # Then
+        assert result.defecation is False
+        assert result.stool_condition is None
+
+    def test_update_care_log_defecation_false_with_explicit_stool_condition_raises_422(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """異常系: defecation=false の場合、明示的に stool_condition を指定するとエラー"""
+        # Given
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=test_animal.id,
+            recorder_name="記録者",
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            defecation=True,
+            stool_condition=2,
+            cleaning=True,
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        update_data = CareLogUpdate(defecation=False, stool_condition=3)
+
+        # When/Then
+        with pytest.raises(HTTPException) as exc_info:
+            care_log_service.update_care_log(
+                test_db, care_log.id, update_data, test_user.id
+            )
+
+        assert exc_info.value.status_code == 422
 
     def test_update_care_log_not_found(self, test_db: Session, test_user: User):
         """異常系: 存在しない世話記録を更新しようとした場合"""
