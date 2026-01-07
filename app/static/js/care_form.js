@@ -713,14 +713,8 @@ async function handleSubmit(e) {
         return formData;
       }
       // 更新時は変更可能なフィールドのみ送信（不変フィールドは除外）
-      const {
-        animal_id,
-        log_date,
-        time_slot,
-        recorder_id,
-        recorder_name,
-        ...mutableFields
-      } = formData;
+      const { animal_id, log_date, time_slot, recorder_id, recorder_name, ...mutableFields } =
+        formData;
       return mutableFields;
     })();
 
