@@ -169,8 +169,6 @@ def update_care_log(
         care_log_id: 世話記録ID
         care_log_data: 更新データ
         user_id: 更新者のユーザーID
-        expected_animal_id: 期待される猫ID（検証用）
-        enforce_time_slot: 時点の変更を防ぐための期待値
         care_log: 既に取得済みのCareLogオブジェクト（指定時はDBクエリをスキップ）
 
     Returns:
