@@ -153,7 +153,12 @@ def get_care_log(db: Session, care_log_id: int) -> CareLogResponse:
 
 
 def update_care_log(
-    db: Session, care_log_id: int, care_log_data: CareLogUpdate, user_id: int
+    db: Session,
+    care_log_id: int,
+    care_log_data: CareLogUpdate,
+    user_id: int | None,
+    expected_animal_id: int | None = None,
+    enforce_time_slot: str | None = None,
 ) -> CareLogResponse:
     """
     世話記録を更新
@@ -181,8 +186,29 @@ def update_care_log(
                 detail=f"ID {care_log_id} の世話記録が見つかりません",
             )
 
-        # 世話記録を更新
+        if expected_animal_id is not None and care_log.animal_id != expected_animal_id:
+            logger.warning(
+                "世話記録の猫IDが一致しません: care_log_id=%s, expected=%s, actual=%s",
+                care_log_id,
+                expected_animal_id,
+                care_log.animal_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {care_log_id} の世話記録が見つかりません",
+            )
+
         update_dict = care_log_data.model_dump(exclude_unset=True)
+
+        if (
+            enforce_time_slot
+            and "time_slot" in update_dict
+            and update_dict["time_slot"] != enforce_time_slot
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="この記録の時点は変更できません",
+            )
 
         # defecation=False に変更する場合、stool_condition が明示的に指定されていなければ自動的にクリアする。
         # ただし defecation=False と同時に stool_condition に値が指定された場合は不整合として弾く。
@@ -208,8 +234,8 @@ def update_care_log(
         for key, value in update_dict.items():
             setattr(care_log, key, value)
 
-        # 更新者を記録
-        care_log.last_updated_by = user_id
+        if user_id is not None:
+            care_log.last_updated_by = user_id
 
         db.commit()
         db.refresh(care_log)

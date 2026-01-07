@@ -6,6 +6,7 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const animalId = urlParams.get('animal_id');
+const highlightId = urlParams.get('highlight_id');
 
 const CARE_LOGS_NAMESPACE = 'care_logs';
 const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
@@ -129,6 +130,24 @@ function updateTodayStatus(todayStatus = {}) {
         statusEl.classList.add('border-gray-300');
       }
     }
+  });
+}
+
+function setupTodayStatusClickTargets() {
+  const slots = [
+    { statusId: 'morningStatus', slot: 'morning' },
+    { statusId: 'noonStatus', slot: 'noon' },
+    { statusId: 'eveningStatus', slot: 'evening' },
+  ];
+
+  slots.forEach(({ statusId, slot }) => {
+    const el = document.getElementById(statusId);
+    if (!el || !animalId) return;
+
+    el.classList.add('cursor-pointer');
+    el.addEventListener('click', () => {
+      window.location.href = `/public/care?animal_id=${animalId}&time_slot=${slot}`;
+    });
   });
 }
 
@@ -405,6 +424,12 @@ function displayRecentLogs(logs = []) {
     const logDiv = document.createElement('div');
     logDiv.className =
       'flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer';
+    if (highlightId && log.id === Number(highlightId)) {
+      logDiv.classList.add('border-indigo-400', 'bg-indigo-50');
+      setTimeout(() => {
+        logDiv.classList.remove('border-indigo-400', 'bg-indigo-50');
+      }, 3200);
+    }
     if (log && log.id) {
       logDiv.addEventListener('click', () => showLogDetail(log.id));
     }
@@ -559,8 +584,19 @@ function renderLogDetailModal(log) {
   footerButton.textContent = translateCareLogs('public.modal_close', '閉じる');
   footerButton.addEventListener('click', () => modal.remove());
 
+  const editButton = document.createElement('a');
+  editButton.className =
+    'mt-3 w-full inline-flex justify-center py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors';
+  editButton.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
+  if (animalId && log?.id) {
+    editButton.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
+  } else {
+    editButton.classList.add('opacity-50', 'pointer-events-none');
+  }
+
   content.appendChild(header);
   content.appendChild(detailsContainer);
+  content.appendChild(editButton);
   content.appendChild(footerButton);
   modal.appendChild(content);
 
@@ -602,6 +638,7 @@ async function loadCareLogList() {
     careLogData = { ...data, dailySummary };
     updateAnimalInfo(careLogData);
     updateTodayStatus(careLogData.today_status || {});
+    setupTodayStatusClickTargets();
     renderDailyOverview(careLogData.dailySummary);
     displayRecentLogs(careLogData.recent_logs || []);
   } catch (error) {
