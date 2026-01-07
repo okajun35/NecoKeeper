@@ -94,6 +94,11 @@ class CareLogUpdate(BaseModel):
         serialization_alias="memo",
     )
     from_paper: bool | None = None
+    ip_address: str | None = Field(None, max_length=45, description="IPアドレス")
+    user_agent: str | None = Field(
+        None, max_length=255, description="ユーザーエージェント"
+    )
+    device_tag: str | None = Field(None, max_length=100, description="デバイスタグ")
 
     @field_validator("time_slot")
     @classmethod

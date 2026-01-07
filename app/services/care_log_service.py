@@ -153,7 +153,13 @@ def get_care_log(db: Session, care_log_id: int) -> CareLogResponse:
 
 
 def update_care_log(
-    db: Session, care_log_id: int, care_log_data: CareLogUpdate, user_id: int
+    db: Session,
+    care_log_id: int,
+    care_log_data: CareLogUpdate,
+    user_id: int | None,
+    expected_animal_id: int | None = None,
+    enforce_time_slot: str | None = None,
+    care_log: CareLog | None = None,
 ) -> CareLogResponse:
     """
     世話記録を更新
@@ -163,16 +169,21 @@ def update_care_log(
         care_log_id: 世話記録ID
         care_log_data: 更新データ
         user_id: 更新者のユーザーID
+        expected_animal_id: 期待される猫ID（指定時のみ検証）
+        enforce_time_slot: 強制する時点（指定時のみ検証）
+        care_log: 既に取得済みのCareLogオブジェクト（省略時は自動取得）
 
     Returns:
         CareLogResponse: 更新された世話記録（猫の名前を含む）
 
     Raises:
         HTTPException: 世話記録が見つからない場合、またはデータベースエラーが発生した場合
+        ValueError: care_logのIDがcare_log_idと一致しない場合
     """
     try:
-        # CareLogオブジェクトを直接取得
-        care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+        # CareLogオブジェクトを直接取得（未提供の場合のみ）
+        if care_log is None:
+            care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
 
         if not care_log:
             logger.warning(f"世話記録が見つかりません: ID={care_log_id}")
@@ -181,8 +192,29 @@ def update_care_log(
                 detail=f"ID {care_log_id} の世話記録が見つかりません",
             )
 
-        # 世話記録を更新
+        if expected_animal_id is not None and care_log.animal_id != expected_animal_id:
+            logger.warning(
+                "世話記録の猫IDが一致しません: care_log_id=%s, expected=%s, actual=%s",
+                care_log_id,
+                expected_animal_id,
+                care_log.animal_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"ID {care_log_id} の世話記録が見つかりません",
+            )
+
         update_dict = care_log_data.model_dump(exclude_unset=True)
+
+        if (
+            enforce_time_slot
+            and "time_slot" in update_dict
+            and update_dict["time_slot"] != enforce_time_slot
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="この記録の時点は変更できません",
+            )
 
         # defecation=False に変更する場合、stool_condition が明示的に指定されていなければ自動的にクリアする。
         # ただし defecation=False と同時に stool_condition に値が指定された場合は不整合として弾く。
@@ -208,8 +240,8 @@ def update_care_log(
         for key, value in update_dict.items():
             setattr(care_log, key, value)
 
-        # 更新者を記録
-        care_log.last_updated_by = user_id
+        if user_id is not None:
+            care_log.last_updated_by = user_id
 
         db.commit()
         db.refresh(care_log)
@@ -247,6 +279,13 @@ def update_care_log(
 
     except HTTPException:
         raise
+    except ValueError as e:
+        # プログラミングエラー（care_logとcare_log_idの不一致）
+        logger.error(f"無効なパラメータ: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="無効なリクエストです",
+        ) from e
     except Exception as e:
         db.rollback()
         logger.error(f"世話記録の更新に失敗しました: ID={care_log_id}, エラー={e}")

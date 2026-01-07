@@ -36,6 +36,27 @@ async function loadAllAnimalsStatus() {
 /**
  * 猫一覧を表示
  */
+function createSlotButton(animalId, slotKey, recorded) {
+  const link = document.createElement('a');
+  link.href = `/public/care?animal_id=${animalId}&time_slot=${slotKey}`;
+  link.className = `block w-full h-full text-center p-3 rounded-lg border-2 transition-colors ${recorded ? 'border-green-500 bg-green-50 hover:bg-green-100' : 'border-gray-300 hover:bg-gray-100'}`;
+
+  const iconMap = { morning: '🌅', noon: '☀️', evening: '🌙' };
+  const labelMap = {
+    morning: fallbackText('Morning', '朝'),
+    noon: fallbackText('Afternoon', '昼'),
+    evening: fallbackText('Night', '夜'),
+  };
+
+  link.innerHTML = `
+    <div class="text-xl mb-1">${iconMap[slotKey] || '🕒'}</div>
+    <div class="text-xs font-medium text-gray-700">${labelMap[slotKey]}</div>
+    <div class="text-lg font-bold mt-1 ${recorded ? 'text-green-600' : 'text-gray-400'}">${recorded ? '○' : '×'}</div>
+  `;
+
+  return link;
+}
+
 function displayAnimalsList(animals) {
   const container = document.getElementById('animalsList');
   const noAnimalsDiv = document.getElementById('noAnimals');
@@ -58,60 +79,33 @@ function displayAnimalsList(animals) {
         : DEFAULT_IMAGE_PLACEHOLDER;
 
     animalCard.innerHTML = `
-            <div class="flex items-center gap-4 mb-4">
-                 <img src="${photoUrl}"
-                   alt="${animal.animal_name}"
-                   onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-                     class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200">
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-800">${animal.animal_name}</h3>
-                </div>
-            </div>
+        <div class="flex items-center gap-4 mb-4">
+           <img src="${photoUrl}"
+             alt="${animal.animal_name}"
+             onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
+             class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200">
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-gray-800">${animal.animal_name}</h3>
+          </div>
+        </div>
+      `;
 
-            <div class="grid grid-cols-3 gap-3 mb-4">
-                <div class="text-center p-3 rounded-lg border-2 ${animal.morning_recorded ? 'border-green-500 bg-green-50' : 'border-gray-300'}">
-                    <div class="text-xl mb-1">🌅</div>
-                    <div class="text-xs font-medium text-gray-700">${fallbackText(
-                      'Morning',
-                      '朝'
-                    )}</div>
-                    <div class="text-lg font-bold mt-1 ${animal.morning_recorded ? 'text-green-600' : 'text-gray-400'}">
-                        ${animal.morning_recorded ? '○' : '×'}
-                    </div>
-                </div>
-                <div class="text-center p-3 rounded-lg border-2 ${animal.noon_recorded ? 'border-green-500 bg-green-50' : 'border-gray-300'}">
-                    <div class="text-xl mb-1">☀️</div>
-                    <div class="text-xs font-medium text-gray-700">${fallbackText(
-                      'Afternoon',
-                      '昼'
-                    )}</div>
-                    <div class="text-lg font-bold mt-1 ${animal.noon_recorded ? 'text-green-600' : 'text-gray-400'}">
-                        ${animal.noon_recorded ? '○' : '×'}
-                    </div>
-                </div>
-                <div class="text-center p-3 rounded-lg border-2 ${animal.evening_recorded ? 'border-green-500 bg-green-50' : 'border-gray-300'}">
-                    <div class="text-xl mb-1">🌙</div>
-                    <div class="text-xs font-medium text-gray-700">${fallbackText(
-                      'Night',
-                      '夜'
-                    )}</div>
-                    <div class="text-lg font-bold mt-1 ${animal.evening_recorded ? 'text-green-600' : 'text-gray-400'}">
-                        ${animal.evening_recorded ? '○' : '×'}
-                    </div>
-                </div>
-            </div>
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-3 gap-3 mb-4';
+    grid.appendChild(createSlotButton(animal.animal_id, 'morning', animal.morning_recorded));
+    grid.appendChild(createSlotButton(animal.animal_id, 'noon', animal.noon_recorded));
+    grid.appendChild(createSlotButton(animal.animal_id, 'evening', animal.evening_recorded));
+    animalCard.appendChild(grid);
 
-            <div class="flex gap-2">
-                <a href="/public/care?animal_id=${animal.animal_id}"
-                     class="flex-1 py-2 px-4 bg-indigo-600 text-white text-center rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm">
-                    ${fallbackText('Add Record', '記録する')}
-                </a>
-                <a href="/public/care-logs?animal_id=${animal.animal_id}"
-                   class="flex-1 py-2 px-4 bg-gray-100 text-gray-700 text-center rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm">
-                    ${fallbackText('View Logs', '記録一覧')}
-                </a>
-            </div>
-        `;
+    const links = document.createElement('div');
+    links.className = 'flex';
+    links.innerHTML = `
+      <a href="/public/care-logs?animal_id=${animal.animal_id}"
+       class="w-full py-2 px-4 bg-gray-100 text-gray-700 text-center rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm">
+        ${fallbackText('View Logs', '記録一覧')}
+      </a>
+    `;
+    animalCard.appendChild(links);
 
     container.appendChild(animalCard);
   });

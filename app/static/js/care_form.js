@@ -8,6 +8,9 @@
 // URLからanimal_idを取得
 const urlParams = new URLSearchParams(window.location.search);
 const animalId = urlParams.get('animal_id');
+const logId = urlParams.get('log_id');
+const isEditMode = Boolean(logId);
+const presetTimeSlot = urlParams.get('time_slot');
 
 const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
 const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
@@ -63,8 +66,25 @@ function translateCare(key, fallback = '', options = {}) {
 }
 
 function updatePageTitle() {
-  const localizedTitle = translateCare('title', isKiroweenMode ? 'Care Log Entry' : '世話記録入力');
+  const titleKey = isEditMode ? 'title_edit' : 'title';
+  const fallbackTitle = isEditMode ? '世話記録を編集' : '世話記録入力';
+  const localizedTitle = translateCare(titleKey, isKiroweenMode ? 'Care Log Edit' : fallbackTitle);
   document.title = `${localizedTitle}${PAGE_TITLE_SUFFIX}`;
+}
+
+function disableImmutableFields() {
+  // 動物はUI上で選択不可のままなので何もしない
+  const timeSlotButtons = document.querySelectorAll('.time-slot-btn');
+  const timeSlotInput = document.getElementById('timeSlot');
+
+  timeSlotButtons.forEach(btn => {
+    btn.disabled = true;
+    btn.classList.add('opacity-60', 'cursor-not-allowed');
+  });
+
+  if (timeSlotInput) {
+    timeSlotInput.setAttribute('readonly', 'readonly');
+  }
 }
 
 function showToast(message, subMessage = '') {
@@ -352,6 +372,91 @@ async function loadAnimalInfo() {
   }
 }
 
+async function loadCareLogForEdit() {
+  if (!isEditMode || !logId) return;
+  try {
+    const response = await fetch(`${API_BASE}/care-logs/animal/${animalId}/${logId}`);
+    if (!response.ok) {
+      throw new Error(
+        translateCare(
+          'error_api_failed',
+          fallbackText('Failed to load the record.', '記録の取得に失敗しました')
+        )
+      );
+    }
+
+    const log = await response.json();
+
+    // 記録日
+    const logDateInput = document.getElementById('logDate');
+    if (logDateInput && log.log_date) {
+      logDateInput.value = log.log_date;
+    }
+
+    // 時点（選択固定）
+    if (log.time_slot) {
+      const timeSlotBtn = document.querySelector(`.time-slot-btn[data-value="${log.time_slot}"]`);
+      if (timeSlotBtn) timeSlotBtn.click();
+    }
+
+    // 食欲/元気
+    if (log.appetite) {
+      const btn = document.querySelector(`.appetite-btn[data-value="${log.appetite}"]`);
+      if (btn) btn.click();
+    }
+    if (log.energy) {
+      const btn = document.querySelector(`.energy-btn[data-value="${log.energy}"]`);
+      if (btn) btn.click();
+    }
+
+    // 排尿/排便/便状態
+    if (typeof log.urination === 'boolean') {
+      const btn = document.querySelector(`.urination-btn[data-value="${log.urination}"]`);
+      if (btn) btn.click();
+    }
+    if (typeof log.defecation === 'boolean') {
+      const btn = document.querySelector(`.defecation-btn[data-value="${log.defecation}"]`);
+      if (btn) btn.click();
+    }
+    if (log.defecation === true && log.stool_condition) {
+      const btn = document.querySelector(
+        `.stool-condition-btn[data-value="${log.stool_condition}"]`
+      );
+      if (btn) btn.click();
+    }
+
+    // 清掃
+    if (typeof log.cleaning === 'boolean') {
+      const btn = document.querySelector(`.cleaning-btn[data-value="${log.cleaning}"]`);
+      if (btn) btn.click();
+    }
+
+    // メモ
+    const memoEl = document.getElementById('memo');
+    if (memoEl) {
+      memoEl.value = log.memo || '';
+    }
+
+    // 記録者
+    const volunteerSelect = document.getElementById('volunteer');
+    if (volunteerSelect && log.recorder_id) {
+      volunteerSelect.value = String(log.recorder_id);
+    }
+
+    // UI 固定
+    disableImmutableFields();
+    const copyBtn = document.getElementById('copyLastBtn');
+    if (copyBtn) {
+      copyBtn.disabled = true;
+      copyBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    }
+  } catch (error) {
+    showError(
+      error?.message || fallbackText('Failed to load the record.', '記録の取得に失敗しました')
+    );
+  }
+}
+
 /**
  * ボランティア一覧を取得してセレクトボックスに設定
  */
@@ -602,18 +707,57 @@ async function handleSubmit(e) {
       recorder_name: recorderName,
     };
 
-    // オフラインマネージャーを使用して保存
-    const result = await window.offlineManager.saveCareLog(formData);
+    const requestBody = (() => {
+      if (!isEditMode) {
+        // 作成時は全てのフィールドを送信
+        return formData;
+      }
+      // 更新時は変更可能なフィールドのみ送信（不変フィールドは除外）
+      const { animal_id, log_date, time_slot, recorder_id, recorder_name, ...mutableFields } =
+        formData;
+      return mutableFields;
+    })();
 
-    const successMessage = result.online
-      ? translateCare('save_success_online', fallbackText('Record saved.', '記録を保存しました'))
-      : translateCare('save_success_offline', OFFLINE_SAVE_FALLBACK);
-    showToast(successMessage);
+    if (isEditMode) {
+      const response = await fetch(`${API_BASE}/care-logs/animal/${animalId}/${logId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
-    // フォームをリセット
-    setTimeout(() => {
-      resetForm();
-    }, 2000);
+      if (!response.ok) {
+        throw new Error(
+          translateCare(
+            'error_api_failed',
+            fallbackText(
+              'Update failed. Please try again.',
+              '更新に失敗しました。時間をおいて再度お試しください。'
+            )
+          )
+        );
+      }
+
+      showToast(
+        translateCare('save_success_online', fallbackText('Record updated.', '記録を更新しました'))
+      );
+
+      setTimeout(() => {
+        window.location.href = `/public/care-logs?animal_id=${animalId}&highlight_id=${logId}`;
+      }, 1200);
+    } else {
+      // オフラインマネージャーを使用して保存
+      const result = await window.offlineManager.saveCareLog(formData);
+
+      const successMessage = result.online
+        ? translateCare('save_success_online', fallbackText('Record saved.', '記録を保存しました'))
+        : translateCare('save_success_offline', OFFLINE_SAVE_FALLBACK);
+      showToast(successMessage);
+
+      // フォームをリセット
+      setTimeout(() => {
+        resetForm();
+      }, 2000);
+    }
   } catch (error) {
     const fallbackMessage = translateCare(
       'error_api_failed',
@@ -666,7 +810,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // データ読み込み
   loadAnimalInfo();
-  loadVolunteers();
+  await loadVolunteers();
+  await loadCareLogForEdit();
+
+  // time_slot プリセット（新規作成時のみ）
+  if (!isEditMode && presetTimeSlot) {
+    const allowed = ['morning', 'noon', 'evening'];
+    if (allowed.includes(presetTimeSlot)) {
+      const btn = document.querySelector(`.time-slot-btn[data-value="${presetTimeSlot}"]`);
+      if (btn) btn.click();
+    }
+  }
 
   const logDateInput = document.getElementById('logDate');
   if (logDateInput) {

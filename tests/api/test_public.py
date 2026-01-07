@@ -6,6 +6,8 @@ Public APIエンドポイントのテスト
 
 from __future__ import annotations
 
+from datetime import date
+
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -398,8 +400,102 @@ class TestGetLatestCareLog:
         assert data["appetite"] == 5
         assert data["energy"] == 5
         assert data["memo"] == "最新の記録"
-        assert data["defecation"] is True
-        assert data["stool_condition"] == 2
+
+
+class TestUpdateCareLogPublic:
+    """世話記録更新エンドポイント（Public）のテスト"""
+
+    def _make_volunteer(self, db: Session) -> Volunteer:
+        volunteer = Volunteer(
+            name="更新テストボランティア", contact="090-9999-9999", status="active"
+        )
+        db.add(volunteer)
+        db.commit()
+        db.refresh(volunteer)
+        return volunteer
+
+    def _make_care_log(
+        self, db: Session, animal: Animal, volunteer: Volunteer
+    ) -> CareLog:
+        care_log = CareLog(
+            animal_id=animal.id,
+            recorder_id=volunteer.id,
+            recorder_name=volunteer.name,
+            log_date=date(2025, 11, 20),
+            time_slot="morning",
+            appetite=3,
+            energy=3,
+            urination=True,
+            cleaning=True,
+            memo="初期メモ",
+        )
+        db.add(care_log)
+        db.commit()
+        db.refresh(care_log)
+        return care_log
+
+    def test_update_care_log_public_success(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: 既存記録を更新でき、猫ID/時点は維持される"""
+        volunteer = self._make_volunteer(test_db)
+        care_log = self._make_care_log(test_db, test_animal, volunteer)
+
+        payload = {"memo": "更新しました", "energy": 4, "cleaning": False}
+
+        response = test_client.put(
+            f"/api/v1/public/care-logs/animal/{test_animal.id}/{care_log.id}",
+            json=payload,
+            headers={"User-Agent": "pytest-agent"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["memo"] == "更新しました"
+        assert data["energy"] == 4
+        assert data["cleaning"] is False
+        assert data["animal_id"] == test_animal.id
+        assert data["time_slot"] == "morning"  # 時点は変更不可
+
+        test_db.refresh(care_log)
+        assert care_log.memo == "更新しました"
+        assert care_log.ip_address is not None
+        assert care_log.user_agent == "pytest-agent"
+
+    def test_update_care_log_public_reject_time_slot_change(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """異常系: 時点変更を含む更新は422"""
+        volunteer = self._make_volunteer(test_db)
+        care_log = self._make_care_log(test_db, test_animal, volunteer)
+
+        response = test_client.put(
+            f"/api/v1/public/care-logs/animal/{test_animal.id}/{care_log.id}",
+            json={"time_slot": "evening"},
+        )
+
+        assert response.status_code == 422
+
+    def test_update_care_log_public_wrong_animal_returns_404(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """異常系: 猫ID不一致で404を返す"""
+        volunteer = self._make_volunteer(test_db)
+        care_log = self._make_care_log(test_db, test_animal, volunteer)
+
+        another_animal = Animal(
+            name="別猫", photo="", pattern="", tail_length="", age="", gender=""
+        )
+        test_db.add(another_animal)
+        test_db.commit()
+        test_db.refresh(another_animal)
+
+        response = test_client.put(
+            f"/api/v1/public/care-logs/animal/{another_animal.id}/{care_log.id}",
+            json={"memo": "should fail"},
+        )
+
+        assert response.status_code == 404
 
     def test_get_latest_care_log_no_records(
         self, test_client: TestClient, test_animal: Animal

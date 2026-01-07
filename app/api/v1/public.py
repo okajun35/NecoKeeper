@@ -24,11 +24,69 @@ from app.schemas.care_log import (
     CareLogCreate,
     CareLogResponse,
     CareLogSummary,
+    CareLogUpdate,
 )
 from app.schemas.volunteer import VolunteerResponse
 from app.services import care_log_service, volunteer_service
 
 router = APIRouter(prefix="/public", tags=["Public API（認証不要）"])
+
+
+@router.put("/care-logs/animal/{animal_id}/{log_id}", response_model=CareLogResponse)
+def update_care_log_public(
+    animal_id: int,
+    log_id: int,
+    care_log_data: CareLogUpdate,
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+) -> CareLogResponse:
+    """
+    世話記録を更新（認証不要）
+
+    公開フォームから既存の世話記録を更新します。
+    猫ID・時点は変更不可で、IP/UAを再記録します。
+
+    Args:
+        animal_id: 猫のID
+        log_id: 世話記録ID
+        care_log_data: 更新データ（任意項目のみ指定可）
+        request: HTTPリクエスト（IPアドレス、User-Agent取得用）
+        db: データベースセッション
+
+    Returns:
+        CareLogResponse: 更新された世話記録
+
+    Raises:
+        HTTPException: 猫または記録が見つからない場合（404）、不正入力（422）
+    """
+
+    animal = db.query(Animal).filter(Animal.id == animal_id).first()
+    if not animal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"猫ID {animal_id} が見つかりません",
+        )
+
+    # 元の記録を取得して「時点」不変を担保
+    care_log = db.query(CareLog).filter(CareLog.id == log_id).first()
+    if not care_log:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {log_id} の世話記録が見つかりません",
+        )
+
+    care_log_data.ip_address = request.client.host if request.client else None
+    care_log_data.user_agent = request.headers.get("user-agent")
+
+    return care_log_service.update_care_log(
+        db=db,
+        care_log_id=log_id,
+        care_log_data=care_log_data,
+        user_id=None,
+        expected_animal_id=animal_id,
+        enforce_time_slot=care_log.time_slot,
+        care_log=care_log,
+    )
 
 
 @router.get("/animals/{animal_id}")
