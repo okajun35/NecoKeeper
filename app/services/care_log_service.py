@@ -287,7 +287,7 @@ def update_care_log(
         logger.error(f"無効なパラメータ: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+            detail="無効なリクエストです",
         ) from e
     except Exception as e:
         db.rollback()
