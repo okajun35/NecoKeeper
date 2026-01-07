@@ -85,6 +85,7 @@ def update_care_log_public(
         user_id=None,
         expected_animal_id=animal_id,
         enforce_time_slot=care_log.time_slot,
+        care_log=care_log,
     )
 
 
