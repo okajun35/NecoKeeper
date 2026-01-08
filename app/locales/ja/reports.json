@@ -4,6 +4,16 @@
     "log_date": "記録日",
     "animal_id": "猫ID",
     "animal_name": "猫名",
+    "medical_record_id": "診療記録ID",
+    "medical_date": "診療日",
+    "medical_action_name": "診療名称",
+    "dosage": "投薬量",
+    "dosage_unit": "投薬単位",
+    "cost_price": "原価",
+    "selling_price": "請求価格",
+    "procedure_fee": "処置料金",
+    "billing_amount": "請求額",
+    "currency": "通貨",
     "time_slot": "時点",
     "appetite": "食欲",
     "energy": "元気",
@@ -28,13 +38,15 @@
     "no": "×"
   },
   "sheet_names": {
-    "care_logs": "世話記録"
+    "care_logs": "世話記録",
+    "medical_records": "診療記録"
   },
   "report_titles": {
     "daily": "日報",
     "weekly": "週報",
     "monthly": "月次集計",
-    "individual": "個別帳票"
+    "individual": "個別帳票",
+    "medical_summary": "診療記録（利益計算用）"
   },
   "date_format": {
     "year": "年",
@@ -51,6 +63,11 @@
     "total_records": "総記録数",
     "total_animals": "対象猫数",
     "total_recorders": "記録者数",
-    "generated_at": "生成日時"
+    "generated_at": "生成日時",
+    "period": "期間",
+    "totals_by_currency": "通貨別合計",
+    "total_billing_amount": "請求額合計",
+    "total_cost_amount": "原価合計",
+    "total_profit_amount": "利益合計"
   }
 }

@@ -475,6 +475,8 @@ class TestGenerateReportPDF:
             ("weekly", "en"),
             ("monthly", "ja"),
             ("monthly", "en"),
+            ("medical_summary", "ja"),
+            ("medical_summary", "en"),
         ],
     )
     def test_generate_report_pdf_all_types_and_locales(

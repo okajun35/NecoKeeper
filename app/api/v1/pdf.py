@@ -63,7 +63,7 @@ class ReportRequest(BaseModel):
     """帳票生成リクエスト"""
 
     report_type: str = Field(
-        ..., description="帳票種別（daily/weekly/monthly/individual）"
+        ..., description="帳票種別（daily/weekly/monthly/individual/medical_summary）"
     )
     start_date: date = Field(..., description="開始日")
     end_date: date = Field(..., description="終了日")

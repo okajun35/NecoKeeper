@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} - {{ start_date }} 〜 {{ end_date }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: {{ font_family }}, 'Noto Sans CJK JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+            font-size: 10pt;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 18pt;
+            text-align: center;
+            margin-bottom: 10mm;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5mm;
+        }
+        .meta {
+            text-align: right;
+            margin-bottom: 10mm;
+            font-size: 9pt;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10mm;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        .summary {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10mm;
+        }
+        .summary-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .right {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            font-size: 8pt;
+            color: #999;
+            margin-top: 20mm;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <div class="meta">
+        <div>{{ t('statistics.period', locale=locale) }}: {{ start_date }} 〜 {{ end_date }}</div>
+        <div>{{ t('statistics.generated_at', locale=locale) }}: {{ generated_at }}</div>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item"><strong>{{ t('statistics.total_records', locale=locale) }}:</strong> {{ total_records }}</div>
+        <div class="summary-item"><strong>{{ t('statistics.total_animals', locale=locale) }}:</strong> {{ total_animals }}</div>
+    </div>
+
+    {% if totals_by_currency %}
+    <h2>{{ t('statistics.totals_by_currency', locale=locale) }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>{{ t('headers.currency', locale=locale) }}</th>
+                <th class="right">{{ t('statistics.total_billing_amount', locale=locale) }}</th>
+                <th class="right">{{ t('statistics.total_cost_amount', locale=locale) }}</th>
+                <th class="right">{{ t('statistics.total_profit_amount', locale=locale) }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for currency, amounts in totals_by_currency.items() %}
+            <tr>
+                <td>{{ currency }}</td>
+                <td class="right">{{ amounts.billing_amount }}</td>
+                <td class="right">{{ amounts.cost_amount }}</td>
+                <td class="right">{{ amounts.profit_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <h2>{{ t('report_titles.medical_summary', locale=locale) }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>{{ t('headers.medical_date', locale=locale) }}</th>
+                <th>{{ t('headers.animal_name', locale=locale) }}</th>
+                <th>{{ t('headers.medical_action_name', locale=locale) }}</th>
+                <th class="center">{{ t('headers.dosage', locale=locale) }}</th>
+                <th class="center">{{ t('headers.dosage_unit', locale=locale) }}</th>
+                <th class="right">{{ t('headers.selling_price', locale=locale) }}</th>
+                <th class="right">{{ t('headers.procedure_fee', locale=locale) }}</th>
+                <th class="right">{{ t('headers.cost_price', locale=locale) }}</th>
+                <th class="right">{{ t('headers.billing_amount', locale=locale) }}</th>
+                <th class="center">{{ t('headers.currency', locale=locale) }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.medical_date }}</td>
+                <td>{{ row.animal_name }}</td>
+                <td>{{ row.medical_action_name or '-' }}</td>
+                <td class="center">{{ row.dosage }}</td>
+                <td class="center">{{ row.dosage_unit or '' }}</td>
+                <td class="right">{{ row.selling_price or '' }}</td>
+                <td class="right">{{ row.procedure_fee or '' }}</td>
+                <td class="right">{{ row.cost_price or '' }}</td>
+                <td class="right">{{ row.billing_amount or '' }}</td>
+                <td class="center">{{ row.currency or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        NecoKeeper
+    </div>
+</body>
+</html>

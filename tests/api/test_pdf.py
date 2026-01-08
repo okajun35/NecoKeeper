@@ -6,7 +6,10 @@ Requirements: Requirement 2, Requirement 7, Requirement 9
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models.animal import Animal
@@ -212,3 +215,60 @@ class TestReportEndpoint:
         # Then
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/pdf"
+
+    def test_generate_report_medical_summary_success(
+        self,
+        test_client: TestClient,
+        auth_token: str,
+        test_animal: Animal,
+        test_user,
+        test_db: Session,
+    ):
+        """正常系: 診療帳票（利益計算用）PDF生成が成功"""
+        # Given
+        from app.models.medical_action import MedicalAction
+        from app.models.medical_record import MedicalRecord
+
+        action = MedicalAction(
+            name="ワクチン",
+            valid_from=datetime(2024, 1, 1).date(),
+            valid_to=None,
+            cost_price=1000,
+            selling_price=3000,
+            procedure_fee=500,
+            currency="JPY",
+            unit="回",
+        )
+        test_db.add(action)
+        test_db.commit()
+        test_db.refresh(action)
+
+        record = MedicalRecord(
+            animal_id=test_animal.id,
+            vet_id=test_user.id,
+            date=datetime(2024, 11, 15).date(),
+            symptoms="テスト",
+            medical_action_id=action.id,
+            dosage=2,
+        )
+        test_db.add(record)
+        test_db.commit()
+
+        request_data = {
+            "report_type": "medical_summary",
+            "start_date": "2024-11-01",
+            "end_date": "2024-11-30",
+            "locale": "ja",
+        }
+
+        # When
+        response = test_client.post(
+            "/api/v1/pdf/report",
+            json=request_data,
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        # Then
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "application/pdf"
+        assert response.content.startswith(b"%PDF")
