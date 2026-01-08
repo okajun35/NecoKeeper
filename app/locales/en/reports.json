@@ -41,12 +41,27 @@
     "care_logs": "Care Logs",
     "medical_records": "Medical Records"
   },
+  "report_kinds": {
+    "care_logs": "Care Logs"
+  },
   "report_titles": {
     "daily": "Daily Report",
     "weekly": "Weekly Report",
     "monthly": "Monthly Summary",
     "individual": "Individual Report",
     "medical_summary": "Medical Report (For Profit Calculation)"
+  },
+  "sections": {
+    "records_list": "Records",
+    "daily_records_list": "Daily Records",
+    "weekly_records_list": "Weekly Records",
+    "monthly_records_list": "Monthly Records",
+    "individual_records_list": "Individual Records"
+  },
+  "units": {
+    "records": "",
+    "animals": "",
+    "recorders": ""
   },
   "date_format": {
     "year": "",

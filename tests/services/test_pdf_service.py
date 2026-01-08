@@ -13,6 +13,16 @@ from app.models.animal import Animal
 from app.services import pdf_service
 
 
+def _extract_pdf_text(pdf_bytes: bytes) -> str:
+    import fitz  # PyMuPDF
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    try:
+        return "\n".join(page.get_text() for page in doc)
+    finally:
+        doc.close()
+
+
 class TestGenerateQRCardPDF:
     """QRカードPDF生成のテスト"""
 
@@ -323,6 +333,13 @@ class TestGenerateReportPDF:
         # Then
         assert pdf_bytes is not None
         assert pdf_bytes.startswith(b"%PDF")
+
+        text = _extract_pdf_text(pdf_bytes)
+        assert "Care Logs" in text
+        assert "Daily Report" in text
+        assert "Log Date" in text
+        assert "Animal Name" in text
+        assert "Time Slot" in text
 
     def test_generate_report_pdf_weekly_japanese(self, test_db: Session):
         """正常系: 日本語で週報PDFを生成できる"""

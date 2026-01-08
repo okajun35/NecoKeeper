@@ -108,6 +108,16 @@ uv pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+### PDF generation note (Japanese labels)
+
+WeasyPrint needs Japanese fonts installed to render Japanese text in PDFs (titles/column headers, etc.).
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y fontconfig fonts-noto-cjk fonts-ipafont-gothic fonts-ipafont-mincho
+```
+
 Database for local use:
 
 ```

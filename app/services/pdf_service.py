@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import base64
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -371,12 +372,27 @@ def generate_report_pdf(
     # テンプレートをレンダリング
     template = jinja_env.get_template("report_daily.html")
 
+    title = tj(f"report_titles.{report_type}", locale=locale)
+    report_kind = tj("report_kinds.care_logs", locale=locale)
+    section_title_by_type = {
+        "daily": tj("sections.daily_records_list", locale=locale),
+        "weekly": tj("sections.weekly_records_list", locale=locale),
+        "monthly": tj("sections.monthly_records_list", locale=locale),
+        "individual": tj("sections.individual_records_list", locale=locale),
+    }
+    section_title = section_title_by_type.get(
+        report_type, tj("sections.records_list", locale=locale)
+    )
+
     # 日付フォーマット（多言語化）
     date_fmt = tj("date_format.date_full", locale=locale)
     datetime_fmt = tj("date_format.datetime_full", locale=locale)
 
     html_content = template.render(
         report_type=report_type,
+        title=title,
+        report_kind=report_kind,
+        section_title=section_title,
         start_date=start_date.strftime(date_fmt),
         font_family=settings.pdf_font_family,
         end_date=end_date.strftime(date_fmt),
@@ -416,8 +432,9 @@ def generate_medical_summary_report_pdf(
     # totals_by_currency: include profit for template
     totals_by_currency: dict[str, dict[str, str]] = {}
     for currency, amounts in totals.totals_by_currency.items():
-        billing = amounts["billing_amount"]
-        cost = amounts["cost_amount"]
+        # Defensive: treat missing/None as 0 to avoid runtime + mypy issues
+        billing = amounts.get("billing_amount") or Decimal("0")
+        cost = amounts.get("cost_amount") or Decimal("0")
         profit = billing - cost
         totals_by_currency[currency] = {
             "billing_amount": str(billing),

@@ -41,12 +41,27 @@
     "care_logs": "世話記録",
     "medical_records": "診療記録"
   },
+  "report_kinds": {
+    "care_logs": "世話記録"
+  },
   "report_titles": {
     "daily": "日報",
     "weekly": "週報",
     "monthly": "月次集計",
     "individual": "個別帳票",
     "medical_summary": "診療記録（利益計算用）"
+  },
+  "sections": {
+    "records_list": "記録一覧",
+    "daily_records_list": "日別記録一覧",
+    "weekly_records_list": "週次記録一覧",
+    "monthly_records_list": "月次記録一覧",
+    "individual_records_list": "個別記録一覧"
+  },
+  "units": {
+    "records": "件",
+    "animals": "頭",
+    "recorders": "名"
   },
   "date_format": {
     "year": "年",
