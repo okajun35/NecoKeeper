@@ -2,10 +2,22 @@
   "title": "Reports",
   "description": "Generate summary reports of care and medical records for a selected period.",
   "cards": {
+    "care": { "title": "Care Logs", "desc": "Export care log reports" },
+    "medical": { "title": "Medical Records", "desc": "Export medical reports (for profit calculation)" },
     "daily": { "title": "Daily", "desc": "Daily care record summary" },
     "weekly": { "title": "Weekly", "desc": "Weekly care record summary" },
     "monthly": { "title": "Monthly", "desc": "Monthly medical cost & record count" },
     "individual": { "title": "Individual", "desc": "Per-cat consolidated records" }
+  },
+  "pages": {
+    "care": {
+      "title": "Care Log Report",
+      "description": "Export care log reports for a selected period."
+    },
+    "medical": {
+      "title": "Medical Report",
+      "description": "Export medical records and cost summaries for a selected period."
+    }
   },
   "form": {
     "base_title": "Report Generation",
@@ -13,6 +25,11 @@
     "weekly": "Generate Weekly Report",
     "monthly": "Generate Monthly Summary",
     "individual": "Generate Individual Report",
+    "scope": {
+      "label": "Scope",
+      "all": "All",
+      "single": "Single Cat"
+    },
     "animal_select_label": "Select Cat",
     "animal_loading": "Loading...",
     "start_date": "Start Date",

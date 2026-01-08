@@ -617,6 +617,8 @@ class TestExportCareLogsCSV:
         assert "記録者名" in csv_content
         assert "テスト記録者" in csv_content
         assert "テストメモ" in csv_content
+        assert "朝" in csv_content
+        assert "morning" not in csv_content
 
     def test_export_csv_with_animal_filter(
         self, test_db: Session, test_animals_bulk: list[Animal]

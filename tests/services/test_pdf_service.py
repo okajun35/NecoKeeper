@@ -13,6 +13,20 @@ from app.models.animal import Animal
 from app.services import pdf_service
 
 
+def _extract_pdf_text(pdf_bytes: bytes) -> str:
+    import fitz  # PyMuPDF
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    try:
+        raw_text = "\n".join(page.get_text() for page in doc)
+    finally:
+        doc.close()
+
+    # PDF text extraction may insert unpredictable whitespace/newlines depending on
+    # fonts/layout/environment. Normalize whitespace so tests are stable.
+    return " ".join(raw_text.split())
+
+
 class TestGenerateQRCardPDF:
     """QRカードPDF生成のテスト"""
 
@@ -324,6 +338,13 @@ class TestGenerateReportPDF:
         assert pdf_bytes is not None
         assert pdf_bytes.startswith(b"%PDF")
 
+        text = _extract_pdf_text(pdf_bytes)
+        assert "Care Logs" in text
+        assert "Daily Report" in text
+        assert "Log Date" in text
+        assert "Animal Name" in text
+        assert "Time Slot" in text
+
     def test_generate_report_pdf_weekly_japanese(self, test_db: Session):
         """正常系: 日本語で週報PDFを生成できる"""
         # Given
@@ -475,6 +496,8 @@ class TestGenerateReportPDF:
             ("weekly", "en"),
             ("monthly", "ja"),
             ("monthly", "en"),
+            ("medical_summary", "ja"),
+            ("medical_summary", "en"),
         ],
     )
     def test_generate_report_pdf_all_types_and_locales(

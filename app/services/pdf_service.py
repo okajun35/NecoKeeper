@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import base64
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -19,6 +20,7 @@ from weasyprint import HTML
 
 from app.config import get_settings
 from app.models.animal import Animal
+from app.services.medical_report_service import get_medical_summary_rows
 from app.utils.i18n import tj
 from app.utils.qr_code import generate_animal_qr_code_bytes
 
@@ -314,7 +316,7 @@ def generate_report_pdf(
     from app.models.care_log import CareLog
 
     # 帳票種別のバリデーション
-    valid_types = ["daily", "weekly", "monthly", "individual"]
+    valid_types = ["daily", "weekly", "monthly", "individual", "medical_summary"]
     if report_type not in valid_types:
         raise ValueError(
             f"不正な帳票種別です: {report_type}。有効な値: {', '.join(valid_types)}"
@@ -323,6 +325,15 @@ def generate_report_pdf(
     # 個別帳票の場合は猫IDが必須
     if report_type == "individual" and not animal_id:
         raise ValueError("個別帳票の生成には猫IDが必要です")
+
+    if report_type == "medical_summary":
+        return generate_medical_summary_report_pdf(
+            db=db,
+            start_date=start_date,
+            end_date=end_date,
+            animal_id=animal_id,
+            locale=locale,
+        )
 
     # 世話記録を取得（実際の記録日でフィルタリング）
     query = db.query(CareLog).filter(
@@ -361,12 +372,27 @@ def generate_report_pdf(
     # テンプレートをレンダリング
     template = jinja_env.get_template("report_daily.html")
 
+    title = tj(f"report_titles.{report_type}", locale=locale)
+    report_kind = tj("report_kinds.care_logs", locale=locale)
+    section_title_by_type = {
+        "daily": tj("sections.daily_records_list", locale=locale),
+        "weekly": tj("sections.weekly_records_list", locale=locale),
+        "monthly": tj("sections.monthly_records_list", locale=locale),
+        "individual": tj("sections.individual_records_list", locale=locale),
+    }
+    section_title = section_title_by_type.get(
+        report_type, tj("sections.records_list", locale=locale)
+    )
+
     # 日付フォーマット（多言語化）
     date_fmt = tj("date_format.date_full", locale=locale)
     datetime_fmt = tj("date_format.datetime_full", locale=locale)
 
     html_content = template.render(
         report_type=report_type,
+        title=title,
+        report_kind=report_kind,
+        section_title=section_title,
         start_date=start_date.strftime(date_fmt),
         font_family=settings.pdf_font_family,
         end_date=end_date.strftime(date_fmt),
@@ -376,10 +402,81 @@ def generate_report_pdf(
         total_recorders=total_recorders,
         records=records,
         locale=locale,
+        t=tj,
     )
 
     # PDFを生成
     html_doc = HTML(string=html_content, base_url=str(template_dir))
     pdf_bytes = html_doc.write_pdf()
 
+    return pdf_bytes  # type: ignore[no-any-return]
+
+
+def generate_medical_summary_report_pdf(
+    db: Session,
+    start_date: date,
+    end_date: date,
+    animal_id: int | None = None,
+    locale: str = "ja",
+) -> bytes:
+    from datetime import datetime
+
+    rows, totals = get_medical_summary_rows(
+        db=db, start_date=start_date, end_date=end_date, animal_id=animal_id
+    )
+
+    # 日付フォーマット（多言語化）
+    date_fmt = tj("date_format.date_full", locale=locale)
+    datetime_fmt = tj("date_format.datetime_full", locale=locale)
+
+    # totals_by_currency: include profit for template
+    totals_by_currency: dict[str, dict[str, str]] = {}
+    for currency, amounts in totals.totals_by_currency.items():
+        # Defensive: treat missing/None as 0 to avoid runtime + mypy issues
+        billing = amounts.get("billing_amount") or Decimal("0")
+        cost = amounts.get("cost_amount") or Decimal("0")
+        profit = billing - cost
+        totals_by_currency[currency] = {
+            "billing_amount": str(billing),
+            "cost_amount": str(cost),
+            "profit_amount": str(profit),
+        }
+
+    template = jinja_env.get_template("report_medical_summary.html")
+    html_content = template.render(
+        title=tj("report_titles.medical_summary", locale=locale),
+        start_date=start_date.strftime(date_fmt),
+        end_date=end_date.strftime(date_fmt),
+        generated_at=datetime.now().strftime(datetime_fmt),
+        total_records=totals.total_records,
+        total_animals=totals.total_animals,
+        totals_by_currency=totals_by_currency,
+        rows=[
+            {
+                "medical_date": r.medical_date.strftime("%Y-%m-%d"),
+                "animal_name": r.animal_name,
+                "medical_action_name": r.medical_action_name,
+                "dosage": r.dosage,
+                "dosage_unit": r.dosage_unit,
+                "cost_price": str(r.cost_price) if r.cost_price is not None else None,
+                "selling_price": str(r.selling_price)
+                if r.selling_price is not None
+                else None,
+                "procedure_fee": str(r.procedure_fee)
+                if r.procedure_fee is not None
+                else None,
+                "billing_amount": str(r.billing_amount)
+                if r.billing_amount is not None
+                else None,
+                "currency": r.currency,
+            }
+            for r in rows
+        ],
+        font_family=settings.pdf_font_family,
+        locale=locale,
+        t=tj,
+    )
+
+    html_doc = HTML(string=html_content, base_url=str(template_dir))
+    pdf_bytes = html_doc.write_pdf()
     return pdf_bytes  # type: ignore[no-any-return]

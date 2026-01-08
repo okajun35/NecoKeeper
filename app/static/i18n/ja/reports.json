@@ -2,10 +2,22 @@
   "title": "帳票出力",
   "description": "期間を指定して、世話記録や診療記録の集計帳票を出力できます。",
   "cards": {
+    "care": { "title": "世話記録", "desc": "世話記録の帳票出力" },
+    "medical": { "title": "診療記録", "desc": "診療記録の帳票出力（利益計算対応）" },
     "daily": { "title": "日報", "desc": "日別の世話記録集計" },
     "weekly": { "title": "週報", "desc": "週別の世話記録集計" },
     "monthly": { "title": "月次集計", "desc": "月別の医療費・診療件数" },
     "individual": { "title": "個別帳票", "desc": "猫ごとの記録まとめ" }
+  },
+  "pages": {
+    "care": {
+      "title": "世話記録帳票",
+      "description": "期間を指定して、世話記録の帳票を出力できます。"
+    },
+    "medical": {
+      "title": "診療記録帳票",
+      "description": "期間を指定して、診療件数や医療費の帳票を出力できます。"
+    }
   },
   "form": {
     "base_title": "帳票生成",
@@ -13,6 +25,11 @@
     "weekly": "週報生成",
     "monthly": "月次集計生成",
     "individual": "個別帳票生成",
+    "scope": {
+      "label": "対象",
+      "all": "全体",
+      "single": "特定の猫"
+    },
     "animal_select_label": "猫を選択",
     "animal_loading": "読み込み中...",
     "start_date": "開始日",

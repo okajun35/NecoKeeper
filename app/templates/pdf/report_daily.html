@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="{{ 'en' if locale == 'en' else 'ja' }}">
 <head>
     <meta charset="UTF-8">
-    <title>日報 - {{ start_date }} 〜 {{ end_date }}</title>
+    <title>{{ report_kind }} {{ title }} - {{ start_date }} 〜 {{ end_date }}</title>
     <style>
         @page {
             size: A4;
@@ -59,44 +59,44 @@
     </style>
 </head>
 <body>
-    <h1>世話記録 日報</h1>
+    <h1>{{ report_kind }} {{ title }}</h1>
 
     <div class="meta">
-        <div>期間: {{ start_date }} 〜 {{ end_date }}</div>
-        <div>出力日時: {{ generated_at }}</div>
+        <div>{{ t('statistics.period', locale=locale) }}: {{ start_date }} 〜 {{ end_date }}</div>
+        <div>{{ t('statistics.generated_at', locale=locale) }}: {{ generated_at }}</div>
     </div>
 
     <div class="summary">
-        <div class="summary-item"><strong>総記録数:</strong> {{ total_records }}件</div>
-        <div class="summary-item"><strong>対象猫数:</strong> {{ total_animals }}頭</div>
-        <div class="summary-item"><strong>記録者数:</strong> {{ total_recorders }}名</div>
+        <div class="summary-item"><strong>{{ t('statistics.total_records', locale=locale) }}:</strong> {{ total_records }}{{ t('units.records', locale=locale) }}</div>
+        <div class="summary-item"><strong>{{ t('statistics.total_animals', locale=locale) }}:</strong> {{ total_animals }}{{ t('units.animals', locale=locale) }}</div>
+        <div class="summary-item"><strong>{{ t('statistics.total_recorders', locale=locale) }}:</strong> {{ total_recorders }}{{ t('units.recorders', locale=locale) }}</div>
     </div>
 
-    <h2>日別記録一覧</h2>
+    <h2>{{ section_title }}</h2>
     <table>
         <thead>
             <tr>
-                <th>日付</th>
-                <th>猫名</th>
-                <th>時点</th>
-                <th>食欲</th>
-                <th>元気</th>
-                <th>排尿</th>
-                <th>清掃</th>
-                <th>記録者</th>
-                <th>メモ</th>
+                <th>{{ t('headers.log_date', locale=locale) }}</th>
+                <th>{{ t('headers.animal_name', locale=locale) }}</th>
+                <th>{{ t('headers.time_slot', locale=locale) }}</th>
+                <th>{{ t('headers.appetite', locale=locale) }}</th>
+                <th>{{ t('headers.energy', locale=locale) }}</th>
+                <th>{{ t('headers.urination', locale=locale) }}</th>
+                <th>{{ t('headers.cleaning', locale=locale) }}</th>
+                <th>{{ t('headers.recorder_name', locale=locale) }}</th>
+                <th>{{ t('headers.memo', locale=locale) }}</th>
             </tr>
         </thead>
         <tbody>
             {% for record in records %}
             <tr>
-                <td>{{ record.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>{{ record.log_date.strftime('%Y-%m-%d') }}</td>
                 <td>{{ record.animal_name }}</td>
                 <td>{{ record.time_slot_display }}</td>
                 <td>{{ record.appetite }}/5</td>
                 <td>{{ record.energy }}/5</td>
-                <td>{{ '○' if record.urination else '×' }}</td>
-                <td>{{ '○' if record.cleaning else '×' }}</td>
+                <td>{{ t('boolean.yes' if record.urination else 'boolean.no', locale=locale) }}</td>
+                <td>{{ t('boolean.yes' if record.cleaning else 'boolean.no', locale=locale) }}</td>
                 <td>{{ record.recorder_name }}</td>
                 <td>{{ record.memo or '-' }}</td>
             </tr>
@@ -105,7 +105,7 @@
     </table>
 
     <div class="footer">
-        NecoKeeper - 保護猫管理システム
+        NecoKeeper
     </div>
 </body>
 </html>

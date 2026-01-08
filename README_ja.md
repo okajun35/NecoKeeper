@@ -94,7 +94,7 @@ source .venv/bin/activate
 **Ubuntu/Debian:**
 ```bash
 sudo apt-get update
-sudo apt-get install fonts-ipafont fonts-noto-cjk
+sudo apt-get install -y fontconfig fonts-noto-cjk fonts-ipafont-gothic fonts-ipafont-mincho
 ```
 
 **macOS:**
@@ -105,6 +105,8 @@ brew install font-noto-sans-cjk-jp
 
 **Windows:**
 - システムに日本語フォント（Yu Gothic、Meiryoなど）が既にインストールされています
+
+> 補足: 日本語フォントが無い環境だと、PDF内のタイトルや列名など「日本語ラベル」が空白（または豆腐）になることがあります。
 
 4. 依存関係をインストール
 

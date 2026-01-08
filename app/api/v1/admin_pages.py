@@ -696,6 +696,36 @@ def reports_page(
     )
 
 
+@router.get("/reports/care", response_class=HTMLResponse)
+def care_reports_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """世話記録帳票ページを表示（認証必須）"""
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/reports/care.html",
+        {"request": request, "user": current_user, "settings": settings},
+    )
+
+
+@router.get("/reports/medical", response_class=HTMLResponse)
+def medical_reports_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """診療記録帳票ページを表示（認証必須）"""
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/reports/medical.html",
+        {"request": request, "user": current_user, "settings": settings},
+    )
+
+
 @router.get("/settings", response_class=HTMLResponse)
 def settings_page(
     request: Request,
