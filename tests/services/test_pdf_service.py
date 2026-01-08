@@ -18,9 +18,13 @@ def _extract_pdf_text(pdf_bytes: bytes) -> str:
 
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     try:
-        return "\n".join(page.get_text() for page in doc)
+        raw_text = "\n".join(page.get_text() for page in doc)
     finally:
         doc.close()
+
+    # PDF text extraction may insert unpredictable whitespace/newlines depending on
+    # fonts/layout/environment. Normalize whitespace so tests are stable.
+    return " ".join(raw_text.split())
 
 
 class TestGenerateQRCardPDF:
