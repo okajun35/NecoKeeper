@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     # サーバー設定
     host: str = Field(default="0.0.0.0", description="サーバーホスト")
     port: int = Field(default=8000, description="サーバーポート", ge=1, le=65535)
+    use_proxy_headers: bool = Field(
+        default=True,
+        description="リバースプロキシ配下で X-Forwarded-* ヘッダーを信頼するか",
+    )
 
     # セキュリティ設定
     secret_key: str = Field(

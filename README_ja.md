@@ -150,6 +150,7 @@ cp .env.example .env
 | `COOKIE_SAMESITE` | Cookie SameSite属性 | `lax` | `lax` |
 | `COOKIE_MAX_AGE` | Cookie有効期限（秒） | `7200` | `7200` |
 | `KIROWEEN_MODE` | Necro-Terminalテーマを有効化 | `false` | 任意 (`true`で英語UI固定) |
+| `USE_PROXY_HEADERS` | リバプロ配下でX-Forwarded-*を信頼 | `true` | プロキシ経由は`true` / 直HTTPS終端は`false` |
 
 **DB パス設定**:
 - **ローカル開発**: `NECOKEEPER_DB_PATH=data/necokeeper.db`（デフォルト）
