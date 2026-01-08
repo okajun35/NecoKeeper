@@ -139,6 +139,9 @@ MEDIA_DIR=./media
 BACKUP_DIR=./backups
 LOG_FILE=./logs/necokeeper.log
 
+# Reverse proxy header trust (Render/LB=true, direct HTTPS=false)
+USE_PROXY_HEADERS=true
+
 # Enable/disable Kiroween Mode
 KIROWEEN_MODE=false
 ```

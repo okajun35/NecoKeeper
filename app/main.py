@@ -20,6 +20,7 @@ from fastapi.responses import (
 )
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.api import automation
 from app.api.v1 import (
@@ -104,6 +105,11 @@ app = FastAPI(
     docs_url="/docs" if settings.debug else None,
     redoc_url="/redoc" if settings.debug else None,
 )
+
+# リバースプロキシ（Render等）配下での https 判定を正しくする
+# X-Forwarded-Proto / X-Forwarded-Host を信頼して request.url_for() のURL生成を適切化
+if settings.use_proxy_headers:
+    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 
 # CORSミドルウェアの設定
