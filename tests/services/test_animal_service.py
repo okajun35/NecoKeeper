@@ -32,7 +32,7 @@ class TestCreateAnimal:
             photo="photo.jpg",
             pattern="三毛",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )
@@ -69,7 +69,7 @@ class TestCreateAnimal:
             pattern="三毛",
             tail_length="短い",
             collar="赤い首輪",
-            age="子猫",
+            age_months=6,
             gender="female",
             ear_cut=True,
             features="人懐っこい",
@@ -91,7 +91,7 @@ class TestCreateAnimal:
             photo="photo.jpg",
             pattern="黒",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 
@@ -138,7 +138,7 @@ class TestGetAnimal:
             pattern="三毛",
             tail_length="長い",
             collar="青い首輪",
-            age="成猫",
+            age_months=12,
             gender="female",
             ear_cut=True,
             features="おとなしい",

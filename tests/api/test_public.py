@@ -484,7 +484,12 @@ class TestUpdateCareLogPublic:
         care_log = self._make_care_log(test_db, test_animal, volunteer)
 
         another_animal = Animal(
-            name="別猫", photo="", pattern="", tail_length="", age="", gender=""
+            name="別猫",
+            photo="",
+            pattern="",
+            tail_length="",
+            age_months=None,
+            gender="",
         )
         test_db.add(another_animal)
         test_db.commit()
@@ -518,7 +523,7 @@ class TestUpdateCareLogPublic:
             photo="cat1.jpg",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )
@@ -527,7 +532,7 @@ class TestUpdateCareLogPublic:
             photo="cat2.jpg",
             pattern="三毛",
             tail_length="短い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -783,7 +788,7 @@ class TestGetAllAnimalsStatusToday:
             photo="cat1.jpg",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )
@@ -792,7 +797,7 @@ class TestGetAllAnimalsStatusToday:
             photo="cat2.jpg",
             pattern="三毛",
             tail_length="短い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="治療中",
         )
@@ -801,7 +806,7 @@ class TestGetAllAnimalsStatusToday:
             photo="cat3.jpg",
             pattern="白",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="譲渡済み",  # 譲渡済みは表示されない
         )
@@ -908,7 +913,7 @@ class TestGetAllAnimalsStatusToday:
             photo="cat.jpg",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )

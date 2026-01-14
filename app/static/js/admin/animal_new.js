@@ -91,6 +91,14 @@ function setupImagePreview() {
   });
 }
 
+function parseOptionalInt(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 /**
  * フォーム送信を設定
  */
@@ -120,7 +128,8 @@ function setupFormSubmit() {
         name: document.getElementById('name').value,
         pattern: document.getElementById('pattern').value,
         gender: document.getElementById('gender').value,
-        age: document.getElementById('age').value,
+        age_months: parseOptionalInt(document.getElementById('age_months').value),
+        age_is_estimated: document.getElementById('age_is_estimated').checked,
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || undefined,
         ear_cut: document.getElementById('ear_cut').checked,

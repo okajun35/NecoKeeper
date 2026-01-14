@@ -76,7 +76,7 @@ class NecoKeeperAPIClient:
         Create a new animal profile
 
         Args:
-            animal_data: Animal profile data (name, sex, age, status, etc.)
+            animal_data: Animal profile data (name, sex, age_months, status, etc.)
 
         Returns:
             dict: Created animal data with id, name, and public_url
@@ -91,7 +91,8 @@ class NecoKeeperAPIClient:
             >>> animal_data = {
             ...     "name": "Tama",
             ...     "sex": "メス",
-            ...     "age": "2歳",
+            ...     "age_months": 24,
+            ...     "age_is_estimated": False,
             ...     "status": "保護中",
             ... }
             >>> result = await client.create_animal(animal_data)

@@ -28,7 +28,7 @@ class TestCreateAnimalAutomation:
             "name": "自動登録猫",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
             "status": "保護中",
         }
@@ -46,7 +46,7 @@ class TestCreateAnimalAutomation:
         assert data["name"] == "自動登録猫"
         assert data["pattern"] == "キジトラ"
         assert data["tail_length"] == "長い"
-        assert data["age"] == "成猫"
+        assert data["age_months"] == 12
         assert data["gender"] == "male"
         assert data["status"] == "保護中"
         assert "id" in data
@@ -69,7 +69,7 @@ class TestCreateAnimalAutomation:
             "name": "テスト猫",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
         }
 
@@ -94,7 +94,7 @@ class TestCreateAnimalAutomation:
             "name": "テスト猫",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
         }
 
@@ -122,7 +122,7 @@ class TestCreateAnimalAutomation:
             "name": "テスト猫",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "invalid",  # 不正な性別
         }
 
@@ -148,7 +148,7 @@ class TestCreateAnimalAutomation:
         animal_data = {
             "pattern": "三毛",
             "tail_length": "短い",
-            "age": "子猫",
+            "age_months": 6,
             "gender": "female",
         }
 
@@ -263,7 +263,7 @@ class TestAnimalAutomationIntegration:
             "name": "統合テスト猫",
             "pattern": "黒猫",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "female",
             "ear_cut": True,
             "features": "人懐っこい",

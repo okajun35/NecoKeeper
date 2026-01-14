@@ -123,8 +123,8 @@
     "filter": {
       "status": "Status",
       "gender": "Gender",
-      "age_min": "Age (Min)",
-      "age_max": "Age (Max)",
+      "age_min": "Age (Months, Min)",
+      "age_max": "Age (Months, Max)",
       "rescue_date_from": "Rescue Date (From)",
       "rescue_date_to": "Rescue Date (To)",
       "ear_cut": "Ear Cut",
@@ -141,7 +141,8 @@
       "pattern": "Pattern",
       "tail_length": "Tail Length",
       "collar": "Collar",
-      "age": "Age",
+      "age": "Age (Months)",
+      "age_is_estimated": "Estimated",
       "gender": "Gender",
       "ear_cut": "Ear Cut",
       "features": "Features",
@@ -173,6 +174,10 @@
       "adult": "Adult",
       "senior": "Senior"
     },
+    "age_months_placeholder": "e.g., 12",
+    "age_months": "{{value}} mo",
+    "age_months_estimated": "{{value}} mo (est.)",
+    "age_unknown": "Unknown",
     "tabs": {
       "basic_info": "Basic Info",
       "care_logs": "Care Logs",

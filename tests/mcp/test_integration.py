@@ -59,7 +59,7 @@ class TestCompleteWorkflow:
                     "name": "Tama",
                     "pattern": "三毛",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "female",
                     "status": "保護中",
                 }
@@ -134,7 +134,7 @@ class TestCompleteWorkflow:
                     "name": "TestCat",
                     "pattern": "キジトラ",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "male",
                     "status": "保護中",
                 }
@@ -186,7 +186,7 @@ class TestErrorHandling:
                         "name": "TestCat",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                         "status": "保護中",
                     }
@@ -231,7 +231,7 @@ class TestErrorHandling:
                         "name": "TestCat",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                         "status": "保護中",
                     }
@@ -277,7 +277,7 @@ class TestErrorHandling:
                         "name": "TestCat",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                         "status": "保護中",
                     }
@@ -440,7 +440,7 @@ class TestWorkflowErrorClarity:
                         "name": "",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                         "status": "保護中",
                     }

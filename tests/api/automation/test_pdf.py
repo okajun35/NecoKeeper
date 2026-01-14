@@ -241,7 +241,7 @@ class TestPDFAutomationIntegration:
             "name": "PDF統合テスト猫",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
         }
 

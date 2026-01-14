@@ -35,7 +35,7 @@ class TestWeightChartAPI:
             name="グラフテスト猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -95,7 +95,7 @@ class TestWeightChartAPI:
             name="体重データなし猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )

@@ -52,7 +52,12 @@ class TestNecoKeeperAPIClient:
     @pytest.mark.asyncio
     async def test_create_animal_success(self, mock_config: MCPConfig) -> None:
         """Test successful animal creation via API."""
-        animal_data = {"name": "Tama", "sex": "メス", "age": "2歳", "status": "保護中"}
+        animal_data = {
+            "name": "Tama",
+            "sex": "メス",
+            "age_months": 24,
+            "status": "保護中",
+        }
         expected_response = {
             "animal_id": 42,
             "name": "Tama",

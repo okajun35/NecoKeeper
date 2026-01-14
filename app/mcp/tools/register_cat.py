@@ -48,10 +48,13 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
         tail_length: Annotated[
             str, Field(description="尻尾の長さ（例: 長い、短い、なし）")
         ],
-        age: Annotated[str, Field(description="年齢・大きさ（例: 子猫、成猫、老猫）")],
         gender: Annotated[
             str, Field(description="性別: male (オス), female (メス), unknown (不明)")
         ],
+        age_months: Annotated[
+            int | None, Field(description="月齢（null=不明）", ge=0)
+        ] = None,
+        age_is_estimated: Annotated[bool, Field(description="推定月齢フラグ")] = False,
         status: Annotated[
             str,
             Field(
@@ -83,7 +86,8 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             name: 猫の名前（必須）
             pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
             tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
-            age: 年齢・大きさ（必須、例: 子猫、成猫、老猫）
+            age_months: 月齢（任意、null=不明）
+            age_is_estimated: 推定月齢フラグ（デフォルト: False）
             gender: 性別（必須、male/female/unknown）
             status: ステータス（デフォルト: 保護中）
             photo: プロフィール画像のファイルパス（任意）
@@ -106,7 +110,8 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             ...     name="たま",
             ...     pattern="キジトラ",
             ...     tail_length="長い",
-            ...     age="成猫",
+            ...     age_months=12,
+            ...     age_is_estimated=False,
             ...     gender="male",
             ...     status="保護中",
             ... )
@@ -119,7 +124,6 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             validate_non_empty_string(name, "name")
             validate_non_empty_string(pattern, "pattern")
             validate_non_empty_string(tail_length, "tail_length")
-            validate_non_empty_string(age, "age")
             validate_non_empty_string(gender, "gender")
 
             # Validate gender
@@ -135,7 +139,8 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
                 "name": name,
                 "pattern": pattern,
                 "tail_length": tail_length,
-                "age": age,
+                "age_months": age_months,
+                "age_is_estimated": age_is_estimated,
                 "gender": gender,
                 "status": status,
                 "ear_cut": ear_cut,

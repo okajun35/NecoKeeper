@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupFormSubmit(animalId);
 });
 
+function parseOptionalInt(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 /**
  * URLから猫IDを取得
  */
@@ -42,7 +50,9 @@ function fillForm(animal) {
   document.getElementById('name').value = animal.name || '';
   document.getElementById('pattern').value = animal.pattern || '';
   document.getElementById('gender').value = animal.gender || '';
-  document.getElementById('age').value = animal.age || '';
+  document.getElementById('age_months').value =
+    animal.age_months === null || animal.age_months === undefined ? '' : animal.age_months;
+  document.getElementById('age_is_estimated').checked = animal.age_is_estimated || false;
   document.getElementById('tail_length').value = animal.tail_length || '';
   document.getElementById('collar').value = animal.collar || '';
   document.getElementById('ear_cut').checked = animal.ear_cut || false;
@@ -72,7 +82,8 @@ function setupFormSubmit(animalId) {
         name: document.getElementById('name').value,
         pattern: document.getElementById('pattern').value,
         gender: document.getElementById('gender').value,
-        age: document.getElementById('age').value,
+        age_months: parseOptionalInt(document.getElementById('age_months').value),
+        age_is_estimated: document.getElementById('age_is_estimated').checked,
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || null,
         ear_cut: document.getElementById('ear_cut').checked,

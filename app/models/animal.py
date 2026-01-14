@@ -34,7 +34,8 @@ class Animal(Base):
         pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
         tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
         collar: 首輪の有無と色（任意、例: 赤い首輪、首輪なし）
-        age: 年齢・大きさ（必須、例: 子猫、成猫、老猫）
+        age_months: 月齢（任意、null=不明）
+        age_is_estimated: 推定月齢フラグ（デフォルト: False）
         gender: 性別（必須、male/female/unknown）
         ear_cut: 耳カットの有無（デフォルト: False）
         features: 外傷・特徴・性格（任意、自由記述）
@@ -73,8 +74,16 @@ class Animal(Base):
         String(100), nullable=True, comment="首輪の有無と色（例: 赤い首輪、首輪なし）"
     )
 
-    age: Mapped[str] = mapped_column(
-        String(50), nullable=False, comment="年齢・大きさ（例: 子猫、成猫、老猫）"
+    age_months: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, comment="月齢（null=不明）"
+    )
+
+    age_is_estimated: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="0",
+        comment="推定月齢フラグ",
     )
 
     gender: Mapped[str] = mapped_column(

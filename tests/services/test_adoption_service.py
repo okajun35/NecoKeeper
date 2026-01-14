@@ -450,7 +450,7 @@ class TestListAdoptionRecords:
             name="別の猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )

@@ -26,8 +26,9 @@ class AnimalBase(BaseModel):
         ..., max_length=50, description="尻尾の長さ（例: 長い、短い、なし）"
     )
     collar: str | None = Field(None, max_length=100, description="首輪の有無と色")
-    age: str = Field(
-        ..., max_length=50, description="年齢・大きさ（例: 子猫、成猫、老猫）"
+    age_months: int | None = Field(None, ge=0, description="月齢（null=不明）")
+    age_is_estimated: bool = Field(
+        False, description="推定月齢フラグ（月齢がnullの場合は年齢不明扱い）"
     )
     gender: str = Field(..., max_length=10, description="性別（male/female/unknown）")
     ear_cut: bool = Field(False, description="耳カットの有無（TNR済みの印）")
@@ -63,7 +64,10 @@ class AnimalUpdate(BaseModel):
     pattern: str | None = Field(None, max_length=100)
     tail_length: str | None = Field(None, max_length=50)
     collar: str | None = Field(None, max_length=100)
-    age: str | None = Field(None, max_length=50)
+    age_months: int | None = Field(None, ge=0)
+    age_is_estimated: bool | None = Field(
+        None, description="推定月齢フラグ（月齢がnullの場合は年齢不明扱い）"
+    )
     gender: str | None = Field(None, max_length=10)
     ear_cut: bool | None = None
     features: str | None = None
