@@ -9,9 +9,10 @@ Context7参照: /fastapi/fastapi - Security Dependencies
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -32,6 +33,9 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 # 設定を取得
 settings = get_settings()
+
+# ロガー設定
+logger = logging.getLogger(__name__)
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -635,6 +639,104 @@ def adoptions_applicants_page(
     return templates.TemplateResponse(
         "admin/adoptions/applicants.html",
         {"request": request, "user": current_user, "settings": settings},
+    )
+
+
+@router.get("/adoptions/applicants/new", response_class=HTMLResponse)
+def adoptions_applicants_new_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """
+    里親申込フォーム（新規登録）ページを表示
+
+    詳細な申込情報を入力し、申込を登録する。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 里親申込フォームページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants/new
+    """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return templates.TemplateResponse(
+        "admin/adoptions/applicant_extended_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "new",
+        },
+    )
+
+
+@router.get(
+    "/adoptions/applicants/{applicant_id}/edit",
+    response_class=HTMLResponse,
+)
+def adoptions_applicants_edit_page(
+    applicant_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親申込フォーム（編集）ページを表示
+
+    既存の申込情報を編集する。
+
+    Args:
+        applicant_id: 申込者ID
+        request: FastAPIリクエストオブジェクト
+        db: データベースセッション
+
+    Returns:
+        HTMLResponse: 里親申込フォームページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants/1/edit
+    """
+    if not current_user:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    # 申込者データを取得
+    from app.schemas.adoption import ApplicantResponseExtended
+    from app.services import adoption_service
+
+    try:
+        applicant_model = adoption_service.get_applicant_extended(db, applicant_id)
+        # スキーマに変換
+        applicant = ApplicantResponseExtended.model_validate(applicant_model)
+    except HTTPException as e:
+        # 404の場合は一覧ページにリダイレクト
+        if e.status_code == 404:
+            return RedirectResponse(url="/admin/adoptions/applicants", status_code=302)
+        # その他のHTTPExceptionは再送出
+        raise
+    except Exception as e:
+        # 予期しないエラーはログに記録して500エラー
+        logger.error(
+            f"Failed to load applicant {applicant_id} for edit: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="申込者データの取得に失敗しました",
+        ) from e
+
+    return templates.TemplateResponse(
+        "admin/adoptions/applicant_extended_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "edit",
+            "applicant": applicant,
+        },
     )
 
 

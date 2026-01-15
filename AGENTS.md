@@ -37,3 +37,15 @@
 ## Configuration & Environment
 - Core env vars are documented in `README.md` (e.g., `DATABASE_URL`, `MEDIA_DIR`, `BACKUP_DIR`, `LOG_FILE`).
 - Local DB defaults to SQLite at `./data/necokeeper.db`; production may use `/mnt/data`.
+
+## Docs to Read (開発時の参照)
+- 常時: `docs/automation-api-guide.md`（Automation API/MCPの認証と運用）
+- 常時: `docs/service-layer-test-coverage-improvement.md`（優先テストとカバレッジ方針）
+- ブラウザMCP利用時: `docs/chrome-devtools-mcp-setup.md`（Kiro向け接続）
+- ブラウザMCP利用時: `docs/mcp-chrome-devtools.md`（Codex向け接続）
+
+## Browser Operations
+- ブラウザ操作が必要な場合は `agent-browser` を優先して使用する。
+
+## Python Environment
+- 作業前に `.venv` を有効化してからコマンドを実行する（例: `source .venv/bin/activate`）。

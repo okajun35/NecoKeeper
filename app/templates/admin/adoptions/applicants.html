@@ -11,6 +11,9 @@
 {% endblock %}
 
 {% block header_actions %}
+<a href="/admin/adoptions/applicants/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+    申込フォーム
+</a>
 <button id="newApplicantBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="buttons.register" data-i18n-ns="common">新規登録</span>
 </button>
@@ -145,5 +148,5 @@
     </div>
 </div>
 
-<script src="/static/js/admin/applicants.js?v=3"></script>
+<script src="/static/js/admin/applicants.js?v=4"></script>
 {% endblock %}

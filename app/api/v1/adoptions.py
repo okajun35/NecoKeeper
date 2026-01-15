@@ -19,8 +19,15 @@ from app.schemas.adoption import (
     AdoptionRecordResponse,
     AdoptionRecordUpdate,
     ApplicantCreate,
+    ApplicantCreateExtended,
+    ApplicantHouseholdMemberCreate,
+    ApplicantHouseholdMemberResponse,
+    ApplicantPetCreate,
+    ApplicantPetResponse,
     ApplicantResponse,
+    ApplicantResponseExtended,
     ApplicantUpdate,
+    ApplicantUpdateExtended,
 )
 from app.services import adoption_service
 
@@ -126,6 +133,232 @@ def update_applicant(  # type: ignore[no-untyped-def]
         db, applicant_id, applicant_data, user_id=current_user.id
     )
     return applicant
+
+
+# ========================================
+# Applicant Extended（拡張版里親希望者）エンドポイント
+# Issue #91: 詳細な申込情報の管理用
+# ========================================
+
+
+@router.get(
+    "/applicants-extended",
+    response_model=list[ApplicantResponseExtended],
+)
+def list_applicants_extended(  # type: ignore[no-untyped-def]
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親希望者一覧を取得（拡張版・家族構成・ペット情報含む）
+
+    Args:
+        skip: スキップ件数（ページネーション）
+        limit: 取得件数上限
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        list[ApplicantResponseExtended]: 里親希望者のリスト（詳細情報付き）
+    """
+    applicants = adoption_service.list_applicants_extended(db, skip=skip, limit=limit)
+    return applicants
+
+
+@router.post(
+    "/applicants-extended",
+    response_model=ApplicantResponseExtended,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_applicant_extended(  # type: ignore[no-untyped-def]
+    applicant_data: ApplicantCreateExtended,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親希望者を登録（拡張版・詳細情報付き）
+
+    連絡先（LINE/メール）、住居情報、家族構成、先住ペット等の
+    詳細情報を含めて登録します。
+
+    Args:
+        applicant_data: 里親希望者データ（拡張版）
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        ApplicantResponseExtended: 登録された里親希望者（詳細情報付き）
+    """
+    applicant = adoption_service.create_applicant_extended(
+        db, applicant_data, user_id=current_user.id
+    )
+    return applicant
+
+
+@router.get(
+    "/applicants-extended/{applicant_id}",
+    response_model=ApplicantResponseExtended,
+)
+def get_applicant_extended(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親希望者を取得（拡張版・家族構成・ペット情報含む）
+
+    Args:
+        applicant_id: 里親希望者ID
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        ApplicantResponseExtended: 里親希望者（詳細情報付き）
+    """
+    applicant = adoption_service.get_applicant_extended(db, applicant_id)
+    return applicant
+
+
+@router.put(
+    "/applicants-extended/{applicant_id}",
+    response_model=ApplicantResponseExtended,
+)
+def update_applicant_extended(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    applicant_data: ApplicantUpdateExtended,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親希望者を更新（拡張版）
+
+    Args:
+        applicant_id: 里親希望者ID
+        applicant_data: 更新データ（拡張版）
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        ApplicantResponseExtended: 更新された里親希望者（詳細情報付き）
+    """
+    applicant = adoption_service.update_applicant_extended(
+        db, applicant_id, applicant_data, user_id=current_user.id
+    )
+    return applicant
+
+
+# ========================================
+# Household Member（家族構成）エンドポイント
+# ========================================
+
+
+@router.post(
+    "/applicants-extended/{applicant_id}/household-members",
+    response_model=ApplicantHouseholdMemberResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_household_member(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    member_data: ApplicantHouseholdMemberCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    家族メンバーを追加
+
+    Args:
+        applicant_id: 里親希望者ID
+        member_data: 家族メンバーデータ
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        ApplicantHouseholdMemberResponse: 追加された家族メンバー
+    """
+    member = adoption_service.add_household_member(
+        db, applicant_id, member_data, user_id=current_user.id
+    )
+    return member
+
+
+@router.delete(
+    "/applicants-extended/{applicant_id}/household-members/{member_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_household_member(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    member_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    家族メンバーを削除
+
+    Args:
+        applicant_id: 里親希望者ID
+        member_id: 家族メンバーID
+        db: データベースセッション
+        current_user: 現在のユーザー
+    """
+    adoption_service.delete_household_member(
+        db, applicant_id, member_id, user_id=current_user.id
+    )
+
+
+# ========================================
+# Pet（先住ペット）エンドポイント
+# ========================================
+
+
+@router.post(
+    "/applicants-extended/{applicant_id}/pets",
+    response_model=ApplicantPetResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_pet(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    pet_data: ApplicantPetCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    先住ペットを追加
+
+    Args:
+        applicant_id: 里親希望者ID
+        pet_data: ペットデータ
+        db: データベースセッション
+        current_user: 現在のユーザー
+
+    Returns:
+        ApplicantPetResponse: 追加されたペット情報
+    """
+    pet = adoption_service.add_pet(db, applicant_id, pet_data, user_id=current_user.id)
+    return pet
+
+
+@router.delete(
+    "/applicants-extended/{applicant_id}/pets/{pet_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_pet(  # type: ignore[no-untyped-def]
+    applicant_id: int,
+    pet_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    先住ペットを削除
+
+    Args:
+        applicant_id: 里親希望者ID
+        pet_id: ペットID
+        db: データベースセッション
+        current_user: 現在のユーザー
+    """
+    adoption_service.delete_pet(db, applicant_id, pet_id, user_id=current_user.id)
 
 
 # ========================================
