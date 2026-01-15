@@ -50,7 +50,7 @@ animal = Animal(
     photo="test.jpg",
     pattern="Pattern",
     tail_length="Long",
-    age="Adult",
+    age_months=24,
     gender="female",
     status="Protected",
 )

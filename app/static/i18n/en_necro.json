@@ -140,8 +140,8 @@
     "filter": {
       "status": "STATE",
       "gender": "Classification",
-      "age_min": "Age (Min)",
-      "age_max": "Age (Max)",
+      "age_min": "Age (Months, Min)",
+      "age_max": "Age (Months, Max)",
       "rescue_date_from": "Rescue Timestamp (From)",
       "rescue_date_to": "Rescue Timestamp (To)",
       "ear_cut": "Ear Modification",
@@ -158,7 +158,8 @@
       "pattern": "Pattern",
       "tail_length": "Tail Configuration",
       "collar": "Collar Status",
-      "age": "Age",
+      "age": "Age (Months)",
+      "age_is_estimated": "Estimated",
       "gender": "Classification",
       "ear_cut": "Ear Modification",
       "features": "Characteristics",
@@ -190,6 +191,10 @@
       "adult": "Mature",
       "senior": "Veteran"
     },
+    "age_months_placeholder": "e.g., 12",
+    "age_months": "{{value}} mo",
+    "age_months_estimated": "{{value}} mo (est.)",
+    "age_unknown": "Unknown",
     "tabs": {
       "basic_info": "Core Data",
       "care_logs": "Maintenance Logs",

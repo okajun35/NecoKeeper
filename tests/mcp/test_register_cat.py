@@ -58,7 +58,7 @@ class TestRegisterCatTool:
             "name": "たま",
             "pattern": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
             "status": "保護中",
             "ear_cut": False,
@@ -71,7 +71,7 @@ class TestRegisterCatTool:
                     "name": "たま",
                     "pattern": "キジトラ",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "male",
                 },
             )
@@ -100,7 +100,7 @@ class TestRegisterCatTool:
                     "name": "みけ",
                     "pattern": "三毛",
                     "tail_length": "短い",
-                    "age": "子猫",
+                    "age_months": 6,
                     "gender": "female",
                     "collar": "赤い首輪",
                     "ear_cut": True,
@@ -125,7 +125,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "invalid",
                     },
                 )
@@ -150,7 +150,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -171,7 +171,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -192,7 +192,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -213,7 +213,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -234,7 +234,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -255,7 +255,7 @@ class TestRegisterCatTool:
                         "name": "たま",
                         "pattern": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )

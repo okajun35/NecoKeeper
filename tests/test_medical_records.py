@@ -339,7 +339,7 @@ class TestWeightTrendAnalysis:
             name="体重テスト猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -451,7 +451,7 @@ class TestWeightTrendAnalysis:
             name="体重推移テスト猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )
@@ -501,7 +501,7 @@ class TestWeightTrendAnalysis:
             name="体重なしテスト猫",
             pattern="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="unknown",
             status="保護中",
         )

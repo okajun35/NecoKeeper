@@ -279,7 +279,7 @@ class TestUploadAnimalImageAutomation:
             name="プロフィール画像テスト猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             photo=None,  # プロフィール画像なし
         )
@@ -328,7 +328,7 @@ class TestUploadAnimalImageAutomation:
             name="複数画像テスト猫",
             pattern="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="female",
             photo=None,
         )
@@ -388,7 +388,7 @@ class TestUploadAnimalImageAutomation:
             name="既存プロフィール画像テスト猫",
             pattern="黒猫",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             photo=existing_photo_path,  # 既存のプロフィール画像
         )

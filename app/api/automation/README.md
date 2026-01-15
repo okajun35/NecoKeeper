@@ -54,7 +54,7 @@ ENABLE_AUTOMATION_API=true
 curl -X POST http://localhost:8000/api/automation/animals \
   -H "X-Automation-Key: xK9mP2nQ4rS6tU8vW0yZ1aB3cD5eF7gH9iJ" \
   -H "Content-Type: application/json" \
-  -d '{"name": "たま", "gender": "male", "pattern": "キジトラ", "tail_length": "長い", "age": "成猫"}'
+  -d '{"name": "たま", "gender": "male", "pattern": "キジトラ", "tail_length": "長い", "age_months": 12, "age_is_estimated": false}'
 ```
 
 ## 利用可能なエンドポイント
@@ -72,7 +72,8 @@ curl -X POST http://localhost:8000/api/automation/animals \
   "gender": "male",
   "pattern": "キジトラ",
   "tail_length": "長い",
-  "age": "成猫",
+  "age_months": 12,
+  "age_is_estimated": false,
   "status": "保護中",
   "collar": "赤い首輪",
   "ear_cut": false,
@@ -86,7 +87,10 @@ curl -X POST http://localhost:8000/api/automation/animals \
 - `gender`: 性別（`male`, `female`, `unknown`）
 - `pattern`: 柄・模様
 - `tail_length`: 尻尾の長さ
-- `age`: 年齢・大きさ
+
+**任意フィールド**:
+- `age_months`: 月齢（null=不明）
+- `age_is_estimated`: 推定月齢フラグ（`true`でも`age_months`がnullなら年齢不明扱い）
 
 **レスポンス** (201 Created):
 ```json
@@ -97,7 +101,8 @@ curl -X POST http://localhost:8000/api/automation/animals \
   "pattern": "キジトラ",
   "tail_length": "長い",
   "collar": "赤い首輪",
-  "age": "成猫",
+  "age_months": 12,
+  "age_is_estimated": false,
   "gender": "male",
   "ear_cut": false,
   "features": "人懐っこい性格",
@@ -234,7 +239,8 @@ response = client.post("/api/automation/animals", json={
     "gender": "male",
     "pattern": "キジトラ",
     "tail_length": "長い",
-    "age": "成猫",
+    "age_months": 12,
+    "age_is_estimated": False,
     "status": "保護中"
 })
 animal = response.json()
@@ -271,7 +277,8 @@ curl -X POST http://localhost:8000/api/automation/animals \
     "gender": "male",
     "pattern": "キジトラ",
     "tail_length": "長い",
-    "age": "成猫"
+    "age_months": 12,
+    "age_is_estimated": false
   }'
 
 # 2. 猫情報を取得
@@ -309,7 +316,8 @@ const response = await fetch(`${API_URL}/api/automation/animals`, {
     gender: 'male',
     pattern: 'キジトラ',
     tail_length: '長い',
-    age: '成猫'
+    age_months: 12,
+    age_is_estimated: false
   })
 });
 const animal = await response.json();

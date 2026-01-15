@@ -20,7 +20,7 @@ class TestAnimalModel:
             photo="/media/cat1.jpg",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
         )
 
@@ -32,7 +32,7 @@ class TestAnimalModel:
         assert animal.photo == "/media/cat1.jpg"
         assert animal.pattern == "キジトラ"
         assert animal.tail_length == "長い"
-        assert animal.age == "成猫"
+        assert animal.age_months == 12
         assert animal.gender == "female"
 
     def test_animal_default_values(self, test_db: Session):
@@ -41,7 +41,7 @@ class TestAnimalModel:
             photo="/media/cat2.jpg",
             pattern="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="male",
         )
 
@@ -65,7 +65,7 @@ class TestAnimalModel:
             pattern="黒猫",
             tail_length="長い",
             collar="赤い首輪",
-            age="老猫",
+            age_months=120,
             gender="female",
             ear_cut=True,
             features="左耳に傷あり、人懐っこい性格",
@@ -88,7 +88,7 @@ class TestAnimalModel:
             photo="/media/cat4.jpg",
             pattern="サバトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -110,7 +110,7 @@ class TestAnimalModel:
             photo="/media/cat5.jpg",
             pattern="三毛",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
             status="保護中",
         )
@@ -126,7 +126,7 @@ class TestAnimalModel:
             photo="/media/cat6.jpg",
             pattern="白猫",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="unknown",
         )
 
@@ -142,7 +142,7 @@ class TestAnimalModel:
             photo="/media/cat7.jpg",
             pattern="黒猫",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 
@@ -165,7 +165,7 @@ class TestAnimalModel:
                 photo=f"/media/cat_{gender}.jpg",
                 pattern="キジトラ",
                 tail_length="長い",
-                age="成猫",
+                age_months=12,
                 gender=gender,
             )
 
@@ -181,7 +181,7 @@ class TestAnimalModel:
             photo="/media/cat8.jpg",
             pattern="茶トラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 

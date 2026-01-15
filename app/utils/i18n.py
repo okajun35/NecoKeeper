@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 from babel.support import LazyProxy, NullTranslations, Translations
 from fastapi import Depends, Header, Request
@@ -95,7 +95,9 @@ def get_translations(
         cached = _translations_cache[locale]
         return cached
 
-    translations = Translations.load(str(LOCALES_DIR), [locale])
+    translations = cast(
+        Translations | NullTranslations, Translations.load(str(LOCALES_DIR), [locale])
+    )
     _translations_cache[locale] = translations
     return translations
 

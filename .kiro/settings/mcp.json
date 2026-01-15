@@ -13,6 +13,11 @@
       "disabled": false,
       "autoApprove": ["get-library-docs", "resolve-library-id"]
     },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "playwright-mcp@latest"],
+      "disabled": false
+    },
     "chrome-devtools": {
       "command": "npx",
       "args": ["-y", "chrome-devtools-mcp@latest", "--headless=true"],

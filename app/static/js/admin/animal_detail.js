@@ -7,6 +7,14 @@ const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
   ? '/static/icons/halloween_logo_2.webp'
   : '/static/images/default.svg';
 
+function parseOptionalInt(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
@@ -91,7 +99,8 @@ async function updateBasicInfo() {
       pattern: document.getElementById('pattern').value,
       tail_length: document.getElementById('tailLength').value,
       collar: document.getElementById('collar').value,
-      age: document.getElementById('age').value || null,
+      age_months: parseOptionalInt(document.getElementById('age_months').value),
+      age_is_estimated: document.getElementById('age_is_estimated').checked,
       gender: document.getElementById('gender').value,
       ear_cut: document.getElementById('earCut').checked,
       features: document.getElementById('features').value || null,

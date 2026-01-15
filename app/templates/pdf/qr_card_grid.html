@@ -158,9 +158,9 @@
             <div class="animal-info">
                 {% if item.animal.gender == 'male' %}♂{% elif item.animal.gender == 'female' %}♀{% else %}?{% endif %}
                 {% if locale == 'en' %}
-                    {% if item.animal.age == '子猫' %}Kitten{% elif item.animal.age == '成猫' %}Adult{% elif item.animal.age == '老猫' %}Senior{% else %}{{ item.animal.age or '' }}{% endif %}
+                    {% if item.animal.age_months is not none %}{{ item.animal.age_months }} mo{% if item.animal.age_is_estimated %} (est.){% endif %}{% else %}Unknown{% endif %}
                 {% else %}
-                    {{ item.animal.age or '' }}
+                    {% if item.animal.age_months is not none %}{% if item.animal.age_is_estimated %}推定{% endif %}{{ item.animal.age_months }}ヶ月{% else %}不明{% endif %}
                 {% endif %}
             </div>
 

@@ -357,7 +357,7 @@ class TestProfileImage:
             gender="メス",
             tail_length="長い",
             collar="なし",
-            age="成猫",  # 必須項目を追加
+            age_months=12,  # 必須項目を追加
             status="保護中",
             protected_at=date.today(),
         )

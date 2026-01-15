@@ -59,14 +59,6 @@ const DB_VALUE_MAPS = {
     メス: 'gender.female',
     不明: 'gender.unknown',
   },
-  age: {
-    子猫: 'age.kitten',
-    成猫: 'age.adult',
-    老猫: 'age.senior',
-    kitten: 'age.kitten',
-    adult: 'age.adult',
-    senior: 'age.senior',
-  },
 };
 
 function translateDBValue(category, value) {
@@ -76,6 +68,14 @@ function translateDBValue(category, value) {
     return translate(map[value], { defaultValue: value });
   }
   return value;
+}
+
+function formatAgeMonths(ageMonths, isEstimated) {
+  if (ageMonths === null || ageMonths === undefined || ageMonths === '') {
+    return translate('age_unknown', { defaultValue: '-' });
+  }
+  const formatKey = isEstimated ? 'age_months_estimated' : 'age_months';
+  return translate(formatKey, { value: ageMonths, defaultValue: `${ageMonths}` });
 }
 
 // 猫一覧を読み込み
@@ -214,8 +214,8 @@ function renderAnimalsList(animals = []) {
                             <span class="ml-1">${translateDBValue('gender', animal.gender)}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500"><span data-i18n="fields.age" data-i18n-ns="animals">年齢</span>:</span>
-                            <span class="ml-1">${translateDBValue('age', animal.age)}</span>
+                            <span class="text-gray-500"><span data-i18n="fields.age" data-i18n-ns="animals">月齢</span>:</span>
+                            <span class="ml-1">${formatAgeMonths(animal.age_months, animal.age_is_estimated)}</span>
                         </div>
                         <div>
                             <span class="text-gray-500"><span data-i18n="fields.protected_at" data-i18n-ns="animals">保護日</span>:</span>

@@ -123,8 +123,8 @@
     "filter": {
       "status": "ステータス",
       "gender": "性別",
-      "age_min": "年齢（最小）",
-      "age_max": "年齢（最大）",
+      "age_min": "月齢（最小）",
+      "age_max": "月齢（最大）",
       "rescue_date_from": "保護日（開始）",
       "rescue_date_to": "保護日（終了）",
       "ear_cut": "耳カット",
@@ -141,7 +141,8 @@
       "pattern": "柄",
       "tail_length": "尻尾の長さ",
       "collar": "首輪",
-      "age": "年齢",
+      "age": "月齢",
+      "age_is_estimated": "推定月齢",
       "gender": "性別",
       "ear_cut": "耳カット済み",
       "features": "特徴",
@@ -173,6 +174,10 @@
       "adult": "成猫",
       "senior": "老猫"
     },
+    "age_months_placeholder": "例: 12",
+    "age_months": "{{value}}ヶ月",
+    "age_months_estimated": "推定{{value}}ヶ月",
+    "age_unknown": "月齢不明",
     "tabs": {
       "basic_info": "基本情報",
       "care_logs": "世話記録",

@@ -162,10 +162,10 @@
         <div class="animal-info">
             {% if locale == 'en' %}
                 <span class="gender-icon">{% if animal.gender == 'male' %}Male{% elif animal.gender == 'female' %}Female{% else %}Unknown{% endif %}</span>
-                / {% if animal.age == '子猫' %}Kitten{% elif animal.age == '成猫' %}Adult{% elif animal.age == '老猫' %}Senior{% else %}{{ animal.age or 'Unknown' }}{% endif %}
+                / {% if animal.age_months is not none %}{{ animal.age_months }} mo{% if animal.age_is_estimated %} (est.){% endif %}{% else %}Unknown{% endif %}
             {% else %}
                 <span class="gender-icon">{% if animal.gender == 'male' %}♂{% elif animal.gender == 'female' %}♀{% else %}?{% endif %}</span>
-                {{ animal.age or '年齢不明' }}
+                {% if animal.age_months is not none %}{% if animal.age_is_estimated %}推定{% endif %}{{ animal.age_months }}ヶ月{% else %}月齢不明{% endif %}
             {% endif %}
         </div>
 

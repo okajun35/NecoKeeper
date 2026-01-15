@@ -24,7 +24,7 @@ class TestAnimalDetailEdgeCases:
             name="データなし猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -62,7 +62,7 @@ class TestAnimalDetailEdgeCases:
             name="世話記録なし猫",
             pattern="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="female",
             status="保護中",
         )
@@ -95,7 +95,7 @@ class TestAnimalDetailEdgeCases:
             name="診療記録なし猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
@@ -128,7 +128,7 @@ class TestAnimalDetailEdgeCases:
             name="画像なし猫",
             pattern="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="female",
             status="保護中",
         )
@@ -160,7 +160,7 @@ class TestAnimalDetailEdgeCases:
             name="体重データなし猫",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )
