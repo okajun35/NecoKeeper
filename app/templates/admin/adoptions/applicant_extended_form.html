@@ -1,0 +1,332 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if mode == 'edit' %}里親申込情報編集{% else %}里親申込フォーム{% endif %}{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}里親申込情報編集{% else %}里親申込フォーム{% endif %}{% endblock %}
+{% block page_description %}{% if mode == 'edit' %}申込情報を編集します{% else %}詳細な申込情報を入力して登録します{% endif %}{% endblock %}
+
+{% block header_actions %}
+<a href="/admin/adoptions/applicants" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+    里親希望者一覧へ戻る
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <div id="formError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"></div>
+
+    <form id="applicant-extended-form" class="space-y-6">
+        <!-- 基本情報 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">基本情報</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ふりがな <span class="text-red-500">*</span></label>
+                    <input type="text" id="name_kana" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">氏名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">年齢 <span class="text-red-500">*</span></label>
+                    <input type="number" id="age" min="0" max="150" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">電話番号（090-1234-5678） <span class="text-red-500">*</span></label>
+                    <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="090-1234-5678">
+                </div>
+            </div>
+        </section>
+
+        <!-- 連絡手段 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">連絡手段</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">連絡手段 <span class="text-red-500">*</span></label>
+                    <select id="contact_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="line">LINE</option>
+                        <option value="email">メール</option>
+                    </select>
+                </div>
+                <div id="contact-line-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LINE ID <span class="text-red-500">*</span></label>
+                    <input type="text" id="contact_line_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div id="contact-email-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">メールアドレス <span class="text-red-500">*</span></label>
+                    <input type="email" id="contact_email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 住所 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">住所</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">郵便番号（123-4567） <span class="text-red-500">*</span></label>
+                    <input type="text" id="postal_code" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="123-4567">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">住所1（都道府県・市区町村・番地） <span class="text-red-500">*</span></label>
+                    <input type="text" id="address1" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">住所2（建物名・部屋番号）</label>
+                    <input type="text" id="address2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 職業・希望猫 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">職業・希望猫</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">職業 <span class="text-red-500">*</span></label>
+                    <select id="occupation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="company_employee">会社員</option>
+                        <option value="public_servant">公務員</option>
+                        <option value="self_employed">自営業</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div id="occupation-other-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">職業（その他） <span class="text-red-500">*</span></label>
+                    <input type="text" id="occupation_other" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">希望猫の仮名</label>
+                    <input type="text" id="desired_cat_alias" placeholder="未定" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 緊急連絡先 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">緊急連絡先</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">続柄 <span class="text-red-500">*</span></label>
+                    <select id="emergency_relation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="parents">親</option>
+                        <option value="siblings">兄弟姉妹</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div id="emergency-relation-other-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">続柄（その他） <span class="text-red-500">*</span></label>
+                    <input type="text" id="emergency_relation_other" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">氏名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="emergency_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">電話番号（090-1234-5678） <span class="text-red-500">*</span></label>
+                    <input type="tel" id="emergency_phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="090-1234-5678">
+                </div>
+            </div>
+        </section>
+
+        <!-- 家族の飼育意向・ペット飼育可否 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">飼育意向</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">家族の飼育意向 <span class="text-red-500">*</span></label>
+                    <select id="family_intent" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="all_positive">全員賛成</option>
+                        <option value="some_not_positive">反対者あり</option>
+                        <option value="single_household">単身</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ペット飼育可否 <span class="text-red-500">*</span></label>
+                    <select id="pet_permission" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="allowed">許可</option>
+                        <option value="tolerated">黙認</option>
+                        <option value="not_allowed">不可</option>
+                    </select>
+                </div>
+                <div id="pet-limit-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ペット上限</label>
+                    <select id="pet_limit_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="limited">上限あり</option>
+                        <option value="unlimited">上限なし</option>
+                        <option value="unknown">不明</option>
+                    </select>
+                </div>
+                <div id="pet-limit-count-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">上限数 <span class="text-red-500">*</span></label>
+                    <input type="number" id="pet_limit_count" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 住居情報 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">住居情報</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">住居形態 <span class="text-red-500">*</span></label>
+                    <select id="housing_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="house">戸建て</option>
+                        <option value="apartment">集合住宅</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">住居所有 <span class="text-red-500">*</span></label>
+                    <select id="housing_ownership" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="owned">持ち家</option>
+                        <option value="rented">賃貸</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- 転居予定 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">転居予定</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">転居予定 <span class="text-red-500">*</span></label>
+                    <select id="relocation_plan" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="none">なし</option>
+                        <option value="planned">あり</option>
+                    </select>
+                </div>
+                <div id="relocation-time-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">転居時期 <span class="text-red-500">*</span></label>
+                    <input type="text" id="relocation_time_note" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div id="relocation-cat-wrapper" class="hidden md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">転居時の猫の処遇 <span class="text-red-500">*</span></label>
+                    <input type="text" id="relocation_cat_plan" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 体質・生活 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">体質・生活</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">アレルギー <span class="text-red-500">*</span></label>
+                    <select id="allergy_status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="none">なし</option>
+                        <option value="exists">あり</option>
+                        <option value="unknown">不明</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">喫煙者 <span class="text-red-500">*</span></label>
+                    <select id="smoker_in_household" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="yes">いる</option>
+                        <option value="no">いない</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">月次に猫にかける予算（円） <span class="text-red-500">*</span></label>
+                    <input type="number" id="monthly_budget_yen" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- お留守番 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">お留守番</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">お留守番 <span class="text-red-500">*</span></label>
+                    <select id="alone_time_status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="none">なし</option>
+                        <option value="sometimes">時々</option>
+                        <option value="regular">定期的</option>
+                    </select>
+                </div>
+                <div id="alone-weekly-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">週何回 <span class="text-red-500">*</span></label>
+                    <input type="number" id="alone_time_weekly_days" min="0" max="7" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                <div id="alone-hours-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">1回あたりの時間 <span class="text-red-500">*</span></label>
+                    <input type="number" id="alone_time_hours" min="0" max="24" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <!-- 先住猫・ペットの有無 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">先住猫・ペットの有無</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">先住猫 <span class="text-red-500">*</span></label>
+                    <select id="has_existing_cat" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="yes">いる</option>
+                        <option value="no">いない</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">その他ペット <span class="text-red-500">*</span></label>
+                    <select id="has_other_pets" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="yes">いる</option>
+                        <option value="no">いない</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- 家族構成 -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">家族構成</h3>
+                <button type="button" id="add-household-member" class="px-3 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">追加</button>
+            </div>
+            <div class="mt-4 space-y-3" id="household-members"></div>
+            <p class="mt-2 text-sm text-gray-500">続柄が「その他」の場合は詳細を入力してください。</p>
+        </section>
+
+        <!-- 先住ペット -->
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">先住ペット</h3>
+                <button type="button" id="add-pet" class="px-3 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">追加</button>
+            </div>
+            <div class="mt-4 space-y-3" id="pets"></div>
+        </section>
+
+        <div class="flex justify-end gap-3">
+            <a href="/admin/adoptions/applicants" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">キャンセル</a>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">{% if mode == 'edit' %}更新{% else %}登録{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    window.FORM_MODE = "{{ mode }}";
+    {% if mode == 'edit' and applicant %}
+    window.APPLICANT_DATA = {{ applicant.model_dump_json()|safe }};
+    {% endif %}
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/admin/applicant_extended_form.js?v=5"></script>
+{% endblock %}

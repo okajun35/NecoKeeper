@@ -6,6 +6,22 @@ inclusion: always
 
 このドキュメントは、NecoKeeperプロジェクトのGitワークフローを定義します。
 
+## Git操作はGitHub CLI（gh）を使用
+
+このプロジェクトでは、Git操作は原則として`gh`（GitHub CLI）経由で行ってください。
+特に、認証確認・PR作成・リポジトリ操作は`gh`を用います。
+
+```bash
+# 認証確認
+gh auth status
+
+# リポジトリ情報
+gh repo view
+
+# PR作成
+gh pr create
+```
+
 ## ブランチ戦略
 
 ### メインブランチ

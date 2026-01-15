@@ -81,10 +81,14 @@ def test_db() -> Generator[Session, None, None]:
     # 既存のデータをクリア（外部キー制約の順序に注意）
     try:
         # 医療記録関連のインポート
+        # 里親申込関連のインポート（Issue #91）
+        from app.models.applicant import ApplicantHouseholdMember, ApplicantPet
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
         db.query(AdoptionRecord).delete()
+        db.query(ApplicantHouseholdMember).delete()  # 家族構成
+        db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
@@ -129,10 +133,14 @@ def test_db() -> Generator[Session, None, None]:
     # テスト後のクリーンアップ
     try:
         # 医療記録関連のインポート
+        # 里親申込関連のインポート（Issue #91）
+        from app.models.applicant import ApplicantHouseholdMember, ApplicantPet
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
         db.query(AdoptionRecord).delete()
+        db.query(ApplicantHouseholdMember).delete()  # 家族構成
+        db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
