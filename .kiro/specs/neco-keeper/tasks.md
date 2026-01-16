@@ -639,13 +639,13 @@ Implement data export features in CSV and Excel formats.
 Implement features for managing the adoption process and applicants.
 
 - [x] 12.1 Implement Pydantic schemas (`app/schemas/adoption.py`) ✅
-  - ApplicantCreate, ApplicantUpdate, ApplicantResponse
+  - ApplicantResponse, ApplicantCreateExtended, ApplicantUpdateExtended
   - AdoptionRecordCreate, AdoptionRecordUpdate, AdoptionRecordResponse
   - _Requirements: Requirement 14.1-14.2_
 
 - [x] 12.2 Implement adoption management service (`app/services/adoption_service.py`) ✅
-  - `create_applicant` (register applicant)
-  - `list_applicants` (list applicants)
+  - `create_applicant_extended` (register applicant)
+  - `list_applicants_extended` (list applicants)
   - `create_interview_record` (register interview record)
   - `create_adoption_record` (register adoption record)
   - `update_animal_status` (update cat status)
@@ -653,8 +653,8 @@ Implement features for managing the adoption process and applicants.
   - _Requirements: Requirement 14.3-14.5_
 
 - [x] 12.3 Implement adoption management API endpoints (`app/api/v1/adoptions.py`) ✅
-  - GET/POST /api/v1/applicants
-  - GET/PUT /api/v1/applicants/{id}
+  - GET/POST /api/v1/adoptions/applicants-extended
+  - GET/PUT /api/v1/adoptions/applicants-extended/{id}
   - POST /api/v1/adoptions
   - PUT /api/v1/adoptions/{id}
   - _Requirements: Requirement 14_

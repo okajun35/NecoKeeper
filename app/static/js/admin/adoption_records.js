@@ -60,7 +60,7 @@ async function loadData() {
     const [recordsData, animalsData, applicantsData] = await Promise.all([
       apiRequest('/api/v1/adoptions/records?limit=1000'),
       apiRequest('/api/v1/animals?limit=1000'),
-      apiRequest('/api/v1/adoptions/applicants?limit=1000'),
+      apiRequest('/api/v1/adoptions/applicants-extended?limit=1000'),
     ]);
 
     // APIレスポンスが配列かオブジェクト（{items: [...]}）かを確認

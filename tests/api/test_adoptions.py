@@ -1,7 +1,7 @@
 """
 里親管理APIエンドポイントのテスト
 
-里親希望者と譲渡記録のCRUD操作をテストします。
+里親希望者（拡張版）と譲渡記録のCRUD操作をテストします。
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from app.models.adoption_record import AdoptionRecord
 from app.models.applicant import Applicant
 
 # ========================================
-# Applicant（里親希望者）APIテスト
+# Applicant（里親希望者・拡張版）APIテスト
 # ========================================
 
 
@@ -32,25 +32,28 @@ class TestListApplicantsAPI:
         test_db.commit()
 
         # When
-        response = test_client.get("/api/v1/adoptions/applicants", headers=auth_headers)
+        response = test_client.get(
+            "/api/v1/adoptions/applicants-extended", headers=auth_headers
+        )
 
         # Then
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert len(data) == 3
-        assert data[0]["name"] == "希望者0"
+        names = {item["name"] for item in data}
+        assert names == {"希望者0", "希望者1", "希望者2"}
 
     def test_list_applicants_without_auth_returns_401(self, test_client):
         """異常系: 認証なしで401エラー"""
         # When
-        response = test_client.get("/api/v1/adoptions/applicants")
+        response = test_client.get("/api/v1/adoptions/applicants-extended")
 
         # Then
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 class TestCreateApplicantAPI:
-    """里親希望者登録APIのテスト"""
+    """里親希望者登録API（拡張版）のテスト"""
 
     def test_create_applicant_with_valid_data_returns_201(
         self, test_client, auth_headers
@@ -58,17 +61,49 @@ class TestCreateApplicantAPI:
         """正常系: 有効なデータで里親希望者を登録できる"""
         # Given
         applicant_data = {
+            "name_kana": "ヤマダタロウ",
             "name": "山田太郎",
-            "contact": "090-1234-5678",
-            "address": "東京都渋谷区",
-            "family": "夫婦2人",
-            "environment": "マンション、ペット可",
-            "conditions": "成猫希望",
+            "age": 35,
+            "phone": "090-1234-5678",
+            "contact_type": "email",
+            "contact_email": "yamada@example.com",
+            "contact_line_id": None,
+            "postal_code": "150-0001",
+            "address1": "東京都渋谷区神宮前1-2-3",
+            "address2": "サンプルマンション101",
+            "occupation": "company_employee",
+            "occupation_other": None,
+            "desired_cat_alias": "未定",
+            "emergency_relation": "parents",
+            "emergency_relation_other": None,
+            "emergency_name": "山田花子",
+            "emergency_phone": "090-9876-5432",
+            "family_intent": "all_positive",
+            "pet_permission": "allowed",
+            "pet_limit_type": "limited",
+            "pet_limit_count": 2,
+            "housing_type": "apartment",
+            "housing_ownership": "rented",
+            "relocation_plan": "none",
+            "relocation_time_note": None,
+            "relocation_cat_plan": None,
+            "allergy_status": "none",
+            "smoker_in_household": "no",
+            "monthly_budget_yen": 15000,
+            "alone_time_status": "sometimes",
+            "alone_time_weekly_days": 2,
+            "alone_time_hours": 6.0,
+            "has_existing_cat": "no",
+            "has_other_pets": "no",
+            "household_members": [
+                {"relation": "wife", "relation_other": None, "age": 33}
+            ],
+            "pets": [],
         }
 
         # When
         response = test_client.post(
-            "/api/v1/adoptions/applicants",
+            "/api/v1/adoptions/applicants-extended",
             json=applicant_data,
             headers=auth_headers,
         )
@@ -77,17 +112,49 @@ class TestCreateApplicantAPI:
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
         assert data["name"] == "山田太郎"
-        assert data["contact"] == "090-1234-5678"
+        assert data["contact_email"] == "yamada@example.com"
         assert "id" in data
         assert "created_at" in data
 
     def test_create_applicant_without_auth_returns_401(self, test_client):
         """異常系: 認証なしで401エラー"""
         # Given
-        applicant_data = {"name": "山田太郎", "contact": "090-1234-5678"}
+        applicant_data = {
+            "name_kana": "ヤマダタロウ",
+            "name": "山田太郎",
+            "age": 35,
+            "phone": "090-1234-5678",
+            "contact_type": "email",
+            "contact_email": "yamada@example.com",
+            "postal_code": "150-0001",
+            "address1": "東京都渋谷区神宮前1-2-3",
+            "occupation": "company_employee",
+            "emergency_relation": "parents",
+            "emergency_name": "山田花子",
+            "emergency_phone": "090-9876-5432",
+            "family_intent": "all_positive",
+            "pet_permission": "allowed",
+            "pet_limit_type": "limited",
+            "pet_limit_count": 2,
+            "housing_type": "apartment",
+            "housing_ownership": "rented",
+            "relocation_plan": "none",
+            "allergy_status": "none",
+            "smoker_in_household": "no",
+            "monthly_budget_yen": 15000,
+            "alone_time_status": "sometimes",
+            "alone_time_weekly_days": 2,
+            "alone_time_hours": 6.0,
+            "has_existing_cat": "no",
+            "has_other_pets": "no",
+            "household_members": [],
+            "pets": [],
+        }
 
         # When
-        response = test_client.post("/api/v1/adoptions/applicants", json=applicant_data)
+        response = test_client.post(
+            "/api/v1/adoptions/applicants-extended", json=applicant_data
+        )
 
         # Then
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -108,7 +175,7 @@ class TestGetApplicantAPI:
 
         # When
         response = test_client.get(
-            f"/api/v1/adoptions/applicants/{applicant.id}",
+            f"/api/v1/adoptions/applicants-extended/{applicant.id}",
             headers=auth_headers,
         )
 
@@ -124,7 +191,7 @@ class TestGetApplicantAPI:
         """異常系: 存在しないIDで404エラー"""
         # When
         response = test_client.get(
-            "/api/v1/adoptions/applicants/99999", headers=auth_headers
+            "/api/v1/adoptions/applicants-extended/99999", headers=auth_headers
         )
 
         # Then
@@ -132,7 +199,7 @@ class TestGetApplicantAPI:
 
 
 class TestUpdateApplicantAPI:
-    """里親希望者更新APIのテスト"""
+    """里親希望者更新API（拡張版）のテスト"""
 
     def test_update_applicant_with_valid_data_returns_200(
         self, test_client, test_db, auth_headers
@@ -144,11 +211,11 @@ class TestUpdateApplicantAPI:
         test_db.commit()
         test_db.refresh(applicant)
 
-        update_data = {"contact": "090-9876-5432", "address": "大阪府大阪市"}
+        update_data = {"monthly_budget_yen": 20000}
 
         # When
         response = test_client.put(
-            f"/api/v1/adoptions/applicants/{applicant.id}",
+            f"/api/v1/adoptions/applicants-extended/{applicant.id}",
             json=update_data,
             headers=auth_headers,
         )
@@ -156,8 +223,7 @@ class TestUpdateApplicantAPI:
         # Then
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["contact"] == "090-9876-5432"
-        assert data["address"] == "大阪府大阪市"
+        assert data["monthly_budget_yen"] == 20000
         assert data["name"] == "山田太郎"  # 変更されていない
 
     def test_update_applicant_with_nonexistent_id_returns_404(
@@ -165,11 +231,11 @@ class TestUpdateApplicantAPI:
     ):
         """異常系: 存在しないIDで404エラー"""
         # Given
-        update_data = {"contact": "090-9876-5432"}
+        update_data = {"monthly_budget_yen": 20000}
 
         # When
         response = test_client.put(
-            "/api/v1/adoptions/applicants/99999",
+            "/api/v1/adoptions/applicants-extended/99999",
             json=update_data,
             headers=auth_headers,
         )
