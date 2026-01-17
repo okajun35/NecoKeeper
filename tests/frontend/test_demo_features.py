@@ -99,8 +99,6 @@ def test_admin_path_rejects_invalid_characters(client_factory) -> None:
     When: アプリケーション起動
     Then: ValueErrorが発生
     """
-    import pytest
-
     with pytest.raises(ValueError, match="must contain only alphanumeric"):
         client_factory({"ADMIN_PATH": "admin/test"})
 
@@ -113,8 +111,6 @@ def test_admin_path_rejects_reserved_words(client_factory) -> None:
     When: アプリケーション起動
     Then: ValueErrorが発生
     """
-    import pytest
-
     with pytest.raises(ValueError, match="cannot be a reserved path"):
         client_factory({"ADMIN_PATH": "api"})
 
@@ -127,7 +123,5 @@ def test_admin_path_rejects_empty_string(client_factory) -> None:
     When: アプリケーション起動
     Then: ValueErrorが発生
     """
-    import pytest
-
     with pytest.raises(ValueError, match="must not be empty"):
         client_factory({"ADMIN_PATH": ""})
