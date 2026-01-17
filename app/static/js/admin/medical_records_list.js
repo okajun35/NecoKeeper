@@ -2,6 +2,8 @@
  * 診療記録一覧ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 // グローバル変数
 let currentPage = 1;
 const pageSize = 20;
@@ -378,7 +380,7 @@ function createMobileCard(record) {
         ${billingInfo}
         <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
         <div class="flex gap-2">
-            <a href="/admin/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            <a href="${adminBasePath}/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
                 ${viewText}
             </a>
         </div>
@@ -421,7 +423,7 @@ function createDesktopRow(record) {
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">${billingText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="/admin/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">${viewText}</a>
+            <a href="${adminBasePath}/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">${viewText}</a>
         </td>
     `;
   return row;

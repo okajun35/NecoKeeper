@@ -6,6 +6,7 @@ const isKiroweenMode = document.body && document.body.classList.contains('kirowe
 const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
   ? '/static/icons/halloween_logo_2.webp'
   : '/static/images/default.svg';
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 function parseOptionalInt(value) {
   if (value === '' || value === null || value === undefined) {
@@ -87,7 +88,7 @@ function setupBasicInfoForm() {
   });
 
   cancelBtn.addEventListener('click', () => {
-    window.location.href = '/admin/animals';
+    window.location.href = `${adminBasePath}/animals`;
   });
 }
 

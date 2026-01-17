@@ -2,6 +2,8 @@
  * 猫新規登録ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
   setupDefaultValues();
   setupImagePreview();
@@ -154,7 +156,7 @@ function setupFormSubmit() {
 
       // 詳細ページにリダイレクト
       setTimeout(() => {
-        window.location.href = `/admin/animals/${animal.id}`;
+        window.location.href = `${adminBasePath}/animals/${animal.id}`;
       }, 1000);
     } catch (error) {
       console.error('Error creating animal:', error);

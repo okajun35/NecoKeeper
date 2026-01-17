@@ -189,21 +189,21 @@ def seed_users(db: Session) -> dict[str, User]:
             email="admin@example.com",
             name="管理者",
             role="admin",
-            password="Password123",
+            password="admin123",
         ),
         "staff": get_or_create_user(
             db,
             email="staff@example.com",
             name="スタッフ",
             role="staff",
-            password="Password123",
+            password="admin123",
         ),
         "vet": get_or_create_user(
             db,
             email="vet@example.com",
             name="獣医師",
             role="vet",
-            password="Password123",
+            password="admin123",
         ),
     }
 

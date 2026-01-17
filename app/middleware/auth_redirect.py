@@ -22,6 +22,11 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.config import get_settings
+from app.utils.path import is_admin_path
+
+settings = get_settings()
+
 
 class AuthRedirectMiddleware(BaseHTTPMiddleware):
     """
@@ -73,11 +78,12 @@ class AuthRedirectMiddleware(BaseHTTPMiddleware):
 
             # 管理画面へのリクエストの場合はログインページにリダイレクト
             # ログインページ自体へのアクセスは除外
-            if request.url.path.startswith(
-                "/admin"
-            ) and not request.url.path.startswith("/admin/login"):
+            admin_login_path = f"{settings.admin_base_path}/login"
+            if is_admin_path(request.url.path) and not request.url.path.startswith(
+                admin_login_path
+            ):
                 return RedirectResponse(
-                    url="/admin/login",
+                    url=admin_login_path,
                     status_code=302,  # 一時的なリダイレクト
                 )
 

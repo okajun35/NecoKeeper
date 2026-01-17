@@ -8,7 +8,7 @@
 {% block page_description %}<span data-i18n="description" data-i18n-ns="medical_records">全ての診療記録を管理</span>{% endblock %}
 
 {% block header_actions %}
-<a href="/admin/medical-records/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+<a href="{{ settings.admin_base_path }}/medical-records/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
     <span class="hidden sm:inline" data-i18n="add_new" data-i18n-ns="medical_records">新規作成</span><span data-i18n="create" data-i18n-ns="common">登録</span>
 </a>
 {% endblock %}

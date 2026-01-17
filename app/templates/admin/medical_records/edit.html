@@ -8,7 +8,7 @@
 {% block page_description %}<span data-i18n="description" data-i18n-ns="medical_records">診療記録を修正</span>{% endblock %}
 
 {% block header_actions %}
-<a href="/admin/medical-records/{{ record_id }}" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
+<a href="{{ settings.admin_base_path }}/medical-records/{{ record_id }}" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
     キャンセル
 </a>
 {% endblock %}
@@ -138,7 +138,7 @@
                 <button type="submit" class="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium" data-i18n="update" data-i18n-ns="common">
                     更新する
                 </button>
-                <a href="/admin/medical-records/{{ record_id }}" class="flex-1 sm:flex-none px-6 py-3 text-center bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" data-i18n="cancel" data-i18n-ns="common">
+                <a href="{{ settings.admin_base_path }}/medical-records/{{ record_id }}" class="flex-1 sm:flex-none px-6 py-3 text-center bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium" data-i18n="cancel" data-i18n-ns="common">
                     キャンセル
                 </a>
             </div>

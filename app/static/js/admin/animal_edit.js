@@ -2,6 +2,8 @@
  * 猫編集ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const animalId = getAnimalIdFromUrl();
 
@@ -102,7 +104,7 @@ function setupFormSubmit(animalId) {
 
       // 詳細ページにリダイレクト
       setTimeout(() => {
-        window.location.href = `/admin/animals/${animalId}`;
+        window.location.href = `${adminBasePath}/animals/${animalId}`;
       }, 1000);
     } catch (error) {
       console.error('Error updating animal:', error);

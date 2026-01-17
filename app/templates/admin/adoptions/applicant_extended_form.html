@@ -5,7 +5,7 @@
 {% block page_description %}{% if mode == 'edit' %}申込情報を編集します{% else %}詳細な申込情報を入力して登録します{% endif %}{% endblock %}
 
 {% block header_actions %}
-<a href="/admin/adoptions/applicants" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+<a href="{{ settings.admin_base_path }}/adoptions/applicants" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
     里親希望者一覧へ戻る
 </a>
 {% endblock %}
@@ -313,7 +313,7 @@
         </section>
 
         <div class="flex justify-end gap-3">
-            <a href="/admin/adoptions/applicants" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">キャンセル</a>
+            <a href="{{ settings.admin_base_path }}/adoptions/applicants" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">キャンセル</a>
             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">{% if mode == 'edit' %}更新{% else %}登録{% endif %}</button>
         </div>
     </form>

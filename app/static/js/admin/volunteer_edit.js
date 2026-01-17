@@ -1,3 +1,5 @@
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const id = location.pathname.split('/').slice(-2, -1)[0];
   const err = document.getElementById('formError');
@@ -12,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (res.status === 401) {
-      window.location.href = '/admin/login';
+      window.location.href = `${adminBasePath}/login`;
       return;
     }
     if (!res.ok) throw new Error('読み込みに失敗しました');
@@ -46,14 +48,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         body: JSON.stringify(payload),
       });
       if (res.status === 401) {
-        window.location.href = '/admin/login';
+        window.location.href = `${adminBasePath}/login`;
         return;
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || '保存に失敗しました');
       }
-      window.location.href = '/admin/volunteers';
+      window.location.href = `${adminBasePath}/volunteers`;
     } catch (e) {
       err.textContent = e.message || '保存に失敗しました';
       err.classList.remove('hidden');

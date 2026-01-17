@@ -20,7 +20,7 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--headless=true"],
+      "args": ["-y", "chrome-devtools-mcp@latest", "--headless=true", "--browserUrl=http://127.0.0.1:9222"],
       "disabled": false,
       "autoApprove": [
         "list_pages",

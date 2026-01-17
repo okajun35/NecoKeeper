@@ -1,3 +1,5 @@
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
   setupConditionalFields();
   setupHouseholdMembers();
@@ -293,7 +295,7 @@ function setupFormSubmit() {
       }
 
       showToast(`里親申込を${isEdit ? '更新' : '登録'}しました`, 'success');
-      window.location.href = '/admin/adoptions/applicants';
+      window.location.href = `${adminBasePath}/adoptions/applicants`;
     } catch (error) {
       showError('通信に失敗しました。再度お試しください。', errorBox);
     }

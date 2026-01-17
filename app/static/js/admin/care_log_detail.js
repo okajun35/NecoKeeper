@@ -3,6 +3,8 @@
  * Care Log Detail Page
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const detailContainer = document.getElementById('care-log-detail');
   const careLogId = parseInt(detailContainer.dataset.careLogId);
@@ -131,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <a href="/admin/care-logs/${careLogId}/edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" data-i18n="common:edit">
+                    <a href="${adminBasePath}/care-logs/${careLogId}/edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" data-i18n="common:edit">
                         ${tCommon('edit')}
                     </a>
                     <button onclick="deleteCareLog(${careLogId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" data-i18n="common:delete">
@@ -219,7 +221,7 @@ async function deleteCareLog(careLogId) {
     }
 
     alert('世話記録を削除しました');
-    window.location.href = '/admin/care-logs';
+    window.location.href = `${adminBasePath}/care-logs`;
   } catch (error) {
     console.error('Error deleting care log:', error);
     alert('削除に失敗しました: ' + error.message);

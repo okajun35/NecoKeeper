@@ -397,12 +397,14 @@
                 </button>
             </form>
 
+            {% if settings.demo_features %}
             <!-- 開発用情報 -->
             <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                 <p class="text-xs text-gray-600 mb-2" data-i18n="dev_account_title" data-i18n-ns="login">開発用アカウント:</p>
                 <p class="text-xs text-gray-500" data-i18n="dev_account_email" data-i18n-ns="login">メール: admin@example.com</p>
                 <p class="text-xs text-gray-500" data-i18n="dev_account_password" data-i18n-ns="login">パスワード: admin123</p>
             </div>
+            {% endif %}
         </div>
 
         <!-- フッター -->
@@ -412,6 +414,9 @@
     </div>
     {% endif %}
 
+    <script>
+        window.__ADMIN_BASE_PATH__ = "{{ settings.admin_base_path }}";
+    </script>
     <script src="/static/js/admin/login.js"></script>
 
     <!-- Conditional JavaScript: Glitch effects for Kiroween Mode -->

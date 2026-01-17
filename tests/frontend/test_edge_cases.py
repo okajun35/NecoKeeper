@@ -193,15 +193,20 @@ class TestNonExistentAnimal:
         # Given: 存在しないID
         nonexistent_id = 99999
         headers = {"Authorization": f"Bearer {auth_token}"}
+        from app.config import get_settings
+
+        settings = get_settings()
 
         # When: 猫詳細ページにアクセス（follow_redirects=False）
         response = test_client.get(
-            f"/admin/animals/{nonexistent_id}", headers=headers, follow_redirects=False
+            f"{settings.admin_base_path}/animals/{nonexistent_id}",
+            headers=headers,
+            follow_redirects=False,
         )
 
         # Then: 302リダイレクト
         assert response.status_code == 302
-        assert response.headers["location"] == "/admin/animals"
+        assert response.headers["location"] == f"{settings.admin_base_path}/animals"
 
 
 class TestAPIErrorHandling:

@@ -2,6 +2,8 @@
  * 診療記録詳細ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   // i18nが初期化されるまで待機
@@ -98,7 +100,7 @@ function renderMedicalRecord(record) {
   // 猫名を表示（リンク付き）
   const animalText = record.animal_name || `${t('dynamic.cat_id')}: ${record.animal_id}`;
   const animalLink = record.animal_name
-    ? `<a href="/admin/animals/${record.animal_id}" class="text-indigo-600 hover:text-indigo-900">${animalText}</a>`
+    ? `<a href="${adminBasePath}/animals/${record.animal_id}" class="text-indigo-600 hover:text-indigo-900">${animalText}</a>`
     : animalText;
   document.getElementById('recordAnimal').innerHTML = animalLink;
 
@@ -156,7 +158,7 @@ function renderMedicalRecord(record) {
   if (editBtn) {
     editBtn.classList.remove('hidden');
     editBtn.addEventListener('click', () => {
-      window.location.href = `/admin/medical-records/${record.id}/edit`;
+      window.location.href = `${adminBasePath}/medical-records/${record.id}/edit`;
     });
   }
 }

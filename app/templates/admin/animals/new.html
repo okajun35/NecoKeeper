@@ -12,7 +12,7 @@
       <h2 class="text-2xl font-bold text-gray-900" data-i18n="new_title" data-i18n-ns="animals">猫新規登録</h2>
       <p class="mt-1 text-sm text-gray-500" data-i18n="new_description" data-i18n-ns="animals">新しい猫を登録します</p>
     </div>
-    <a href="/admin/animals"
+    <a href="{{ settings.admin_base_path }}/animals"
        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" data-i18n="cancel" data-i18n-ns="common">
       キャンセル
     </a>
@@ -182,7 +182,7 @@
 
       <!-- 登録ボタン -->
       <div class="flex justify-end gap-3">
-        <a href="/admin/animals" data-i18n="cancel" data-i18n-ns="common"
+        <a href="{{ settings.admin_base_path }}/animals" data-i18n="cancel" data-i18n-ns="common"
            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
           キャンセル
         </a>

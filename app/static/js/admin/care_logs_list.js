@@ -4,6 +4,8 @@
  * 1日×1匹を1行で表示する形式で世話記録を管理します。
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 // グローバル変数
 let currentPage = 1;
 let currentFilters = {};
@@ -301,7 +303,7 @@ function createRecordLink(item, timeSlot) {
   if (record.exists) {
     // 記録あり: ○ → 詳細/編集画面
     link.textContent = '○';
-    link.href = `/admin/care-logs/${record.log_id}`;
+    link.href = `${adminBasePath}/care-logs/${record.log_id}`;
     link.className += ' text-green-600';
     const appetiteLabel = fallbackText('Appetite', '食欲');
     const energyLabel = fallbackText('Energy', '元気');
@@ -309,7 +311,7 @@ function createRecordLink(item, timeSlot) {
   } else {
     // 記録なし: × → 新規登録画面
     link.textContent = '×';
-    link.href = `/admin/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
+    link.href = `${adminBasePath}/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
     link.className += ' text-red-600';
     link.title = fallbackText('Add record', '記録を追加');
   }

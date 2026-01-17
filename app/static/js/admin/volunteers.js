@@ -2,6 +2,7 @@
  * ボランティア管理ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 let currentPage = 1;
 const pageSize = 20;
 
@@ -24,7 +25,7 @@ document.addEventListener('i18nextInitialized', () => {
     .querySelector('[data-i18n="add_new"]')
     ?.closest('button')
     ?.addEventListener('click', () => {
-      window.location.href = '/admin/volunteers/new';
+      window.location.href = `${adminBasePath}/volunteers/new`;
     });
 
   // 言語切り替え時に再読み込み
@@ -190,10 +191,10 @@ function clearFilters() {
 
 // 詳細表示
 function viewDetails(volunteerId) {
-  window.location.href = `/admin/volunteers/${volunteerId}`;
+  window.location.href = `${adminBasePath}/volunteers/${volunteerId}`;
 }
 
 // 編集
 function editVolunteer(volunteerId) {
-  window.location.href = `/admin/volunteers/${volunteerId}/edit`;
+  window.location.href = `${adminBasePath}/volunteers/${volunteerId}/edit`;
 }
