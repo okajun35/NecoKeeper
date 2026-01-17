@@ -2,7 +2,7 @@
 
 {% block title %}里親希望者管理{% endblock %}
 {% block page_title %}<span data-i18n="applicants.title" data-i18n-ns="adoptions">里親希望者管理</span>{% endblock %}
-{% block page_description %}<span data-i18n="applicants.description" data-i18n-ns="adoptions">里親希望者の登録と管理</span>{% endblock %}
+{% block page_description %}<span data-i18n="applicants.description" data-i18n-ns="adoptions">里親希望者の申込管理</span>{% endblock %}
 
 {% block extra_head %}
     {% if settings.kiroween_mode %}
@@ -11,12 +11,9 @@
 {% endblock %}
 
 {% block header_actions %}
-<a href="/admin/adoptions/applicants/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-    申込フォーム
+<a href="/admin/adoptions/applicants/new" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+    新規登録
 </a>
-<button id="newApplicantBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-    <span class="hidden sm:inline">+</span> <span data-i18n="buttons.register" data-i18n-ns="common">新規登録</span>
-</button>
 {% endblock %}
 
 {% block content %}
@@ -61,9 +58,9 @@
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="applicants.fields.name" data-i18n-ns="adoptions">名前</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="applicants.fields.contact" data-i18n-ns="adoptions">連絡先</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="applicants.fields.address" data-i18n-ns="adoptions">住所</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="applicants.fields.family" data-i18n-ns="adoptions">家族構成</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">連絡先</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">住所</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">家族構成</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="applicants.fields.registration_date" data-i18n-ns="adoptions">登録日</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="labels.actions" data-i18n-ns="common">操作</th>
                     </tr>
@@ -85,65 +82,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- 新規登録・編集モーダル -->
-<div id="applicantModal" class="modal-overlay hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="modal relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-lg bg-white">
-        <div class="modal-content">
-        <div class="flex justify-between items-center mb-4">
-            <h3 id="modalTitle" class="text-lg font-medium text-gray-900" data-i18n="applicants.modal.title_new" data-i18n-ns="adoptions">里親希望者登録</h3>
-            <button id="closeModal" class="text-gray-400 hover:text-gray-600">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-
-        <form id="applicantForm" class="space-y-4">
-            <input type="hidden" id="applicantId">
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="applicants.fields.name" data-i18n-ns="adoptions">氏名</span> <span class="text-red-500">*</span></label>
-                <input type="text" id="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1"><span data-i18n="applicants.fields.contact" data-i18n-ns="adoptions">連絡先</span> <span class="text-red-500">*</span></label>
-                <input type="text" id="contact" required data-i18n-placeholder="applicants.placeholders.contact" data-i18n-ns="adoptions" placeholder="電話番号、メールアドレス等" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="applicants.fields.address" data-i18n-ns="adoptions">住所</label>
-                <textarea id="address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="applicants.fields.family" data-i18n-ns="adoptions">家族構成</label>
-                <textarea id="family" rows="2" data-i18n-placeholder="applicants.placeholders.family" data-i18n-ns="adoptions" placeholder="例: 夫婦2人、子供1人" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="applicants.fields.environment" data-i18n-ns="adoptions">飼育環境</label>
-                <textarea id="environment" rows="2" data-i18n-placeholder="applicants.placeholders.environment" data-i18n-ns="adoptions" placeholder="例: マンション、ペット可" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="applicants.fields.conditions" data-i18n-ns="adoptions">希望条件</label>
-                <textarea id="conditions" rows="2" data-i18n-placeholder="applicants.placeholders.conditions" data-i18n-ns="adoptions" placeholder="例: 成猫希望、オス希望" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
-            </div>
-
-            <div class="flex gap-3 pt-4">
-                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="buttons.save" data-i18n-ns="common">
-                    保存
-                </button>
-                <button type="button" id="cancelBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="buttons.cancel" data-i18n-ns="common">
-                    キャンセル
-                </button>
-            </div>
-        </form>
         </div>
     </div>
 </div>

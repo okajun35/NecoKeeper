@@ -31,12 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // イベントリスナー設定
 function setupEventListeners() {
-  document.getElementById('newApplicantBtn').addEventListener('click', () => openModal());
   document.getElementById('searchBtn').addEventListener('click', () => filterApplicants());
   document.getElementById('clearBtn').addEventListener('click', () => clearSearch());
-  document.getElementById('closeModal').addEventListener('click', () => closeModal());
-  document.getElementById('cancelBtn').addEventListener('click', () => closeModal());
-  document.getElementById('applicantForm').addEventListener('submit', e => saveApplicant(e));
   document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
 }
@@ -48,7 +44,7 @@ async function loadApplicants() {
 
   try {
     const token = localStorage.getItem('access_token');
-    const response = await fetch('/api/v1/adoptions/applicants?limit=1000', {
+    const response = await fetch('/api/v1/adoptions/applicants-extended?limit=1000', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -96,13 +92,13 @@ function renderApplicants() {
         <div class="p-4 hover:bg-gray-50">
             <div class="flex items-start justify-between mb-2">
                 <div>
-                    <h3 class="font-medium text-gray-900">${escapeHtml(applicant.name)}</h3>
-                    <p class="text-sm text-gray-500">${escapeHtml(applicant.contact)}</p>
+                  <h3 class="font-medium text-gray-900">${escapeHtml(applicant.name)}</h3>
+                  <p class="text-sm text-gray-500">${escapeHtml(formatContact(applicant))}</p>
                 </div>
             </div>
             <div class="space-y-1 text-sm text-gray-600">
-                ${applicant.address ? `<p>${t('applicants.labels.address', { ns: 'adoptions' })}: ${escapeHtml(applicant.address)}</p>` : ''}
-                ${applicant.family ? `<p>${t('applicants.labels.family', { ns: 'adoptions' })}: ${escapeHtml(applicant.family)}</p>` : ''}
+                ${formatAddress(applicant) ? `<p>住所: ${escapeHtml(formatAddress(applicant))}</p>` : ''}
+                <p>家族構成: ${formatHousehold(applicant)}</p>
                 <p>${t('applicants.labels.registration_date', { ns: 'adoptions' })}: ${formatDate(applicant.created_at)}</p>
             </div>
             <div class="mt-3 flex gap-2">
@@ -125,9 +121,9 @@ function renderApplicants() {
       applicant => `
         <tr class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(applicant.name)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${escapeHtml(applicant.contact)}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">${applicant.address ? escapeHtml(applicant.address) : '-'}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">${applicant.family ? escapeHtml(applicant.family) : '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${escapeHtml(formatContact(applicant))}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">${formatAddress(applicant) ? escapeHtml(formatAddress(applicant)) : '-'}</td>
+            <td class="px-6 py-4 text-sm text-gray-600">${formatHousehold(applicant)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatDate(applicant.created_at)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <a href="/admin/adoptions/applicants/${applicant.id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">${t('buttons.edit', { ns: 'common' })}</a>
@@ -165,9 +161,17 @@ function filterApplicants() {
   const searchText = document.getElementById('searchInput').value.toLowerCase();
 
   filteredApplicants = allApplicants.filter(applicant => {
+    const name = applicant.name?.toLowerCase() ?? '';
+    const contact = formatContact(applicant).toLowerCase();
+    const phone = applicant.phone?.toLowerCase?.() ?? '';
+    const email = applicant.contact_email?.toLowerCase?.() ?? '';
+    const lineId = applicant.contact_line_id?.toLowerCase?.() ?? '';
     return (
-      applicant.name.toLowerCase().includes(searchText) ||
-      applicant.contact.toLowerCase().includes(searchText)
+      name.includes(searchText) ||
+      contact.includes(searchText) ||
+      phone.includes(searchText) ||
+      email.includes(searchText) ||
+      lineId.includes(searchText)
     );
   });
 
@@ -183,93 +187,32 @@ function clearSearch() {
   renderApplicants();
 }
 
-// モーダルを開く
-function openModal(applicant = null) {
-  const modal = document.getElementById('applicantModal');
-  const form = document.getElementById('applicantForm');
-  const title = document.getElementById('modalTitle');
-
-  form.reset();
-
-  if (applicant) {
-    // 編集モード
-    title.textContent = t('applicants.modal.title_edit', { ns: 'adoptions' });
-    title.setAttribute('data-i18n', 'applicants.modal.title_edit');
-    document.getElementById('applicantId').value = applicant.id;
-    document.getElementById('name').value = applicant.name;
-    document.getElementById('contact').value = applicant.contact;
-    document.getElementById('address').value = applicant.address || '';
-    document.getElementById('family').value = applicant.family || '';
-    document.getElementById('environment').value = applicant.environment || '';
-    document.getElementById('conditions').value = applicant.conditions || '';
-  } else {
-    // 新規登録モード
-    title.textContent = t('applicants.modal.title_new', { ns: 'adoptions' });
-    title.setAttribute('data-i18n', 'applicants.modal.title_new');
-    document.getElementById('applicantId').value = '';
-  }
-
-  modal.classList.remove('hidden');
-}
-
-// モーダルを閉じる
-function closeModal() {
-  document.getElementById('applicantModal').classList.add('hidden');
-}
-
-// 里親希望者を保存
-async function saveApplicant(e) {
-  e.preventDefault();
-
-  const applicantId = document.getElementById('applicantId').value;
-  const data = {
-    name: document.getElementById('name').value,
-    contact: document.getElementById('contact').value,
-    address: document.getElementById('address').value || null,
-    family: document.getElementById('family').value || null,
-    environment: document.getElementById('environment').value || null,
-    conditions: document.getElementById('conditions').value || null,
-  };
-
-  try {
-    const token = localStorage.getItem('access_token');
-    const url = applicantId
-      ? `/api/v1/adoptions/applicants/${applicantId}`
-      : '/api/v1/adoptions/applicants';
-    const method = applicantId ? 'PUT' : 'POST';
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error('保存に失敗しました');
-    }
-
-    closeModal();
-    await loadApplicants();
-    alert(applicantId ? '更新しました' : '登録しました');
-  } catch (error) {
-    alert(error.message);
-  }
-}
-
-// 編集
-async function editApplicant(id) {
-  const applicant = allApplicants.find(a => a.id === id);
-  if (applicant) {
-    openModal(applicant);
-  }
-}
-
 // 譲渡記録を表示
 function viewAdoptionRecords(applicantId) {
   window.location.href = `/admin/adoptions/records?applicant_id=${applicantId}`;
+}
+
+function formatContact(applicant) {
+  if (applicant.contact_type === 'line' && applicant.contact_line_id) {
+    return `LINE: ${applicant.contact_line_id}`;
+  }
+  if (applicant.contact_email) {
+    return `メール: ${applicant.contact_email}`;
+  }
+  if (applicant.phone) {
+    return `電話: ${applicant.phone}`;
+  }
+  return '-';
+}
+
+function formatAddress(applicant) {
+  const parts = [applicant.address1, applicant.address2].filter(Boolean);
+  return parts.join(' ');
+}
+
+function formatHousehold(applicant) {
+  const count = applicant.household_members?.length ?? 0;
+  return `${count}人`;
 }
 
 // 注: formatDate等はcommon.jsで定義済み

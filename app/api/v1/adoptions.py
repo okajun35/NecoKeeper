@@ -18,121 +18,17 @@ from app.schemas.adoption import (
     AdoptionRecordCreate,
     AdoptionRecordResponse,
     AdoptionRecordUpdate,
-    ApplicantCreate,
     ApplicantCreateExtended,
     ApplicantHouseholdMemberCreate,
     ApplicantHouseholdMemberResponse,
     ApplicantPetCreate,
     ApplicantPetResponse,
-    ApplicantResponse,
     ApplicantResponseExtended,
-    ApplicantUpdate,
     ApplicantUpdateExtended,
 )
 from app.services import adoption_service
 
 router = APIRouter(prefix="/adoptions", tags=["adoptions"])
-
-
-# ========================================
-# Applicant（里親希望者）エンドポイント
-# ========================================
-
-
-@router.get("/applicants", response_model=list[ApplicantResponse])
-def list_applicants(  # type: ignore[no-untyped-def]
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_from_cookie_or_header),
-):
-    """
-    里親希望者一覧を取得
-
-    Args:
-        skip: スキップ件数（ページネーション）
-        limit: 取得件数上限
-        db: データベースセッション
-        current_user: 現在のユーザー
-
-    Returns:
-        list[ApplicantResponse]: 里親希望者のリスト
-    """
-    applicants = adoption_service.list_applicants(db, skip=skip, limit=limit)
-    return applicants
-
-
-@router.post(
-    "/applicants",
-    response_model=ApplicantResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_applicant(  # type: ignore[no-untyped-def]
-    applicant_data: ApplicantCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_from_cookie_or_header),
-):
-    """
-    里親希望者を登録
-
-    Args:
-        applicant_data: 里親希望者データ
-        db: データベースセッション
-        current_user: 現在のユーザー
-
-    Returns:
-        ApplicantResponse: 登録された里親希望者
-    """
-    applicant = adoption_service.create_applicant(
-        db, applicant_data, user_id=current_user.id
-    )
-    return applicant
-
-
-@router.get("/applicants/{applicant_id}", response_model=ApplicantResponse)
-def get_applicant(  # type: ignore[no-untyped-def]
-    applicant_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_from_cookie_or_header),
-):
-    """
-    里親希望者を取得
-
-    Args:
-        applicant_id: 里親希望者ID
-        db: データベースセッション
-        current_user: 現在のユーザー
-
-    Returns:
-        ApplicantResponse: 里親希望者
-    """
-    applicant = adoption_service.get_applicant(db, applicant_id)
-    return applicant
-
-
-@router.put("/applicants/{applicant_id}", response_model=ApplicantResponse)
-def update_applicant(  # type: ignore[no-untyped-def]
-    applicant_id: int,
-    applicant_data: ApplicantUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user_from_cookie_or_header),
-):
-    """
-    里親希望者を更新
-
-    Args:
-        applicant_id: 里親希望者ID
-        applicant_data: 更新データ
-        db: データベースセッション
-        current_user: 現在のユーザー
-
-    Returns:
-        ApplicantResponse: 更新された里親希望者
-    """
-    applicant = adoption_service.update_applicant(
-        db, applicant_id, applicant_data, user_id=current_user.id
-    )
-    return applicant
 
 
 # ========================================

@@ -22,11 +22,9 @@ from app.models.status_history import StatusHistory
 from app.schemas.adoption import (
     AdoptionRecordCreate,
     AdoptionRecordUpdate,
-    ApplicantCreate,
     ApplicantCreateExtended,
     ApplicantHouseholdMemberCreate,
     ApplicantPetCreate,
-    ApplicantUpdate,
     ApplicantUpdateExtended,
 )
 
@@ -36,52 +34,6 @@ logger = logging.getLogger(__name__)
 # ========================================
 # Applicant（里親希望者）管理
 # ========================================
-
-
-def create_applicant(
-    db: Session, applicant_data: ApplicantCreate, user_id: int
-) -> Applicant:
-    """
-    里親希望者を登録
-
-    Args:
-        db: データベースセッション
-        applicant_data: 里親希望者データ
-        user_id: 登録者のユーザーID
-
-    Returns:
-        Applicant: 登録された里親希望者
-
-    Raises:
-        HTTPException: 登録失敗時
-
-    Example:
-        >>> applicant_data = ApplicantCreate(
-        ...     name="山田太郎", contact="090-1234-5678", address="東京都渋谷区"
-        ... )
-        >>> applicant = create_applicant(db, applicant_data, user_id=1)
-        >>> applicant.name
-        '山田太郎'
-    """
-    try:
-        applicant = Applicant(**applicant_data.model_dump())
-        db.add(applicant)
-        db.commit()
-        db.refresh(applicant)
-
-        logger.info(
-            f"里親希望者を登録しました: ID={applicant.id}, 名前={applicant.name}, "
-            f"登録者={user_id}"
-        )
-        return applicant
-
-    except Exception as e:
-        db.rollback()
-        logger.error(f"里親希望者の登録に失敗しました: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="里親希望者の登録に失敗しました",
-        ) from e
 
 
 def get_applicant(db: Session, applicant_id: int) -> Applicant:
@@ -133,55 +85,6 @@ def list_applicants(
         5
     """
     return db.query(Applicant).offset(skip).limit(limit).all()
-
-
-def update_applicant(
-    db: Session, applicant_id: int, applicant_data: ApplicantUpdate, user_id: int
-) -> Applicant:
-    """
-    里親希望者を更新
-
-    Args:
-        db: データベースセッション
-        applicant_id: 里親希望者ID
-        applicant_data: 更新データ
-        user_id: 更新者のユーザーID
-
-    Returns:
-        Applicant: 更新された里親希望者
-
-    Raises:
-        HTTPException: 里親希望者が見つからない、または更新失敗時
-
-    Example:
-        >>> update_data = ApplicantUpdate(contact="090-9876-5432")
-        >>> applicant = update_applicant(
-        ...     db, applicant_id=1, applicant_data=update_data, user_id=1
-        ... )
-        >>> applicant.contact
-        '090-9876-5432'
-    """
-    applicant = get_applicant(db, applicant_id)
-
-    try:
-        # 更新データを適用（Noneでないフィールドのみ）
-        update_dict = applicant_data.model_dump(exclude_unset=True)
-        for key, value in update_dict.items():
-            setattr(applicant, key, value)
-
-        db.commit()
-        db.refresh(applicant)
-
-        logger.info(f"里親希望者を更新しました: ID={applicant_id}, 更新者={user_id}")
-        return applicant
-
-    except Exception as e:
-        db.rollback()
-        logger.error(f"里親希望者の更新に失敗しました: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="里親希望者の更新に失敗しました",
-        ) from e
 
 
 # ========================================

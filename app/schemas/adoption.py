@@ -28,23 +28,6 @@ class ApplicantBase(BaseModel):
     conditions: str | None = Field(None, description="希望条件")
 
 
-class ApplicantCreate(ApplicantBase):
-    """里親希望者作成用スキーマ（後方互換用）"""
-
-    pass
-
-
-class ApplicantUpdate(BaseModel):
-    """里親希望者更新用スキーマ（全フィールド任意）"""
-
-    name: str | None = Field(None, max_length=100, description="氏名")
-    contact: str | None = Field(None, max_length=255, description="連絡先")
-    address: str | None = Field(None, description="住所")
-    family: str | None = Field(None, description="家族構成")
-    environment: str | None = Field(None, description="飼育環境")
-    conditions: str | None = Field(None, description="希望条件")
-
-
 class ApplicantResponse(ApplicantBase):
     """里親希望者レスポンススキーマ（後方互換用）"""
 

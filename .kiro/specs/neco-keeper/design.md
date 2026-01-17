@@ -497,10 +497,10 @@ PUT    /api/v1/volunteers/{id}     # Update volunteer
 #### Adoption Management API
 
 ```
-GET    /api/v1/applicants          # List adoption applicants
-POST   /api/v1/applicants          # Create applicant
-GET    /api/v1/applicants/{id}     # Retrieve applicant detail
-PUT    /api/v1/applicants/{id}     # Update applicant
+GET    /api/v1/adoptions/applicants-extended          # List adoption applicants
+POST   /api/v1/adoptions/applicants-extended          # Create applicant (extended)
+GET    /api/v1/adoptions/applicants-extended/{id}     # Retrieve applicant detail (extended)
+PUT    /api/v1/adoptions/applicants-extended/{id}     # Update applicant (extended)
 POST   /api/v1/adoptions           # Create adoption record
 PUT    /api/v1/adoptions/{id}      # Update adoption record
 ```
