@@ -1,3 +1,5 @@
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const id = location.pathname.split('/').pop();
   const detailDiv = document.getElementById('volunteerDetail');
@@ -13,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       },
     });
     if (res.status === 401) {
-      window.location.href = '/admin/login';
+      window.location.href = `${adminBasePath}/login`;
       return;
     }
     if (!res.ok) throw new Error('データ取得失敗');
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <span class="font-bold" data-i18n="start_date" data-i18n-ns="volunteers">開始日</span>: ${window.formatDate ? window.formatDate(v.started_at) : v.started_at || '-'}
       </div>
     `;
-    editBtn.href = `/admin/volunteers/${id}/edit`;
+    editBtn.href = `${adminBasePath}/volunteers/${id}/edit`;
     if (window.applyDynamicTranslations) applyDynamicTranslations();
   } catch (e) {
     detailDiv.textContent = 'データ取得に失敗しました';

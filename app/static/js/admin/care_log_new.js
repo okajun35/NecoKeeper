@@ -4,6 +4,7 @@
  */
 
 // API_BASEはcommon.jsで定義されています
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 // ページ読み込み時の処理
 document.addEventListener('DOMContentLoaded', async () => {
@@ -209,7 +210,7 @@ async function handleFormSubmit(e) {
 
     // 一覧ページにリダイレクト
     setTimeout(() => {
-      window.location.href = '/admin/care-logs';
+      window.location.href = `${adminBasePath}/care-logs`;
     }, 1500);
   } catch (error) {
     console.error('Failed to create care log:', error);

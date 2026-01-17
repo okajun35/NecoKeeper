@@ -12,7 +12,7 @@
       <h2 class="text-2xl font-bold text-gray-900" data-i18n="edit" data-i18n-ns="animals">猫情報編集</h2>
       <p class="mt-1 text-sm text-gray-500" data-i18n="edit_description" data-i18n-ns="animals">猫の情報を更新します</p>
     </div>
-    <a href="/admin/animals/{{ animal_id }}"
+    <a href="{{ settings.admin_base_path }}/animals/{{ animal_id }}"
        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" data-i18n="cancel" data-i18n-ns="common">
       キャンセル
     </a>
@@ -135,7 +135,7 @@
 
       <!-- 保存ボタン -->
       <div class="flex justify-end gap-3">
-        <a href="/admin/animals/{{ animal_id }}" data-i18n="buttons.cancel" data-i18n-ns="common"
+        <a href="{{ settings.admin_base_path }}/animals/{{ animal_id }}" data-i18n="buttons.cancel" data-i18n-ns="common"
            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
           キャンセル
         </a>

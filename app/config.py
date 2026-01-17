@@ -151,6 +151,16 @@ class Settings(BaseSettings):
     admin_email: str = Field(
         default="admin@example.com", description="管理者メールアドレス"
     )
+    admin_path: str = Field(
+        default="admin",
+        description="管理画面のパス（先頭/末尾の/は不要）",
+    )
+
+    # デモ機能設定
+    demo_features: bool = Field(
+        default=False,
+        description="LP等のデモ表示・デモ導線の有効化",
+    )
 
     # アプリケーションURL設定
     base_url: str = Field(
@@ -233,6 +243,12 @@ class Settings(BaseSettings):
         return datetime.now().strftime("%Y%m%d%H%M")
 
     @property
+    def admin_base_path(self) -> str:
+        """管理画面のベースパス（先頭/付き）"""
+
+        return f"/{self.admin_path}"
+
+    @property
     def is_automation_api_secure(self) -> bool:
         """
         Automation APIのセキュリティ検証
@@ -296,6 +312,39 @@ class Settings(BaseSettings):
         if value is None:
             return []
         raise ValueError("CORS_ORIGINS must be a string, JSON array, or list")
+
+    @field_validator("admin_path")
+    @classmethod
+    def normalize_admin_path(cls, value: str) -> str:
+        """
+        ADMIN_PATHを正規化してバリデーション
+
+        - 前後のスラッシュを除去
+        - 英数字とハイフンのみ許可
+        - 予約語をチェック
+        """
+        import re
+
+        normalized = value.strip().strip("/")
+
+        # 空文字チェック
+        if not normalized:
+            raise ValueError("ADMIN_PATH must not be empty")
+
+        # 英数字とハイフンのみ許可
+        if not re.match(r"^[a-zA-Z0-9-]+$", normalized):
+            raise ValueError(
+                "ADMIN_PATH must contain only alphanumeric characters and hyphens"
+            )
+
+        # 予約語チェック
+        reserved = {"api", "static", "public", "docs", "redoc", "media"}
+        if normalized.lower() in reserved:
+            raise ValueError(
+                f"ADMIN_PATH cannot be a reserved path: {', '.join(sorted(reserved))}"
+            )
+
+        return normalized
 
     @field_validator("secret_key")
     @classmethod

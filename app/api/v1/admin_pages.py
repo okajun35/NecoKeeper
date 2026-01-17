@@ -25,7 +25,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models.user import User
 
-router = APIRouter(prefix="/admin", tags=["admin-pages"])
+router = APIRouter(tags=["admin-pages"])
 
 # テンプレートディレクトリを設定
 templates_dir = Path(__file__).parent.parent.parent / "templates"
@@ -33,6 +33,8 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 # 設定を取得
 settings = get_settings()
+admin_base_path = settings.admin_base_path
+admin_login_path = f"{admin_base_path}/login"
 
 # ロガー設定
 logger = logging.getLogger(__name__)
@@ -62,7 +64,7 @@ def login_page(
     """
     # 既にログイン済みの場合はダッシュボードにリダイレクト
     if current_user:
-        return RedirectResponse(url="/admin", status_code=302)
+        return RedirectResponse(url=admin_base_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/login.html", {"request": request, "settings": settings}
@@ -93,7 +95,7 @@ def dashboard_page(
         GET /admin
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/dashboard.html",
@@ -123,7 +125,7 @@ def animals_list_page(
         GET /admin/animals
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/animals/list.html",
@@ -152,7 +154,7 @@ def animal_new_page(
         GET /admin/animals/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/animals/new.html",
@@ -185,7 +187,7 @@ def animal_detail_page(
         GET /admin/animals/123
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     from app.models.animal import Animal
     from app.services import animal_service
@@ -193,7 +195,7 @@ def animal_detail_page(
     animal = db.query(Animal).filter(Animal.id == animal_id).first()
     if not animal:
         # 猫が見つからない場合は一覧ページにリダイレクト
-        return RedirectResponse(url="/admin/animals", status_code=302)
+        return RedirectResponse(url=f"{admin_base_path}/animals", status_code=302)
 
     # 表示用の画像パスを取得
     display_image = animal_service.get_display_image(db, animal_id)
@@ -231,7 +233,7 @@ def animal_edit_page(
         GET /admin/animals/123/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/animals/edit.html",
@@ -265,7 +267,7 @@ def care_logs_list_page(
         GET /admin/care-logs
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/care_logs/list.html",
@@ -293,7 +295,7 @@ def care_log_new_page(
         GET /admin/care-logs/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/care_logs/new.html",
@@ -323,7 +325,7 @@ def care_log_detail_page(
         GET /admin/care-logs/1
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/care_logs/detail.html",
@@ -358,7 +360,7 @@ def care_log_edit_page(
         GET /admin/care-logs/1/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/care_logs/edit.html",
@@ -392,7 +394,7 @@ def volunteers_list_page(
         GET /admin/volunteers
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/volunteers/list.html",
@@ -407,7 +409,7 @@ def volunteer_new_page(
 ) -> Response:
     """ボランティア新規作成ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/volunteers/new.html",
@@ -423,7 +425,7 @@ def volunteer_edit_page(
 ) -> Response:
     """ボランティア編集ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/volunteers/edit.html",
@@ -444,7 +446,7 @@ def volunteer_detail_page(
 ) -> Response:
     """ボランティア詳細ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/volunteers/detail.html",
@@ -478,7 +480,7 @@ def medical_records_list_page(
         GET /admin/medical-records
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/medical_records/list.html",
@@ -506,7 +508,7 @@ def medical_record_new_page(
         GET /admin/medical-records/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/medical_records/new.html",
@@ -536,7 +538,7 @@ def medical_record_detail_page(
         GET /admin/medical-records/123
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/medical_records/detail.html",
@@ -571,7 +573,7 @@ def medical_record_edit_page(
         GET /admin/medical-records/123/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/medical_records/edit.html",
@@ -605,7 +607,7 @@ def medical_actions_list_page(
         GET /admin/medical-actions
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/medical_actions/list.html",
@@ -634,7 +636,7 @@ def adoptions_applicants_page(
         GET /admin/adoptions/applicants
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/adoptions/applicants.html",
@@ -662,7 +664,7 @@ def adoptions_applicants_new_page(
         GET /admin/adoptions/applicants/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/adoptions/applicant_extended_form.html",
@@ -702,7 +704,7 @@ def adoptions_applicants_edit_page(
         GET /admin/adoptions/applicants/1/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     # 申込者データを取得
     from app.schemas.adoption import ApplicantResponseExtended
@@ -715,7 +717,9 @@ def adoptions_applicants_edit_page(
     except HTTPException as e:
         # 404の場合は一覧ページにリダイレクト
         if e.status_code == 404:
-            return RedirectResponse(url="/admin/adoptions/applicants", status_code=302)
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
         # その他のHTTPExceptionは再送出
         raise
     except Exception as e:
@@ -761,7 +765,7 @@ def adoptions_records_page(
         GET /admin/adoptions/records
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/adoptions/records.html",
@@ -790,7 +794,7 @@ def reports_page(
         GET /admin/reports
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/reports/index.html",
@@ -805,7 +809,7 @@ def care_reports_page(
 ) -> Response:
     """世話記録帳票ページを表示（認証必須）"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/reports/care.html",
@@ -820,7 +824,7 @@ def medical_reports_page(
 ) -> Response:
     """診療記録帳票ページを表示（認証必須）"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/reports/medical.html",
@@ -849,7 +853,7 @@ def settings_page(
         GET /admin/settings
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
         "admin/settings/index.html",

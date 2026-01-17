@@ -5,6 +5,8 @@
 
 // API Base URL
 const API_BASE = '/api/v1';
+const ADMIN_BASE_PATH = window.__ADMIN_BASE_PATH__ || '/admin';
+window.ADMIN_BASE_PATH = ADMIN_BASE_PATH;
 
 /**
  * トーストメッセージを表示
@@ -233,7 +235,7 @@ async function logout() {
     console.error('Logout error:', error);
   } finally {
     // エラーが発生してもログインページにリダイレクト
-    window.location.href = '/admin/login';
+    window.location.href = `${ADMIN_BASE_PATH}/login`;
   }
 }
 

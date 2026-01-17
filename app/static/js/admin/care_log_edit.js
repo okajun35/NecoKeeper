@@ -3,6 +3,7 @@
  */
 
 // API_BASEはcommon.jsで定義されています
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 // ページ読み込み時の処理
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,9 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const careLogId = container.dataset.careLogId;
 
   // 戻る・キャンセルボタンのリンク先を詳細ページに変更
-  const backLinks = document.querySelectorAll('a[href="/admin/care-logs"]');
+  const backLinks = document.querySelectorAll(`a[href="${adminBasePath}/care-logs"]`);
   backLinks.forEach(link => {
-    link.href = `/admin/care-logs/${careLogId}`;
+    link.href = `${adminBasePath}/care-logs/${careLogId}`;
   });
 
   // 猫一覧を読み込み
@@ -238,7 +239,7 @@ async function handleFormSubmit(e, id) {
 
     // 成功メッセージをセッションストレージに保存して遷移
     sessionStorage.setItem('careLogUpdateSuccess', 'true');
-    window.location.href = `/admin/care-logs/${id}`;
+    window.location.href = `${adminBasePath}/care-logs/${id}`;
   } catch (error) {
     console.error('Failed to update care log:', error);
     showToast(translate('messages.update_failed', { ns: 'care_logs' }), 'error');

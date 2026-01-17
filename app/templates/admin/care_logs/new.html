@@ -8,7 +8,7 @@
 {% block page_description %}<span data-i18n="description" data-i18n-ns="care_logs">新しい世話記録を登録します</span>{% endblock %}
 
 {% block header_actions %}
-<a href="/admin/care-logs" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back" data-i18n-ns="common">
+<a href="{{ settings.admin_base_path }}/care-logs" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back" data-i18n-ns="common">
     戻る
 </a>
 {% endblock %}
@@ -172,7 +172,7 @@
 
             <!-- ボタン -->
             <div class="flex justify-end gap-3">
-                <a href="/admin/care-logs" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
+                <a href="{{ settings.admin_base_path }}/care-logs" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
                     キャンセル
                 </a>
                 <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="submit" data-i18n-ns="common">

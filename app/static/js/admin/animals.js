@@ -10,6 +10,7 @@ const isKiroweenMode = document.body && document.body.classList.contains('kirowe
 const DEFAULT_IMAGE_PLACEHOLDER = isKiroweenMode
   ? '/static/icons/halloween_logo_2.webp'
   : '/static/images/default.svg';
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 let currentPage = 1;
 let currentPageSize = 20;
@@ -226,12 +227,12 @@ function renderAnimalsList(animals = []) {
 
                 <!-- アクション -->
                 <div class="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
-                    <a href="/admin/animals/${animal.id}"
+                    <a href="${adminBasePath}/animals/${animal.id}"
                        class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                        data-i18n="actions.view_details" data-i18n-ns="animals">
                         詳細
                     </a>
-                    <a href="/admin/animals/${animal.id}/edit"
+                    <a href="${adminBasePath}/animals/${animal.id}/edit"
                        class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                        data-i18n="actions.edit_info" data-i18n-ns="animals">
                         編集
