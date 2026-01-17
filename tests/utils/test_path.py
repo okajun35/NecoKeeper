@@ -59,10 +59,27 @@ def test_is_admin_path_with_custom_path(monkeypatch, reset_settings) -> None:
     importlib.reload(path_module)
     from app.utils.path import is_admin_path
 
+    # カスタムパス /secret-mgmt が True を返すことを確認
+    assert is_admin_path("/secret-mgmt") is True
+    assert is_admin_path("/secret-mgmt/") is True
+    assert is_admin_path("/secret-mgmt/animals") is True
+    assert is_admin_path("/secret-mgmt/care-logs/new") is True
+
+    # デフォルトの /admin パスは False を返すことを確認
+    assert is_admin_path("/admin") is False
+    assert is_admin_path("/admin/animals") is False
+
+    # その他のパスも False を返すことを確認
+    assert is_admin_path("/") is False
+    assert is_admin_path("/api/v1/animals") is False
+    assert is_admin_path("/static/css/style.css") is False
+
+
+def test_is_admin_path_boundary_values(reset_settings) -> None:
     """
     境界値: 特殊なパスの判定
 
-    Given: ADMIN_PATH=admin
+    Given: ADMIN_PATH=admin (デフォルト)
     When: 空文字やルートパスを渡す
     Then: 適切に False を返す
     """
