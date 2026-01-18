@@ -49,6 +49,8 @@
   "age_unknown": "月齢不明",
   "collar_placeholder": "例: 赤い首輪",
   "features_placeholder": "外傷、特徴、性格などを記入",
+  "rescue_source_placeholder": "例: シェルターA",
+  "breed_placeholder": "例: アメリカンショートヘア",
   "back_to_list": "一覧に戻る",
   "register": "登録",
   "fields": {
@@ -65,6 +67,8 @@
     "ear_cut": "耳カット",
     "features": "特徴",
     "status": "ステータス",
+    "rescue_source": "レスキュー元",
+    "breed": "品種",
     "protected_at": "保護日",
     "created_at": "登録日",
     "updated_at": "更新日"
