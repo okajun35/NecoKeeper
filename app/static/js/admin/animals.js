@@ -223,11 +223,11 @@ function renderAnimalsList(animals = []) {
                             <span class="ml-1">${animal.rescue_date ? formatDate(new Date(animal.rescue_date)) : '-'}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500">レスキュー元:</span>
+                            <span class="text-gray-500"><span data-i18n="fields.rescue_source" data-i18n-ns="animals">レスキュー元</span>:</span>
                             <span class="ml-1">${animal.rescue_source || '-'}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500">品種:</span>
+                            <span class="text-gray-500"><span data-i18n="fields.breed" data-i18n-ns="animals">品種</span>:</span>
                             <span class="ml-1">${animal.breed || '-'}</span>
                         </div>
                     </div>
