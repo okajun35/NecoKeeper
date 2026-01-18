@@ -231,14 +231,6 @@ class TestAnimalModel:
             tail_length="長い",
             age_months=12,
             gender="male",
-        )
-
-        test_db.add(animal)
-        test_db.commit()
-        test_db.refresh(animal)
-
-        assert animal.rescue_source is None
-        assert animal.breed is None
             microchip_number="392123456789012",
         )
         test_db.add(animal1)
@@ -283,3 +275,40 @@ class TestAnimalModel:
 
         assert animal1.microchip_number is None
         assert animal2.microchip_number is None
+
+    def test_animal_with_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種を含む猫を作成できることを確認"""
+        animal = Animal(
+            name="ミケ",
+            photo="/media/cat9.jpg",
+            pattern="三毛",
+            tail_length="長い",
+            age_months=6,
+            gender="female",
+            rescue_source="△△動物愛護団体",
+            breed="アメリカンショートヘア",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source == "△△動物愛護団体"
+        assert animal.breed == "アメリカンショートヘア"
+
+    def test_animal_without_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種がnullでも猫を作成できることを確認"""
+        animal = Animal(
+            photo="/media/cat10.jpg",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source is None
+        assert animal.breed is None

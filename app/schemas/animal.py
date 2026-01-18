@@ -47,7 +47,7 @@ class AnimalBase(BaseModel):
 
     @field_validator("microchip_number", mode="before")
     @classmethod
-    def empty_string_to_none(cls, v):
+    def empty_string_to_none(cls, v: str | None) -> str | None:
         """空文字列をNoneに変換"""
         if v == "" or (isinstance(v, str) and v.strip() == ""):
             return None
@@ -116,7 +116,7 @@ class AnimalUpdate(BaseModel):
 
     @field_validator("microchip_number", mode="before")
     @classmethod
-    def empty_string_to_none(cls, v):
+    def empty_string_to_none(cls, v: str | None) -> str | None:
         """空文字列をNoneに変換"""
         if v == "" or (isinstance(v, str) and v.strip() == ""):
             return None
