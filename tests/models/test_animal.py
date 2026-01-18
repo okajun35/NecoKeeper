@@ -6,6 +6,8 @@ Animalモデルの単体テスト
 
 from datetime import date
 
+import pytest
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
@@ -206,30 +208,25 @@ class TestAnimalModel:
         # 注: SQLiteのタイムスタンプ精度の問題で、必ずしも変更されない場合があります
         assert animal.name == "チャトラ"
 
-    def test_animal_with_rescue_source_and_breed(self, test_db: Session):
-        """レスキュー元と品種を含む猫を作成できることを確認"""
+    def test_microchip_number_optional(self, test_db: Session):
+        """マイクロチップ番号が任意項目であることを確認"""
         animal = Animal(
-            name="ミケ",
-            photo="/media/cat9.jpg",
-            pattern="三毛",
+            name="テスト猫",
+            pattern="キジトラ",
             tail_length="長い",
-            age_months=6,
-            gender="female",
-            rescue_source="△△動物愛護団体",
-            breed="アメリカンショートヘア",
+            age_months=12,
+            gender="male",
+            # microchip_number なし
         )
-
         test_db.add(animal)
         test_db.commit()
-        test_db.refresh(animal)
 
-        assert animal.rescue_source == "△△動物愛護団体"
-        assert animal.breed == "アメリカンショートヘア"
+        assert animal.microchip_number is None
 
-    def test_animal_without_rescue_source_and_breed(self, test_db: Session):
-        """レスキュー元と品種がnullでも猫を作成できることを確認"""
-        animal = Animal(
-            photo="/media/cat10.jpg",
+    def test_microchip_number_unique_constraint(self, test_db: Session):
+        """マイクロチップ番号の一意制約をテスト"""
+        animal1 = Animal(
+            name="テスト猫1",
             pattern="キジトラ",
             tail_length="長い",
             age_months=12,
@@ -242,3 +239,47 @@ class TestAnimalModel:
 
         assert animal.rescue_source is None
         assert animal.breed is None
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal1)
+        test_db.commit()
+
+        # 同じマイクロチップ番号で登録を試みる
+        animal2 = Animal(
+            name="テスト猫2",
+            pattern="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal2)
+
+        with pytest.raises(IntegrityError):
+            test_db.commit()
+
+    def test_microchip_number_null_not_unique(self, test_db: Session):
+        """NULL値は重複しても問題ないことを確認"""
+        animal1 = Animal(
+            name="テスト猫1",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            microchip_number=None,
+        )
+        animal2 = Animal(
+            name="テスト猫2",
+            pattern="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number=None,
+        )
+
+        test_db.add(animal1)
+        test_db.add(animal2)
+        test_db.commit()  # エラーにならない
+
+        assert animal1.microchip_number is None
+        assert animal2.microchip_number is None

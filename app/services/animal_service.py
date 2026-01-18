@@ -10,6 +10,7 @@ import logging
 
 from fastapi import HTTPException, status
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
@@ -56,6 +57,10 @@ def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Anima
         logger.info(f"猫を登録しました: ID={animal.id}, 名前={animal.name}")
         return animal
 
+    except IntegrityError:
+        # IntegrityErrorは呼び出し元で処理させる
+        db.rollback()
+        raise
     except Exception as e:
         db.rollback()
         logger.error(f"猫の登録に失敗しました: {e}")
@@ -144,6 +149,10 @@ def update_animal(
         logger.info(f"猫情報を更新しました: ID={animal.id}")
         return animal
 
+    except IntegrityError:
+        # IntegrityErrorは呼び出し元で処理させる
+        db.rollback()
+        raise
     except HTTPException:
         raise
     except Exception as e:

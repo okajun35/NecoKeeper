@@ -31,6 +31,7 @@ class Animal(Base):
         id: 主キー（自動採番）
         name: 猫の名前（任意）
         photo: 顔写真のファイルパス（必須）
+        microchip_number: マイクロチップ番号（任意、15桁の半角数字または10桁の英数字）
         pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
         tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
         collar: 首輪の有無と色（任意、例: 赤い首輪、首輪なし）
@@ -59,6 +60,13 @@ class Animal(Base):
 
     photo: Mapped[str | None] = mapped_column(
         String(255), nullable=True, comment="プロフィール画像のファイルパス（任意）"
+    )
+
+    microchip_number: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        unique=True,
+        comment="マイクロチップ番号（15桁の半角数字、または10桁の英数字）",
     )
 
     # 物理的特徴（識別情報）
@@ -152,6 +160,7 @@ class Animal(Base):
         Index("ix_animals_status", "status"),
         Index("ix_animals_protected_at", "protected_at"),
         Index("ix_animals_name", "name"),
+        Index("ix_animals_microchip_number", "microchip_number"),
     )
 
     def __repr__(self) -> str:

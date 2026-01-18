@@ -19,6 +19,11 @@ class AnimalBase(BaseModel):
     photo: str | None = Field(
         None, max_length=255, description="プロフィール画像のファイルパス（任意）"
     )
+    microchip_number: str | None = Field(
+        None,
+        max_length=20,
+        description="マイクロチップ番号（15桁の半角数字、または10桁の英数字）",
+    )
     pattern: str = Field(
         ..., max_length=100, description="柄・色（例: キジトラ、三毛、黒猫）"
     )
@@ -39,6 +44,36 @@ class AnimalBase(BaseModel):
     protected_at: date_type = Field(
         default_factory=date_type.today, description="保護日"
     )
+
+    @field_validator("microchip_number", mode="before")
+    @classmethod
+    def empty_string_to_none(cls, v):
+        """空文字列をNoneに変換"""
+        if v == "" or (isinstance(v, str) and v.strip() == ""):
+            return None
+        return v
+
+    @field_validator("microchip_number")
+    @classmethod
+    def validate_microchip_number(cls, v: str | None) -> str | None:
+        """マイクロチップ番号の検証"""
+        if v is None:
+            return None
+
+        # 空白を除去
+        v = v.strip()
+
+        # 15桁の半角数字チェック（ISO 11784/11785準拠）
+        if len(v) == 15 and v.isdigit():
+            return v
+
+        # 10桁の英数字チェック（旧規格対応）
+        if len(v) == 10 and v.isalnum():
+            return v
+
+        raise ValueError(
+            "マイクロチップ番号は15桁の半角数字、または10桁の英数字である必要があります"
+        )
 
     @field_validator("gender")
     @classmethod
@@ -63,6 +98,7 @@ class AnimalUpdate(BaseModel):
 
     name: str | None = Field(None, max_length=100)
     photo: str | None = Field(None, max_length=255)
+    microchip_number: str | None = Field(None, max_length=20)
     pattern: str | None = Field(None, max_length=100)
     tail_length: str | None = Field(None, max_length=50)
     collar: str | None = Field(None, max_length=100)
@@ -77,6 +113,33 @@ class AnimalUpdate(BaseModel):
     breed: str | None = Field(None, max_length=100)
     status: str | None = Field(None, max_length=20)
     protected_at: date_type | None = None
+
+    @field_validator("microchip_number", mode="before")
+    @classmethod
+    def empty_string_to_none(cls, v):
+        """空文字列をNoneに変換"""
+        if v == "" or (isinstance(v, str) and v.strip() == ""):
+            return None
+        return v
+
+    @field_validator("microchip_number")
+    @classmethod
+    def validate_microchip_number(cls, v: str | None) -> str | None:
+        """マイクロチップ番号の検証"""
+        if v is None:
+            return None
+
+        v = v.strip()
+
+        if len(v) == 15 and v.isdigit():
+            return v
+
+        if len(v) == 10 and v.isalnum():
+            return v
+
+        raise ValueError(
+            "マイクロチップ番号は15桁の半角数字、または10桁の英数字である必要があります"
+        )
 
     @field_validator("gender")
     @classmethod
