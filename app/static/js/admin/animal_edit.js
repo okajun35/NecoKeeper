@@ -58,6 +58,8 @@ function fillForm(animal) {
   document.getElementById('tail_length').value = animal.tail_length || '';
   document.getElementById('collar').value = animal.collar || '';
   document.getElementById('ear_cut').checked = animal.ear_cut || false;
+  document.getElementById('rescue_source').value = animal.rescue_source || '';
+  document.getElementById('breed').value = animal.breed || '';
   document.getElementById('status').value = animal.status || '';
   document.getElementById('protected_at').value = animal.protected_at
     ? animal.protected_at.split('T')[0]
@@ -89,6 +91,8 @@ function setupFormSubmit(animalId) {
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || null,
         ear_cut: document.getElementById('ear_cut').checked,
+        rescue_source: document.getElementById('rescue_source').value || null,
+        breed: document.getElementById('breed').value || null,
         status: document.getElementById('status').value,
         protected_at: document.getElementById('protected_at').value || null,
         features: document.getElementById('features').value || null,
