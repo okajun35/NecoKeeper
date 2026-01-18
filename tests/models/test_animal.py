@@ -6,6 +6,8 @@ Animalモデルの単体テスト
 
 from datetime import date
 
+import pytest
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
@@ -219,9 +221,6 @@ class TestAnimalModel:
 
     def test_microchip_number_unique_constraint(self, test_db: Session):
         """マイクロチップ番号の一意制約をテスト"""
-        import pytest
-        from sqlalchemy.exc import IntegrityError
-
         animal1 = Animal(
             name="テスト猫1",
             pattern="キジトラ",

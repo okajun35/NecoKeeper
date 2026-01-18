@@ -178,11 +178,6 @@ def update_animal(
         animal = animal_service.update_animal(
             db=db, animal_id=animal_id, animal_data=animal_data, user_id=current_user.id
         )
-        if not animal:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="指定された猫が見つかりません",
-            )
         return animal
     except IntegrityError as e:
         if "microchip_number" in str(e):
