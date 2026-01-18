@@ -205,7 +205,7 @@ function renderAnimalsList(animals = []) {
                         <h3 class="text-lg font-semibold text-gray-900">${displayName}</h3>
                         ${getStatusBadge(animal.status)}
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
                         <div>
                             <span class="text-gray-500"><span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span>:</span>
                             <span class="ml-1">${animal.pattern || '-'}</span>
@@ -221,6 +221,14 @@ function renderAnimalsList(animals = []) {
                         <div>
                             <span class="text-gray-500"><span data-i18n="fields.protected_at" data-i18n-ns="animals">保護日</span>:</span>
                             <span class="ml-1">${animal.rescue_date ? formatDate(new Date(animal.rescue_date)) : '-'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">レスキュー元:</span>
+                            <span class="ml-1">${animal.rescue_source || '-'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">品種:</span>
+                            <span class="ml-1">${animal.breed || '-'}</span>
                         </div>
                     </div>
                 </div>

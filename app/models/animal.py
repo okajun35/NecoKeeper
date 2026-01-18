@@ -102,6 +102,14 @@ class Animal(Base):
         Text, nullable=True, comment="外傷・特徴・性格（自由記述）"
     )
 
+    rescue_source: Mapped[str | None] = mapped_column(
+        String(200), nullable=True, comment="レスキュー元"
+    )
+
+    breed: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, comment="品種"
+    )
+
     # 管理情報
     status: Mapped[str] = mapped_column(
         String(20),

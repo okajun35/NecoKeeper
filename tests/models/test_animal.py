@@ -69,6 +69,8 @@ class TestAnimalModel:
             gender="female",
             ear_cut=True,
             features="左耳に傷あり、人懐っこい性格",
+            rescue_source="〇〇保健所",
+            breed="雑種",
             status="譲渡可能",
         )
 
@@ -80,6 +82,8 @@ class TestAnimalModel:
         assert animal.collar == "赤い首輪"
         assert animal.ear_cut is True
         assert animal.features == "左耳に傷あり、人懐っこい性格"
+        assert animal.rescue_source == "〇〇保健所"
+        assert animal.breed == "雑種"
         assert animal.status == "譲渡可能"
 
     def test_animal_status_change(self, test_db: Session):
@@ -201,3 +205,40 @@ class TestAnimalModel:
         # updated_atが更新されていることを確認
         # 注: SQLiteのタイムスタンプ精度の問題で、必ずしも変更されない場合があります
         assert animal.name == "チャトラ"
+
+    def test_animal_with_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種を含む猫を作成できることを確認"""
+        animal = Animal(
+            name="ミケ",
+            photo="/media/cat9.jpg",
+            pattern="三毛",
+            tail_length="長い",
+            age_months=6,
+            gender="female",
+            rescue_source="△△動物愛護団体",
+            breed="アメリカンショートヘア",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source == "△△動物愛護団体"
+        assert animal.breed == "アメリカンショートヘア"
+
+    def test_animal_without_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種がnullでも猫を作成できることを確認"""
+        animal = Animal(
+            photo="/media/cat10.jpg",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source is None
+        assert animal.breed is None
