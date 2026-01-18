@@ -55,6 +55,7 @@
     "id": "ID",
     "name": "名前",
     "photo": "写真",
+    "microchip_number": "マイクロチップ番号",
     "pattern": "柄",
     "tail_length": "しっぽの長さ",
     "collar": "首輪",
