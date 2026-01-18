@@ -94,6 +94,8 @@ def create_animals(db: Session) -> list[Animal]:
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=30),
             "features": "人懐っこい性格で、よく鳴きます",
+            "rescue_source": "〇〇保健所",
+            "breed": "雑種",
         },
         {
             "name": "ミケ",
@@ -105,6 +107,8 @@ def create_animals(db: Session) -> list[Animal]:
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=60),
             "features": "おとなしい性格で、膝の上が好きです",
+            "rescue_source": "△△動物愛護団体",
+            "breed": "雑種",
         },
         {
             "name": "クロ",
@@ -116,6 +120,8 @@ def create_animals(db: Session) -> list[Animal]:
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=15),
             "features": "元気いっぱいで遊ぶのが大好きです",
+            "rescue_source": "個人保護",
+            "breed": "雑種",
         },
         {
             "name": "シロ",

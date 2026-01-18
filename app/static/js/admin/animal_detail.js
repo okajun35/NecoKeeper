@@ -133,6 +133,8 @@ async function updateBasicInfo() {
       age_is_estimated: document.getElementById('age_is_estimated').checked,
       gender: document.getElementById('gender').value,
       ear_cut: document.getElementById('earCut').checked,
+      rescue_source: document.getElementById('rescue_source').value || null,
+      breed: document.getElementById('breed').value || null,
       features: document.getElementById('features').value || null,
       microchip_number: microchipValue || null,
     };

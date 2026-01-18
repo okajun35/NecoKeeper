@@ -188,7 +188,6 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
                                         <span data-i18n="fields.microchip_number" data-i18n-ns="animals">マイクロチップ番号</span>
-                                        <span class="text-gray-500 text-sm">(任意)</span>
                                     </label>
                                     <input
                                         type="text"
@@ -201,9 +200,6 @@
                                     />
                                     <p class="mt-1 text-xs text-gray-500">
                                         15桁の半角数字（ISO規格）または10桁の英数字（旧規格）
-                                    </p>
-                                    <p class="mt-1 text-xs text-gray-400">
-                                        💡 日本の国コード: 392、メーカーコード: 981(Datamars), 953(PetID), 977(Avid)など
                                     </p>
                                     <p id="microchip_error" class="hidden mt-1 text-sm text-red-600"></p>
                                 </div>
@@ -271,6 +267,27 @@
                                         <option value="female" {% if animal.gender == 'female' %}selected{% endif %} data-i18n="gender.female" data-i18n-ns="animals">メス</option>
                                         <option value="unknown" {% if animal.gender == 'unknown' %}selected{% endif %} data-i18n="gender.unknown" data-i18n-ns="animals">不明</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.rescue_source" data-i18n-ns="animals">
+                                        レスキュー元
+                                    </label>
+                                    <input type="text" id="rescue_source" value="{{ animal.rescue_source or '' }}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                           placeholder="例: 〇〇保健所、△△動物愛護団体"
+                                           data-i18n-placeholder="rescue_source_placeholder" data-i18n-ns="animals">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.breed" data-i18n-ns="animals">
+                                        品種
+                                    </label>
+                                    <input type="text" id="breed" value="{{ animal.breed or '' }}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                           placeholder="例: 雑種、アメリカンショートヘア"
+                                           data-i18n-placeholder="breed_placeholder" data-i18n-ns="animals">
                                 </div>
                             </div>
 

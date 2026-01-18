@@ -115,6 +115,8 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "female",
             "ear_cut": False,
             "features": "人懐っこい性格。おもちゃで遊ぶのが大好き。",
+            "rescue_source": "〇〇保健所",
+            "breed": "雑種",
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=30),
             "microchip_number": "392123456789012",  # ISO規格の例
@@ -129,6 +131,8 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "female",
             "ear_cut": True,
             "features": "少し警戒心が強いが、慣れると甘えん坊。",
+            "rescue_source": "△△動物愛護団体",
+            "breed": "日本猫",
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=15),
             "microchip_number": "981234567890123",  # Datamarsメーカーコード
@@ -143,6 +147,8 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "male",
             "ear_cut": False,
             "features": "とても元気で活発。高いところが好き。",
+            "rescue_source": "個人保護",
+            "breed": "雑種",
             "status": "治療中",
             "protected_at": date.today() - timedelta(days=7),
             "microchip_number": None,  # マイクロチップなしの例

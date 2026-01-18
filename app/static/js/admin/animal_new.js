@@ -135,6 +135,8 @@ function setupFormSubmit() {
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || undefined,
         ear_cut: document.getElementById('ear_cut').checked,
+        rescue_source: document.getElementById('rescue_source').value || undefined,
+        breed: document.getElementById('breed').value || undefined,
         status: document.getElementById('status').value,
         protected_at: protectedAt,
         features: document.getElementById('features').value || undefined,

@@ -38,6 +38,8 @@ class AnimalBase(BaseModel):
     gender: str = Field(..., max_length=10, description="性別（male/female/unknown）")
     ear_cut: bool = Field(False, description="耳カットの有無（TNR済みの印）")
     features: str | None = Field(None, description="外傷・特徴・性格（自由記述）")
+    rescue_source: str | None = Field(None, max_length=200, description="レスキュー元")
+    breed: str | None = Field(None, max_length=100, description="品種")
     status: str = Field("保護中", max_length=20, description="ステータス")
     protected_at: date_type = Field(
         default_factory=date_type.today, description="保護日"
@@ -45,7 +47,7 @@ class AnimalBase(BaseModel):
 
     @field_validator("microchip_number", mode="before")
     @classmethod
-    def empty_string_to_none(cls, v):
+    def empty_string_to_none(cls, v: str | None) -> str | None:
         """空文字列をNoneに変換"""
         if v == "" or (isinstance(v, str) and v.strip() == ""):
             return None
@@ -107,12 +109,14 @@ class AnimalUpdate(BaseModel):
     gender: str | None = Field(None, max_length=10)
     ear_cut: bool | None = None
     features: str | None = None
+    rescue_source: str | None = Field(None, max_length=200)
+    breed: str | None = Field(None, max_length=100)
     status: str | None = Field(None, max_length=20)
     protected_at: date_type | None = None
 
     @field_validator("microchip_number", mode="before")
     @classmethod
-    def empty_string_to_none(cls, v):
+    def empty_string_to_none(cls, v: str | None) -> str | None:
         """空文字列をNoneに変換"""
         if v == "" or (isinstance(v, str) and v.strip() == ""):
             return None

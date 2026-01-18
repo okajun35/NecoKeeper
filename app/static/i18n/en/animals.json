@@ -49,6 +49,8 @@
   "age_unknown": "Unknown",
   "collar_placeholder": "e.g., Red collar",
   "features_placeholder": "Enter injuries, characteristics, personality, etc.",
+  "rescue_source_placeholder": "e.g., Shelter A",
+  "breed_placeholder": "e.g., American Shorthair",
   "back_to_list": "Back to list",
   "register": "Register",
   "fields": {
@@ -65,6 +67,8 @@
     "ear_cut": "Ear Cut",
     "features": "Features",
     "status": "Status",
+    "rescue_source": "Rescue Source",
+    "breed": "Breed",
     "protected_at": "Protected Date",
     "created_at": "Created At",
     "updated_at": "Updated At"

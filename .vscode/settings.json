@@ -6,6 +6,7 @@
     "python.testing.pytestEnabled": true,
     "kiroAgent.configureMCP": "Enabled",
     "chat.tools.terminal.autoApprove": {
-        "make": true
+        "make": true,
+        "agent-browser": true
     }
 }
