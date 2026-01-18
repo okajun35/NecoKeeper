@@ -81,6 +81,33 @@ function loadTabContent(tabId) {
 function setupBasicInfoForm() {
   const form = document.getElementById('basicInfoForm');
   const cancelBtn = document.getElementById('cancelBtn');
+  const microchipInput = document.getElementById('microchip_number');
+  const microchipError = document.getElementById('microchip_error');
+
+  // マイクロチップ番号のリアルタイムバリデーション
+  if (microchipInput) {
+    microchipInput.addEventListener('input', function (e) {
+      const value = e.target.value.trim();
+
+      if (value === '') {
+        microchipError.classList.add('hidden');
+        microchipInput.classList.remove('border-red-500');
+        return;
+      }
+
+      const is15Digit = /^\d{15}$/.test(value);
+      const is10AlphaNum = /^[0-9A-Za-z]{10}$/.test(value);
+
+      if (!is15Digit && !is10AlphaNum) {
+        microchipError.classList.remove('hidden');
+        microchipError.textContent = '15桁の半角数字、または10桁の英数字を入力してください';
+        microchipInput.classList.add('border-red-500');
+      } else {
+        microchipError.classList.add('hidden');
+        microchipInput.classList.remove('border-red-500');
+      }
+    });
+  }
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -95,6 +122,8 @@ function setupBasicInfoForm() {
 // 基本情報の更新
 async function updateBasicInfo() {
   try {
+    const microchipValue = document.getElementById('microchip_number').value.trim();
+
     const formData = {
       name: document.getElementById('name').value,
       pattern: document.getElementById('pattern').value,
@@ -105,6 +134,7 @@ async function updateBasicInfo() {
       gender: document.getElementById('gender').value,
       ear_cut: document.getElementById('earCut').checked,
       features: document.getElementById('features').value || null,
+      microchip_number: microchipValue || null,
     };
 
     const response = await fetch(`/api/v1/animals/${animalId}`, {
@@ -117,6 +147,14 @@ async function updateBasicInfo() {
     });
 
     if (!response.ok) {
+      const errorData = await response.json();
+      if (response.status === 409) {
+        // マイクロチップ番号の重複エラー
+        const errorMessage = isKiroweenMode
+          ? 'MICROCHIP NUMBER ALREADY EXISTS'
+          : errorData.detail || 'このマイクロチップ番号は既に登録されています';
+        throw new Error(errorMessage);
+      }
       const errorMessage = isKiroweenMode
         ? 'FAILED TO UPDATE BASIC INFO'
         : translate('errors.basic_info_update_failed', { ns: 'animals' });

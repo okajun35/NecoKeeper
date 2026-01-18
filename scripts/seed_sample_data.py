@@ -117,6 +117,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "人懐っこい性格。おもちゃで遊ぶのが大好き。",
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=30),
+            "microchip_number": "392123456789012",  # ISO規格の例
         },
         {
             "name": "ミケ",
@@ -130,6 +131,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "少し警戒心が強いが、慣れると甘えん坊。",
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=15),
+            "microchip_number": "981234567890123",  # Datamarsメーカーコード
         },
         {
             "name": "クロ",
@@ -143,6 +145,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "とても元気で活発。高いところが好き。",
             "status": "治療中",
             "protected_at": date.today() - timedelta(days=7),
+            "microchip_number": None,  # マイクロチップなしの例
         },
         {
             "name": "チビ",
@@ -156,6 +159,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "生後3ヶ月程度。ミルクから離乳食に移行中。",
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=5),
+            "microchip_number": None,  # 子猫なのでまだ未登録
         },
         {
             "name": "シロ",
@@ -169,6 +173,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "推定10歳以上。穏やかな性格で静かな環境を好む。",
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=60),
+            "microchip_number": "ABC1234567",  # 旧規格10桁の例
         },
         {
             "name": "ハチ",

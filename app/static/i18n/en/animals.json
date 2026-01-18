@@ -55,6 +55,7 @@
     "id": "ID",
     "name": "Name",
     "photo": "Photo",
+    "microchip_number": "Microchip Number",
     "pattern": "Pattern",
     "tail_length": "Tail Length",
     "collar": "Collar",

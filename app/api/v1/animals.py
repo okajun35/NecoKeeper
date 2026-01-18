@@ -10,8 +10,9 @@ from io import BytesIO
 from typing import Annotated
 
 import qrcode  # type: ignore[import-untyped]
-from fastapi import APIRouter, Depends, Query, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.responses import Response
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
@@ -79,10 +80,21 @@ def create_animal(
 
     Returns:
         AnimalResponse: 登録された猫の情報
+
+    Raises:
+        HTTPException: マイクロチップ番号が重複している場合（409）
     """
-    return animal_service.create_animal(
-        db=db, animal_data=animal_data, user_id=current_user.id
-    )
+    try:
+        return animal_service.create_animal(
+            db=db, animal_data=animal_data, user_id=current_user.id
+        )
+    except IntegrityError as e:
+        if "microchip_number" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="このマイクロチップ番号は既に登録されています",
+            ) from e
+        raise
 
 
 @router.get("/search", response_model=AnimalListResponse)
@@ -160,10 +172,20 @@ def update_animal(
 
     Raises:
         HTTPException: 猫が見つからない場合（404）
+        HTTPException: マイクロチップ番号が重複している場合（409）
     """
-    return animal_service.update_animal(
-        db=db, animal_id=animal_id, animal_data=animal_data, user_id=current_user.id
-    )
+    try:
+        animal = animal_service.update_animal(
+            db=db, animal_id=animal_id, animal_data=animal_data, user_id=current_user.id
+        )
+        return animal
+    except IntegrityError as e:
+        if "microchip_number" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="このマイクロチップ番号は既に登録されています",
+            ) from e
+        raise
 
 
 @router.delete("/{animal_id}", status_code=status.HTTP_204_NO_CONTENT)
