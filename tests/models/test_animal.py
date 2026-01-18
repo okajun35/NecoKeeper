@@ -201,3 +201,74 @@ class TestAnimalModel:
         # updated_atが更新されていることを確認
         # 注: SQLiteのタイムスタンプ精度の問題で、必ずしも変更されない場合があります
         assert animal.name == "チャトラ"
+
+    def test_microchip_number_optional(self, test_db: Session):
+        """マイクロチップ番号が任意項目であることを確認"""
+        animal = Animal(
+            name="テスト猫",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            # microchip_number なし
+        )
+        test_db.add(animal)
+        test_db.commit()
+
+        assert animal.microchip_number is None
+
+    def test_microchip_number_unique_constraint(self, test_db: Session):
+        """マイクロチップ番号の一意制約をテスト"""
+        import pytest
+        from sqlalchemy.exc import IntegrityError
+
+        animal1 = Animal(
+            name="テスト猫1",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal1)
+        test_db.commit()
+
+        # 同じマイクロチップ番号で登録を試みる
+        animal2 = Animal(
+            name="テスト猫2",
+            pattern="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal2)
+
+        with pytest.raises(IntegrityError):
+            test_db.commit()
+
+    def test_microchip_number_null_not_unique(self, test_db: Session):
+        """NULL値は重複しても問題ないことを確認"""
+        animal1 = Animal(
+            name="テスト猫1",
+            pattern="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            microchip_number=None,
+        )
+        animal2 = Animal(
+            name="テスト猫2",
+            pattern="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number=None,
+        )
+
+        test_db.add(animal1)
+        test_db.add(animal2)
+        test_db.commit()  # エラーにならない
+
+        assert animal1.microchip_number is None
+        assert animal2.microchip_number is None
