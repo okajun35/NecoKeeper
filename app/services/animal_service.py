@@ -41,9 +41,12 @@ def create_animal(db: Session, animal_data: AnimalCreate, user_id: int) -> Anima
         db.add(animal)
         db.flush()  # IDを取得するためにflush
 
-        # ステータス履歴を記録
+        # ステータス履歴を記録（汎用フォーマット + 互換性カラム）
         status_history = StatusHistory(
             animal_id=animal.id,
+            field="status",
+            old_value=None,
+            new_value=animal.status,
             old_status=None,
             new_status=animal.status,
             changed_by=user_id,
@@ -107,50 +110,114 @@ def get_animal(db: Session, animal_id: int) -> Animal:
 
 
 def update_animal(
-    db: Session, animal_id: int, animal_data: AnimalUpdate, user_id: int
-) -> Animal:
+    db: Session,
+    animal_id: int,
+    animal_data: AnimalUpdate,
+    user_id: int,
+) -> Animal | dict[str, object]:
     """
-    猫情報を更新
+    猫情報を更新（確認フロー対応）
+
+    ステータス・ロケーション変更時に履歴を自動記録。
+    終端ステータス（ADOPTED/DECEASED）から復帰時は確認フローを実行。
 
     Args:
         db: データベースセッション
         animal_id: 猫ID
-        animal_data: 更新データ
+        animal_data: 更新データ（status, location_type, confirm, reason を含む可能性）
         user_id: 更新者のユーザーID
 
     Returns:
-        Animal: 更新された猫
+        - 通常: Animal（更新済み）
+        - 確認要: {"requires_confirmation": true, "warning_code": "...", "message": "..."}
 
     Raises:
         HTTPException: 猫が見つからない場合、またはデータベースエラーが発生した場合
     """
     try:
         animal = get_animal(db, animal_id)
-
-        # ステータスが変更された場合は履歴を記録
         update_dict = animal_data.model_dump(exclude_unset=True)
-        if "status" in update_dict and update_dict["status"] != animal.status:
-            status_history = StatusHistory(
-                animal_id=animal.id,
-                old_status=animal.status,
-                new_status=update_dict["status"],
-                changed_by=user_id,
-                reason="ステータス更新",
-            )
-            db.add(status_history)
 
-        # 猫情報を更新
+        # 確認フラグと理由を抽出（モデル更新から除外）
+        confirm = update_dict.pop("confirm", False)
+        reason = update_dict.pop("reason", None)
+
+        # ステータス変更の検出
+        status_changed = (
+            "status" in update_dict and update_dict["status"] != animal.status
+        )
+        location_changed = (
+            "location_type" in update_dict
+            and update_dict["location_type"] != animal.location_type
+        )
+
+        # 終端ステータスから復帰かチェック
+        if status_changed:
+            current_status = animal.status
+            target_status = update_dict["status"]
+            is_leaving_terminal = (
+                _is_terminal_status(current_status) and current_status != target_status
+            )
+
+            # 確認が必要かつ未確認の場合は409を返す
+            if is_leaving_terminal and not confirm:
+                warning_msg = _get_terminal_warning_message(current_status)
+                warning_code = f"LEAVE_{current_status}"
+                logger.warning(
+                    f"終端ステータスからの復帰確認が必要: ID={animal_id}, "
+                    f"{current_status} → {target_status}"
+                )
+                return {
+                    "requires_confirmation": True,
+                    "warning_code": warning_code,
+                    "message": warning_msg,
+                }
+
+        # 履歴記録前に旧値を保存
+        old_status_val: str | None = animal.status if status_changed else None
+        old_location_val: str | None = (
+            animal.location_type if location_changed else None
+        )
+
+        # 更新実行
         for key, value in update_dict.items():
-            setattr(animal, key, value)
+            if key not in ("confirm", "reason"):
+                setattr(animal, key, value)
+
+        # 履歴記録: status 変更
+        if status_changed:
+            _record_change(
+                db,
+                animal_id,
+                field="status",
+                old_value=old_status_val,
+                new_value=update_dict["status"],
+                user_id=user_id,
+                reason=reason,
+            )
+
+        # 履歴記録: location_type 変更
+        if location_changed:
+            _record_change(
+                db,
+                animal_id,
+                field="location_type",
+                old_value=old_location_val,
+                new_value=update_dict["location_type"],
+                user_id=user_id,
+                reason=reason,
+            )
 
         db.commit()
         db.refresh(animal)
 
-        logger.info(f"猫情報を更新しました: ID={animal.id}")
+        logger.info(
+            f"猫情報を更新しました: ID={animal.id}, "
+            f"status_changed={status_changed}, location_changed={location_changed}"
+        )
         return animal
 
     except IntegrityError:
-        # IntegrityErrorは呼び出し元で処理させる
         db.rollback()
         raise
     except HTTPException:
@@ -343,3 +410,73 @@ def get_display_image(db: Session, animal_id: int) -> str:
     except Exception as e:
         logger.error(f"画像パスの取得に失敗しました: animal_id={animal_id}, エラー={e}")
         return "/static/images/default-cat.svg"
+
+
+# === ヘルパー関数（issue #85: ステータス確認フロー） ===
+
+
+def _is_terminal_status(status: str) -> bool:
+    """
+    終端ステータスか判定
+
+    終端ステータス: ADOPTED, DECEASED
+    """
+    from app.utils.enums import AnimalStatus
+
+    return status in (AnimalStatus.ADOPTED.value, AnimalStatus.DECEASED.value)
+
+
+def _get_terminal_warning_message(old_status: str) -> str:
+    """終端ステータスからの復帰時の警告メッセージを取得"""
+    messages = {
+        "ADOPTED": "この個体は『譲渡済み』として登録されています。状態を変更しますか？",
+        "DECEASED": "この個体は『死亡』として登録されています。状態を変更しますか？",
+    }
+    return messages.get(old_status, "この個体のステータスを変更しますか？")
+
+
+def _record_change(
+    db: Session,
+    animal_id: int,
+    field: str,
+    old_value: str | None,
+    new_value: str,
+    user_id: int,
+    reason: str | None = None,
+) -> StatusHistory:
+    """
+    変更履歴を記録
+
+    Args:
+        db: データベースセッション
+        animal_id: 猫ID
+        field: 変更フィールド ('status' or 'location_type')
+        old_value: 変更前値（初回登録時はNone）
+        new_value: 変更後値
+        user_id: ユーザーID
+        reason: 変更理由（任意）
+
+    Returns:
+        StatusHistory: 記録された履歴
+    """
+    # 互換性のため old_status/new_status も設定
+    # (field == "status" の場合のみ、旧カラムも更新)
+    old_status_val = old_value if field == "status" else None
+    new_status_val = new_value if field == "status" else "N/A"  # NOT NULL対応
+
+    history = StatusHistory(
+        animal_id=animal_id,
+        field=field,
+        old_value=old_value,
+        new_value=new_value,
+        old_status=old_status_val,
+        new_status=new_status_val,
+        reason=reason,
+        changed_by=user_id,
+    )
+    db.add(history)
+    logger.debug(
+        f"変更履歴を記録: animal_id={animal_id}, field={field}, "
+        f"{old_value} → {new_value}"
+    )
+    return history

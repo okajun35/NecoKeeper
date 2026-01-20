@@ -15,7 +15,7 @@ class TestAnimalCRUD:
             "tail_length": "短い",
             "age_months": 6,
             "gender": "male",
-            "status": "保護中",
+            "status": "QUARANTINE",
         }
 
         response = test_client.post(
@@ -47,7 +47,7 @@ class TestAnimalCRUD:
             "pattern": "白黒",
             "tail_length": "短い",
             "gender": "female",
-            "status": "保護中",
+            "status": "QUARANTINE",
         }
 
         response = test_client.post(
@@ -70,7 +70,7 @@ class TestAnimalCRUD:
             "age_months": 10,
             "age_is_estimated": True,
             "gender": "male",
-            "status": "保護中",
+            "status": "QUARANTINE",
         }
 
         response = test_client.post(

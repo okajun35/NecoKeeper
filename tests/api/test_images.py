@@ -358,7 +358,7 @@ class TestProfileImage:
             tail_length="長い",
             collar="なし",
             age_months=12,  # 必須項目を追加
-            status="保護中",
+            status="QUARANTINE",
             protected_at=date.today(),
         )
         test_db.add(other_animal)

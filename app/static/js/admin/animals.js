@@ -480,6 +480,29 @@ window.addEventListener('languageChanged', () => {
   renderPagination(lastPagination.total, lastPagination.page, lastPagination.pageSize);
 });
 
+// ステータスバッジを取得
+function getStatusBadge(status) {
+  // ステータスラベルを取得
+  const statusLabel = translate(`status.${status}`, {
+    defaultValue: status,
+  });
+
+  // ステータスに応じたバッジスタイルを選択
+  let badgeClass = 'px-3 py-1 rounded-full text-sm font-medium';
+  const statusColorMap = {
+    QUARANTINE: 'bg-red-100 text-red-800', // 保護中 - 赤
+    IN_CARE: 'bg-orange-100 text-orange-800', // 治療中 - オレンジ
+    TRIAL: 'bg-blue-100 text-blue-800', // 譲渡可能 - 青
+    ADOPTED: 'bg-green-100 text-green-800', // 譲渡済み - 緑
+    DECEASED: 'bg-gray-100 text-gray-800', // 死亡 - グレー
+  };
+
+  badgeClass += ' ' + (statusColorMap[status] || 'bg-gray-100 text-gray-800');
+
+  return `<span class="${badgeClass}">${statusLabel}</span>`;
+}
+
 // グローバルエクスポート
 window.changePage = changePage;
 window.showQRCode = showQRCode;
+window.getStatusBadge = getStatusBadge;

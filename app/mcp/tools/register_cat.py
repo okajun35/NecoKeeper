@@ -19,6 +19,7 @@ from pydantic import Field
 
 from app.mcp.api_client import NecoKeeperAPIClient
 from app.mcp.error_handler import handle_api_error, validate_non_empty_string
+from app.utils.enums import AnimalStatus
 
 logger = logging.getLogger(__name__)
 
@@ -58,10 +59,10 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
         status: Annotated[
             str,
             Field(
-                description="ステータス（例: 保護中、譲渡可能、譲渡済み）",
-                default="保護中",
+                description="ステータス（QUARANTINE=保護中, IN_CARE=治療中, TRIAL=譲渡可能, ADOPTED=譲渡済み, DECEASED=他界）",
+                default=AnimalStatus.QUARANTINE.value,
             ),
-        ] = "保護中",
+        ] = AnimalStatus.QUARANTINE.value,
         photo: Annotated[
             str | None, Field(description="プロフィール画像のファイルパス（任意）")
         ] = None,
@@ -89,7 +90,7 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             age_months: 月齢（任意、null=不明）
             age_is_estimated: 推定月齢フラグ（デフォルト: False）
             gender: 性別（必須、male/female/unknown）
-            status: ステータス（デフォルト: 保護中）
+            status: ステータス（デフォルト: QUARANTINE）
             photo: プロフィール画像のファイルパス（任意）
             collar: 首輪の有無と色（任意）
             ear_cut: 耳カットの有無（デフォルト: False）
@@ -113,7 +114,7 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             ...     age_months=12,
             ...     age_is_estimated=False,
             ...     gender="male",
-            ...     status="保護中",
+            ...     status=AnimalStatus.QUARANTINE.value,
             ... )
             >>> print(result["id"])
             42

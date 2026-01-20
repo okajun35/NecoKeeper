@@ -28,6 +28,7 @@ from app.schemas.care_log import (
 )
 from app.schemas.volunteer import VolunteerResponse
 from app.services import care_log_service, volunteer_service
+from app.utils.enums import AnimalStatus
 
 router = APIRouter(prefix="/public", tags=["Public API（認証不要）"])
 
@@ -436,7 +437,15 @@ def get_all_animals_status_today(
     # 保護中・治療中・譲渡可能な猫のみを取得
     animals = (
         db.query(Animal)
-        .filter(Animal.status.in_(["保護中", "治療中", "譲渡可能"]))
+        .filter(
+            Animal.status.in_(
+                [
+                    AnimalStatus.QUARANTINE.value,
+                    AnimalStatus.IN_CARE.value,
+                    AnimalStatus.TRIAL.value,
+                ]
+            )
+        )
         .order_by(Animal.name)
         .all()
     )

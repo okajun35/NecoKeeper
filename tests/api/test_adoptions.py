@@ -382,7 +382,7 @@ class TestCreateAdoptionAPI:
     def test_create_adoption_updates_animal_status(
         self, test_client, test_db, test_animal, auth_headers
     ):
-        """正常系: 譲渡記録登録時に猫のステータスが「譲渡済み」に更新される"""
+        """正常系: 譲渡記録登録時に猫のステータスが「ADOPTED」に更新される"""
         # Given
         applicant = Applicant(name="山田太郎", contact="090-1234-5678")
         test_db.add(applicant)
@@ -408,7 +408,7 @@ class TestCreateAdoptionAPI:
 
         # 猫のステータスが更新されている
         test_db.refresh(test_animal)
-        assert test_animal.status == "譲渡済み"
+        assert test_animal.status == "ADOPTED"
 
 
 class TestGetAdoptionRecordAPI:

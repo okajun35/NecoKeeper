@@ -22,6 +22,7 @@ from app.models.animal import Animal
 from app.models.care_log import CareLog
 from app.models.user import User
 from app.models.volunteer import Volunteer
+from app.utils.enums import AnimalStatus
 
 router = APIRouter(prefix="/dashboard", tags=["ダッシュボード"])
 
@@ -62,16 +63,24 @@ def get_dashboard_stats(
     total_animals = db.query(func.count(Animal.id)).scalar() or 0
 
     protected_count = (
-        db.query(func.count(Animal.id)).filter(Animal.status == "保護中").scalar() or 0
+        db.query(func.count(Animal.id))
+        .filter(Animal.status == AnimalStatus.QUARANTINE.value)
+        .scalar()
+        or 0
     )
 
     adoptable_count = (
-        db.query(func.count(Animal.id)).filter(Animal.status == "譲渡可能").scalar()
+        db.query(func.count(Animal.id))
+        .filter(Animal.status == AnimalStatus.TRIAL.value)
+        .scalar()
         or 0
     )
 
     treatment_count = (
-        db.query(func.count(Animal.id)).filter(Animal.status == "治療中").scalar() or 0
+        db.query(func.count(Animal.id))
+        .filter(Animal.status == AnimalStatus.IN_CARE.value)
+        .scalar()
+        or 0
     )
 
     # 今日の記録数

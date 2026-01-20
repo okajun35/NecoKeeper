@@ -60,7 +60,7 @@ class TestRegisterCatTool:
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
-            "status": "保護中",
+            "status": "QUARANTINE",
             "ear_cut": False,
         }
 

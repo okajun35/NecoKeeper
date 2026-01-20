@@ -52,7 +52,7 @@ class TestAnimalModel:
         test_db.refresh(animal)
 
         # デフォルト値の確認
-        assert animal.status == "保護中"
+        assert animal.status == "QUARANTINE"
         assert animal.ear_cut is False
         assert animal.protected_at is not None
         assert isinstance(animal.protected_at, date)
@@ -73,7 +73,7 @@ class TestAnimalModel:
             features="左耳に傷あり、人懐っこい性格",
             rescue_source="〇〇保健所",
             breed="雑種",
-            status="譲渡可能",
+            status="TRIAL",
         )
 
         test_db.add(animal)
@@ -86,7 +86,7 @@ class TestAnimalModel:
         assert animal.features == "左耳に傷あり、人懐っこい性格"
         assert animal.rescue_source == "〇〇保健所"
         assert animal.breed == "雑種"
-        assert animal.status == "譲渡可能"
+        assert animal.status == "TRIAL"
 
     def test_animal_status_change(self, test_db: Session):
         """ステータスを変更できることを確認"""
@@ -96,18 +96,18 @@ class TestAnimalModel:
             tail_length="長い",
             age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         test_db.add(animal)
         test_db.commit()
 
         # ステータスを変更
-        animal.status = "譲渡済み"
+        animal.status = "ADOPTED"
         test_db.commit()
         test_db.refresh(animal)
 
-        assert animal.status == "譲渡済み"
+        assert animal.status == "ADOPTED"
 
     def test_animal_str_representation(self, test_db: Session):
         """文字列表現が正しいことを確認"""
@@ -118,13 +118,13 @@ class TestAnimalModel:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         test_db.add(animal)
         test_db.commit()
 
-        assert str(animal) == "ミケ（三毛、保護中）"
+        assert str(animal) == "ミケ（三毛、QUARANTINE）"
 
     def test_animal_str_representation_without_name(self, test_db: Session):
         """名前なしの猫の文字列表現が正しいことを確認"""
@@ -139,7 +139,7 @@ class TestAnimalModel:
         test_db.add(animal)
         test_db.commit()
 
-        assert str(animal) == "名前未設定（白猫、保護中）"
+        assert str(animal) == "名前未設定（白猫、QUARANTINE）"
 
     def test_animal_repr(self, test_db: Session):
         """repr表現が正しいことを確認"""
@@ -160,7 +160,7 @@ class TestAnimalModel:
         assert "id=" in repr_str
         assert "name='クロ'" in repr_str
         assert "pattern='黒猫'" in repr_str
-        assert "status='保護中'" in repr_str
+        assert "status='QUARANTINE'" in repr_str
 
     def test_animal_gender_values(self, test_db: Session):
         """性別の値が正しく保存されることを確認"""

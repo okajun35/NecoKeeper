@@ -30,7 +30,7 @@ class TestCreateAnimalAutomation:
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
-            "status": "保護中",
+            "status": "QUARANTINE",
         }
 
         # When
@@ -48,7 +48,7 @@ class TestCreateAnimalAutomation:
         assert data["tail_length"] == "長い"
         assert data["age_months"] == 12
         assert data["gender"] == "male"
-        assert data["status"] == "保護中"
+        assert data["status"] == "QUARANTINE"
         assert "id" in data
         assert "created_at" in data
         assert "updated_at" in data

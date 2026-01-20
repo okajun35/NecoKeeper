@@ -172,7 +172,7 @@ class TestCreateAdoptionRecord:
     def test_create_adoption_record_updates_animal_status(
         self, test_db, test_animal, test_user
     ):
-        """正常系: 譲渡記録登録時に猫のステータスが「譲渡済み」に更新される"""
+        """正常系: 譲渡記録登録時に猫のステータスが「ADOPTED」に更新される"""
         # Given
         applicant = Applicant(name="山田太郎", contact="090-1234-5678")
         test_db.add(applicant)
@@ -197,7 +197,7 @@ class TestCreateAdoptionRecord:
 
         # 猫のステータスが更新されている
         test_db.refresh(test_animal)
-        assert test_animal.status == "譲渡済み"
+        assert test_animal.status == "ADOPTED"
 
         # ステータス変更履歴が記録されている
         history = (
@@ -208,7 +208,7 @@ class TestCreateAdoptionRecord:
         )
         assert history is not None
         assert history.old_status == old_status
-        assert history.new_status == "譲渡済み"
+        assert history.new_status == "ADOPTED"
         assert history.changed_by == test_user.id
 
     def test_create_adoption_record_with_nonexistent_animal_raises_404(
@@ -362,7 +362,7 @@ class TestListAdoptionRecords:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(another_animal)
         test_db.commit()

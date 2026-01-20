@@ -67,6 +67,8 @@
     "ear_cut": "耳カット",
     "features": "特徴",
     "status": "ステータス",
+    "location_type": "所在地タイプ",
+    "current_location_note": "所在地詳細",
     "rescue_source": "レスキュー元",
     "breed": "品種",
     "protected_at": "保護日",
@@ -74,11 +76,16 @@
     "updated_at": "更新日"
   },
   "status": {
-    "protected": "保護中",
-    "treatment": "治療中",
-    "adoptable": "譲渡可能",
-    "adopted": "譲渡済み",
-    "deceased": "死亡"
+    "QUARANTINE": "保護中",
+    "IN_CARE": "在籍中（施設/カフェ/預かり含む）",
+    "TRIAL": "トライアル中",
+    "ADOPTED": "譲渡済み",
+    "DECEASED": "死亡"
+  },
+  "location": {
+    "facility": "施設",
+    "foster_home": "預かり宅",
+    "adopter_home": "里親候補宅"
   },
   "gender": {
     "male": "オス",
@@ -171,6 +178,8 @@
     "generate_form": "紙記録フォーム生成",
     "change_photo": "画像を変更",
     "update_status": "ステータス更新",
+    "update_location": "所在地更新",
+    "update_status_and_location": "更新",
     "upload_photo": "写真をアップロード",
     "delete_photo": "写真を削除"
   },
