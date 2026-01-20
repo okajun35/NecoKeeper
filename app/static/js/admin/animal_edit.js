@@ -51,6 +51,8 @@ async function loadAnimalData(animalId) {
 function fillForm(animal) {
   document.getElementById('name').value = animal.name || '';
   document.getElementById('pattern').value = animal.pattern || '';
+  document.getElementById('coat_color').value = animal.coat_color || '';
+  document.getElementById('coat_color_note').value = animal.coat_color_note || '';
   document.getElementById('gender').value = animal.gender || '';
   document.getElementById('age_months').value =
     animal.age_months === null || animal.age_months === undefined ? '' : animal.age_months;
@@ -85,6 +87,8 @@ function setupFormSubmit(animalId) {
       const formData = {
         name: document.getElementById('name').value,
         pattern: document.getElementById('pattern').value,
+        coat_color: document.getElementById('coat_color').value || null,
+        coat_color_note: document.getElementById('coat_color_note').value || null,
         gender: document.getElementById('gender').value,
         age_months: parseOptionalInt(document.getElementById('age_months').value),
         age_is_estimated: document.getElementById('age_is_estimated').checked,

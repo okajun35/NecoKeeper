@@ -27,6 +27,12 @@ class AnimalBase(BaseModel):
     pattern: str = Field(
         ..., max_length=100, description="柄・色（例: キジトラ、三毛、黒猫）"
     )
+    coat_color: str | None = Field(
+        None, max_length=100, description="毛色（選択肢から選択）"
+    )
+    coat_color_note: str | None = Field(
+        None, description="毛色の補足情報（例: 淡い、パステル、黒少なめ）"
+    )
     tail_length: str = Field(
         ..., max_length=50, description="尻尾の長さ（例: 長い、短い、なし）"
     )
@@ -100,6 +106,8 @@ class AnimalUpdate(BaseModel):
     photo: str | None = Field(None, max_length=255)
     microchip_number: str | None = Field(None, max_length=20)
     pattern: str | None = Field(None, max_length=100)
+    coat_color: str | None = Field(None, max_length=100)
+    coat_color_note: str | None = None
     tail_length: str | None = Field(None, max_length=50)
     collar: str | None = Field(None, max_length=100)
     age_months: int | None = Field(None, ge=0)

@@ -40,6 +40,35 @@
         </div>
 
         <div>
+          <label for="coat_color" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span>
+          </label>
+          <select id="coat_color" name="coat_color"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="三毛" data-i18n="coat_color.calico" data-i18n-ns="animals">三毛</option>
+            <option value="白黒" data-i18n="coat_color.black_white" data-i18n-ns="animals">白黒</option>
+            <option value="黒" data-i18n="coat_color.black" data-i18n-ns="animals">黒</option>
+            <option value="白" data-i18n="coat_color.white" data-i18n-ns="animals">白</option>
+            <option value="茶トラ" data-i18n="coat_color.brown_tabby" data-i18n-ns="animals">茶トラ</option>
+            <option value="キジ" data-i18n="coat_color.mackerel" data-i18n-ns="animals">キジ</option>
+            <option value="サビ" data-i18n="coat_color.tortoiseshell" data-i18n-ns="animals">サビ</option>
+            <option value="グレー" data-i18n="coat_color.gray" data-i18n-ns="animals">グレー</option>
+            <option value="その他" data-i18n="coat_color.other" data-i18n-ns="animals">その他</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="coat_color_note" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.coat_color_note" data-i18n-ns="animals">毛色の補足</span>
+          </label>
+          <input type="text" id="coat_color_note" name="coat_color_note"
+                 data-i18n-placeholder="coat_color_note_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: 淡い、パステル、黒少なめ">
+        </div>
+
+        <div>
           <label for="gender" class="block text-sm font-medium text-gray-700 mb-2">
             <span data-i18n="fields.gender" data-i18n-ns="animals">性別</span> <span class="text-red-500">*</span>
           </label>

@@ -65,6 +65,8 @@ class TestAnimalModel:
             name="たま",
             photo="/media/cat3.jpg",
             pattern="黒猫",
+            coat_color="黒",
+            coat_color_note="淡い、パステル調",
             tail_length="長い",
             collar="赤い首輪",
             age_months=120,
@@ -81,6 +83,8 @@ class TestAnimalModel:
         test_db.refresh(animal)
 
         assert animal.name == "たま"
+        assert animal.coat_color == "黒"
+        assert animal.coat_color_note == "淡い、パステル調"
         assert animal.collar == "赤い首輪"
         assert animal.ear_cut is True
         assert animal.features == "左耳に傷あり、人懐っこい性格"
@@ -312,3 +316,41 @@ class TestAnimalModel:
 
         assert animal.rescue_source is None
         assert animal.breed is None
+
+    def test_animal_with_coat_color(self, test_db: Session):
+        """毛色フィールドを含む猫を作成できることを確認"""
+        animal = Animal(
+            name="みけ",
+            photo="/media/cat11.jpg",
+            pattern="三毛",
+            coat_color="三毛",
+            coat_color_note="淡いパステル調、黒少なめ",
+            tail_length="長い",
+            age_months=24,
+            gender="female",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.coat_color == "三毛"
+        assert animal.coat_color_note == "淡いパステル調、黒少なめ"
+
+    def test_animal_without_coat_color(self, test_db: Session):
+        """毛色フィールドがnullでも猫を作成できることを確認"""
+        animal = Animal(
+            name="くろ",
+            photo="/media/cat12.jpg",
+            pattern="黒猫",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.coat_color is None
+        assert animal.coat_color_note is None

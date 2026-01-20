@@ -168,3 +168,55 @@ class TestAnimalUpdateSchemaValidation:
         with pytest.raises(ValidationError) as exc_info:
             AnimalUpdate(**data)
         assert "15桁の半角数字、または10桁の英数字" in str(exc_info.value)
+
+
+class TestAnimalCoatColorSchema:
+    """毛色フィールドのスキーマテスト"""
+
+    def test_create_animal_with_coat_color(self):
+        """毛色フィールドを含む猫を作成できることを確認"""
+        data = {
+            "name": "みけ",
+            "pattern": "三毛",
+            "coat_color": "三毛",
+            "coat_color_note": "淡いパステル調、黒少なめ",
+            "tail_length": "長い",
+            "age_months": 24,
+            "gender": "female",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.coat_color == "三毛"
+        assert schema.coat_color_note == "淡いパステル調、黒少なめ"
+
+    def test_create_animal_without_coat_color(self):
+        """毛色フィールドがなくても猫を作成できることを確認"""
+        data = {
+            "name": "くろ",
+            "pattern": "黒猫",
+            "tail_length": "長い",
+            "age_months": 12,
+            "gender": "male",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.coat_color is None
+        assert schema.coat_color_note is None
+
+    def test_update_animal_coat_color(self):
+        """毛色フィールドを更新できることを確認"""
+        data = {
+            "coat_color": "キジ",
+            "coat_color_note": "濃いめの縞模様",
+        }
+        schema = AnimalUpdate(**data)
+        assert schema.coat_color == "キジ"
+        assert schema.coat_color_note == "濃いめの縞模様"
+
+    def test_update_animal_clear_coat_color(self):
+        """毛色フィールドをクリアできることを確認"""
+        data = {
+            "coat_color": None,
+            "coat_color_note": None,
+        }
+        schema = AnimalUpdate(**data)
+        assert schema.coat_color is None
+        assert schema.coat_color_note is None
