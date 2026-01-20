@@ -462,7 +462,7 @@ def _record_change(
     # 互換性のため old_status/new_status も設定
     # (field == "status" の場合のみ、旧カラムも更新)
     old_status_val = old_value if field == "status" else None
-    new_status_val = new_value if field == "status" else "N/A"  # NOT NULL対応
+    new_status_val = new_value if field == "status" else None
 
     history = StatusHistory(
         animal_id=animal_id,
