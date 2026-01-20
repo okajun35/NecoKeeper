@@ -177,7 +177,7 @@ class TestAnimalCoatColorSchema:
         """毛色フィールドを含む猫を作成できることを確認"""
         data = {
             "name": "みけ",
-            "pattern": "三毛",
+            "pattern": "三毛猫",
             "coat_color": "三毛",
             "coat_color_note": "淡いパステル調、黒少なめ",
             "tail_length": "長い",

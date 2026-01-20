@@ -107,7 +107,7 @@ class AnimalUpdate(BaseModel):
     microchip_number: str | None = Field(None, max_length=20)
     pattern: str | None = Field(None, max_length=100)
     coat_color: str | None = Field(None, max_length=100)
-    coat_color_note: str | None = None
+    coat_color_note: str | None = Field(None)
     tail_length: str | None = Field(None, max_length=50)
     collar: str | None = Field(None, max_length=100)
     age_months: int | None = Field(None, ge=0)
