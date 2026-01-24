@@ -28,7 +28,9 @@ from app.schemas.animal import (
     AnimalCreate,
     AnimalListResponse,
     AnimalResponse,
+    AnimalStatusUpdate,
     AnimalUpdate,
+    ConfirmationErrorResponse,
 )
 from app.services import animal_service
 
@@ -153,13 +155,17 @@ def get_animal(
     return animal_service.get_animal(db=db, animal_id=animal_id)
 
 
-@router.put("/{animal_id}", response_model=None)
+@router.put(
+    "/{animal_id}",
+    response_model=AnimalResponse,
+    responses={409: {"model": ConfirmationErrorResponse}},
+)
 def update_animal(
     animal_id: int,
     animal_data: AnimalUpdate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:write"))],
-) -> Animal | dict[str, object]:
+) -> Animal:
     """
     猫情報を更新
 
@@ -191,6 +197,12 @@ def update_animal(
                 detail=result,
             )
 
+        if isinstance(result, dict):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="不正な確認レスポンスを検出しました",
+            )
+
         return result
     except IntegrityError as e:
         if "microchip_number" in str(e):
@@ -201,17 +213,21 @@ def update_animal(
         raise
 
 
-@router.patch("/{animal_id}", response_model=None)
+@router.patch(
+    "/{animal_id}",
+    response_model=AnimalResponse,
+    responses={409: {"model": ConfirmationErrorResponse}},
+)
 def patch_animal(
     animal_id: int,
-    animal_data: AnimalUpdate,
+    animal_data: AnimalStatusUpdate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(require_permission("animal:write"))],
-) -> dict[str, object] | Animal:
+) -> Animal:
     """
-    猫情報を部分更新（確認フロー対応版）
-    指定されたIDの猫の情報を更新します。
-    ステータス・ロケーション変更時に履歴を自動記録。
+    猫情報を部分更新（ステータス・ロケーション専用）
+    指定されたIDの猫のステータス・ロケーション情報を更新します。
+    変更時に履歴を自動記録。
 
     **終端ステータス（ADOPTED/DECEASED）からの復帰時は確認フローを実行**
     - 初回: confirm なし → 409 Conflict（requires_confirmation=true を返す）
@@ -219,7 +235,7 @@ def patch_animal(
 
     Args:
         animal_id: 猫ID
-        animal_data: 更新データ（status, location_type, confirm, reason 含む可能性）
+        animal_data: 更新データ（status, location_type, current_location_note, confirm, reason）
         db: データベースセッション
         current_user: 現在のユーザー（animal:write権限が必要）
 
@@ -241,6 +257,12 @@ def patch_animal(
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=result,
+            )
+
+        if isinstance(result, dict):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="不正な確認レスポンスを検出しました",
             )
 
         return result

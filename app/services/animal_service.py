@@ -15,7 +15,13 @@ from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
 from app.models.status_history import StatusHistory
-from app.schemas.animal import AnimalCreate, AnimalListResponse, AnimalUpdate
+from app.schemas.animal import (
+    AnimalCreate,
+    AnimalListResponse,
+    AnimalStatusUpdate,
+    AnimalUpdate,
+    ConfirmationResponseData,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -112,9 +118,9 @@ def get_animal(db: Session, animal_id: int) -> Animal:
 def update_animal(
     db: Session,
     animal_id: int,
-    animal_data: AnimalUpdate,
+    animal_data: AnimalUpdate | AnimalStatusUpdate,
     user_id: int,
-) -> Animal | dict[str, object]:
+) -> Animal | ConfirmationResponseData:
     """
     猫情報を更新（確認フロー対応）
 

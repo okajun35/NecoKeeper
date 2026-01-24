@@ -23,9 +23,8 @@ def upgrade() -> None:
     """
     マイグレーション手順:
     1. animals テーブルに location_type 列を追加
-    2. 既存の status 値を TRIAL に統一
-    3. status_history テーブルを汎用化（field, old_value, new_value 追加）
-    4. インデックス追加
+    2. status_history テーブルを汎用化（field, old_value, new_value 追加）
+    3. インデックス追加
     """
 
     # 1. animals.location_type を追加（デフォルト FACILITY）
@@ -36,13 +35,7 @@ def upgrade() -> None:
         ),
     )
 
-    # 2. 既存 status を日本語から TRIAL に統一
-    # （テスト環境では既存データは 'TRIAL' に統一される）
-    op.execute(
-        "UPDATE animals SET status = 'TRIAL' WHERE status IN ('保護中', '治療中', '譲渡可能', 'IN_CARE', 'QUARANTINE')"
-    )
-
-    # 3. status_history テーブルを汎用化
+    # 2. status_history テーブルを汎用化
     # 新列追加（既存列は互換性保持のため保留）
     op.add_column("status_history", sa.Column("field", sa.String(50), nullable=True))
     op.add_column(
@@ -59,7 +52,7 @@ def upgrade() -> None:
         WHERE field IS NULL AND new_status IS NOT NULL
     """)
 
-    # インデックス追加
+    # 3. インデックス追加
     op.create_index("ix_animals_location_type", "animals", ["location_type"])
     op.create_index("ix_status_history_field", "status_history", ["field"])
 

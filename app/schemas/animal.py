@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from datetime import date as date_type
 from datetime import datetime
+from typing import TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -222,6 +223,69 @@ class AnimalUpdate(BaseModel):
                     f"性別は {', '.join(allowed)} のいずれかである必要があります"
                 )
         return v
+
+
+class AnimalStatusUpdate(BaseModel):
+    """猫のステータス・ロケーション更新スキーマ（限定更新）"""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str | None = Field(None, description="ステータス")
+    location_type: str | None = Field(None, description="ロケーションタイプ")
+    current_location_note: str | None = Field(None, description="所在地詳細")
+    confirm: bool = Field(
+        False,
+        description="終端ステータスからの復帰確認フラグ（409 → confirm=true で再送）",
+    )
+    reason: str | None = Field(
+        None, max_length=500, description="ステータス変更理由（任意）"
+    )
+
+    @field_validator("status", mode="before")
+    @classmethod
+    def validate_status(cls, v: str | None) -> str | None:
+        """ステータスの検証"""
+        if v is None:
+            return None
+        if v not in {s.value for s in AnimalStatus}:
+            allowed = [s.value for s in AnimalStatus]
+            raise ValueError(
+                f"ステータスは {', '.join(allowed)} のいずれかである必要があります"
+            )
+        return v
+
+    @field_validator("location_type", mode="before")
+    @classmethod
+    def validate_location_type(cls, v: str | None) -> str | None:
+        """ロケーションタイプの検証"""
+        if v is None:
+            return None
+        if v not in {lt.value for lt in LocationType}:
+            allowed = [lt.value for lt in LocationType]
+            raise ValueError(
+                f"ロケーションタイプは {', '.join(allowed)} のいずれかである必要があります"
+            )
+        return v
+
+
+class ConfirmationResponse(BaseModel):
+    """確認フローのレスポンス"""
+
+    requires_confirmation: bool
+    warning_code: str
+    message: str
+
+
+class ConfirmationResponseData(TypedDict):
+    requires_confirmation: bool
+    warning_code: str
+    message: str
+
+
+class ConfirmationErrorResponse(BaseModel):
+    """確認フローのエラーレスポンス（HTTPException.detail）"""
+
+    detail: ConfirmationResponse
 
 
 class AnimalResponse(AnimalBase):

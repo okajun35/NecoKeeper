@@ -23,8 +23,8 @@ class AnimalStatus(str, Enum):
     def display_name_ja(self) -> str:
         """日本語表示名"""
         names = {
-            AnimalStatus.QUARANTINE: "隔離中",
-            AnimalStatus.IN_CARE: "在籍中",
+            AnimalStatus.QUARANTINE: "保護中",
+            AnimalStatus.IN_CARE: "在籍中（施設/カフェ/預かり含む）",
             AnimalStatus.TRIAL: "トライアル中",
             AnimalStatus.ADOPTED: "譲渡済み",
             AnimalStatus.DECEASED: "死亡",
