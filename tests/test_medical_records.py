@@ -341,7 +341,7 @@ class TestWeightTrendAnalysis:
             tail_length="長い",
             age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -453,7 +453,7 @@ class TestWeightTrendAnalysis:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -503,7 +503,7 @@ class TestWeightTrendAnalysis:
             tail_length="短い",
             age_months=6,
             gender="unknown",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()

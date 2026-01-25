@@ -7,6 +7,11 @@
     "kiroAgent.configureMCP": "Enabled",
     "chat.tools.terminal.autoApprove": {
         "make": true,
-        "agent-browser": true
+        "agent-browser": true,
+        "gh": true,
+        "alembic": true,
+        ".venv/bin/alembic": true,
+        ".venv/bin/python": true,
+        "pytest": true
     }
 }

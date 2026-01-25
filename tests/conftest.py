@@ -122,7 +122,7 @@ def test_db() -> Generator[Session, None, None]:
         tail_length="長い",
         age_months=12,
         gender="female",
-        status="保護中",
+        status="QUARANTINE",
     )
     db.add(test_animal)
 
@@ -250,7 +250,7 @@ def test_animals_bulk(test_db: Session) -> list[Animal]:
             tail_length="長い" if i % 2 == 0 else "短い",
             age_months=12,
             gender="female" if i % 2 == 0 else "male",
-            status="保護中" if i % 3 == 0 else "譲渡可能",
+            status="QUARANTINE" if i % 3 == 0 else "TRIAL",
         )
         test_db.add(animal)
         animals.append(animal)

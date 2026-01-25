@@ -56,7 +56,7 @@ class TestNecoKeeperAPIClient:
             "name": "Tama",
             "sex": "メス",
             "age_months": 24,
-            "status": "保護中",
+            "status": "QUARANTINE",
         }
         expected_response = {
             "animal_id": 42,

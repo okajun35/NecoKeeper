@@ -34,7 +34,7 @@ class TestCreateAnimal:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         # When
@@ -44,7 +44,7 @@ class TestCreateAnimal:
         assert result.id is not None
         assert result.name == "たま"
         assert result.pattern == "三毛"
-        assert result.status == "保護中"
+        assert result.status == "QUARANTINE"
 
         # ステータス履歴が記録されていることを確認
         history = (
@@ -54,7 +54,7 @@ class TestCreateAnimal:
         )
         assert history is not None
         assert history.old_status is None
-        assert history.new_status == "保護中"
+        assert history.new_status == "QUARANTINE"
         assert history.changed_by == test_user.id
         assert history.reason == "初回登録"
 
@@ -73,7 +73,7 @@ class TestCreateAnimal:
             gender="female",
             ear_cut=True,
             features="人懐っこい",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         # When
@@ -142,7 +142,7 @@ class TestGetAnimal:
             gender="female",
             ear_cut=True,
             features="おとなしい",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -187,7 +187,7 @@ class TestUpdateAnimal:
         """正常系: ステータス更新時に履歴が記録される"""
         # Given
         old_status = test_animal.status
-        update_data = AnimalUpdate(status="譲渡可能")
+        update_data = AnimalUpdate(status="TRIAL")
 
         # When
         result = animal_service.update_animal(
@@ -195,20 +195,20 @@ class TestUpdateAnimal:
         )
 
         # Then
-        assert result.status == "譲渡可能"
+        assert result.status == "TRIAL"
 
         # ステータス履歴が記録されていることを確認
         history = (
             test_db.query(StatusHistory)
             .filter(
                 StatusHistory.animal_id == test_animal.id,
-                StatusHistory.new_status == "譲渡可能",
+                StatusHistory.new_status == "TRIAL",
             )
             .first()
         )
         assert history is not None
         assert history.old_status == old_status
-        assert history.new_status == "譲渡可能"
+        assert history.new_status == "TRIAL"
         assert history.changed_by == test_user.id
 
     def test_update_animal_status_no_change_no_history(
@@ -328,7 +328,7 @@ class TestListAnimals:
     ):
         """正常系: ステータスフィルターで絞り込める"""
         # Given
-        status_filter = "保護中"
+        status_filter = "QUARANTINE"
 
         # When
         result = animal_service.list_animals(test_db, status_filter=status_filter)

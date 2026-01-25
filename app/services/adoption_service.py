@@ -18,7 +18,6 @@ from sqlalchemy.orm import Session
 from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.applicant import Applicant, ApplicantHouseholdMember, ApplicantPet
-from app.models.status_history import StatusHistory
 from app.schemas.adoption import (
     AdoptionRecordCreate,
     AdoptionRecordUpdate,
@@ -27,6 +26,7 @@ from app.schemas.adoption import (
     ApplicantPetCreate,
     ApplicantUpdateExtended,
 )
+from app.services.status_history_helper import record_status_change
 
 logger = logging.getLogger(__name__)
 
@@ -213,16 +213,17 @@ def create_adoption_record(
 
         # 猫のステータスを「譲渡済み」に更新
         old_status = animal.status
-        animal.status = "譲渡済み"
+        animal.status = "ADOPTED"
 
-        # ステータス変更履歴を記録
-        status_history = StatusHistory(
+        # ステータス変更履歴を記録（新フォーマットで統一）
+        record_status_change(
+            db=db,
             animal_id=animal_id,
-            changed_by=user_id,
             old_status=old_status,
-            new_status="譲渡済み",
+            new_status="ADOPTED",
+            user_id=user_id,
+            reason="譲渡記録の作成",
         )
-        db.add(status_history)
 
         db.commit()
         db.refresh(record)
