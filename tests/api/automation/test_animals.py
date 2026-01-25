@@ -26,7 +26,7 @@ class TestCreateAnimalAutomation:
         # Given
         animal_data = {
             "name": "自動登録猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -44,7 +44,7 @@ class TestCreateAnimalAutomation:
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
         assert data["name"] == "自動登録猫"
-        assert data["pattern"] == "キジトラ"
+        assert data["coat_color"] == "キジトラ"
         assert data["tail_length"] == "長い"
         assert data["age_months"] == 12
         assert data["gender"] == "male"
@@ -67,7 +67,7 @@ class TestCreateAnimalAutomation:
         # Given
         animal_data = {
             "name": "テスト猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -92,7 +92,7 @@ class TestCreateAnimalAutomation:
         # Given
         animal_data = {
             "name": "テスト猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -120,7 +120,7 @@ class TestCreateAnimalAutomation:
         # Given
         animal_data = {
             "name": "テスト猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "invalid",  # 不正な性別
@@ -146,7 +146,7 @@ class TestCreateAnimalAutomation:
         """
         # Given
         animal_data = {
-            "pattern": "三毛",
+            "coat_color": "三毛",
             "tail_length": "短い",
             "age_months": 6,
             "gender": "female",
@@ -162,7 +162,7 @@ class TestCreateAnimalAutomation:
         # Then
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
-        assert data["pattern"] == "三毛"
+        assert data["coat_color"] == "三毛"
         assert data["name"] is None  # 名前は任意
         assert "id" in data
 
@@ -189,7 +189,7 @@ class TestGetAnimalAutomation:
         data = response.json()
         assert data["id"] == test_animal.id
         assert data["name"] == test_animal.name
-        assert data["pattern"] == test_animal.pattern
+        assert data["coat_color"] == test_animal.coat_color
         assert data["status"] == test_animal.status
 
     def test_get_animal_not_found(
@@ -261,7 +261,7 @@ class TestAnimalAutomationIntegration:
         # Given: 猫を登録
         animal_data = {
             "name": "統合テスト猫",
-            "pattern": "黒猫",
+            "coat_color": "黒猫",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "female",
@@ -288,6 +288,6 @@ class TestAnimalAutomationIntegration:
         retrieved_animal = get_response.json()
         assert retrieved_animal["id"] == created_animal["id"]
         assert retrieved_animal["name"] == "統合テスト猫"
-        assert retrieved_animal["pattern"] == "黒猫"
+        assert retrieved_animal["coat_color"] == "黒猫"
         assert retrieved_animal["ear_cut"] is True
         assert retrieved_animal["features"] == "人懐っこい"

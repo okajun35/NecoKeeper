@@ -10,7 +10,7 @@ from datetime import date as date_type
 from datetime import datetime
 from typing import TypedDict
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.utils.enums import AnimalStatus, LocationType
 
@@ -27,8 +27,11 @@ class AnimalBase(BaseModel):
         max_length=20,
         description="マイクロチップ番号（15桁の半角数字、または10桁の英数字）",
     )
-    pattern: str = Field(
-        ..., max_length=100, description="柄・色（例: キジトラ、三毛、黒猫）"
+    coat_color: str = Field(
+        ..., min_length=1, max_length=100, description="毛色（選択肢から選択）"
+    )
+    coat_color_note: str | None = Field(
+        None, description="毛色の補足情報（例: 淡い、パステル、黒少なめ）"
     )
     tail_length: str = Field(
         ..., max_length=50, description="尻尾の長さ（例: 長い、短い、なし）"
@@ -135,7 +138,8 @@ class AnimalUpdate(BaseModel):
     name: str | None = Field(None, max_length=100)
     photo: str | None = Field(None, max_length=255)
     microchip_number: str | None = Field(None, max_length=20)
-    pattern: str | None = Field(None, max_length=100)
+    coat_color: str | None = Field(None, min_length=1, max_length=100)
+    coat_color_note: str | None = Field(None)
     tail_length: str | None = Field(None, max_length=50)
     collar: str | None = Field(None, max_length=100)
     age_months: int | None = Field(None, ge=0)
@@ -158,6 +162,19 @@ class AnimalUpdate(BaseModel):
     reason: str | None = Field(
         None, max_length=500, description="ステータス変更理由（任意）"
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_null_coat_color(
+        cls, values: dict[str, object] | None
+    ) -> dict[str, object] | None:
+        if (
+            isinstance(values, dict)
+            and "coat_color" in values
+            and values["coat_color"] is None
+        ):
+            raise ValueError("coat_color は必須です")
+        return values
 
     @field_validator("status", mode="before")
     @classmethod

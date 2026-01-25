@@ -11,7 +11,7 @@ class TestAnimalCRUD:
         given_payload = {
             "name": "新しい猫",
             "photo": "new.jpg",
-            "pattern": "三毛",
+            "coat_color": "三毛",
             "tail_length": "短い",
             "age_months": 6,
             "gender": "male",
@@ -44,7 +44,7 @@ class TestAnimalCRUD:
         """月齢を省略した場合は不明として扱われる"""
         given_payload = {
             "name": "月齢なしの猫",
-            "pattern": "白黒",
+            "coat_color": "白黒",
             "tail_length": "短い",
             "gender": "female",
             "status": "QUARANTINE",
@@ -65,7 +65,7 @@ class TestAnimalCRUD:
         """推定月齢を登録できる"""
         given_payload = {
             "name": "推定月齢の猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 10,
             "age_is_estimated": True,
@@ -84,6 +84,26 @@ class TestAnimalCRUD:
         assert response_body["age_months"] == given_payload["age_months"]
         assert response_body["age_is_estimated"] is True
 
+    def test_create_animal_without_coat_color_returns_422(
+        self, test_client, test_db, auth_token
+    ):
+        """毛色が未指定の場合は422"""
+        given_payload = {
+            "name": "毛色なしの猫",
+            "tail_length": "短い",
+            "age_months": 6,
+            "gender": "male",
+            "status": "QUARANTINE",
+        }
+
+        response = test_client.post(
+            "/api/v1/animals",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            json=given_payload,
+        )
+
+        assert response.status_code == 422
+
 
 class TestAnimalMicrochipNumber:
     """マイクロチップ番号のテストクラス"""
@@ -97,7 +117,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "チップ登録猫",
-                "pattern": "キジトラ",
+                "coat_color": "キジトラ",
                 "tail_length": "長い",
                 "age_months": 12,
                 "gender": "male",
@@ -117,7 +137,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "チップなし猫",
-                "pattern": "三毛",
+                "coat_color": "三毛",
                 "tail_length": "長い",
                 "age_months": 6,
                 "gender": "female",
@@ -137,7 +157,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "既存猫",
-                "pattern": "三毛",
+                "coat_color": "三毛",
                 "tail_length": "長い",
                 "age_months": 12,
                 "gender": "female",
@@ -151,7 +171,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "新規猫",
-                "pattern": "黒猫",
+                "coat_color": "黒猫",
                 "tail_length": "長い",
                 "age_months": 6,
                 "gender": "male",
@@ -169,7 +189,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "更新テスト猫",
-                "pattern": "サバトラ",
+                "coat_color": "サバトラ",
                 "tail_length": "長い",
                 "age_months": 12,
                 "gender": "male",
@@ -196,7 +216,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "猫1",
-                "pattern": "キジトラ",
+                "coat_color": "キジトラ",
                 "tail_length": "長い",
                 "age_months": 12,
                 "gender": "male",
@@ -209,7 +229,7 @@ class TestAnimalMicrochipNumber:
             headers={"Authorization": f"Bearer {auth_token}"},
             json={
                 "name": "猫2",
-                "pattern": "三毛",
+                "coat_color": "三毛",
                 "tail_length": "長い",
                 "age_months": 6,
                 "gender": "female",

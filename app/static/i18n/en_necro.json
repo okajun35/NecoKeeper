@@ -125,7 +125,7 @@
     "add_new": "Initialize New Entity",
     "edit": "Modify Entity Data",
     "delete_confirm": "Execute purge protocol for this entity?",
-    "search_placeholder": "Scan by designation, pattern, features...",
+    "search_placeholder": "Scan by designation, coat color, features...",
     "filter_by_status": "Filter by state",
     "description": "Manage rescued entity information",
     "back_to_list": "Return to Index",
@@ -133,7 +133,7 @@
     "no_data": "VOID_DETECTED",
     "search": {
       "label": "SCAN",
-      "placeholder": "Scan by designation, pattern, features...",
+      "placeholder": "Scan by designation, coat color, features...",
       "advanced": "Deep Scan",
       "clear": "WIPE"
     },
@@ -155,7 +155,7 @@
       "id": "ENTITY_ID",
       "name": "DESIGNATION",
       "photo": "Visual_Data",
-      "pattern": "Pattern",
+      "coat_color": "Coat Color",
       "tail_length": "Tail Configuration",
       "collar": "Collar Status",
       "age": "Age (Months)",

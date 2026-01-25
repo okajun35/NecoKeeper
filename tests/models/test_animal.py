@@ -20,7 +20,7 @@ class TestAnimalModel:
         """必須フィールドのみで猫を作成できることを確認"""
         animal = Animal(
             photo="/media/cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -32,7 +32,7 @@ class TestAnimalModel:
 
         assert animal.id is not None
         assert animal.photo == "/media/cat1.jpg"
-        assert animal.pattern == "キジトラ"
+        assert animal.coat_color == "キジトラ"
         assert animal.tail_length == "長い"
         assert animal.age_months == 12
         assert animal.gender == "female"
@@ -41,7 +41,7 @@ class TestAnimalModel:
         """デフォルト値が正しく設定されることを確認"""
         animal = Animal(
             photo="/media/cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=6,
             gender="male",
@@ -64,7 +64,8 @@ class TestAnimalModel:
         animal = Animal(
             name="たま",
             photo="/media/cat3.jpg",
-            pattern="黒猫",
+            coat_color="黒",
+            coat_color_note="淡い、パステル調",
             tail_length="長い",
             collar="赤い首輪",
             age_months=120,
@@ -81,6 +82,8 @@ class TestAnimalModel:
         test_db.refresh(animal)
 
         assert animal.name == "たま"
+        assert animal.coat_color == "黒"
+        assert animal.coat_color_note == "淡い、パステル調"
         assert animal.collar == "赤い首輪"
         assert animal.ear_cut is True
         assert animal.features == "左耳に傷あり、人懐っこい性格"
@@ -92,7 +95,7 @@ class TestAnimalModel:
         """ステータスを変更できることを確認"""
         animal = Animal(
             photo="/media/cat4.jpg",
-            pattern="サバトラ",
+            coat_color="サバトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -114,7 +117,7 @@ class TestAnimalModel:
         animal = Animal(
             name="ミケ",
             photo="/media/cat5.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -130,7 +133,7 @@ class TestAnimalModel:
         """名前なしの猫の文字列表現が正しいことを確認"""
         animal = Animal(
             photo="/media/cat6.jpg",
-            pattern="白猫",
+            coat_color="白猫",
             tail_length="短い",
             age_months=6,
             gender="unknown",
@@ -146,7 +149,7 @@ class TestAnimalModel:
         animal = Animal(
             name="クロ",
             photo="/media/cat7.jpg",
-            pattern="黒猫",
+            coat_color="黒猫",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -159,7 +162,7 @@ class TestAnimalModel:
         assert "Animal" in repr_str
         assert "id=" in repr_str
         assert "name='クロ'" in repr_str
-        assert "pattern='黒猫'" in repr_str
+        assert "coat_color='黒猫'" in repr_str
         assert "status='QUARANTINE'" in repr_str
 
     def test_animal_gender_values(self, test_db: Session):
@@ -169,7 +172,7 @@ class TestAnimalModel:
         for gender in genders:
             animal = Animal(
                 photo=f"/media/cat_{gender}.jpg",
-                pattern="キジトラ",
+                coat_color="キジトラ",
                 tail_length="長い",
                 age_months=12,
                 gender=gender,
@@ -185,7 +188,7 @@ class TestAnimalModel:
         """更新時にupdated_atが変更されることを確認"""
         animal = Animal(
             photo="/media/cat8.jpg",
-            pattern="茶トラ",
+            coat_color="茶トラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -212,7 +215,7 @@ class TestAnimalModel:
         """マイクロチップ番号が任意項目であることを確認"""
         animal = Animal(
             name="テスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -227,7 +230,7 @@ class TestAnimalModel:
         """マイクロチップ番号の一意制約をテスト"""
         animal1 = Animal(
             name="テスト猫1",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -239,7 +242,7 @@ class TestAnimalModel:
         # 同じマイクロチップ番号で登録を試みる
         animal2 = Animal(
             name="テスト猫2",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=24,
             gender="female",
@@ -254,7 +257,7 @@ class TestAnimalModel:
         """NULL値は重複しても問題ないことを確認"""
         animal1 = Animal(
             name="テスト猫1",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -262,7 +265,7 @@ class TestAnimalModel:
         )
         animal2 = Animal(
             name="テスト猫2",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=24,
             gender="female",
@@ -281,7 +284,7 @@ class TestAnimalModel:
         animal = Animal(
             name="ミケ",
             photo="/media/cat9.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
             age_months=6,
             gender="female",
@@ -300,7 +303,7 @@ class TestAnimalModel:
         """レスキュー元と品種がnullでも猫を作成できることを確認"""
         animal = Animal(
             photo="/media/cat10.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -312,3 +315,37 @@ class TestAnimalModel:
 
         assert animal.rescue_source is None
         assert animal.breed is None
+
+    def test_animal_with_coat_color(self, test_db: Session):
+        """毛色フィールドを含む猫を作成できることを確認"""
+        animal = Animal(
+            name="みけ",
+            photo="/media/cat11.jpg",
+            coat_color="三毛",
+            coat_color_note="淡いパステル調、黒少なめ",
+            tail_length="長い",
+            age_months=24,
+            gender="female",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.coat_color == "三毛"
+        assert animal.coat_color_note == "淡いパステル調、黒少なめ"
+
+    def test_animal_without_coat_color(self, test_db: Session):
+        """毛色フィールドが必須であることを確認"""
+        animal = Animal(
+            name="くろ",
+            photo="/media/cat12.jpg",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        with pytest.raises(IntegrityError):
+            test_db.commit()
+        test_db.rollback()

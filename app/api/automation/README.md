@@ -54,7 +54,7 @@ ENABLE_AUTOMATION_API=true
 curl -X POST http://localhost:8000/api/automation/animals \
   -H "X-Automation-Key: xK9mP2nQ4rS6tU8vW0yZ1aB3cD5eF7gH9iJ" \
   -H "Content-Type: application/json" \
-  -d '{"name": "たま", "gender": "male", "pattern": "キジトラ", "tail_length": "長い", "age_months": 12, "age_is_estimated": false}'
+  -d '{"name": "たま", "gender": "male", "coat_color": "キジトラ", "tail_length": "長い", "age_months": 12, "age_is_estimated": false}'
 ```
 
 ## 利用可能なエンドポイント
@@ -70,7 +70,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
 {
   "name": "たま",
   "gender": "male",
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "tail_length": "長い",
   "age_months": 12,
   "age_is_estimated": false,
@@ -85,7 +85,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
 **必須フィールド**:
 - `name`: 猫の名前（1-100文字）
 - `gender`: 性別（`male`, `female`, `unknown`）
-- `pattern`: 柄・模様
+- `coat_color`: 毛色
 - `tail_length`: 尻尾の長さ
 
 **任意フィールド**:
@@ -98,7 +98,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
   "id": 42,
   "name": "たま",
   "photo": null,
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "tail_length": "長い",
   "collar": "赤い首輪",
   "age_months": 12,
@@ -127,7 +127,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
 {
   "id": 42,
   "name": "たま",
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "status": "保護中",
   ...
 }
@@ -237,7 +237,7 @@ client = httpx.Client(
 response = client.post("/api/automation/animals", json={
     "name": "たま",
     "gender": "male",
-    "pattern": "キジトラ",
+    "coat_color": "キジトラ",
     "tail_length": "長い",
     "age_months": 12,
     "age_is_estimated": False,
@@ -275,7 +275,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
   -d '{
     "name": "たま",
     "gender": "male",
-    "pattern": "キジトラ",
+    "coat_color": "キジトラ",
     "tail_length": "長い",
     "age_months": 12,
     "age_is_estimated": false
@@ -314,7 +314,7 @@ const response = await fetch(`${API_URL}/api/automation/animals`, {
   body: JSON.stringify({
     name: 'たま',
     gender: 'male',
-    pattern: 'キジトラ',
+    coat_color: 'キジトラ',
     tail_length: '長い',
     age_months: 12,
     age_is_estimated: false

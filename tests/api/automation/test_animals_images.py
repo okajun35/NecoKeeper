@@ -277,7 +277,7 @@ class TestUploadAnimalImageAutomation:
         # Given: プロフィール画像なしの新しい猫を作成
         new_animal = Animal(
             name="プロフィール画像テスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -326,7 +326,7 @@ class TestUploadAnimalImageAutomation:
         # Given: プロフィール画像なしの新しい猫を作成
         new_animal = Animal(
             name="複数画像テスト猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=6,
             gender="female",
@@ -386,7 +386,7 @@ class TestUploadAnimalImageAutomation:
         existing_photo_path = "animals/existing/profile.jpg"
         new_animal = Animal(
             name="既存プロフィール画像テスト猫",
-            pattern="黒猫",
+            coat_color="黒猫",
             tail_length="長い",
             age_months=12,
             gender="male",

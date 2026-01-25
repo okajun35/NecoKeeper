@@ -22,7 +22,7 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -60,7 +60,7 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="世話記録なし猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=6,
             gender="female",
@@ -93,7 +93,7 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="診療記録なし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -126,7 +126,7 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="画像なし猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=6,
             gender="female",
@@ -158,7 +158,7 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="体重データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",

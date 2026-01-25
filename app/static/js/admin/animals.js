@@ -207,8 +207,8 @@ function renderAnimalsList(animals = []) {
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
                         <div>
-                            <span class="text-gray-500"><span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span>:</span>
-                            <span class="ml-1">${animal.pattern || '-'}</span>
+                            <span class="text-gray-500"><span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span>:</span>
+                            <span class="ml-1">${animal.coat_color || '-'}</span>
                         </div>
                         <div>
                             <span class="text-gray-500"><span data-i18n="fields.gender" data-i18n-ns="animals">性別</span>:</span>

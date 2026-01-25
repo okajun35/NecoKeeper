@@ -170,13 +170,18 @@ Register a new cat profile in NecoKeeper.
 
 **Parameters**:
 - `name` (required): Cat's name (1-100 characters)
-- `sex` (required): Sex - "オス" (male), "メス" (female), or "不明" (unknown)
-- `age` (optional): Age (estimated is fine)
-- `status` (optional): Status - "保護中" (protected), "譲渡可能" (adoptable), "譲渡済み" (adopted)
-- `color` (optional): Fur color
-- `pattern` (optional): Fur pattern
-- `intake_date` (optional): Intake date (YYYY-MM-DD)
-- `note` (optional): Additional notes
+- `coat_color` (required): Coat color (select from options)
+- `coat_color_note` (optional): Coat color note
+- `tail_length` (required): Tail length
+- `gender` (required): Sex - "male", "female", or "unknown"
+- `age_months` (optional): Age in months
+- `age_is_estimated` (optional): Estimated age flag
+- `status` (optional): Status - "QUARANTINE", "IN_CARE", "TRIAL", "ADOPTED", "DECEASED"
+- `photo` (optional): Profile photo path
+- `collar` (optional): Collar info
+- `ear_cut` (optional): Ear cut flag
+- `features` (optional): Features/notes
+- `protected_at` (optional): Intake date (YYYY-MM-DD)
 
 **Returns**:
 ```json
@@ -261,10 +266,10 @@ Claude will automatically call the `register_cat` tool with:
 ```json
 {
   "name": "たま",
-  "sex": "メス",
-  "age": "2歳",
-  "status": "保護中",
-  "pattern": "三毛"
+  "gender": "female",
+  "age_months": 24,
+  "status": "QUARANTINE",
+  "coat_color": "三毛"
 }
 ```
 

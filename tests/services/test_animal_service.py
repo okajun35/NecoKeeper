@@ -30,7 +30,7 @@ class TestCreateAnimal:
         animal_data = AnimalCreate(
             name="たま",
             photo="photo.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -43,7 +43,7 @@ class TestCreateAnimal:
         # Then
         assert result.id is not None
         assert result.name == "たま"
-        assert result.pattern == "三毛"
+        assert result.coat_color == "三毛"
         assert result.status == "QUARANTINE"
 
         # ステータス履歴が記録されていることを確認
@@ -66,7 +66,7 @@ class TestCreateAnimal:
         animal_data = AnimalCreate(
             name="みけ",
             photo="photo.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             collar="赤い首輪",
             age_months=6,
@@ -84,12 +84,30 @@ class TestCreateAnimal:
         assert result.ear_cut is True
         assert result.features == "人懐っこい"
 
+    def test_create_animal_with_coat_color(self, test_db: Session, test_user: User):
+        """正常系: 毛色フィールド付きで猫を登録できる"""
+        animal_data = AnimalCreate(
+            name="みけ",
+            photo="photo.jpg",
+            coat_color="三毛",
+            coat_color_note="淡いパステル調、黒少なめ",
+            tail_length="長い",
+            age_months=24,
+            gender="female",
+            status="QUARANTINE",
+        )
+
+        result = animal_service.create_animal(test_db, animal_data, test_user.id)
+
+        assert result.coat_color == "三毛"
+        assert result.coat_color_note == "淡いパステル調、黒少なめ"
+
     def test_create_animal_with_minimal_fields(self, test_db: Session, test_user: User):
         """正常系: 最小限のフィールドで猫を登録できる"""
         # Given
         animal_data = AnimalCreate(
             photo="photo.jpg",
-            pattern="黒",
+            coat_color="黒",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -101,7 +119,7 @@ class TestCreateAnimal:
         # Then
         assert result.id is not None
         assert result.name is None  # オプションフィールド
-        assert result.pattern == "黒"
+        assert result.coat_color == "黒"
 
 
 class TestGetAnimal:
@@ -115,7 +133,7 @@ class TestGetAnimal:
         # Then
         assert result.id == test_animal.id
         assert result.name == test_animal.name
-        assert result.pattern == test_animal.pattern
+        assert result.coat_color == test_animal.coat_color
 
     def test_get_animal_not_found(self, test_db: Session):
         """異常系: 存在しない猫IDを指定した場合"""
@@ -135,7 +153,7 @@ class TestGetAnimal:
         animal = Animal(
             name="フルデータ猫",
             photo="full.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
             collar="青い首輪",
             age_months=12,
@@ -167,7 +185,7 @@ class TestUpdateAnimal:
         # Given
         update_data = AnimalUpdate(
             name="新しい名前",
-            pattern="新しい柄",
+            coat_color="新しい柄",
         )
 
         # When
@@ -177,7 +195,7 @@ class TestUpdateAnimal:
 
         # Then
         assert result.name == "新しい名前"
-        assert result.pattern == "新しい柄"
+        assert result.coat_color == "新しい柄"
         # 更新していないフィールドは変更されない
         assert result.gender == test_animal.gender
 
@@ -254,7 +272,7 @@ class TestUpdateAnimal:
     ):
         """正常系: 一部のフィールドのみ更新できる"""
         # Given
-        original_pattern = test_animal.pattern
+        original_coat_color = test_animal.coat_color
         update_data = AnimalUpdate(name="部分更新")
 
         # When
@@ -264,7 +282,23 @@ class TestUpdateAnimal:
 
         # Then
         assert result.name == "部分更新"
-        assert result.pattern == original_pattern  # 変更されていない
+        assert result.coat_color == original_coat_color  # 変更されていない
+
+    def test_update_animal_coat_color(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """正常系: 毛色フィールドを更新できる"""
+        update_data = AnimalUpdate(
+            coat_color="キジ",
+            coat_color_note="濃いめの縞模様",
+        )
+
+        result = animal_service.update_animal(
+            test_db, test_animal.id, update_data, test_user.id
+        )
+
+        assert result.coat_color == "キジ"
+        assert result.coat_color_note == "濃いめの縞模様"
 
 
 class TestDeleteAnimal:
@@ -385,7 +419,7 @@ class TestSearchAnimals:
         assert len(result.items) > 0
         assert any(search_query in animal.name for animal in result.items)
 
-    def test_search_animals_by_pattern(
+    def test_search_animals_by_coat_color(
         self, test_db: Session, test_animals_bulk: list[Animal]
     ):
         """正常系: 柄で検索できる"""
@@ -396,7 +430,7 @@ class TestSearchAnimals:
         result = animal_service.search_animals(test_db, search_query)
 
         # Then
-        assert all("三毛" in animal.pattern for animal in result.items)
+        assert all("三毛" in animal.coat_color for animal in result.items)
 
     def test_search_animals_by_features(self, test_db: Session, test_animal: Animal):
         """正常系: 特徴で検索できる"""

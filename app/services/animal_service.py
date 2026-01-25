@@ -317,7 +317,7 @@ def search_animals(
     """
     猫を検索
 
-    名前、柄、特徴で部分一致検索を行います。
+    名前、毛色、特徴で部分一致検索を行います。
 
     Args:
         db: データベースセッション
@@ -332,7 +332,8 @@ def search_animals(
     search_query = db.query(Animal).filter(
         or_(
             Animal.name.ilike(f"%{query}%"),
-            Animal.pattern.ilike(f"%{query}%"),
+            Animal.coat_color.ilike(f"%{query}%"),
+            Animal.coat_color_note.ilike(f"%{query}%"),
             Animal.features.ilike(f"%{query}%"),
         )
     )

@@ -126,7 +126,8 @@ async function updateBasicInfo() {
 
     const formData = {
       name: document.getElementById('name').value,
-      pattern: document.getElementById('pattern').value,
+      coat_color: document.getElementById('coat_color').value || null,
+      coat_color_note: document.getElementById('coat_color_note').value || null,
       tail_length: document.getElementById('tailLength').value,
       collar: document.getElementById('collar').value,
       age_months: parseOptionalInt(document.getElementById('age_months').value),

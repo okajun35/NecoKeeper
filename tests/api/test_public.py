@@ -486,10 +486,10 @@ class TestUpdateCareLogPublic:
         another_animal = Animal(
             name="別猫",
             photo="",
-            pattern="",
-            tail_length="",
+            coat_color="白",
+            tail_length="長い",
             age_months=None,
-            gender="",
+            gender="unknown",
         )
         test_db.add(another_animal)
         test_db.commit()
@@ -521,7 +521,7 @@ class TestUpdateCareLogPublic:
         animal1 = Animal(
             name="猫1",
             photo="cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -530,7 +530,7 @@ class TestUpdateCareLogPublic:
         animal2 = Animal(
             name="猫2",
             photo="cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=12,
             gender="male",
@@ -786,7 +786,7 @@ class TestGetAllAnimalsStatusToday:
         animal1 = Animal(
             name="猫1",
             photo="cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -795,7 +795,7 @@ class TestGetAllAnimalsStatusToday:
         animal2 = Animal(
             name="猫2",
             photo="cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=12,
             gender="male",
@@ -804,7 +804,7 @@ class TestGetAllAnimalsStatusToday:
         animal3 = Animal(
             name="猫3",
             photo="cat3.jpg",
-            pattern="白",
+            coat_color="白",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -911,7 +911,7 @@ class TestGetAllAnimalsStatusToday:
         animal = Animal(
             name="猫",
             photo="cat.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",

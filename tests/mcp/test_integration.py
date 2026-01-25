@@ -57,7 +57,7 @@ class TestCompleteWorkflow:
             register_result = await api_client.create_animal(
                 {
                     "name": "Tama",
-                    "pattern": "三毛",
+                    "coat_color": "三毛",
                     "tail_length": "長い",
                     "age_months": 12,
                     "gender": "female",
@@ -132,7 +132,7 @@ class TestCompleteWorkflow:
             register_result = await api_client.create_animal(
                 {
                     "name": "TestCat",
-                    "pattern": "キジトラ",
+                    "coat_color": "キジトラ",
                     "tail_length": "長い",
                     "age_months": 12,
                     "gender": "male",
@@ -184,7 +184,7 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "age_months": 12,
                         "gender": "male",
@@ -229,7 +229,7 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "age_months": 12,
                         "gender": "male",
@@ -275,7 +275,7 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "age_months": 12,
                         "gender": "male",
@@ -438,7 +438,7 @@ class TestWorkflowErrorClarity:
                 await api_client.create_animal(
                     {
                         "name": "",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "age_months": 12,
                         "gender": "male",

@@ -33,7 +33,7 @@ class TestWeightChartAPI:
 
         animal = Animal(
             name="グラフテスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -93,7 +93,7 @@ class TestWeightChartAPI:
 
         animal = Animal(
             name="体重データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",

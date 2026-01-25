@@ -353,7 +353,7 @@ class TestProfileImage:
         # Given: 別の猫の画像
         other_animal = Animal(
             name="別の猫",
-            pattern="三毛",
+            coat_color="三毛",
             gender="メス",
             tail_length="長い",
             collar="なし",

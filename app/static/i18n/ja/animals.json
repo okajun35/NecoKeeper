@@ -8,12 +8,12 @@
   "edit": "猫情報を編集",
   "edit_description": "猫の情報を更新します",
   "delete_confirm": "この猫を削除してもよろしいですか？",
-  "search_placeholder": "猫の名前で検索...",
+  "search_placeholder": "名前、毛色、特徴で検索...",
   "filter_by_status": "ステータスで絞り込み",
   "description": "説明",
   "search": {
     "label": "検索",
-    "placeholder": "名前、柄、特徴で検索...",
+    "placeholder": "名前、毛色、特徴で検索...",
     "advanced": "詳細検索",
     "clear": "クリア"
   },
@@ -48,6 +48,7 @@
   "age_months_estimated": "推定{{value}}ヶ月",
   "age_unknown": "月齢不明",
   "collar_placeholder": "例: 赤い首輪",
+  "coat_color_note_placeholder": "例: 淡い、パステル、黒少なめ",
   "features_placeholder": "外傷、特徴、性格などを記入",
   "rescue_source_placeholder": "例: シェルターA",
   "breed_placeholder": "例: アメリカンショートヘア",
@@ -58,7 +59,8 @@
     "name": "名前",
     "photo": "写真",
     "microchip_number": "マイクロチップ番号",
-    "pattern": "柄",
+    "coat_color": "毛色",
+    "coat_color_note": "毛色の補足",
     "tail_length": "しっぽの長さ",
     "collar": "首輪",
     "age": "月齢",
@@ -91,6 +93,17 @@
     "male": "オス",
     "female": "メス",
     "unknown": "不明"
+  },
+  "coat_color": {
+    "calico": "三毛",
+    "black_white": "白黒",
+    "black": "黒",
+    "white": "白",
+    "brown_tabby": "茶トラ",
+    "mackerel": "キジ",
+    "tortoiseshell": "サビ",
+    "gray": "グレー",
+    "other": "その他"
   },
   "age": {
     "kitten": "子猫",
