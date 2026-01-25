@@ -7,7 +7,7 @@ Care Log data model requirements.
 
 Requirements:
 - 8.1: Validate all required fields are present
-- 8.2: Ensure appetite/energy values are within valid range (1-5)
+- 8.2: Ensure appetite/energy values are within valid range
 - 8.3: Ensure boolean fields are valid boolean values
 - 8.4: Ensure date fields are valid dates
 - 8.5: Return detailed validation errors
@@ -97,7 +97,7 @@ CARE_LOG_SCHEMA = {
                 "pattern": r"^\d{4}-\d{2}-\d{2}$",
             },
             "time_slot": {"type": "string", "enum": ["morning", "noon", "evening"]},
-            "appetite": {"type": "integer", "minimum": 1, "maximum": 5},
+            "appetite": {"type": "number", "enum": [1.0, 0.75, 0.5, 0.25, 0.0]},
             "energy": {"type": "integer", "minimum": 1, "maximum": 5},
             "urination": {"type": "boolean"},
             "cleaning": {"type": "boolean"},
@@ -359,28 +359,30 @@ def _validate_time_slot(
 def _validate_appetite(
     record: dict[str, Any], index: int, result: ValidationResult
 ) -> None:
-    """Validate appetite field (1-5 range)"""
+    """Validate appetite field (allowed fraction scale)"""
     if "appetite" not in record:
         return
 
     appetite = record["appetite"]
 
-    if not isinstance(appetite, int):
+    if not isinstance(appetite, (int, float)):
         result.add_error(
             ValidationError(
                 field="appetite",
-                message="appetite must be an integer",
+                message="appetite must be a number",
                 value=appetite,
                 record_index=index,
             )
         )
         return
 
-    if appetite < 1 or appetite > 5:
+    allowed_values = {1.0, 0.75, 0.5, 0.25, 0.0}
+    normalized = round(float(appetite), 2)
+    if normalized not in allowed_values:
         result.add_error(
             ValidationError(
                 field="appetite",
-                message="appetite must be between 1 and 5",
+                message="appetite must be one of 1.0, 0.75, 0.5, 0.25, 0.0",
                 value=appetite,
                 record_index=index,
             )

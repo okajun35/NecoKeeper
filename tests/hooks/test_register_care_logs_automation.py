@@ -115,7 +115,7 @@ class TestRegisterCareLog:
             "animal_id": 1,
             "log_date": "2025-11-24",
             "time_slot": "morning",
-            "appetite": 5,
+            "appetite": 1.0,
             "energy": 5,
         }
 

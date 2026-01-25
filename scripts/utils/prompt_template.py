@@ -66,7 +66,7 @@ def generate_ocr_prompt(
     "animal_id": {animal_id},
     "log_date": "YYYY-MM-DD",
     "time_slot": "morning" | "noon" | "evening",
-    "appetite": 1-5,
+    "appetite": 0.0-1.0,
     "energy": 1-5,
     "urination": true | false,
     "cleaning": false,
@@ -77,7 +77,7 @@ def generate_ocr_prompt(
 ]
 
 【マッピングルール】
-- ごはん: ○→5, △→3, ×→1
+- ごはん: ○→1.0, △→0.5, ×→0.0
 - 元気: ○→5, △→3, ×→1
 - 排尿: ○→true, ×→false, 数字→true（回数はmemoに記載）
 - 排便/嘔吐/投薬: ○→"あり", ×→"なし"（memoに追記）
@@ -105,10 +105,10 @@ def get_mapping_rules() -> dict[str, str]:
     Example:
         >>> rules = get_mapping_rules()
         >>> print(rules["appetite"])
-        '○→5, △→3, ×→1'
+        '○→1.0, △→0.5, ×→0.0'
     """
     return {
-        "appetite": "○→5, △→3, ×→1",
+        "appetite": "○→1.0, △→0.5, ×→0.0",
         "energy": "○→5, △→3, ×→1",
         "urination": "○→true, ×→false, 数字→true（回数はmemoに記載）",
         "defecation": "○→'排便あり', ×→'排便なし'（memoに追記）",
@@ -156,7 +156,7 @@ def get_output_format_spec() -> dict[str, str | list[str]]:
             "animal_id": "integer",
             "log_date": "string (YYYY-MM-DD)",
             "time_slot": "string (morning|noon|evening)",
-            "appetite": "integer (1-5)",
+            "appetite": "float (0.0-1.0)",
             "energy": "integer (1-5)",
             "urination": "boolean",
             "cleaning": "boolean (always false for OCR)",

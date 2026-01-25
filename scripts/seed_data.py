@@ -237,7 +237,7 @@ def create_care_logs(
                     recorder_name=volunteer.name,
                     log_date=log_date,
                     time_slot=time_slot,
-                    appetite=4 if days_ago < 3 else 5,
+                    appetite=0.75 if days_ago < 3 else 1.0,
                     energy=4 if days_ago < 3 else 5,
                     urination=True,
                     cleaning=True,

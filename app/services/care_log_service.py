@@ -21,6 +21,7 @@ from app.schemas.care_log import (
     CareLogResponse,
     CareLogUpdate,
 )
+from app.utils.appetite import appetite_label
 from app.utils.i18n import tj
 
 logger = logging.getLogger(__name__)
@@ -457,7 +458,7 @@ def export_care_logs_csv(
                 log.animal_id,
                 log.recorder_name,
                 tj(f"time_slots.{log.time_slot}"),
-                log.appetite,
+                appetite_label(log.appetite),
                 log.energy,
                 "有" if log.urination else "無",
                 "済" if log.cleaning else "未",

@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.appetite">${t('fields.appetite')}</label>
-                        <p class="mt-1 text-lg">${'★'.repeat(careLog.appetite)}${'☆'.repeat(5 - careLog.appetite)}</p>
+                        <p class="mt-1 text-lg">${formatAppetiteLabel(careLog.appetite)}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.energy">${t('fields.energy')}</label>

@@ -95,7 +95,9 @@ def get_translations(
         cached = _translations_cache[locale]
         return cached
 
-    translations = Translations.load(str(LOCALES_DIR), [locale])
+    translations: Translations | NullTranslations = Translations.load(
+        str(LOCALES_DIR), [locale]
+    )
     _translations_cache[locale] = translations
     return translations
 

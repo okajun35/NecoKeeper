@@ -400,7 +400,7 @@ async function loadCareLogForEdit() {
     }
 
     // 食欲/元気
-    if (log.appetite) {
+    if (log.appetite !== null && log.appetite !== undefined) {
       const btn = document.querySelector(`.appetite-btn[data-value="${log.appetite}"]`);
       if (btn) btn.click();
     }
@@ -563,7 +563,7 @@ async function copyLastValues() {
       if (timeSlotBtn) timeSlotBtn.click();
     }
 
-    if (lastLog.appetite) {
+    if (lastLog.appetite !== null && lastLog.appetite !== undefined) {
       const appetiteBtn = document.querySelector(`.appetite-btn[data-value="${lastLog.appetite}"]`);
       if (appetiteBtn) appetiteBtn.click();
     }
@@ -679,7 +679,7 @@ async function handleSubmit(e) {
       animal_id: parseInt(animalId),
       log_date: document.getElementById('logDate').value,
       time_slot: document.getElementById('timeSlot').value,
-      appetite: parseInt(document.getElementById('appetite').value),
+      appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
       urination:
         document.getElementById('urination').value === 'true'

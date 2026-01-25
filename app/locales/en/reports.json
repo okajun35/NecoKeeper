@@ -33,6 +33,13 @@
     "noon": "Noon",
     "evening": "Evening"
   },
+  "appetite_levels": {
+    "1": "Not eating",
+    "2": "Left 3/4",
+    "3": "Left half",
+    "4": "Left 1/4",
+    "5": "Finished"
+  },
   "boolean": {
     "yes": "✓",
     "no": "✗"

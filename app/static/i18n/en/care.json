@@ -9,9 +9,13 @@
   "time_slot_noon": "Noon",
   "time_slot_evening": "Evening",
   "appetite": "Appetite",
-  "appetite_low": "Low",
-  "appetite_normal": "Normal",
-  "appetite_high": "High",
+  "appetite_levels": {
+    "1": "Not eating",
+    "2": "Left 3/4",
+    "3": "Left half",
+    "4": "Left 1/4",
+    "5": "Finished"
+  },
   "energy": "Energy",
   "energy_low": "Low",
   "energy_normal": "Normal",

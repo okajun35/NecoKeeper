@@ -21,6 +21,7 @@ from weasyprint import HTML
 from app.config import get_settings
 from app.models.animal import Animal
 from app.services.medical_report_service import get_medical_summary_rows
+from app.utils.appetite import appetite_label
 from app.utils.i18n import tj
 from app.utils.qr_code import generate_animal_qr_code_bytes
 
@@ -358,6 +359,9 @@ def generate_report_pdf(
     for record in records:
         record.time_slot_display = tj(  # type: ignore[attr-defined]
             f"time_slots.{record.time_slot}", locale=locale
+        )
+        record.appetite_label = appetite_label(  # type: ignore[attr-defined]
+            record.appetite, locale=locale
         )
         # 猫名を取得
         if record.animal:

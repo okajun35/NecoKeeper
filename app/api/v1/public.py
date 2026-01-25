@@ -183,7 +183,7 @@ def create_care_log_public(
             "animal_id": 123,
             "recorder_id": 1,
             "time_slot": "朝",
-            "appetite": 5,
+            "appetite": 1.0,
             "energy": 5,
             "urination": true,
             "cleaning": true,
@@ -235,7 +235,7 @@ def get_latest_care_log(
             "id": 456,
             "animal_id": 123,
             "time_slot": "朝",
-            "appetite": 5,
+            "appetite": 1.0,
             ...
         }
     """
@@ -365,7 +365,7 @@ def get_care_log_detail(
             "recorder_name": "田中太郎",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
+            "appetite": 1.0,
             "energy": 5,
             "urination": true,
             "cleaning": true,

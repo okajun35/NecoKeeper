@@ -7,14 +7,14 @@ Data Mapping Utilities
 Usage:
     from scripts.utils.data_mapper import map_symbol_to_value, map_time_slot
 
-    appetite = map_symbol_to_value("○")  # 5
+    appetite = map_symbol_to_value("○")  # 1.0
     time_slot = map_time_slot("朝")  # "morning"
 """
 
 from __future__ import annotations
 
 
-def map_symbol_to_value(symbol: str) -> int:
+def map_symbol_to_value(symbol: str) -> float:
     """
     記号を数値にマッピング（食欲・元気用）
 
@@ -22,29 +22,29 @@ def map_symbol_to_value(symbol: str) -> int:
         symbol: 記号（○、△、×）
 
     Returns:
-        int: マッピングされた値（1-5）
+        float: マッピングされた値（1.0/0.75/0.5/0.25/0.0）
 
     Mapping:
-        ○ → 5
-        △ → 3
-        × → 1
+        ○ → 1.0
+        △ → 0.5
+        × → 0.0
 
     Example:
         >>> map_symbol_to_value("○")
-        5
+        1.0
         >>> map_symbol_to_value("△")
-        3
+        0.5
     """
     mapping = {
-        "○": 5,
-        "◯": 5,  # 全角丸の異体字
-        "o": 5,  # 小文字o
-        "O": 5,  # 大文字O
-        "△": 3,
-        "▽": 3,  # 逆三角
-        "×": 1,
-        "x": 1,  # 小文字x
-        "X": 1,  # 大文字X
+        "○": 1.0,
+        "◯": 1.0,  # 全角丸の異体字
+        "o": 1.0,  # 小文字o
+        "O": 1.0,  # 大文字O
+        "△": 0.5,
+        "▽": 0.5,  # 逆三角
+        "×": 0.0,
+        "x": 0.0,  # 小文字x
+        "X": 0.0,  # 大文字X
     }
 
     # 空白を削除して正規化
@@ -54,7 +54,7 @@ def map_symbol_to_value(symbol: str) -> int:
         return mapping[normalized]
 
     # デフォルト値（読み取れない場合は中間値）
-    return 3
+    return 0.5
 
 
 def map_time_slot(time_indicator: str) -> str:
