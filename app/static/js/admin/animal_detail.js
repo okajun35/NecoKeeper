@@ -20,7 +20,7 @@ function parseOptionalInt(value) {
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
   setupBasicInfoForm();
-  setupStatusUpdate();
+  setupStatusAndLocationUpdate();
   setupQRCardGeneration();
   setupPaperFormGeneration();
 });
@@ -177,12 +177,14 @@ async function updateBasicInfo() {
 }
 
 // ステータス更新のセットアップ
-function setupStatusUpdate() {
-  const updateBtn = document.getElementById('updateStatusBtn');
+function setupStatusAndLocationUpdate() {
+  const updateBtn = document.getElementById('updateStatusAndLocationBtn');
 
-  updateBtn.addEventListener('click', async () => {
-    await updateStatus();
-  });
+  if (updateBtn) {
+    updateBtn.addEventListener('click', async () => {
+      await updateStatusAndLocation();
+    });
+  }
 }
 
 // QRカード生成のセットアップ
@@ -407,9 +409,25 @@ async function generatePaperForm(year, month) {
 }
 
 // ステータスの更新
-async function updateStatus() {
+async function updateStatusAndLocation(confirm = false) {
   try {
     const newStatus = document.getElementById('statusSelect').value;
+    const newLocationType = document.getElementById('locationTypeSelect').value;
+    const currentLocationNote = document.getElementById('currentLocationNote').value.trim();
+
+    const requestBody = {
+      status: newStatus,
+      location_type: newLocationType,
+    };
+
+    // current_location_noteが空でなければ追加
+    if (currentLocationNote) {
+      requestBody.current_location_note = currentLocationNote;
+    }
+
+    if (confirm) {
+      requestBody.confirm = true;
+    }
 
     const response = await fetch(`/api/v1/animals/${animalId}`, {
       method: 'PUT',
@@ -417,25 +435,39 @@ async function updateStatus() {
         Authorization: `Bearer ${getToken()}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify(requestBody),
     });
+
+    // 409 Conflict: 確認が必要
+    if (response.status === 409) {
+      const data = await response.json();
+      // FastAPIはdetailオブジェクトをdetailフィールドにラップする
+      const confirmData = data.detail || data;
+      if (confirmData.requires_confirmation) {
+        const confirmMessage =
+          confirmData.message || '終端ステータスから変更しようとしています。本当に変更しますか？';
+        if (window.confirm(confirmMessage)) {
+          // 確認後、再度リクエスト
+          await updateStatusAndLocation(true);
+        }
+      }
+      return; // 409の場合はここで終了
+    }
 
     if (!response.ok) {
       const errorMessage = isKiroweenMode
-        ? 'FAILED TO UPDATE STATUS'
-        : translate('errors.status_update_failed', { ns: 'animals' });
+        ? 'FAILED TO UPDATE'
+        : 'ステータス・所在地の更新に失敗しました';
       throw new Error(errorMessage);
     }
 
-    const successMessage = isKiroweenMode
-      ? 'STATUS UPDATED'
-      : translate('messages.status_changed', { ns: 'animals' });
+    const successMessage = isKiroweenMode ? 'UPDATED' : 'ステータス・所在地を更新しました';
     showToast(successMessage, 'success');
   } catch (error) {
-    console.error('Error updating status:', error);
+    console.error('Error updating status and location:', error);
     const fallbackMessage = isKiroweenMode
-      ? 'FAILED TO UPDATE STATUS'
-      : translate('errors.status_update_failed', { ns: 'animals' });
+      ? 'FAILED TO UPDATE'
+      : 'ステータス・所在地の更新に失敗しました';
     showToast(error.message || fallbackMessage, 'error');
   }
 }

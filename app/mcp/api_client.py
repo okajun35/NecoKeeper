@@ -93,7 +93,7 @@ class NecoKeeperAPIClient:
             ...     "sex": "メス",
             ...     "age_months": 24,
             ...     "age_is_estimated": False,
-            ...     "status": "保護中",
+            ...     "status": "QUARANTINE",
             ... }
             >>> result = await client.create_animal(animal_data)
             >>> print(result["animal_id"])

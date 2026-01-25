@@ -6,12 +6,15 @@
 
 from __future__ import annotations
 
+import logging
+from datetime import datetime
 from io import BytesIO
 from typing import Annotated
 
 import qrcode  # type: ignore[import-untyped]
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, status
 from fastapi.responses import Response
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -25,9 +28,13 @@ from app.schemas.animal import (
     AnimalCreate,
     AnimalListResponse,
     AnimalResponse,
+    AnimalStatusUpdate,
     AnimalUpdate,
+    ConfirmationErrorResponse,
 )
 from app.services import animal_service
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/animals", tags=["猫管理"])
 
@@ -148,7 +155,11 @@ def get_animal(
     return animal_service.get_animal(db=db, animal_id=animal_id)
 
 
-@router.put("/{animal_id}", response_model=AnimalResponse)
+@router.put(
+    "/{animal_id}",
+    response_model=AnimalResponse,
+    responses={409: {"model": ConfirmationErrorResponse}},
+)
 def update_animal(
     animal_id: int,
     animal_data: AnimalUpdate,
@@ -175,10 +186,86 @@ def update_animal(
         HTTPException: マイクロチップ番号が重複している場合（409）
     """
     try:
-        animal = animal_service.update_animal(
+        result = animal_service.update_animal(
             db=db, animal_id=animal_id, animal_data=animal_data, user_id=current_user.id
         )
-        return animal
+
+        # 確認フロー発動時は409を返す
+        if isinstance(result, dict) and result.get("requires_confirmation"):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=result,
+            )
+
+        if isinstance(result, dict):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="不正な確認レスポンスを検出しました",
+            )
+
+        return result
+    except IntegrityError as e:
+        if "microchip_number" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="このマイクロチップ番号は既に登録されています",
+            ) from e
+        raise
+
+
+@router.patch(
+    "/{animal_id}",
+    response_model=AnimalResponse,
+    responses={409: {"model": ConfirmationErrorResponse}},
+)
+def patch_animal(
+    animal_id: int,
+    animal_data: AnimalStatusUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_permission("animal:write"))],
+) -> Animal:
+    """
+    猫情報を部分更新（ステータス・ロケーション専用）
+    指定されたIDの猫のステータス・ロケーション情報を更新します。
+    変更時に履歴を自動記録。
+
+    **終端ステータス（ADOPTED/DECEASED）からの復帰時は確認フローを実行**
+    - 初回: confirm なし → 409 Conflict（requires_confirmation=true を返す）
+    - 確認後: confirm=true で再送 → 200 OK で更新実行
+
+    Args:
+        animal_id: 猫ID
+        animal_data: 更新データ（status, location_type, current_location_note, confirm, reason）
+        db: データベースセッション
+        current_user: 現在のユーザー（animal:write権限が必要）
+
+    Returns:
+        - AnimalResponse: 更新された猫の情報
+        - HTTP 409: 確認が必要な場合（requires_confirmation=true, warning_code, message）
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+        HTTPException: バリデーションエラー（400）
+    """
+    try:
+        result = animal_service.update_animal(
+            db=db, animal_id=animal_id, animal_data=animal_data, user_id=current_user.id
+        )
+
+        # 確認フロー発動時は409を返す
+        if isinstance(result, dict) and result.get("requires_confirmation"):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=result,
+            )
+
+        if isinstance(result, dict):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="不正な確認レスポンスを検出しました",
+            )
+
+        return result
     except IntegrityError as e:
         if "microchip_number" in str(e):
             raise HTTPException(
@@ -422,3 +509,103 @@ def set_profile_image_from_gallery(
     db.refresh(animal)
 
     return {"image_path": animal.photo}
+
+
+# === ステータス・ロケーション履歴 API（Issue #85） ===
+
+
+class StatusHistoryItem(BaseModel):
+    """ステータス履歴アイテム"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    animal_id: int
+    field: str | None
+    old_value: str | None
+    new_value: str | None
+    reason: str | None
+    changed_by: int | None
+    changed_at: datetime
+
+
+class StatusHistoryResponse(BaseModel):
+    """ステータス履歴レスポンス（ページネーション）"""
+
+    items: list[StatusHistoryItem]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+@router.get(
+    "/{animal_id}/status-history",
+    response_model=StatusHistoryResponse,
+    summary="ステータス・ロケーション変更履歴を取得",
+)
+def get_animal_status_history(
+    animal_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_permission("animal:read"))],
+    page: int = Query(1, ge=1, description="ページ番号"),
+    page_size: int = Query(20, ge=1, le=100, description="1ページあたりの件数"),
+) -> StatusHistoryResponse:
+    """
+    動物のステータス・ロケーション変更履歴を取得
+
+    指定されたIDの猫のステータス・ロケーション変更履歴を時系列で取得します。
+
+    Args:
+        animal_id: 猫ID
+        page: ページ番号（デフォルト: 1）
+        page_size: 1ページあたりの件数（デフォルト: 20、最大: 100）
+        db: データベースセッション
+        current_user: 現在のユーザー（animal:read権限が必要）
+
+    Returns:
+        StatusHistoryResponse: 履歴リストとページネーション情報
+
+    Raises:
+        HTTPException: 猫が見つからない場合（404）
+    """
+    from app.models.status_history import StatusHistory
+
+    try:
+        # 猫が存在するか確認
+        animal_service.get_animal(db, animal_id)
+
+        # 履歴を取得
+        query = db.query(StatusHistory).filter(StatusHistory.animal_id == animal_id)
+        total = query.count()
+
+        # ページネーション
+        offset = (page - 1) * page_size
+        items = (
+            query.order_by(StatusHistory.changed_at.desc())
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+        # 総ページ数を計算
+        total_pages = (total + page_size - 1) // page_size
+
+        return StatusHistoryResponse(
+            items=items,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"ステータス履歴の取得に失敗しました: animal_id={animal_id}, エラー={e}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="ステータス履歴の取得に失敗しました",
+        ) from e

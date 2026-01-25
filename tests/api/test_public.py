@@ -525,7 +525,7 @@ class TestUpdateCareLogPublic:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         animal2 = Animal(
             name="猫2",
@@ -534,7 +534,7 @@ class TestUpdateCareLogPublic:
             tail_length="短い",
             age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal1)
         test_db.add(animal2)
@@ -780,7 +780,7 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         animal1 = Animal(
@@ -790,7 +790,7 @@ class TestGetAllAnimalsStatusToday:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         animal2 = Animal(
             name="猫2",
@@ -799,7 +799,7 @@ class TestGetAllAnimalsStatusToday:
             tail_length="短い",
             age_months=12,
             gender="male",
-            status="治療中",
+            status="IN_CARE",
         )
         animal3 = Animal(
             name="猫3",
@@ -808,7 +808,7 @@ class TestGetAllAnimalsStatusToday:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="譲渡済み",  # 譲渡済みは表示されない
+            status="ADOPTED",  # 譲渡済みは表示されない
         )
         test_db.add(animal1)
         test_db.add(animal2)
@@ -905,7 +905,7 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         animal = Animal(
@@ -915,7 +915,7 @@ class TestGetAllAnimalsStatusToday:
             tail_length="長い",
             age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -944,7 +944,7 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         # When

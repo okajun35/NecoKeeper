@@ -34,6 +34,7 @@ from app.api.v1 import (
     language,
     medical_actions,
     medical_records,
+    meta,
     pdf,
     public,
     public_pages,
@@ -386,6 +387,9 @@ def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: 
 # APIルーターの登録
 # Automation API（API Key認証）
 app.include_router(automation.router, prefix="/api")
+
+# メタエンドポイント（認証不要、i18n対応）
+app.include_router(meta.router)
 
 # User-Facing API（OAuth2認証）
 app.include_router(auth.router, prefix="/api/v1")

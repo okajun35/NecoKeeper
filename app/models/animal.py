@@ -40,7 +40,7 @@ class Animal(Base):
         gender: 性別（必須、male/female/unknown）
         ear_cut: 耳カットの有無（デフォルト: False）
         features: 外傷・特徴・性格（任意、自由記述）
-        status: ステータス（デフォルト: '保護中'）
+        status: ステータス（デフォルト: QUARANTINE）
         protected_at: 保護日（デフォルト: 本日）
         created_at: 作成日時（自動設定）
         updated_at: 更新日時（自動更新）
@@ -122,9 +122,23 @@ class Animal(Base):
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="保護中",
-        server_default="保護中",
-        comment="ステータス（保護中、譲渡可能、譲渡済み、治療中など）",
+        default="QUARANTINE",
+        server_default="QUARANTINE",
+        comment="ステータス（QUARANTINE, IN_CARE, TRIAL, ADOPTED, DECEASED）",
+    )
+
+    location_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="FACILITY",
+        server_default="FACILITY",
+        comment="ロケーションタイプ（FACILITY, FOSTER_HOME, ADOPTER_HOME）",
+    )
+
+    current_location_note: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="所在地詳細（「◯◯さん宅」「カフェ2F」「隔離室A」など）",
     )
 
     protected_at: Mapped[date] = mapped_column(
@@ -158,6 +172,7 @@ class Animal(Base):
     # インデックス定義
     __table_args__ = (
         Index("ix_animals_status", "status"),
+        Index("ix_animals_location_type", "location_type"),
         Index("ix_animals_protected_at", "protected_at"),
         Index("ix_animals_name", "name"),
         Index("ix_animals_microchip_number", "microchip_number"),

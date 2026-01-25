@@ -39,10 +39,10 @@
                 <select id="status-filter"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                     <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
-                    <option value="保護中" data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
-                    <option value="治療中" data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
-                    <option value="譲渡可能" data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
-                    <option value="譲渡済み" data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
+                    <option value="QUARANTINE" data-i18n="status.QUARANTINE" data-i18n-ns="animals">保護中</option>
+                    <option value="IN_CARE" data-i18n="status.IN_CARE" data-i18n-ns="animals">治療中</option>
+                    <option value="TRIAL" data-i18n="status.TRIAL" data-i18n-ns="animals">譲渡可能</option>
+                    <option value="ADOPTED" data-i18n="status.ADOPTED" data-i18n-ns="animals">譲渡済み</option>
                 </select>
             </div>
 
@@ -173,5 +173,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="/static/js/admin/animals.js?v=20241126v3"></script>
+<script src="/static/js/admin/animals.js?v=202601210230"></script>
 {% endblock %}
