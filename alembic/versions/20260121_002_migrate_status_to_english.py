@@ -12,7 +12,6 @@ This migration converts existing status values from Japanese to English:
 - 死亡 → DECEASED
 """
 
-import logging
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -24,8 +23,6 @@ revision: str = "20260121_002"
 down_revision: str | None = "8cd9c91fa71c"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
-
-logger = logging.getLogger(__name__)
 
 # Status value mappings
 STATUS_MAPPINGS = {
@@ -68,12 +65,9 @@ def upgrade() -> None:
                 ),
                 {"new_status": new_status, "old_status": old_status},
             )
-    except Exception as exc:
+    except Exception:
         # Columns might not exist or table might not have these columns yet
-        logger.warning(
-            "status_history の旧カラム更新に失敗しました（アップグレード）",
-            exc_info=exc,
-        )
+        pass
 
 
 def downgrade() -> None:
@@ -104,9 +98,6 @@ def downgrade() -> None:
                 ),
                 {"old_status": old_status, "new_status": new_status},
             )
-    except Exception as exc:
+    except Exception:
         # Columns might not exist or table might not have these columns yet
-        logger.warning(
-            "status_history の旧カラム更新に失敗しました（ダウングレード）",
-            exc_info=exc,
-        )
+        pass
