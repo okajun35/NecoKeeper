@@ -32,8 +32,7 @@ class Animal(Base):
         name: 猫の名前（任意）
         photo: 顔写真のファイルパス（必須）
         microchip_number: マイクロチップ番号（任意、15桁の半角数字または10桁の英数字）
-        pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
-        coat_color: 毛色（任意、選択肢から選択）
+        coat_color: 毛色（必須、選択肢から選択）
         coat_color_note: 毛色の補足情報（任意、例: 淡い、パステル、黒少なめ）
         tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
         collar: 首輪の有無と色（任意、例: 赤い首輪、首輪なし）
@@ -72,12 +71,8 @@ class Animal(Base):
     )
 
     # 物理的特徴（識別情報）
-    pattern: Mapped[str] = mapped_column(
-        String(100), nullable=False, comment="柄・色（例: キジトラ、三毛、黒猫）"
-    )
-
-    coat_color: Mapped[str | None] = mapped_column(
-        String(100), nullable=True, comment="毛色（選択肢から選択）"
+    coat_color: Mapped[str] = mapped_column(
+        String(100), nullable=False, comment="毛色（選択肢から選択）"
     )
 
     coat_color_note: Mapped[str | None] = mapped_column(
@@ -190,9 +185,12 @@ class Animal(Base):
 
     def __repr__(self) -> str:
         """文字列表現"""
-        return f"<Animal(id={self.id}, name={self.name!r}, pattern={self.pattern!r}, status={self.status!r})>"
+        return (
+            f"<Animal(id={self.id}, name={self.name!r}, "
+            f"coat_color={self.coat_color!r}, status={self.status!r})>"
+        )
 
     def __str__(self) -> str:
         """人間が読みやすい文字列表現"""
         name_display = self.name if self.name else "名前未設定"
-        return f"{name_display}（{self.pattern}、{self.status}）"
+        return f"{name_display}（{self.coat_color}、{self.status}）"

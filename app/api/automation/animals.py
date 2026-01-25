@@ -53,7 +53,7 @@ router = APIRouter()
                         "id": 13,
                         "name": "たま",
                         "photo": None,
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "collar": None,
                         "age_months": 12,
@@ -113,7 +113,7 @@ def create_animal_automation(
 
         logger.info(
             f"Automation API: 猫を登録しました - "
-            f"id={animal.id}, name={animal.name}, pattern={animal.pattern}"
+            f"id={animal.id}, name={animal.name}, coat_color={animal.coat_color}"
         )
 
         return AnimalResponse.model_validate(animal)
@@ -153,7 +153,7 @@ def create_animal_automation(
                         "id": 13,
                         "name": "たま",
                         "photo": None,
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "collar": None,
                         "age_months": 12,

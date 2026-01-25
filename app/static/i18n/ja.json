@@ -108,7 +108,7 @@
     "add_new": "新規登録",
     "edit": "猫情報を編集",
     "delete_confirm": "この猫を削除してもよろしいですか？",
-    "search_placeholder": "名前、柄、特徴で検索...",
+    "search_placeholder": "名前、毛色、特徴で検索...",
     "filter_by_status": "ステータスで絞り込み",
     "description": "保護猫の情報を管理します",
     "back_to_list": "一覧に戻る",
@@ -116,7 +116,7 @@
     "no_data": "データがありません",
     "search": {
       "label": "検索",
-      "placeholder": "名前、柄、特徴で検索...",
+      "placeholder": "名前、毛色、特徴で検索...",
       "advanced": "詳細検索",
       "clear": "クリア"
     },
@@ -138,7 +138,7 @@
       "id": "ID",
       "name": "名前",
       "photo": "写真",
-      "pattern": "柄",
+      "coat_color": "毛色",
       "tail_length": "尻尾の長さ",
       "collar": "首輪",
       "age": "月齢",

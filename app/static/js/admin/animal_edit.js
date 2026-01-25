@@ -50,7 +50,6 @@ async function loadAnimalData(animalId) {
  */
 function fillForm(animal) {
   document.getElementById('name').value = animal.name || '';
-  document.getElementById('pattern').value = animal.pattern || '';
   document.getElementById('coat_color').value = animal.coat_color || '';
   document.getElementById('coat_color_note').value = animal.coat_color_note || '';
   document.getElementById('gender').value = animal.gender || '';
@@ -86,7 +85,6 @@ function setupFormSubmit(animalId) {
     try {
       const formData = {
         name: document.getElementById('name').value,
-        pattern: document.getElementById('pattern').value,
         coat_color: document.getElementById('coat_color').value || null,
         coat_color_note: document.getElementById('coat_color_note').value || null,
         gender: document.getElementById('gender').value,

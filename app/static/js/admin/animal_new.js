@@ -128,7 +128,6 @@ function setupFormSubmit() {
       // 1. 猫の基本情報を登録
       const formData = {
         name: document.getElementById('name').value,
-        pattern: document.getElementById('pattern').value,
         coat_color: document.getElementById('coat_color').value || null,
         coat_color_note: document.getElementById('coat_color_note').value || null,
         gender: document.getElementById('gender').value,

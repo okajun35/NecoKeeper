@@ -118,7 +118,7 @@ def test_db() -> Generator[Session, None, None]:
     test_animal = Animal(
         name="テスト猫",
         photo="test.jpg",
-        pattern="キジトラ",
+        coat_color="キジトラ",
         tail_length="長い",
         age_months=12,
         gender="female",
@@ -246,7 +246,7 @@ def test_animals_bulk(test_db: Session) -> list[Animal]:
         animal = Animal(
             name=f"猫{i}",
             photo=f"photo{i}.jpg",
-            pattern="三毛" if i % 2 == 0 else "キジトラ",
+            coat_color="三毛" if i % 2 == 0 else "キジトラ",
             tail_length="長い" if i % 2 == 0 else "短い",
             age_months=12,
             gender="female" if i % 2 == 0 else "male",

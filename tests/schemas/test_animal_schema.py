@@ -17,7 +17,7 @@ class TestAnimalSchemaValidation:
         """15桁の半角数字が有効であることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -30,7 +30,7 @@ class TestAnimalSchemaValidation:
         """10桁の英数字が有効であることを確認（旧規格）"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -43,7 +43,7 @@ class TestAnimalSchemaValidation:
         """None（未入力）が有効であることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -56,7 +56,7 @@ class TestAnimalSchemaValidation:
         """空文字列がNoneに変換されることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -69,7 +69,7 @@ class TestAnimalSchemaValidation:
         """空白文字のみの文字列がNoneに変換されることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -82,7 +82,7 @@ class TestAnimalSchemaValidation:
         """無効な桁数でエラーになることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -96,7 +96,7 @@ class TestAnimalSchemaValidation:
         """無効な文字でエラーになることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -110,7 +110,7 @@ class TestAnimalSchemaValidation:
         """14桁の数字が無効であることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -124,7 +124,7 @@ class TestAnimalSchemaValidation:
         """16桁の数字が無効であることを確認"""
         data = {
             "name": "テスト",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
@@ -177,7 +177,6 @@ class TestAnimalCoatColorSchema:
         """毛色フィールドを含む猫を作成できることを確認"""
         data = {
             "name": "みけ",
-            "pattern": "三毛猫",
             "coat_color": "三毛",
             "coat_color_note": "淡いパステル調、黒少なめ",
             "tail_length": "長い",
@@ -189,17 +188,15 @@ class TestAnimalCoatColorSchema:
         assert schema.coat_color_note == "淡いパステル調、黒少なめ"
 
     def test_create_animal_without_coat_color(self):
-        """毛色フィールドがなくても猫を作成できることを確認"""
+        """毛色フィールドが必須であることを確認"""
         data = {
             "name": "くろ",
-            "pattern": "黒猫",
             "tail_length": "長い",
             "age_months": 12,
             "gender": "male",
         }
-        schema = AnimalCreate(**data)
-        assert schema.coat_color is None
-        assert schema.coat_color_note is None
+        with pytest.raises(ValidationError):
+            AnimalCreate(**data)
 
     def test_update_animal_coat_color(self):
         """毛色フィールドを更新できることを確認"""
@@ -217,6 +214,5 @@ class TestAnimalCoatColorSchema:
             "coat_color": None,
             "coat_color_note": None,
         }
-        schema = AnimalUpdate(**data)
-        assert schema.coat_color is None
-        assert schema.coat_color_note is None
+        with pytest.raises(ValidationError):
+            AnimalUpdate(**data)

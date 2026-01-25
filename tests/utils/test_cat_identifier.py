@@ -32,8 +32,8 @@ class TestCatIdentifierByID:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
-                {"id": 10, "name": "みけ", "pattern": "三毛"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
+                {"id": 10, "name": "みけ", "coat_color": "三毛"},
             ],
             "total": 2,
             "page": 1,
@@ -62,7 +62,7 @@ class TestCatIdentifierByID:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -92,8 +92,8 @@ class TestCatIdentifierByName:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
-                {"id": 10, "name": "みけ", "pattern": "三毛"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
+                {"id": 10, "name": "みけ", "coat_color": "三毛"},
             ],
             "total": 2,
             "page": 1,
@@ -121,7 +121,7 @@ class TestCatIdentifierByName:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "tama", "pattern": "キジトラ"},  # 小文字
+                {"id": 5, "name": "tama", "coat_color": "キジトラ"},  # 小文字
             ],
             "total": 1,
             "page": 1,
@@ -149,7 +149,7 @@ class TestCatIdentifierByName:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -177,8 +177,8 @@ class TestCatIdentifierByName:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
-                {"id": 15, "name": "たま", "pattern": "三毛"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
+                {"id": 15, "name": "たま", "coat_color": "三毛"},
             ],
             "total": 2,
             "page": 1,
@@ -218,7 +218,7 @@ class TestCatIdentifierGeneric:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -246,7 +246,7 @@ class TestCatIdentifierGeneric:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -274,7 +274,7 @@ class TestCatIdentifierGeneric:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -306,8 +306,8 @@ class TestCatIdentifierPagination:
         mock_response_page1 = Mock()
         mock_response_page1.json.return_value = {
             "items": [
-                {"id": 1, "name": "猫1", "pattern": "キジトラ"},
-                {"id": 2, "name": "猫2", "pattern": "三毛"},
+                {"id": 1, "name": "猫1", "coat_color": "キジトラ"},
+                {"id": 2, "name": "猫2", "coat_color": "三毛"},
             ],
             "total": 3,
             "page": 1,
@@ -320,7 +320,7 @@ class TestCatIdentifierPagination:
         mock_response_page2 = Mock()
         mock_response_page2.json.return_value = {
             "items": [
-                {"id": 3, "name": "猫3", "pattern": "黒猫"},
+                {"id": 3, "name": "猫3", "coat_color": "黒猫"},
             ],
             "total": 3,
             "page": 2,
@@ -353,7 +353,7 @@ class TestCatIdentifierPagination:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -425,7 +425,7 @@ class TestIdentifyCatFunction:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,
@@ -451,7 +451,7 @@ class TestIdentifyCatFunction:
         mock_response = Mock()
         mock_response.json.return_value = {
             "items": [
-                {"id": 5, "name": "たま", "pattern": "キジトラ"},
+                {"id": 5, "name": "たま", "coat_color": "キジトラ"},
             ],
             "total": 1,
             "page": 1,

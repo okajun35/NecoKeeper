@@ -337,7 +337,7 @@ class TestWeightTrendAnalysis:
 
         animal = Animal(
             name="体重テスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="male",
@@ -449,7 +449,7 @@ class TestWeightTrendAnalysis:
 
         animal = Animal(
             name="体重推移テスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
             age_months=12,
             gender="female",
@@ -499,7 +499,7 @@ class TestWeightTrendAnalysis:
 
         animal = Animal(
             name="体重なしテスト猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             age_months=6,
             gender="unknown",
