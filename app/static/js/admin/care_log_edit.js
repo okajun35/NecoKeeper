@@ -195,7 +195,7 @@ async function handleFormSubmit(e, id) {
       animal_id: parseInt(document.getElementById('animal_id').value),
       log_date: document.getElementById('log_date').value,
       time_slot: document.getElementById('time_slot').value,
-      appetite: parseInt(document.getElementById('appetite').value),
+      appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
       urination: document.getElementById('urination').checked,
       cleaning: document.getElementById('cleaning').checked,
@@ -210,7 +210,7 @@ async function handleFormSubmit(e, id) {
       !formData.animal_id ||
       !formData.log_date ||
       !formData.time_slot ||
-      !formData.appetite ||
+      Number.isNaN(formData.appetite) ||
       !formData.energy ||
       (defecationRaw !== 'true' && defecationRaw !== 'false')
     ) {

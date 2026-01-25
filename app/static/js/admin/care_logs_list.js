@@ -307,7 +307,7 @@ function createRecordLink(item, timeSlot) {
     link.className += ' text-green-600';
     const appetiteLabel = fallbackText('Appetite', '食欲');
     const energyLabel = fallbackText('Energy', '元気');
-    link.title = `${appetiteLabel}: ${record.appetite}, ${energyLabel}: ${record.energy}`;
+    link.title = `${appetiteLabel}: ${formatAppetiteLabel(record.appetite)}, ${energyLabel}: ${record.energy}`;
   } else {
     // 記録なし: × → 新規登録画面
     link.textContent = '×';

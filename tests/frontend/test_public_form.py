@@ -152,7 +152,7 @@ class TestPublicFormDataFlow:
             "recorder_name": volunteer.name,
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
+            "appetite": 1.0,
             "energy": 5,
             "urination": True,
             "cleaning": True,
@@ -201,7 +201,7 @@ class TestPublicFormDataFlow:
             "recorder_name": volunteer.name,
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
+            "appetite": 1.0,
             "energy": 5,
             "urination": True,
             "cleaning": True,
@@ -221,7 +221,7 @@ class TestPublicFormDataFlow:
         assert latest_response.status_code == 200
         latest_data = latest_response.json()
         assert latest_data["time_slot"] == "morning"
-        assert latest_data["appetite"] == 5
+        assert latest_data["appetite"] == 1.0
         assert latest_data["memo"] == "元気です"
 
     def test_copy_last_values_flow(
@@ -245,7 +245,7 @@ class TestPublicFormDataFlow:
             "recorder_name": volunteer.name,
             "log_date": "2025-11-15",
             "time_slot": "noon",
-            "appetite": 4,
+            "appetite": 0.75,
             "energy": 4,
             "urination": False,
             "cleaning": True,
@@ -260,7 +260,7 @@ class TestPublicFormDataFlow:
         assert response.status_code == 200
         data = response.json()
         assert data["time_slot"] == "noon"
-        assert data["appetite"] == 4
+        assert data["appetite"] == 0.75
         assert data["energy"] == 4
         assert data["urination"] is False
         assert data["cleaning"] is True

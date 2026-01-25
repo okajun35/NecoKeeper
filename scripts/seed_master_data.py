@@ -782,7 +782,7 @@ def seed_care_logs(
                     recorder_name=volunteer.name,
                     log_date=log_date,
                     time_slot=time_slot,
-                    appetite=4,
+                    appetite=0.75,
                     energy=4,
                     urination=time_slot in ["morning", "evening"],
                     defecation=defecation,

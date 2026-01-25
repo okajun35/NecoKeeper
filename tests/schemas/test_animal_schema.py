@@ -208,8 +208,8 @@ class TestAnimalCoatColorSchema:
         assert schema.coat_color == "キジ"
         assert schema.coat_color_note == "濃いめの縞模様"
 
-    def test_update_animal_clear_coat_color(self):
-        """毛色フィールドをクリアできることを確認"""
+    def test_update_animal_reject_null_coat_color(self):
+        """毛色フィールドをNoneにできないことを確認"""
         data = {
             "coat_color": None,
             "coat_color_note": None,

@@ -168,6 +168,38 @@ function formatScoreValue(value) {
   return `${value} / 5`;
 }
 
+function getAppetiteLevelKey(value) {
+  const normalized = Math.round(Number(value) * 100) / 100;
+  const map = {
+    1: '5',
+    0.75: '4',
+    0.5: '3',
+    0.25: '2',
+    0: '1',
+  };
+  return map[normalized] || null;
+}
+
+function formatAppetiteValue(value) {
+  if (value === null || value === undefined) {
+    return '-';
+  }
+
+  const key = getAppetiteLevelKey(value);
+  if (!key) {
+    return `${value}`;
+  }
+
+  const fallbackMap = {
+    5: fallbackText('Finished', '完食'),
+    4: fallbackText('Left 1/4', '1/4残し'),
+    3: fallbackText('Left half', '半分残し'),
+    2: fallbackText('Left 3/4', '3/4残し'),
+    1: fallbackText('Not eating', '食べない'),
+  };
+  return translateCareLogs(`appetite_levels.${key}`, fallbackMap[key] || `${value}`);
+}
+
 function getDateFormatterOptions(lang) {
   if (lang === 'en') {
     return { month: 'short', day: 'numeric', weekday: 'short' };
@@ -536,7 +568,7 @@ function renderLogDetailModal(log) {
     },
     {
       label: translateCareLogs('fields.appetite', '食欲'),
-      value: formatScoreValue(log.appetite),
+      value: formatAppetiteValue(log.appetite),
     },
     {
       label: translateCareLogs('fields.energy', '元気'),

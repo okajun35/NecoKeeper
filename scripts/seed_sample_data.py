@@ -300,13 +300,21 @@ def seed_care_logs(
                 volunteer = volunteers[care_logs_count % len(volunteers)]
 
                 # 食欲と元気は日によって変動
-                appetite = 3 + (days_ago % 3) - 1  # 2〜4
+                appetite = 3 + (days_ago % 3) - 1  # 2〜4（旧スケール）
                 energy = 3 + ((days_ago + 1) % 3) - 1  # 2〜4
 
                 # 治療中の猫は食欲・元気が低め
                 if animal.status == "治療中":
                     appetite = max(1, appetite - 1)
                     energy = max(1, energy - 1)
+
+                appetite = {
+                    5: 1.0,
+                    4: 0.75,
+                    3: 0.5,
+                    2: 0.25,
+                    1: 0.0,
+                }[appetite]
 
                 care_log = CareLog(
                     animal_id=animal.id,

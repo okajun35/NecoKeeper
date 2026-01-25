@@ -133,6 +133,56 @@ function formatDateTime(dateTimeString) {
   }
 }
 
+function getAppetiteLevelKey(value) {
+  const normalized = Math.round(Number(value) * 100) / 100;
+  const map = {
+    1: '5',
+    0.75: '4',
+    0.5: '3',
+    0.25: '2',
+    0: '1',
+  };
+  return map[normalized] || null;
+}
+
+function formatAppetiteLabel(value) {
+  if (value === null || value === undefined) {
+    return '-';
+  }
+
+  const key = getAppetiteLevelKey(value);
+  if (!key) {
+    return `${value}`;
+  }
+
+  const language = window.i18next?.language || 'ja';
+  const fallbackMap =
+    language === 'en'
+      ? {
+          5: 'Finished',
+          4: 'Left 1/4',
+          3: 'Left half',
+          2: 'Left 3/4',
+          1: 'Not eating',
+        }
+      : {
+          5: '完食',
+          4: '1/4残し',
+          3: '半分残し',
+          2: '3/4残し',
+          1: '食べない',
+        };
+
+  if (window.i18next) {
+    const translation = window.i18next.t(`care_logs:appetite_levels.${key}`);
+    if (translation && translation !== `care_logs:appetite_levels.${key}`) {
+      return translation;
+    }
+  }
+
+  return fallbackMap[key] || `${value}`;
+}
+
 const STATUS_KEY_MAP = {
   保護中: 'protected',
   protected: 'protected',

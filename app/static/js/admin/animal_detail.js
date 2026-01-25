@@ -126,7 +126,7 @@ async function updateBasicInfo() {
 
     const formData = {
       name: document.getElementById('name').value,
-      coat_color: document.getElementById('coat_color').value || null,
+      coat_color: document.getElementById('coat_color').value,
       coat_color_note: document.getElementById('coat_color_note').value || null,
       tail_length: document.getElementById('tailLength').value,
       collar: document.getElementById('collar').value,
@@ -507,7 +507,7 @@ async function loadCareRecords() {
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">${translate('care_log.appetite', { ns: 'animals' })}:</span> ${record.appetite}/5</div>
+            <div><span class="text-gray-500">${translate('care_log.appetite', { ns: 'animals' })}:</span> ${formatAppetiteLabel(record.appetite)}</div>
             <div><span class="text-gray-500">${translate('care_log.energy', { ns: 'animals' })}:</span> ${record.energy}/5</div>
             <div><span class="text-gray-500">${translate('care_log.urination', { ns: 'animals' })}:</span> ${record.urination ? translate('care_log.yes', { ns: 'animals' }) : translate('care_log.no', { ns: 'animals' })}</div>
             <div><span class="text-gray-500">${translate('care_log.cleaning', { ns: 'animals' })}:</span> ${record.cleaning ? translate('care_log.done', { ns: 'animals' }) : translate('care_log.not_done', { ns: 'animals' })}</div>

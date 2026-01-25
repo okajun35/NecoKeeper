@@ -25,7 +25,7 @@ class TestCareLogCRUD:
                 "recorder_name": "テスト記録者",
                 "log_date": "2025-11-15",
                 "time_slot": "morning",
-                "appetite": 4,
+                "appetite": 0.75,
                 "energy": 5,
                 "urination": True,
                 "cleaning": True,
@@ -38,7 +38,7 @@ class TestCareLogCRUD:
         assert data["animal_id"] == animal_id
         assert data["recorder_name"] == "テスト記録者"
         assert data["time_slot"] == "morning"
-        assert data["appetite"] == 4
+        assert data["appetite"] == 0.75
         assert data["energy"] == 5
 
     def test_list_care_logs(self, test_client, test_db, auth_token):
@@ -51,7 +51,7 @@ class TestCareLogCRUD:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=4,
+            appetite=0.75,
             energy=5,
             urination=True,
             cleaning=True,
@@ -78,7 +78,7 @@ class TestCareLogCRUD:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=4,
             urination=False,
             cleaning=False,
@@ -107,7 +107,7 @@ class TestCareLogCRUD:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="evening",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=True,
             cleaning=True,
@@ -119,12 +119,12 @@ class TestCareLogCRUD:
         response = test_client.put(
             f"/api/v1/care-logs/{care_log_id}",
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"appetite": 5, "energy": 5, "memo": "更新されました"},
+            json={"appetite": 1.0, "energy": 5, "memo": "更新されました"},
         )
 
         assert response.status_code == 200
         data = response.json()
-        assert data["appetite"] == 5
+        assert data["appetite"] == 1.0
         assert data["energy"] == 5
         assert data["memo"] == "更新されました"
 
@@ -139,7 +139,7 @@ class TestCareLogCRUD:
             animal_id=animal_id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=4,
+            appetite=0.75,
             energy=4,
             urination=True,
             cleaning=True,
@@ -172,7 +172,7 @@ class TestCareLogCSVExport:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=4,
+            appetite=0.75,
             energy=5,
             urination=True,
             cleaning=True,
@@ -212,7 +212,7 @@ class TestLatestCareLog:
             animal_id=animal_id,
             recorder_name="古い記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=True,
             cleaning=True,
@@ -226,7 +226,7 @@ class TestLatestCareLog:
             animal_id=animal_id,
             recorder_name="新しい記録者",
             time_slot="noon",
-            appetite=5,
+            appetite=1.0,
             energy=5,
             urination=True,
             cleaning=True,
@@ -243,4 +243,4 @@ class TestLatestCareLog:
         data = response.json()
         assert data["recorder_name"] == "新しい記録者"
         assert data["time_slot"] == "noon"
-        assert data["appetite"] == 5
+        assert data["appetite"] == 1.0

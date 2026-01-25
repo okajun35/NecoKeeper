@@ -93,7 +93,8 @@
     "black": "Black",
     "white": "White",
     "brown_tabby": "Brown Tabby",
-    "mackerel": "Mackerel Tabby",
+    "mackerel_tabby": "Mackerel Tabby",
+    "mackerel": "Mackerel",
     "tortoiseshell": "Tortoiseshell",
     "gray": "Gray",
     "other": "Other"

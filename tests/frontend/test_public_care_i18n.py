@@ -116,9 +116,11 @@ class TestPublicCareI18n:
         html = response.text
 
         # ラベルの翻訳属性の確認
-        assert 'data-i18n="appetite_low"' in html
-        assert 'data-i18n="appetite_normal"' in html
-        assert 'data-i18n="appetite_high"' in html
+        assert 'data-i18n="appetite_levels.5"' in html
+        assert 'data-i18n="appetite_levels.4"' in html
+        assert 'data-i18n="appetite_levels.3"' in html
+        assert 'data-i18n="appetite_levels.2"' in html
+        assert 'data-i18n="appetite_levels.1"' in html
         assert 'data-i18n="energy_low"' in html
         assert 'data-i18n="energy_normal"' in html
         assert 'data-i18n="energy_high"' in html

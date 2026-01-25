@@ -262,11 +262,11 @@
       "evening": "Evening"
     },
     "appetite_levels": {
-      "1": "1 (Not eating)",
-      "2": "2 (Little)",
-      "3": "3 (Normal)",
-      "4": "4 (Good)",
-      "5": "5 (Excellent)"
+      "1": "Not eating",
+      "2": "Left 3/4",
+      "3": "Left half",
+      "4": "Left 1/4",
+      "5": "Finished"
     },
     "energy_levels": {
       "1": "1 (Lethargic)",

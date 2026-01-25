@@ -9,9 +9,13 @@
   "time_slot_noon": "昼",
   "time_slot_evening": "夜",
   "appetite": "食欲",
-  "appetite_low": "少ない",
-  "appetite_normal": "普通",
-  "appetite_high": "多い",
+  "appetite_levels": {
+    "1": "食べない",
+    "2": "3/4残し",
+    "3": "半分残し",
+    "4": "1/4残し",
+    "5": "完食"
+  },
   "energy": "元気",
   "energy_low": "低い",
   "energy_normal": "普通",

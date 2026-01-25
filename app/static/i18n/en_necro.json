@@ -287,11 +287,11 @@
       "evening": "GAMMA"
     },
     "appetite_levels": {
-      "1": "1 (Consumption Failure)",
-      "2": "2 (Minimal)",
-      "3": "3 (Standard)",
-      "4": "4 (Optimal)",
-      "5": "5 (Maximum)"
+      "1": "NO INTAKE",
+      "2": "LEFT 3/4",
+      "3": "LEFT HALF",
+      "4": "LEFT 1/4",
+      "5": "CONSUMPTION COMPLETE"
     },
     "energy_levels": {
       "1": "1 (Critical Low)",

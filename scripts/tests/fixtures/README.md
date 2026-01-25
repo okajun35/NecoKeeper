@@ -10,7 +10,7 @@ This directory contains sample data and test images for testing the OCR care log
 Standard care log data with typical records:
 - Multiple days (11/4 - 11/5)
 - All three time slots (morning, noon, evening)
-- Various appetite and energy levels (○ = 5, △ = 3)
+- Various appetite and energy levels (○ = 1.0, △ = 0.5)
 - Typical memo entries
 - Animal ID: 1
 
@@ -18,7 +18,7 @@ Standard care log data with typical records:
 
 #### `sample_edge_cases.json`
 Edge case scenarios:
-- Low appetite/energy (× = 1)
+- Low appetite/energy (× = 0.0)
 - Vomiting and medication records
 - Different animals (IDs: 2, 3)
 - Various date ranges
@@ -27,7 +27,7 @@ Edge case scenarios:
 
 #### `sample_invalid_data.json`
 Invalid data for validation testing:
-- Out of range appetite value (10 instead of 1-5)
+- Out of range appetite value (10 instead of 1.0/0.75/0.5/0.25/0.0)
 - Invalid date (Feb 30)
 - Invalid time_slot (midnight instead of morning/noon/evening)
 - Negative animal_id
@@ -113,7 +113,7 @@ All JSON files follow the Care Log schema defined in `scripts/utils/json_schema.
   "animal_id": 1,
   "log_date": "2025-11-04",
   "time_slot": "morning",
-  "appetite": 5,
+  "appetite": 1.0,
   "energy": 5,
   "urination": true,
   "cleaning": false,
@@ -133,9 +133,9 @@ The handwritten symbols are mapped as follows:
 
 | Symbol | Field | Value |
 |--------|-------|-------|
-| ○ | appetite/energy | 5 |
-| △ | appetite/energy | 3 |
-| × | appetite/energy | 1 |
+| ○ | appetite/energy | 1.0 |
+| △ | appetite/energy | 0.5 |
+| × | appetite/energy | 0.0 |
 | ○ | urination | true |
 | × | urination | false |
 | ○ | stool/vomit/medication | "あり" (in memo) |

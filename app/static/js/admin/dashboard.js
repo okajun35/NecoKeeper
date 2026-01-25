@@ -64,7 +64,7 @@ async function loadRecentLogs() {
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${t('dynamic.appetite')}: ${log.appetite}</span>
+                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${t('dynamic.appetite')}: ${formatAppetiteLabel(log.appetite)}</span>
                     <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">${t('dynamic.energy')}: ${log.energy}</span>
                 </div>
             </div>

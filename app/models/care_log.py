@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Numeric,
     SmallInteger,
     String,
     Text,
@@ -42,7 +43,7 @@ class CareLog(Base):
         recorder_id: 記録者ID（外部キー、任意）
         recorder_name: 記録者名（必須）
         time_slot: 時点（morning/noon/evening）
-        appetite: 食欲（1〜5段階、5が最良、デフォルト: 3）
+        appetite: 食欲（0.0〜1.0、1.0=完食、デフォルト: 1.0）
         energy: 元気（1〜5段階、5が最良、デフォルト: 3）
         urination: 排尿有無（True=有り、False=無し）
         defecation: 排便有無（True=有り、False=無し）
@@ -97,12 +98,12 @@ class CareLog(Base):
         String(10), nullable=False, comment="時点（morning/noon/evening）"
     )
 
-    appetite: Mapped[int] = mapped_column(
-        Integer,
+    appetite: Mapped[float] = mapped_column(
+        Numeric(3, 2, asdecimal=False),
         nullable=False,
-        default=3,
-        server_default="3",
-        comment="食欲（1〜5段階、5が最良）",
+        default=1.0,
+        server_default="1.0",
+        comment="食欲（0.0〜1.0、1.0=完食）",
     )
 
     energy: Mapped[int] = mapped_column(

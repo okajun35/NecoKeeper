@@ -276,9 +276,12 @@ Kiroが以下の処理を自動的に実行します：
 
 | 手書き記号 | 意味 | Care Logフィールド | 値 |
 |-----------|------|-------------------|-----|
-| ○ | 良好/あり | appetite, energy | 5 |
-| △ | 普通 | appetite, energy | 3 |
-| × | 不良/なし | appetite, energy | 1 |
+| ○ | 良好/あり | appetite | 1.0 |
+| △ | 普通 | appetite | 0.5 |
+| × | 不良/なし | appetite | 0.0 |
+| ○ | 良好/あり | energy | 5 |
+| △ | 普通 | energy | 3 |
+| × | 不良/なし | energy | 1 |
 | ○ | あり | urination | true |
 | × | なし | urination | false |
 | 数字 | 回数 | urination | true (回数はmemoに記載) |
@@ -297,7 +300,7 @@ Kiroが以下の処理を自動的に実行します：
 |-----------|-------------------|---------|------|
 | 日付 | log_date | date | YYYY-MM-DD形式 |
 | 朝/昼/夕 | time_slot | string | morning/noon/evening |
-| ごはん | appetite | int (1-5) | ○→5, △→3, ×→1 |
+| ごはん | appetite | float (0.0-1.0) | ○→1.0, △→0.5, ×→0.0 |
 | 元気 | energy | int (1-5) | ○→5, △→3, ×→1 |
 | 排尿 | urination | boolean | ○→true, ×→false |
 | 排便 | memo | string | memoフィールドに追記 |
@@ -399,9 +402,9 @@ curl http://localhost:8000/api/v1/animals
 
 ---
 
-**エラー**: `Appetite value {value} is out of range (1-5)`
+**エラー**: `Appetite value {value} is out of range (0.0-1.0)`
 
-**原因**: 食欲の値が1-5の範囲外
+**原因**: 食欲の値が0.0-1.0の範囲外
 
 **対処法**:
 - 手書き記号（○△×）が正しく読み取られているか確認
@@ -650,7 +653,7 @@ curl -X POST http://localhost:8000/api/automation/care-logs \
     "animal_id": 1,
     "log_date": "2025-11-24",
     "time_slot": "morning",
-    "appetite": 5,
+    "appetite": 1.0,
     "energy": 5,
     "urination": true,
     "cleaning": false,
@@ -801,7 +804,7 @@ cat logs/ocr-import.log
 
 **A**: 空欄のフィールドには以下のデフォルト値が適用されます：
 
-- `appetite`: 3（普通）
+- `appetite`: 1.0（完食）
 - `energy`: 3（普通）
 - `urination`: false
 - `cleaning`: false
@@ -959,7 +962,7 @@ export LOG_LEVEL=DEBUG
     "animal_id": 1,
     "log_date": "2025-11-04",
     "time_slot": "morning",
-    "appetite": 5,
+    "appetite": 1.0,
     "energy": 5,
     "urination": true,
     "cleaning": false,
@@ -975,7 +978,7 @@ export LOG_LEVEL=DEBUG
     "animal_id": 1,
     "log_date": "2025-11-04",
     "time_slot": "evening",
-    "appetite": 5,
+    "appetite": 1.0,
     "energy": 5,
     "urination": false,
     "cleaning": false,
