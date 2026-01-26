@@ -69,11 +69,18 @@
     "ear_cut": "Ear Cut",
     "features": "Features",
     "status": "Status",
+    "location_type": "Location Type",
+    "current_location_note": "Location Details",
     "rescue_source": "Rescue Source",
     "breed": "Breed",
     "protected_at": "Protected Date",
     "created_at": "Created At",
-    "updated_at": "Updated At"
+    "updated_at": "Updated At",
+    "medical_info": "Medical Information",
+    "fiv_status": "FIV Test",
+    "felv_status": "FeLV Test",
+    "sterilization": "Sterilization",
+    "sterilized_on": "Sterilization Date"
   },
   "status": {
     "protected": "Protected",
@@ -113,6 +120,13 @@
   "collar_options": {
     "has": "Has collar",
     "none": "No collar"
+  },
+  "medical": {
+    "unknown": "Unknown",
+    "negative": "Negative (-)",
+    "positive": "Positive (+)",
+    "done": "Done",
+    "not_done": "Not Done"
   },
   "tabs": {
     "basic_info": "Basic Info",

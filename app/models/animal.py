@@ -17,6 +17,7 @@ from app.utils.timezone import get_jst_date, get_jst_now
 
 if TYPE_CHECKING:
     from app.models.care_log import CareLog
+    from app.models.vaccination_record import VaccinationRecord
 
 
 class Animal(Base):
@@ -146,6 +147,35 @@ class Animal(Base):
         comment="所在地詳細（「◯◯さん宅」「カフェ2F」「隔離室A」など）",
     )
 
+    # 医療情報（Issue #83）
+    fiv_positive: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="FIV検査結果（True=陽性, False=陰性, None=不明）",
+    )
+
+    felv_positive: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="FeLV検査結果（True=陽性, False=陰性, None=不明）",
+    )
+
+    is_sterilized: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="避妊・去勢状態（True=済, False=未, None=不明）",
+    )
+
+    sterilized_on: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+        default=None,
+        comment="避妊・去勢実施日",
+    )
+
     protected_at: Mapped[date] = mapped_column(
         Date,
         nullable=False,
@@ -174,6 +204,10 @@ class Animal(Base):
         "CareLog", back_populates="animal", cascade="all, delete-orphan"
     )
 
+    vaccination_records: Mapped[list[VaccinationRecord]] = relationship(
+        "VaccinationRecord", back_populates="animal", cascade="all, delete-orphan"
+    )
+
     # インデックス定義
     __table_args__ = (
         Index("ix_animals_status", "status"),
@@ -181,6 +215,9 @@ class Animal(Base):
         Index("ix_animals_protected_at", "protected_at"),
         Index("ix_animals_name", "name"),
         Index("ix_animals_microchip_number", "microchip_number"),
+        Index("ix_animals_fiv_positive", "fiv_positive"),
+        Index("ix_animals_felv_positive", "felv_positive"),
+        Index("ix_animals_is_sterilized", "is_sterilized"),
     )
 
     def __repr__(self) -> str:

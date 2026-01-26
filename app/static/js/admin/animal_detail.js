@@ -16,6 +16,15 @@ function parseOptionalInt(value) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function parseOptionalBool(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return null;
+}
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
@@ -83,6 +92,20 @@ function setupBasicInfoForm() {
   const cancelBtn = document.getElementById('cancelBtn');
   const microchipInput = document.getElementById('microchip_number');
   const microchipError = document.getElementById('microchip_error');
+  const isSterilizedSelect = document.getElementById('isSterilized');
+  const sterilizedOnWrapper = document.getElementById('sterilizedOnWrapper');
+
+  // 避妊・去勢選択時の日付フィールド表示制御
+  if (isSterilizedSelect && sterilizedOnWrapper) {
+    isSterilizedSelect.addEventListener('change', function () {
+      if (this.value === 'true') {
+        sterilizedOnWrapper.style.display = '';
+      } else {
+        sterilizedOnWrapper.style.display = 'none';
+        document.getElementById('sterilizedOn').value = '';
+      }
+    });
+  }
 
   // マイクロチップ番号のリアルタイムバリデーション
   if (microchipInput) {
@@ -138,6 +161,11 @@ async function updateBasicInfo() {
       breed: document.getElementById('breed').value || null,
       features: document.getElementById('features').value || null,
       microchip_number: microchipValue || null,
+      // 医療情報（Issue #83）
+      fiv_positive: parseOptionalBool(document.getElementById('fivPositive').value),
+      felv_positive: parseOptionalBool(document.getElementById('felvPositive').value),
+      is_sterilized: parseOptionalBool(document.getElementById('isSterilized').value),
+      sterilized_on: document.getElementById('sterilizedOn').value || null,
     };
 
     const response = await fetch(`/api/v1/animals/${animalId}`, {

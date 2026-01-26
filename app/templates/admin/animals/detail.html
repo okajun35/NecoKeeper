@@ -342,6 +342,43 @@
                                 <textarea id="features" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" data-i18n-placeholder="features_placeholder" data-i18n-ns="animals" placeholder="外傷、特徴、性格などを記入">{{ animal.features or '' }}</textarea>
                             </div>
 
+                            <!-- 医療情報セクション -->
+                            <div class="border-t pt-4 mt-4">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="fields.medical_info" data-i18n-ns="animals">医療情報</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.fiv_status" data-i18n-ns="animals">FIV検査</label>
+                                        <select id="fivPositive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <option value="" {% if animal.fiv_positive is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+                                            <option value="false" {% if animal.fiv_positive == false %}selected{% endif %} data-i18n="medical.negative" data-i18n-ns="animals">陰性(-)</option>
+                                            <option value="true" {% if animal.fiv_positive == true %}selected{% endif %} data-i18n="medical.positive" data-i18n-ns="animals">陽性(+)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.felv_status" data-i18n-ns="animals">FeLV検査</label>
+                                        <select id="felvPositive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <option value="" {% if animal.felv_positive is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+                                            <option value="false" {% if animal.felv_positive == false %}selected{% endif %} data-i18n="medical.negative" data-i18n-ns="animals">陰性(-)</option>
+                                            <option value="true" {% if animal.felv_positive == true %}selected{% endif %} data-i18n="medical.positive" data-i18n-ns="animals">陽性(+)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.sterilization" data-i18n-ns="animals">避妊・去勢</label>
+                                        <select id="isSterilized" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <option value="" {% if animal.is_sterilized is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+                                            <option value="false" {% if animal.is_sterilized == false %}selected{% endif %} data-i18n="medical.not_done" data-i18n-ns="animals">未実施</option>
+                                            <option value="true" {% if animal.is_sterilized == true %}selected{% endif %} data-i18n="medical.done" data-i18n-ns="animals">実施済み</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4" id="sterilizedOnWrapper" style="{% if not animal.is_sterilized %}display: none;{% endif %}">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.sterilized_on" data-i18n-ns="animals">避妊・去勢実施日</label>
+                                        <input type="date" id="sterilizedOn" value="{{ animal.sterilized_on.isoformat() if animal.sterilized_on else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="flex gap-2">
                                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="buttons.save" data-i18n-ns="common">
                                     保存

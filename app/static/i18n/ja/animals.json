@@ -75,7 +75,12 @@
     "breed": "品種",
     "protected_at": "保護日",
     "created_at": "登録日",
-    "updated_at": "更新日"
+    "updated_at": "更新日",
+    "medical_info": "医療情報",
+    "fiv_status": "FIV検査",
+    "felv_status": "FeLV検査",
+    "sterilization": "避妊・去勢",
+    "sterilized_on": "避妊・去勢実施日"
   },
   "status": {
     "QUARANTINE": "保護中",
@@ -120,6 +125,13 @@
   "collar_options": {
     "has": "あり",
     "none": "なし"
+  },
+  "medical": {
+    "unknown": "不明",
+    "negative": "陰性(-)",
+    "positive": "陽性(+)",
+    "done": "実施済み",
+    "not_done": "未実施"
   },
   "tabs": {
     "basic_info": "基本情報",
