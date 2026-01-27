@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupStatusAndLocationUpdate();
   setupQRCardGeneration();
   setupPaperFormGeneration();
+  setupVaccinationRecords();
 });
 
 // タブ切り替え機能
@@ -142,6 +143,8 @@ function setupBasicInfoForm() {
   });
 }
 
+let currentVaccinationRecordId = null;
+
 // 基本情報の更新
 async function updateBasicInfo() {
   try {
@@ -192,6 +195,8 @@ async function updateBasicInfo() {
       throw new Error(errorMessage);
     }
 
+    await saveVaccinationRecord();
+
     const successMessage = isKiroweenMode
       ? 'BASIC INFO UPDATED'
       : translate('messages.basic_info_updated', { ns: 'animals' });
@@ -202,6 +207,118 @@ async function updateBasicInfo() {
       ? 'FAILED TO UPDATE BASIC INFO'
       : translate('errors.basic_info_update_failed', { ns: 'animals' });
     showToast(error.message || fallbackMessage, 'error');
+  }
+}
+
+// ワクチン接種記録のセットアップ
+async function setupVaccinationRecords() {
+  await loadVaccinationRecordIntoForm();
+}
+
+// ワクチン接種記録の取得とフォーム反映（最新1件）
+async function loadVaccinationRecordIntoForm() {
+  currentVaccinationRecordId = null;
+  try {
+    const response = await fetch(`/api/v1/vaccinations/animal/${animalId}`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch vaccination records');
+    }
+
+    const records = await response.json();
+    if (!records || records.length === 0) {
+      setVaccinationFormValues();
+      return;
+    }
+
+    // 最新（降順で返る前提）
+    const record = records[0];
+    currentVaccinationRecordId = record.id;
+    setVaccinationFormValues({
+      vaccine_category: record.vaccine_category,
+      administered_on: record.administered_on,
+      next_due_on: record.next_due_on,
+      memo: record.memo,
+    });
+  } catch (error) {
+    console.error('Error loading vaccination record:', error);
+    showToast(translate('medical_record.load_error', { ns: 'animals' }), 'error');
+  }
+}
+
+function setVaccinationFormValues(values = {}) {
+  const { vaccine_category = '3core', administered_on = '', next_due_on = '', memo = '' } = values;
+
+  const categoryEl = document.getElementById('vaccineCategory');
+  const dateEl = document.getElementById('vaccinationDate');
+  const nextDueEl = document.getElementById('nextDueOn');
+  const memoEl = document.getElementById('vaccineMemo');
+
+  if (categoryEl) categoryEl.value = vaccine_category;
+  if (dateEl) dateEl.value = administered_on || '';
+  if (nextDueEl) nextDueEl.value = next_due_on || '';
+  if (memoEl) memoEl.value = memo || '';
+}
+
+// ワクチン接種記録の保存（新規 or 更新）
+async function saveVaccinationRecord() {
+  const vaccineCategory = document.getElementById('vaccineCategory')?.value;
+  const vaccinationDate = document.getElementById('vaccinationDate')?.value;
+  const nextDueOn = document.getElementById('nextDueOn')?.value || null;
+  const vaccineMemo = document.getElementById('vaccineMemo')?.value || null;
+
+  // 接種日未入力なら保存処理をスキップ
+  if (!vaccinationDate) {
+    return null;
+  }
+
+  const payload = {
+    animal_id: animalId,
+    vaccine_category: vaccineCategory,
+    administered_on: vaccinationDate,
+    next_due_on: nextDueOn,
+    memo: vaccineMemo,
+  };
+
+  const isUpdate = Boolean(currentVaccinationRecordId);
+  const url = isUpdate
+    ? `/api/v1/vaccinations/${currentVaccinationRecordId}`
+    : '/api/v1/vaccinations';
+  const method = isUpdate ? 'PUT' : 'POST';
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const message = errorData.detail || translate('medical_record.load_error', { ns: 'animals' });
+      throw new Error(message);
+    }
+
+    const saved = await response.json();
+    currentVaccinationRecordId = saved.id;
+    setVaccinationFormValues({
+      vaccine_category: saved.vaccine_category,
+      administered_on: saved.administered_on,
+      next_due_on: saved.next_due_on,
+      memo: saved.memo,
+    });
+    return saved;
+  } catch (error) {
+    console.error('Error saving vaccination record:', error);
+    showToast(error.message, 'error');
+    throw error;
   }
 }
 

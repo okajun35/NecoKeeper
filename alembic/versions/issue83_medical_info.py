@@ -3,7 +3,7 @@
 Issue #83: プロフィールに医療情報を追加
 
 Revision ID: issue83_medical_info
-Revises: f4e98ee7ca5a
+Revises: 20260125_003
 Create Date: 2026-01-27
 
 """

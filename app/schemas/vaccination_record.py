@@ -1,10 +1,16 @@
 """VaccinationRecord Pydanticスキーマ（Issue #83）."""
 
+from __future__ import annotations
+
 from datetime import date as date_type
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.utils.enums import VaccineCategoryEnum
+
+if TYPE_CHECKING:
+    from app.models.vaccination_record import VaccinationRecord
 
 
 class VaccinationRecordBase(BaseModel):
@@ -46,8 +52,8 @@ class VaccinationRecordResponse(VaccinationRecordBase):
 
     @classmethod
     def from_orm_with_display(
-        cls, obj: "VaccinationRecordResponse", locale: str = "ja"
-    ) -> "VaccinationRecordResponse":
+        cls, obj: VaccinationRecord, locale: str = "ja"
+    ) -> VaccinationRecordResponse:
         """ORMオブジェクトからdisplay名付きで変換."""
         data = {
             "id": obj.id,
@@ -58,12 +64,10 @@ class VaccinationRecordResponse(VaccinationRecordBase):
             "memo": obj.memo,
         }
         if obj.vaccine_category:
+            # 文字列からEnumに変換してからdisplay_nameメソッドを呼ぶ
+            category_enum = VaccineCategoryEnum(obj.vaccine_category)
             if locale == "ja":
-                data["vaccine_category_display"] = (
-                    obj.vaccine_category.display_name_ja()
-                )
+                data["vaccine_category_display"] = category_enum.display_name_ja()
             else:
-                data["vaccine_category_display"] = (
-                    obj.vaccine_category.display_name_en()
-                )
+                data["vaccine_category_display"] = category_enum.display_name_en()
         return cls(**data)

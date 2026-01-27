@@ -377,6 +377,35 @@
                                         <input type="date" id="sterilizedOn" value="{{ animal.sterilized_on.isoformat() if animal.sterilized_on else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                                     </div>
                                 </div>
+
+                                <!-- ワクチン接種記録 -->
+                                <div class="mt-6">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="text-lg font-medium text-gray-900" data-i18n="fields.vaccination_records" data-i18n-ns="animals">ワクチン接種記録</h3>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_type" data-i18n-ns="animals">ワクチン種別</label>
+                                            <select id="vaccineCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                                <option value="3core" data-i18n="vaccine_category.3core" data-i18n-ns="animals">3種混合</option>
+                                                <option value="4core" data-i18n="vaccine_category.4core" data-i18n-ns="animals">4種混合（FeLV含む）</option>
+                                                <option value="5core" data-i18n="vaccine_category.5core" data-i18n-ns="animals">5種混合（クラミジア含む）</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_date" data-i18n-ns="animals">接種日</label>
+                                            <input type="date" id="vaccinationDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.next_due_on" data-i18n-ns="animals">次回接種予定日</label>
+                                            <input type="date" id="nextDueOn" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_memo" data-i18n-ns="animals">メモ</label>
+                                            <textarea id="vaccineMemo" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: ロット番号、投与場所など"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="flex gap-2">

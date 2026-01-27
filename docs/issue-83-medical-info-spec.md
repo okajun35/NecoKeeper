@@ -198,6 +198,7 @@ CREATE INDEX ix_vaccination_records_administered_on ON vaccination_records(admin
 - [x] vaccine_label: 廃止
 - [x] 検査日（fiv_tested_on, felv_tested_on）: スコープ外
 - [x] 避妊・去勢: 今回に含める
+- [ ] 接種状況の判定ロジック/一覧・削除のUI対応: 今回は未実装（最新1件のみの運用）
 - [x] インデックス: 追加する
 - [x] memo: text 型
 
