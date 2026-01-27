@@ -15,6 +15,7 @@ from app.models.medical_record import MedicalRecord
 from app.models.setting import Setting
 from app.models.status_history import StatusHistory
 from app.models.user import User
+from app.models.vaccination_record import VaccinationRecord
 from app.models.volunteer import Volunteer
 
 __all__ = [
@@ -29,5 +30,6 @@ __all__ = [
     "Setting",
     "StatusHistory",
     "User",
+    "VaccinationRecord",
     "Volunteer",
 ]

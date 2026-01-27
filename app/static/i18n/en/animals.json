@@ -69,11 +69,23 @@
     "ear_cut": "Ear Cut",
     "features": "Features",
     "status": "Status",
+    "location_type": "Location Type",
+    "current_location_note": "Location Details",
     "rescue_source": "Rescue Source",
     "breed": "Breed",
     "protected_at": "Protected Date",
     "created_at": "Created At",
-    "updated_at": "Updated At"
+    "updated_at": "Updated At",
+    "medical_info": "Medical Information",
+    "fiv_status": "FIV Test",
+    "felv_status": "FeLV Test",
+    "sterilization": "Sterilization",
+    "sterilized_on": "Sterilization Date",
+    "vaccination_records": "Vaccination Records",
+    "vaccine_type": "Vaccine Type",
+    "vaccine_date": "Vaccination Date",
+    "next_due_on": "Next Due Date",
+    "vaccine_memo": "Memo"
   },
   "status": {
     "protected": "Protected",
@@ -99,6 +111,11 @@
     "gray": "Gray",
     "other": "Other"
   },
+  "vaccine_category": {
+    "3core": "3-in-1 (FVR+FCV+FPV)",
+    "4core": "4-in-1 (+FeLV)",
+    "5core": "5-in-1 (+Chlamydia)"
+  },
   "age": {
     "kitten": "Kitten",
     "adult": "Adult",
@@ -113,6 +130,13 @@
   "collar_options": {
     "has": "Has collar",
     "none": "No collar"
+  },
+  "medical": {
+    "unknown": "Unknown",
+    "negative": "Negative (-)",
+    "positive": "Positive (+)",
+    "done": "Done",
+    "not_done": "Not Done"
   },
   "tabs": {
     "basic_info": "Basic Info",

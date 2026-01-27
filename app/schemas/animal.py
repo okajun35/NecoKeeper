@@ -58,6 +58,17 @@ class AnimalBase(BaseModel):
         None,
         description="所在地詳細（「◯◯さん宅」「カフェ2F」「隔離室A」など）",
     )
+    # 医療情報（Issue #83）
+    fiv_positive: bool | None = Field(
+        None, description="FIV検査結果（True=陽性, False=陰性, None=不明）"
+    )
+    felv_positive: bool | None = Field(
+        None, description="FeLV検査結果（True=陽性, False=陰性, None=不明）"
+    )
+    is_sterilized: bool | None = Field(
+        None, description="避妊・去勢状態（True=済, False=未, None=不明）"
+    )
+    sterilized_on: date_type | None = Field(None, description="避妊・去勢実施日")
     protected_at: date_type = Field(
         default_factory=date_type.today, description="保護日"
     )
@@ -154,6 +165,17 @@ class AnimalUpdate(BaseModel):
     status: str | None = Field(None, description="ステータス")
     location_type: str | None = Field(None, description="ロケーションタイプ")
     current_location_note: str | None = Field(None, description="所在地詳細")
+    # 医療情報（Issue #83）
+    fiv_positive: bool | None = Field(
+        None, description="FIV検査結果（True=陽性, False=陰性, None=不明）"
+    )
+    felv_positive: bool | None = Field(
+        None, description="FeLV検査結果（True=陽性, False=陰性, None=不明）"
+    )
+    is_sterilized: bool | None = Field(
+        None, description="避妊・去勢状態（True=済, False=未, None=不明）"
+    )
+    sterilized_on: date_type | None = Field(None, description="避妊・去勢実施日")
     protected_at: date_type | None = None
     confirm: bool = Field(
         False,

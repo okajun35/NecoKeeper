@@ -67,3 +67,33 @@ class LocationType(str, Enum):
             LocationType.ADOPTER_HOME: "Adopter Home",
         }
         return names.get(self, self.value)
+
+
+class VaccineCategoryEnum(str, Enum):
+    """ワクチン種別
+
+    Issue #83: プロフィールに医療情報を追加
+    「どの病気のワクチンを打ったか」ではなく「どのワクチンを打ったか」を記録する設計。
+    """
+
+    VACCINE_3CORE = "3core"  # FVR+FCV+FPV（3種混合）
+    VACCINE_4CORE = "4core"  # 3種＋FeLV（4種混合）
+    VACCINE_5CORE = "5core"  # 4種＋クラミジア（5種混合）
+
+    def display_name_ja(self) -> str:
+        """日本語表示名"""
+        names = {
+            VaccineCategoryEnum.VACCINE_3CORE: "3種",
+            VaccineCategoryEnum.VACCINE_4CORE: "4種",
+            VaccineCategoryEnum.VACCINE_5CORE: "5種",
+        }
+        return names.get(self, self.value)
+
+    def display_name_en(self) -> str:
+        """英語表示名"""
+        names = {
+            VaccineCategoryEnum.VACCINE_3CORE: "3-in-1",
+            VaccineCategoryEnum.VACCINE_4CORE: "4-in-1",
+            VaccineCategoryEnum.VACCINE_5CORE: "5-in-1",
+        }
+        return names.get(self, self.value)

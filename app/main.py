@@ -40,6 +40,7 @@ from app.api.v1 import (
     public_pages,
     reports,
     users,
+    vaccinations,
     volunteers,
 )
 from app.config import get_settings
@@ -400,6 +401,7 @@ app.include_router(images.router, prefix="/api/v1")
 app.include_router(language.router, prefix="/api/v1")  # 言語切り替えAPI
 app.include_router(medical_actions.router, prefix="/api/v1")
 app.include_router(medical_records.router, prefix="/api/v1")
+app.include_router(vaccinations.router, prefix="/api/v1")  # ワクチン接種記録API
 app.include_router(pdf.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")  # 帳票出力API
 app.include_router(public.router, prefix="/api/v1")  # Public API（認証不要）

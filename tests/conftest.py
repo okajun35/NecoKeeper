@@ -34,6 +34,7 @@ from app.models.care_log import CareLog
 from app.models.setting import Setting
 from app.models.status_history import StatusHistory
 from app.models.user import User
+from app.models.vaccination_record import VaccinationRecord
 from app.models.volunteer import Volunteer
 
 # テスト用のインメモリデータベース（StaticPoolで接続を共有）
@@ -86,6 +87,7 @@ def test_db() -> Generator[Session, None, None]:
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
+        db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
         db.query(ApplicantHouseholdMember).delete()  # 家族構成
         db.query(ApplicantPet).delete()  # 先住ペット
@@ -138,6 +140,7 @@ def test_db() -> Generator[Session, None, None]:
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
+        db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
         db.query(ApplicantHouseholdMember).delete()  # 家族構成
         db.query(ApplicantPet).delete()  # 先住ペット
