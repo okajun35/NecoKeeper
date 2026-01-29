@@ -216,3 +216,134 @@ class TestAnimalCoatColorSchema:
         }
         with pytest.raises(ValidationError):
             AnimalUpdate(**data)
+
+
+class TestAnimalBooleanFieldsSchema:
+    """医療情報のブール値フィールドのスキーマテスト"""
+
+    def test_create_animal_fiv_positive_string_true(self):
+        """fiv_positiveに文字列"true"を渡すとTrueに変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": "true",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is True
+
+    def test_create_animal_fiv_positive_string_false(self):
+        """fiv_positiveに文字列"false"を渡すとFalseに変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": "false",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is False
+
+    def test_create_animal_fiv_positive_empty_string(self):
+        """fiv_positiveに空文字列を渡すとNoneに変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": "",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is None
+
+    def test_create_animal_fiv_positive_none(self):
+        """fiv_positiveにNoneを渡すとNoneのままであることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": None,
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is None
+
+    def test_create_animal_fiv_positive_boolean_true(self):
+        """fiv_positiveにbool型Trueを渡すとそのままTrueであることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": True,
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is True
+
+    def test_create_animal_felv_positive_string_true(self):
+        """felv_positiveに文字列"true"を渡すとTrueに変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "felv_positive": "true",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.felv_positive is True
+
+    def test_create_animal_is_sterilized_string_false(self):
+        """is_sterilizedに文字列"false"を渡すとFalseに変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "is_sterilized": "false",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.is_sterilized is False
+
+    def test_update_animal_fiv_positive_boolean(self):
+        """AnimalUpdate: fiv_positive に boolean を渡した場合、そのまま保持されること
+        （注: AnimalUpdateではparse_boolean_stringバリデータが適用されていないため、boolean値のみ受け付ける）"""
+        data = {"fiv_positive": True}
+        schema = AnimalUpdate(**data)
+        assert schema.fiv_positive is True
+
+        data = {"fiv_positive": False}
+        schema = AnimalUpdate(**data)
+        assert schema.fiv_positive is False
+
+    def test_update_animal_felv_positive_none(self):
+        """AnimalUpdate: felv_positive に None を渡した場合、None が保持されること"""
+        data = {"felv_positive": None}
+        schema = AnimalUpdate(**data)
+        assert schema.felv_positive is None
+
+    def test_update_animal_is_sterilized_boolean(self):
+        """AnimalUpdate: is_sterilized に boolean を渡した場合、そのまま保持されること"""
+        data = {"is_sterilized": False}
+        schema = AnimalUpdate(**data)
+        assert schema.is_sterilized is False
+
+        data = {"is_sterilized": True}
+        schema = AnimalUpdate(**data)
+        assert schema.is_sterilized is True
+
+    def test_create_animal_all_medical_fields_from_form(self):
+        """フォームから送信される全医療情報フィールドが正しく変換されることを確認"""
+        data = {
+            "name": "テスト",
+            "coat_color": "キジトラ",
+            "tail_length": "長い",
+            "gender": "male",
+            "fiv_positive": "true",
+            "felv_positive": "false",
+            "is_sterilized": "true",
+        }
+        schema = AnimalCreate(**data)
+        assert schema.fiv_positive is True
+        assert schema.felv_positive is False
+        assert schema.is_sterilized is True
