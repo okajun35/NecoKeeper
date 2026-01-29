@@ -49,6 +49,8 @@
   "age_unknown": "Unknown",
   "collar_placeholder": "e.g., Red collar",
   "coat_color_note_placeholder": "e.g., Light, pastel, fewer black patches",
+  "microchip_placeholder": "e.g., 4A8F13BB23 (ISO format)",
+  "current_location_note_placeholder": "e.g., Cage A-4, Name's home (TEL: 090-...)",
   "features_placeholder": "Enter injuries, characteristics, personality, etc.",
   "rescue_source_placeholder": "e.g., Shelter A",
   "breed_placeholder": "e.g., American Shorthair",
@@ -79,7 +81,9 @@
     "medical_info": "Medical Information",
     "fiv_status": "FIV Test",
     "felv_status": "FeLV Test",
-    "sterilization": "Sterilization",
+    "fiv_positive": "FIV",
+    "felv_positive": "FeLV",
+    "is_sterilized": "Sterilized",
     "sterilized_on": "Sterilization Date",
     "vaccination_records": "Vaccination Records",
     "vaccine_type": "Vaccine Type",
@@ -88,11 +92,16 @@
     "vaccine_memo": "Memo"
   },
   "status": {
-    "protected": "Protected",
-    "treatment": "Under Treatment",
-    "adoptable": "Adoptable",
-    "adopted": "Adopted",
-    "deceased": "Deceased"
+    "QUARANTINE": "Protected",
+    "IN_CARE": "In Care",
+    "TRIAL": "Trial",
+    "ADOPTED": "Adopted",
+    "DECEASED": "Deceased"
+  },
+  "location_type": {
+    "FACILITY": "Facility",
+    "FOSTER_HOME": "Foster Home",
+    "ADOPTER_HOME": "Adopter Home"
   },
   "gender": {
     "male": "Male",
@@ -124,8 +133,8 @@
   "tail": {
     "long": "Long",
     "short": "Short",
-    "none": "None",
-    "bobtail": "Bobtail"
+    "kinked": "Bobtail",
+    "none": "None"
   },
   "collar_options": {
     "has": "Has collar",

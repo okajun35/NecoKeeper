@@ -101,6 +101,15 @@ function parseOptionalInt(value) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function parseBooleanSelect(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return null;
+}
+
 /**
  * フォーム送信を設定
  */
@@ -133,6 +142,7 @@ function setupFormSubmit() {
         gender: document.getElementById('gender').value,
         age_months: parseOptionalInt(document.getElementById('age_months').value),
         age_is_estimated: document.getElementById('age_is_estimated').checked,
+        microchip_number: document.getElementById('microchip_number').value || null,
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || undefined,
         ear_cut: document.getElementById('ear_cut').checked,
@@ -140,7 +150,13 @@ function setupFormSubmit() {
         breed: document.getElementById('breed').value || undefined,
         status: document.getElementById('status').value,
         protected_at: protectedAt,
+        location_type: document.getElementById('location_type').value || 'FACILITY',
+        current_location_note: document.getElementById('current_location_note').value || null,
         features: document.getElementById('features').value || undefined,
+        fiv_positive: parseBooleanSelect(document.getElementById('fiv_positive').value),
+        felv_positive: parseBooleanSelect(document.getElementById('felv_positive').value),
+        is_sterilized: parseBooleanSelect(document.getElementById('is_sterilized').value),
+        sterilized_on: document.getElementById('sterilized_on').value || null,
       };
 
       const animal = await apiRequest(`${API_BASE}/animals`, {
