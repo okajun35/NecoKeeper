@@ -103,6 +103,21 @@ class AnimalBase(BaseModel):
             return None
         return v
 
+    @field_validator("fiv_positive", "felv_positive", "is_sterilized", mode="before")
+    @classmethod
+    def parse_boolean_string(cls, v: bool | str | None) -> bool | None:
+        """文字列ブール値をbool型に変換（フォーム入力対応）"""
+        if v == "" or v is None:
+            return None
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            if v.lower() == "true":
+                return True
+            if v.lower() == "false":
+                return False
+        return None
+
     @field_validator("microchip_number")
     @classmethod
     def validate_microchip_number(cls, v: str | None) -> str | None:

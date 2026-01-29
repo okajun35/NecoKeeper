@@ -49,6 +49,8 @@
   "age_unknown": "月齢不明",
   "collar_placeholder": "例: 赤い首輪",
   "coat_color_note_placeholder": "例: 淡い、パステル、黒少なめ",
+  "microchip_placeholder": "例: 4A8F13BB23 (ISO形式)",
+  "current_location_note_placeholder": "例: ケージAー4, 〇〇さんの家(TEL: 090-...)",
   "features_placeholder": "外傷、特徴、性格などを記入",
   "rescue_source_placeholder": "例: シェルターA",
   "breed_placeholder": "例: アメリカンショートヘア",
@@ -79,7 +81,9 @@
     "medical_info": "医療情報",
     "fiv_status": "FIV検査",
     "felv_status": "FeLV検査",
-    "sterilization": "避妊・去勢",
+    "fiv_positive": "FIV",
+    "felv_positive": "FeLV",
+    "is_sterilized": "避妊・去勢済み",
     "sterilized_on": "避妊・去勢実施日",
     "vaccination_records": "ワクチン接種記録",
     "vaccine_type": "ワクチン種別",
@@ -93,6 +97,11 @@
     "TRIAL": "トライアル中",
     "ADOPTED": "譲渡済み",
     "DECEASED": "死亡"
+  },
+  "location_type": {
+    "FACILITY": "施設",
+    "FOSTER_HOME": "一時保護宅",
+    "ADOPTER_HOME": "譲渡先"
   },
   "location": {
     "facility": "施設",
@@ -129,8 +138,8 @@
   "tail": {
     "long": "長い",
     "short": "短い",
-    "none": "なし",
-    "bobtail": "かぎしっぽ"
+    "kinked": "かぎしっぽ",
+    "none": "なし"
   },
   "collar_options": {
     "has": "あり",
