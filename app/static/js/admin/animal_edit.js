@@ -142,7 +142,15 @@ function setupFormSubmit(animalId) {
       }, 1000);
     } catch (error) {
       console.error('Error updating animal:', error);
-      showError(error.message);
+      let errorMessage = '猫情報の更新に失敗しました';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      showError(errorMessage);
       submitButton.disabled = false;
       submitButton.textContent = originalText;
     }

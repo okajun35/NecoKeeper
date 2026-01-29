@@ -346,6 +346,13 @@ async function apiRequest(url, options = {}) {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+
+      // 422バリデーションエラーの場合
+      if (response.status === 422 && Array.isArray(error.detail)) {
+        const messages = error.detail.map(e => e.msg || e.toString()).join(', ');
+        throw new Error(messages || 'バリデーションエラーが発生しました');
+      }
+
       throw new Error(error.detail || `リクエストに失敗しました (${response.status})`);
     }
 

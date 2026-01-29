@@ -185,6 +185,8 @@ function setupFormSubmit() {
         errorMessage = error.message;
       } else if (typeof error === 'string') {
         errorMessage = error;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
       showError(errorMessage);
       submitButton.disabled = false;
