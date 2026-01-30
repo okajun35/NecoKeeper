@@ -133,6 +133,15 @@ function formatDateTime(dateTimeString) {
   }
 }
 
+function parseBooleanSelect(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return null;
+}
+
 function getAppetiteLevelKey(value) {
   const normalized = Math.round(Number(value) * 100) / 100;
   const map = {
@@ -346,6 +355,13 @@ async function apiRequest(url, options = {}) {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+
+      // 422バリデーションエラーの場合
+      if (response.status === 422 && Array.isArray(error.detail)) {
+        const messages = error.detail.map(e => e.msg || e.toString()).join(', ');
+        throw new Error(messages || 'バリデーションエラーが発生しました');
+      }
+
       throw new Error(error.detail || `リクエストに失敗しました (${response.status})`);
     }
 

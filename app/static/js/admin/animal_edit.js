@@ -30,15 +30,6 @@ function parseOptionalInt(value) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function parseBooleanSelect(value) {
-  if (value === '' || value === null || value === undefined) {
-    return null;
-  }
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  return null;
-}
-
 /**
  * URLから猫IDを取得
  */
@@ -270,7 +261,15 @@ function setupFormSubmit(animalId) {
       }, 1000);
     } catch (error) {
       console.error('Error updating animal:', error);
-      showError(error.message);
+      let errorMessage = '猫情報の更新に失敗しました';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      showError(errorMessage);
       submitButton.disabled = false;
       submitButton.textContent = originalText;
     }
