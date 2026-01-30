@@ -106,6 +106,30 @@ function fillForm(animal) {
   // 詳細情報セクション（読み取り専用）の表示
   renderReadonlyInfo(animal);
 
+  const requiredIds = [
+    'name',
+    'coat_color',
+    'gender',
+    'tail_length',
+    'microchip_number',
+    'rescue_source',
+    'breed',
+    'status',
+    'protected_at',
+    'location_type',
+    'current_location_note',
+    'features',
+    'fiv_positive',
+    'felv_positive',
+    'is_sterilized',
+    'sterilized_on',
+  ];
+  requiredIds.forEach(id => {
+    if (!document.getElementById(id)) {
+      console.warn(`fillForm: Expected element with id '${id}' not found.`);
+    }
+  });
+
   // 編集フォーム
   const nameElem = document.getElementById('name');
   if (nameElem) nameElem.value = animal.name || '';

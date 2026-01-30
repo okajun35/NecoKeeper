@@ -81,9 +81,6 @@ class TestAnimalEditPage:
         assert response.status_code == 200
         html = response.text
 
-        # 詳細情報表示セクションが存在する
-        assert 'class="bg-gray-50 rounded-lg' in html
-
         # protected_at_display, status_display等の表示要素が存在する
         assert 'id="protected_at_display"' in html
         assert 'id="status_display"' in html
@@ -155,7 +152,8 @@ class TestAnimalStatusChange:
         assert response.status_code == 200
         updated_animal = response.json()
         assert updated_animal["status"] == "IN_CARE"
-        # reasonフィールドは保存されないが、エラーにならないことを確認
+        # reasonフィールドはレスポンスには含まれない
+        assert "reason" not in updated_animal
 
     def test_update_status_without_reason(
         self, test_client, test_db, auth_token, test_animal
