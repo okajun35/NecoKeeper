@@ -28,11 +28,9 @@ function parseOptionalBool(value) {
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   setupTabs();
-  setupBasicInfoForm();
   setupStatusAndLocationUpdate();
   setupQRCardGeneration();
   setupPaperFormGeneration();
-  setupVaccinationRecords();
 });
 
 // タブ切り替え機能
@@ -554,12 +552,14 @@ async function generatePaperForm(year, month) {
   }
 }
 
-// ステータスの更新
+// ステータスの更新（理由フィールド対応）
 async function updateStatusAndLocation(confirm = false) {
   try {
     const newStatus = document.getElementById('statusSelect').value;
     const newLocationType = document.getElementById('locationTypeSelect').value;
     const currentLocationNote = document.getElementById('currentLocationNote').value.trim();
+    const reasonForStatusChange =
+      document.getElementById('reasonForStatusChange')?.value.trim() || null;
 
     const requestBody = {
       status: newStatus,
@@ -569,6 +569,11 @@ async function updateStatusAndLocation(confirm = false) {
     // current_location_noteが空でなければ追加
     if (currentLocationNote) {
       requestBody.current_location_note = currentLocationNote;
+    }
+
+    // 理由が入力されていれば追加
+    if (reasonForStatusChange) {
+      requestBody.reason = reasonForStatusChange;
     }
 
     if (confirm) {
@@ -593,7 +598,7 @@ async function updateStatusAndLocation(confirm = false) {
         const confirmMessage =
           confirmData.message || '終端ステータスから変更しようとしています。本当に変更しますか？';
         if (window.confirm(confirmMessage)) {
-          // 確認後、再度リクエスト
+          // 確認後、再度リクエスト（理由は保持）
           await updateStatusAndLocation(true);
         }
       }
@@ -605,6 +610,12 @@ async function updateStatusAndLocation(confirm = false) {
         ? 'FAILED TO UPDATE'
         : 'ステータス・所在地の更新に失敗しました';
       throw new Error(errorMessage);
+    }
+
+    // 更新成功後、理由フィールドをリセット
+    const reasonField = document.getElementById('reasonForStatusChange');
+    if (reasonField) {
+      reasonField.value = '';
     }
 
     const successMessage = isKiroweenMode ? 'UPDATED' : 'ステータス・所在地を更新しました';
