@@ -30,15 +30,6 @@ function parseOptionalInt(value) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function parseBooleanSelect(value) {
-  if (value === '' || value === null || value === undefined) {
-    return null;
-  }
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  return null;
-}
-
 /**
  * URLから猫IDを取得
  */

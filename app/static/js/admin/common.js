@@ -133,6 +133,15 @@ function formatDateTime(dateTimeString) {
   }
 }
 
+function parseBooleanSelect(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return null;
+}
+
 function getAppetiteLevelKey(value) {
   const normalized = Math.round(Number(value) * 100) / 100;
   const map = {
