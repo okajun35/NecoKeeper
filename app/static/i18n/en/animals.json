@@ -51,6 +51,7 @@
   "coat_color_note_placeholder": "e.g., Light, pastel, fewer black patches",
   "microchip_placeholder": "e.g., 4A8F13BB23 (ISO format)",
   "current_location_note_placeholder": "e.g., Cage A-4, Name's home (TEL: 090-...)",
+  "reason_for_status_change_placeholder": "e.g., Adoption planned, Treatment completed",
   "features_placeholder": "Enter injuries, characteristics, personality, etc.",
   "rescue_source_placeholder": "e.g., Shelter A",
   "breed_placeholder": "e.g., American Shorthair",
@@ -73,6 +74,7 @@
     "status": "Status",
     "location_type": "Location Type",
     "current_location_note": "Location Details",
+    "reason_for_status_change": "Reason for Change (Optional)",
     "rescue_source": "Rescue Source",
     "breed": "Breed",
     "protected_at": "Protected Date",
@@ -146,6 +148,9 @@
     "positive": "Positive (+)",
     "done": "Done",
     "not_done": "Not Done"
+  },
+  "sections": {
+    "detail_info": "Detail Information"
   },
   "tabs": {
     "basic_info": "Basic Info",
@@ -223,6 +228,10 @@
   },
   "pagination": {
     "summary": "Showing {{from}}-{{to}} of {{total}} cats"
+  },
+  "labels": {
+    "unset": "Not set",
+    "unregistered": "Not registered"
   },
   "fallbacks": {
     "no_name": "Unnamed"

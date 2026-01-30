@@ -51,6 +51,7 @@
   "coat_color_note_placeholder": "例: 淡い、パステル、黒少なめ",
   "microchip_placeholder": "例: 4A8F13BB23 (ISO形式)",
   "current_location_note_placeholder": "例: ケージAー4, 〇〇さんの家(TEL: 090-...)",
+  "reason_for_status_change_placeholder": "例: 譲渡予定、治療完了",
   "features_placeholder": "外傷、特徴、性格などを記入",
   "rescue_source_placeholder": "例: シェルターA",
   "breed_placeholder": "例: アメリカンショートヘア",
@@ -73,6 +74,7 @@
     "status": "ステータス",
     "location_type": "所在地タイプ",
     "current_location_note": "所在地詳細",
+    "reason_for_status_change": "変更理由（オプション）",
     "rescue_source": "レスキュー元",
     "breed": "品種",
     "protected_at": "保護日",
@@ -152,6 +154,9 @@
     "done": "実施済み",
     "not_done": "未実施"
   },
+  "sections": {
+    "detail_info": "詳細情報"
+  },
   "tabs": {
     "basic_info": "基本情報",
     "care_logs": "世話記録",
@@ -230,6 +235,10 @@
   },
   "pagination": {
     "summary": "全{{total}}件中 {{from}} - {{to}} 件を表示"
+  },
+  "labels": {
+    "unset": "未設定",
+    "unregistered": "未登録"
   },
   "fallbacks": {
     "no_name": "名前なし"
