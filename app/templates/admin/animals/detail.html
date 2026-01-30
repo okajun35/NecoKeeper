@@ -175,51 +175,54 @@
                             <input type="text" id="currentLocationNote" value="{{ animal.current_location_note or '' }}" placeholder="例: ◯◯さん宅、カフェ2F、隔離室A" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         </div>
                         <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.reason_for_status_change" data-i18n-ns="animals">変更理由（オプション）</label>
+                            <textarea id="reasonForStatusChange" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: 譲渡予定、治療完了" data-i18n-placeholder="reason_for_status_change_placeholder" data-i18n-ns="animals"></textarea>
+                        </div>
+                        <div class="mt-4">
                             <button id="updateStatusAndLocationBtn" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                                 <span data-i18n="actions.update_status_and_location" data-i18n-ns="animals">更新</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- 右カラム: 基本情報フォーム -->
+                    <!-- 右カラム: 基本情報（読み取り専用） -->
                     <div class="lg:col-span-2">
-                        <form id="basicInfoForm" class="space-y-4">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-lg font-medium text-gray-900" data-i18n="tabs.basic_info" data-i18n-ns="animals">基本情報</h3>
+                            <a href="{{ settings.admin_base_path }}/animals/{{ animal.id }}/edit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium" data-i18n="buttons.edit" data-i18n-ns="common">
+                                編集する
+                            </a>
+                        </div>
+                        <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <span data-i18n="fields.name" data-i18n-ns="animals">名前</span> <span class="text-red-500">*</span>
+                                        <span data-i18n="fields.name" data-i18n-ns="animals">名前</span>
                                     </label>
-                                    <input type="text" id="name" value="{{ animal.name }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    <p class="text-gray-900">{{ animal.name }}</p>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span> <span class="text-red-500">*</span>
+                                        <span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span>
                                     </label>
-                                    <select id="coat_color" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="" {% if not animal.coat_color %}selected{% endif %} data-i18n="please_select" data-i18n-ns="common">選択してください</option>
-                                        <option value="三毛" {% if animal.coat_color == '三毛' %}selected{% endif %} data-i18n="coat_color.calico" data-i18n-ns="animals">三毛</option>
-                                        <option value="白黒" {% if animal.coat_color == '白黒' %}selected{% endif %} data-i18n="coat_color.black_white" data-i18n-ns="animals">白黒</option>
-                                        <option value="黒" {% if animal.coat_color == '黒' %}selected{% endif %} data-i18n="coat_color.black" data-i18n-ns="animals">黒</option>
-                                        <option value="白" {% if animal.coat_color == '白' %}selected{% endif %} data-i18n="coat_color.white" data-i18n-ns="animals">白</option>
-                                        <option value="茶トラ" {% if animal.coat_color == '茶トラ' %}selected{% endif %} data-i18n="coat_color.brown_tabby" data-i18n-ns="animals">茶トラ</option>
-                                        <option value="キジトラ" {% if animal.coat_color == 'キジトラ' %}selected{% endif %} data-i18n="coat_color.mackerel_tabby" data-i18n-ns="animals">キジトラ</option>
-                                        <option value="キジ" {% if animal.coat_color == 'キジ' %}selected{% endif %} data-i18n="coat_color.mackerel" data-i18n-ns="animals">キジ</option>
-                                        <option value="サビ" {% if animal.coat_color == 'サビ' %}selected{% endif %} data-i18n="coat_color.tortoiseshell" data-i18n-ns="animals">サビ</option>
-                                        <option value="グレー" {% if animal.coat_color == 'グレー' %}selected{% endif %} data-i18n="coat_color.gray" data-i18n-ns="animals">グレー</option>
-                                        <option value="その他" {% if animal.coat_color == 'その他' %}selected{% endif %} data-i18n="coat_color.other" data-i18n-ns="animals">その他</option>
-                                    </select>
+                                    {% if animal.coat_color %}
+                                    <p class="text-gray-900">{{ animal.coat_color }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
                                         <span data-i18n="fields.coat_color_note" data-i18n-ns="animals">毛色の補足</span>
                                     </label>
-                                    <input type="text" id="coat_color_note" value="{{ animal.coat_color_note or '' }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                           placeholder="例: 淡い、パステル、黒少なめ"
-                                           data-i18n-placeholder="coat_color_note_placeholder" data-i18n-ns="animals">
+                                    {% if animal.coat_color_note %}
+                                    <p class="text-gray-900">{{ animal.coat_color_note }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                    {% endif %}
                                 </div>
                             </div>
 
@@ -228,31 +231,39 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
                                         <span data-i18n="fields.microchip_number" data-i18n-ns="animals">マイクロチップ番号</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        id="microchip_number"
-                                        name="microchip_number"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                        maxlength="20"
-                                        placeholder="例: 392123456789012"
-                                        value="{{ animal.microchip_number or '' }}"
-                                    />
-                                    <p class="mt-1 text-xs text-gray-500">
-                                        15桁の半角数字（ISO規格）または10桁の英数字（旧規格）
-                                    </p>
-                                    <p id="microchip_error" class="hidden mt-1 text-sm text-red-600"></p>
-                                </div>
-                                <div class="flex items-center">
                                     {% if animal.microchip_number %}
-                                    <div class="text-sm">
-                                        <span class="text-gray-500">登録済み:</span>
-                                        <span class="font-mono text-gray-900">{{ animal.microchip_number }}</span>
-                                        <span class="ml-2 text-xs text-gray-500">
+                                    <p class="text-gray-900 font-mono">
+                                        {{ animal.microchip_number }}
+                                        <span class="text-xs text-gray-500">
                                             ({% if animal.microchip_number|length == 15 %}ISO規格{% else %}旧規格{% endif %})
                                         </span>
-                                    </div>
+                                    </p>
                                     {% else %}
-                                    <span class="text-gray-400 text-sm">未登録</span>
+                                    <p class="text-gray-400" data-i18n="labels.unregistered" data-i18n-ns="animals">未登録</p>
+                                    {% endif %}
+                                </div>
+                                <div></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.tail_length" data-i18n-ns="animals">尻尾の長さ</span>
+                                    </label>
+                                    {% if animal.tail_length %}
+                                    <p class="text-gray-900">{{ animal.tail_length }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span data-i18n="fields.collar" data-i18n-ns="animals">首輪</span>
+                                    </label>
+                                    {% if animal.collar %}
+                                    <p class="text-gray-900">{{ animal.collar }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -260,52 +271,19 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <span data-i18n="fields.tail_length" data-i18n-ns="animals">尻尾の長さ</span> <span class="text-red-500">*</span>
-                                    </label>
-                                    <select id="tailLength" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="長い" {% if animal.tail_length == '長い' %}selected{% endif %} data-i18n="tail.long" data-i18n-ns="animals">長い</option>
-                                        <option value="短い" {% if animal.tail_length == '短い' %}selected{% endif %} data-i18n="tail.short" data-i18n-ns="animals">短い</option>
-                                        <option value="かぎしっぽ" {% if animal.tail_length == 'かぎしっぽ' %}selected{% endif %} data-i18n="tail.bobtail" data-i18n-ns="animals">かぎしっぽ</option>
-                                        <option value="なし" {% if animal.tail_length == 'なし' %}selected{% endif %} data-i18n="tail.none" data-i18n-ns="animals">なし</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <span data-i18n="fields.collar" data-i18n-ns="animals">首輪</span> <span class="text-red-500">*</span>
-                                    </label>
-                                    <select id="collar" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="あり" {% if animal.collar == 'あり' %}selected{% endif %} data-i18n="collar_options.has" data-i18n-ns="animals">あり</option>
-                                        <option value="なし" {% if animal.collar == 'なし' %}selected{% endif %} data-i18n="collar_options.none" data-i18n-ns="animals">なし</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="age_months" class="block text-sm font-medium text-gray-700 mb-2">
                                         <span data-i18n="fields.age" data-i18n-ns="animals">月齢</span>
                                     </label>
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <input type="number" id="age_months" min="0"
-                                               value="{{ animal.age_months if animal.age_months is not none else '' }}"
-                                               data-i18n-placeholder="age_months_placeholder" data-i18n-ns="animals"
-                                               class="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                               placeholder="例: 12">
-                                        <label class="flex items-center gap-2 text-sm text-gray-700">
-                                            <input type="checkbox" id="age_is_estimated" {% if animal.age_is_estimated %}checked{% endif %}>
-                                            <span data-i18n="fields.age_is_estimated" data-i18n-ns="animals">推定月齢</span>
-                                        </label>
-                                    </div>
+                                    <p class="text-gray-900">
+                                        {% if animal.age_months is not none %}{{ animal.age_months }}ヶ月{% if animal.age_is_estimated %} (推定){% endif %}{% else %}<span data-i18n="labels.unset" data-i18n-ns="animals">未設定</span>{% endif %}
+                                    </p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <span data-i18n="fields.gender" data-i18n-ns="animals">性別</span> <span class="text-red-500">*</span>
+                                        <span data-i18n="fields.gender" data-i18n-ns="animals">性別</span>
                                     </label>
-                                    <select id="gender" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        <option value="male" {% if animal.gender == 'male' %}selected{% endif %} data-i18n="gender.male" data-i18n-ns="animals">オス</option>
-                                        <option value="female" {% if animal.gender == 'female' %}selected{% endif %} data-i18n="gender.female" data-i18n-ns="animals">メス</option>
-                                        <option value="unknown" {% if animal.gender == 'unknown' %}selected{% endif %} data-i18n="gender.unknown" data-i18n-ns="animals">不明</option>
-                                    </select>
+                                    <p class="text-gray-900">
+                                        {% if animal.gender == 'male' %}<span data-i18n="gender.male" data-i18n-ns="animals">オス</span>{% elif animal.gender == 'female' %}<span data-i18n="gender.female" data-i18n-ns="animals">メス</span>{% elif animal.gender == 'unknown' %}<span data-i18n="gender.unknown" data-i18n-ns="animals">不明</span>{% else %}<span data-i18n="labels.unset" data-i18n-ns="animals">未設定</span>{% endif %}
+                                    </p>
                                 </div>
                             </div>
 
@@ -314,109 +292,40 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.rescue_source" data-i18n-ns="animals">
                                         レスキュー元
                                     </label>
-                                    <input type="text" id="rescue_source" value="{{ animal.rescue_source or '' }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                           placeholder="例: 〇〇保健所、△△動物愛護団体"
-                                           data-i18n-placeholder="rescue_source_placeholder" data-i18n-ns="animals">
+                                    {% if animal.rescue_source %}
+                                    <p class="text-gray-900">{{ animal.rescue_source }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.breed" data-i18n-ns="animals">
                                         品種
                                     </label>
-                                    <input type="text" id="breed" value="{{ animal.breed or '' }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                           placeholder="例: 雑種、アメリカンショートヘア"
-                                           data-i18n-placeholder="breed_placeholder" data-i18n-ns="animals">
+                                    {% if animal.breed %}
+                                    <p class="text-gray-900">{{ animal.breed }}</p>
+                                    {% else %}
+                                    <p class="text-gray-900" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                    {% endif %}
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                    <input type="checkbox" id="earCut" {% if animal.ear_cut %}checked{% endif %} class="mr-2">
+                                    <input type="checkbox" disabled {% if animal.ear_cut %}checked{% endif %} class="mr-2">
                                     <span data-i18n="fields.ear_cut" data-i18n-ns="animals">耳カット</span>
                                 </label>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.features" data-i18n-ns="animals">特徴</label>
-                                <textarea id="features" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" data-i18n-placeholder="features_placeholder" data-i18n-ns="animals" placeholder="外傷、特徴、性格などを記入">{{ animal.features or '' }}</textarea>
+                                {% if animal.features %}
+                                <p class="text-gray-900 whitespace-pre-wrap">{{ animal.features }}</p>
+                                {% else %}
+                                <p class="text-gray-900 whitespace-pre-wrap" data-i18n="labels.unset" data-i18n-ns="animals">未設定</p>
+                                {% endif %}
                             </div>
-
-                            <!-- 医療情報セクション -->
-                            <div class="border-t pt-4 mt-4">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4" data-i18n="fields.medical_info" data-i18n-ns="animals">医療情報</h3>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.fiv_status" data-i18n-ns="animals">FIV検査</label>
-                                        <select id="fivPositive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                            <option value="" {% if animal.fiv_positive is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
-                                            <option value="false" {% if animal.fiv_positive == false %}selected{% endif %} data-i18n="medical.negative" data-i18n-ns="animals">陰性(-)</option>
-                                            <option value="true" {% if animal.fiv_positive == true %}selected{% endif %} data-i18n="medical.positive" data-i18n-ns="animals">陽性(+)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.felv_status" data-i18n-ns="animals">FeLV検査</label>
-                                        <select id="felvPositive" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                            <option value="" {% if animal.felv_positive is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
-                                            <option value="false" {% if animal.felv_positive == false %}selected{% endif %} data-i18n="medical.negative" data-i18n-ns="animals">陰性(-)</option>
-                                            <option value="true" {% if animal.felv_positive == true %}selected{% endif %} data-i18n="medical.positive" data-i18n-ns="animals">陽性(+)</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.sterilization" data-i18n-ns="animals">避妊・去勢</label>
-                                        <select id="isSterilized" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                            <option value="" {% if animal.is_sterilized is none %}selected{% endif %} data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
-                                            <option value="false" {% if animal.is_sterilized == false %}selected{% endif %} data-i18n="medical.not_done" data-i18n-ns="animals">未実施</option>
-                                            <option value="true" {% if animal.is_sterilized == true %}selected{% endif %} data-i18n="medical.done" data-i18n-ns="animals">実施済み</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4" id="sterilizedOnWrapper" style="{% if not animal.is_sterilized %}display: none;{% endif %}">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.sterilized_on" data-i18n-ns="animals">避妊・去勢実施日</label>
-                                        <input type="date" id="sterilizedOn" value="{{ animal.sterilized_on.isoformat() if animal.sterilized_on else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                    </div>
-                                </div>
-
-                                <!-- ワクチン接種記録 -->
-                                <div class="mt-6">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="text-lg font-medium text-gray-900" data-i18n="fields.vaccination_records" data-i18n-ns="animals">ワクチン接種記録</h3>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_type" data-i18n-ns="animals">ワクチン種別</label>
-                                            <select id="vaccineCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                                <option value="3core" data-i18n="vaccine_category.3core" data-i18n-ns="animals">3種混合</option>
-                                                <option value="4core" data-i18n="vaccine_category.4core" data-i18n-ns="animals">4種混合（FeLV含む）</option>
-                                                <option value="5core" data-i18n="vaccine_category.5core" data-i18n-ns="animals">5種混合（クラミジア含む）</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_date" data-i18n-ns="animals">接種日</label>
-                                            <input type="date" id="vaccinationDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.next_due_on" data-i18n-ns="animals">次回接種予定日</label>
-                                            <input type="date" id="nextDueOn" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.vaccine_memo" data-i18n-ns="animals">メモ</label>
-                                            <textarea id="vaccineMemo" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="例: ロット番号、投与場所など"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-2">
-                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="buttons.save" data-i18n-ns="common">
-                                    保存
-                                </button>
-                                <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="buttons.cancel" data-i18n-ns="common">
-                                    キャンセル
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
