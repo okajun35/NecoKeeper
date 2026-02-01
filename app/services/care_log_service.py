@@ -457,7 +457,7 @@ def export_care_logs_csv(
                 log.animal_id,
                 log.recorder_name,
                 tj(f"time_slots.{log.time_slot}"),
-                log.appetite,
+                str(int(log.appetite * 10)) if log.appetite else "",
                 log.energy,
                 "有" if log.urination else "無",
                 "済" if log.cleaning else "未",
@@ -543,7 +543,7 @@ def get_daily_view(
     if animal_id is not None:
         animal_query = animal_query.filter(Animal.id == animal_id)
 
-    # ステータスフィルターを適用
+    # ステータスフィルターを適用（animal_status は必ず有効な値）
     if animal_status == "DAILY":
         # 日常管理中（保護中・在籍中）
         animal_query = animal_query.filter(Animal.status.in_(["QUARANTINE", "IN_CARE"]))
@@ -553,7 +553,6 @@ def get_daily_view(
     elif animal_status == "ARCHIVE":
         # アーカイブ（譲渡済み・死亡）
         animal_query = animal_query.filter(Animal.status.in_(["ADOPTED", "DECEASED"]))
-    # animal_status が None または "ALL" の場合は全て表示
 
     animals = animal_query.all()
 

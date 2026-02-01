@@ -101,9 +101,10 @@ def get_daily_view(
     end_date: date | None = Query(None, description="終了日（デフォルト: 今日）"),
     page: int = Query(1, ge=1, description="ページ番号"),
     page_size: int = Query(20, ge=1, le=100, description="1ページあたりの件数"),
-    animal_status: str | None = Query(
+    animal_status: str = Query(
         "DAILY",
         description="猫ステータスフィルター（DAILY=保護中+在籍中, TRIAL=トライアル中, ARCHIVE=譲渡済み+死亡）",
+        regex="^(DAILY|TRIAL|ARCHIVE)$",
     ),
 ) -> dict[str, object]:
     """

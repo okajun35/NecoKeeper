@@ -897,6 +897,50 @@ class TestGetAllAnimalsStatusToday:
         assert animal2_status["noon_recorded"] is True
         assert animal2_status["evening_recorded"] is False
 
+    def test_get_all_animals_status_today_excludes_trial(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: トライアル中の猫は対象外"""
+        from datetime import date
+
+        # Given
+        test_animal.status = "ADOPTED"
+        test_db.commit()
+
+        in_care_cat = Animal(
+            name="在籍中の猫",
+            photo="incare.jpg",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="female",
+            status="IN_CARE",
+        )
+        trial_cat = Animal(
+            name="トライアル中の猫",
+            photo="trial.jpg",
+            coat_color="黒",
+            tail_length="短い",
+            age_months=12,
+            gender="male",
+            status="TRIAL",
+        )
+        test_db.add(in_care_cat)
+        test_db.add(trial_cat)
+        test_db.commit()
+        test_db.refresh(in_care_cat)
+
+        # When
+        response = test_client.get("/api/v1/public/care-logs/status/today")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_date"] == date.today().isoformat()
+        animal_ids = {a["animal_id"] for a in data["animals"]}
+        assert in_care_cat.id in animal_ids
+        assert trial_cat.id not in animal_ids
+
     def test_get_all_animals_status_today_no_records(
         self, test_client: TestClient, test_db: Session, test_animal: Animal
     ):
