@@ -622,6 +622,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sterilizedFilter) sterilizedFilter.value = '';
       if (locationTypeFilter) locationTypeFilter.value = '';
 
+      // ステータスフィルターもACTIVE（デフォルト）に戻す
+      const statusFilter = document.getElementById('status-filter');
+      if (statusFilter) statusFilter.value = 'ACTIVE';
+      currentStatus = 'ACTIVE';
+
       currentPage = 1;
       loadAnimals();
     });

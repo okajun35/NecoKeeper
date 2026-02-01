@@ -40,7 +40,8 @@
     "unknown": "Unknown",
     "done": "Done",
     "not_done": "Not Done",
-    "yes": "Yes"
+    "yes": "Yes",
+    "no": "No"
   },
   "page_size": {
     "20": "20 items",

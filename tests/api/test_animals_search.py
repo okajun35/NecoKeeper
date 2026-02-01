@@ -193,6 +193,22 @@ class TestAnimalListStatusFilter:
         for item in items:
             assert item["status"] == "ADOPTED"
 
+    def test_filter_by_deceased_status(
+        self, test_client, test_db, auth_token, search_test_animals
+    ):
+        """DECEASED指定で死亡の猫のみ取得できる"""
+        response = test_client.get(
+            "/api/v1/animals?status=DECEASED",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        items = data["items"]
+
+        for item in items:
+            assert item["status"] == "DECEASED"
+
     def test_no_status_filter_returns_all(
         self, test_client, test_db, auth_token, search_test_animals
     ):

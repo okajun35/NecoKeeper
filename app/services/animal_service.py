@@ -302,6 +302,9 @@ def list_animals(
     query = db.query(Animal)
 
     # ステータスフィルター
+    # 注意: is_ready_for_adoptionが指定された場合、
+    #       「優先=追加で絞り込む（AND適用）」として扱う
+    #       （例: ACTIVE + is_ready_for_adoption=true → IN_CARE/TRIALのみ）
     if status_filter:
         if status_filter == "ACTIVE":
             # ACTIVE = 保護中 + 在籍中 + トライアル中
@@ -310,6 +313,7 @@ def list_animals(
             query = query.filter(Animal.status == status_filter)
 
     # 譲渡可能フィルター（IN_CARE or TRIAL）
+    # ※このフィルタはステータスフィルタに追加で絞り込む（AND適用）
     if is_ready_for_adoption == "true":
         query = query.filter(Animal.status.in_(["IN_CARE", "TRIAL"]))
     elif is_ready_for_adoption == "false":
