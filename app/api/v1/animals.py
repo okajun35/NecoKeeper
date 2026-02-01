@@ -45,26 +45,57 @@ def list_animals(
     current_user: Annotated[User, Depends(get_current_active_user)],
     page: int = Query(1, ge=1, description="ページ番号"),
     page_size: int = Query(20, ge=1, le=100, description="1ページあたりの件数"),
-    status: str | None = Query(None, description="ステータスフィルター"),
+    status: str | None = Query(
+        None, description="ステータスフィルター（ACTIVE=活動中）"
+    ),
+    gender: str | None = Query(None, description="性別フィルター"),
+    fiv: str | None = Query(
+        None, description="FIV検査結果（positive/negative/unknown）"
+    ),
+    felv: str | None = Query(
+        None, description="FeLV検査結果（positive/negative/unknown）"
+    ),
+    is_sterilized: str | None = Query(
+        None, description="避妊・去勢状態（true/false/unknown）"
+    ),
+    location_type: str | None = Query(None, description="場所タイプ"),
+    is_ready_for_adoption: str | None = Query(
+        None, description="譲渡可能（true=IN_CARE or TRIAL）"
+    ),
 ) -> AnimalListResponse:
     """
     猫一覧を取得
 
     ページネーション付きで猫の一覧を取得します。
-    ステータスでフィルタリングすることも可能です。
+    各種条件でフィルタリングすることも可能です。
 
     Args:
         db: データベースセッション
         current_user: 現在のユーザー
         page: ページ番号（1から開始）
         page_size: 1ページあたりの件数（最大100）
-        status: ステータスフィルター（保護中、譲渡可能、譲渡済み等）
+        status: ステータスフィルター（ACTIVE=保護中+在籍中+トライアル中）
+        gender: 性別フィルター（male/female/unknown）
+        fiv: FIV検査結果（positive/negative/unknown）
+        felv: FeLV検査結果（positive/negative/unknown）
+        is_sterilized: 避妊・去勢状態（true/false/unknown）
+        location_type: 場所タイプ（FACILITY/FOSTER_HOME/ADOPTER_HOME）
+        is_ready_for_adoption: 譲渡可能フィルター（true=IN_CARE or TRIAL）
 
     Returns:
         AnimalListResponse: 猫一覧とページネーション情報
     """
     return animal_service.list_animals(
-        db=db, page=page, page_size=page_size, status_filter=status
+        db=db,
+        page=page,
+        page_size=page_size,
+        status_filter=status,
+        gender=gender,
+        fiv=fiv,
+        felv=felv,
+        is_sterilized=is_sterilized,
+        location_type=location_type,
+        is_ready_for_adoption=is_ready_for_adoption,
     )
 
 

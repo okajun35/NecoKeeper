@@ -269,7 +269,16 @@ def delete_animal(db: Session, animal_id: int) -> None:
 
 
 def list_animals(
-    db: Session, page: int = 1, page_size: int = 20, status_filter: str | None = None
+    db: Session,
+    page: int = 1,
+    page_size: int = 20,
+    status_filter: str | None = None,
+    gender: str | None = None,
+    fiv: str | None = None,
+    felv: str | None = None,
+    is_sterilized: str | None = None,
+    location_type: str | None = None,
+    is_ready_for_adoption: str | None = None,
 ) -> AnimalListResponse:
     """
     猫一覧を取得（ページネーション付き）
@@ -278,7 +287,13 @@ def list_animals(
         db: データベースセッション
         page: ページ番号（1から開始）
         page_size: 1ページあたりの件数
-        status_filter: ステータスフィルター
+        status_filter: ステータスフィルター（ACTIVE=保護中+在籍中+トライアル中）
+        gender: 性別フィルター
+        fiv: FIV検査結果（positive/negative/unknown）
+        felv: FeLV検査結果（positive/negative/unknown）
+        is_sterilized: 避妊・去勢状態（true/false/unknown）
+        location_type: 場所タイプ
+        is_ready_for_adoption: 譲渡可能フィルター（true=IN_CARE or TRIAL）
 
     Returns:
         AnimalListResponse: 猫一覧とページネーション情報
@@ -288,7 +303,52 @@ def list_animals(
 
     # ステータスフィルター
     if status_filter:
-        query = query.filter(Animal.status == status_filter)
+        if status_filter == "ACTIVE":
+            # ACTIVE = 保護中 + 在籍中 + トライアル中
+            query = query.filter(Animal.status.in_(["QUARANTINE", "IN_CARE", "TRIAL"]))
+        else:
+            query = query.filter(Animal.status == status_filter)
+
+    # 譲渡可能フィルター（IN_CARE or TRIAL）
+    if is_ready_for_adoption == "true":
+        query = query.filter(Animal.status.in_(["IN_CARE", "TRIAL"]))
+    elif is_ready_for_adoption == "false":
+        query = query.filter(Animal.status.notin_(["IN_CARE", "TRIAL"]))
+
+    # 性別フィルター
+    if gender:
+        query = query.filter(Animal.gender == gender)
+
+    # FIVフィルター
+    if fiv:
+        if fiv == "positive":
+            query = query.filter(Animal.fiv_positive == True)  # noqa: E712
+        elif fiv == "negative":
+            query = query.filter(Animal.fiv_positive == False)  # noqa: E712
+        elif fiv == "unknown":
+            query = query.filter(Animal.fiv_positive.is_(None))
+
+    # FeLVフィルター
+    if felv:
+        if felv == "positive":
+            query = query.filter(Animal.felv_positive == True)  # noqa: E712
+        elif felv == "negative":
+            query = query.filter(Animal.felv_positive == False)  # noqa: E712
+        elif felv == "unknown":
+            query = query.filter(Animal.felv_positive.is_(None))
+
+    # 避妊・去勢フィルター
+    if is_sterilized:
+        if is_sterilized == "true":
+            query = query.filter(Animal.is_sterilized == True)  # noqa: E712
+        elif is_sterilized == "false":
+            query = query.filter(Animal.is_sterilized == False)  # noqa: E712
+        elif is_sterilized == "unknown":
+            query = query.filter(Animal.is_sterilized.is_(None))
+
+    # 場所タイプフィルター
+    if location_type:
+        query = query.filter(Animal.location_type == location_type)
 
     # 総件数を取得
     total = query.count()
