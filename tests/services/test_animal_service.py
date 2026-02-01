@@ -492,3 +492,120 @@ class TestSearchAnimals:
         assert len(result.items) <= page_size
         assert result.page == 1
         assert result.page_size == page_size
+
+
+class TestGetAnimalsStatusFilter:
+    """list_animals のステータスフィルターテスト
+
+    t-wada準拠:
+    - 新しく追加された DAILY/ARCHIVE フィルターを検証
+    - 既存の ACTIVE フィルターとの違いを明確化
+    - 振る舞いを明示したテスト名
+    """
+
+    def test_daily_filter_excludes_trial(self, test_db: Session):
+        """DAILY フィルター: トライアル中を除いた保護中・在籍中のみ"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        quarantine_cat = Animal(
+            name="DAILYテスト検疫猫",
+            status=AnimalStatus.QUARANTINE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        in_care_cat = Animal(
+            name="DAILYテスト在籍猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        trial_cat = Animal(
+            name="DAILYテストトライアル猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([quarantine_cat, in_care_cat, trial_cat])
+        test_db.commit()
+
+        # When
+        result = animal_service.list_animals(test_db, status_filter="DAILY")
+
+        # Then
+        names = [a.name for a in result.items]
+        assert "DAILYテスト検疫猫" in names
+        assert "DAILYテスト在籍猫" in names
+        assert "DAILYテストトライアル猫" not in names
+
+    def test_archive_filter_returns_adopted_and_deceased(self, test_db: Session):
+        """ARCHIVE フィルター: 譲渡済みと死亡のみ"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        in_care_cat = Animal(
+            name="ARCHIVEテスト在籍猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        adopted_cat = Animal(
+            name="ARCHIVEテスト譲渡済み猫",
+            status=AnimalStatus.ADOPTED.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        deceased_cat = Animal(
+            name="ARCHIVEテスト死亡猫",
+            status=AnimalStatus.DECEASED.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([in_care_cat, adopted_cat, deceased_cat])
+        test_db.commit()
+
+        # When
+        result = animal_service.list_animals(test_db, status_filter="ARCHIVE")
+
+        # Then
+        names = [a.name for a in result.items]
+        assert "ARCHIVEテスト譲渡済み猫" in names
+        assert "ARCHIVEテスト死亡猫" in names
+        assert "ARCHIVEテスト在籍猫" not in names
+
+    def test_daily_vs_active_filter_difference(self, test_db: Session):
+        """DAILY vs ACTIVE: DAILY はトライアル中を除外する違いを検証"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        trial_cat = Animal(
+            name="フィルター比較テスト猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="female",
+            coat_color="キジトラ",
+            tail_length="長い",
+        )
+
+        test_db.add(trial_cat)
+        test_db.commit()
+
+        # When
+        active_result = animal_service.list_animals(test_db, status_filter="ACTIVE")
+        daily_result = animal_service.list_animals(test_db, status_filter="DAILY")
+
+        # Then
+        active_names = [a.name for a in active_result.items]
+        daily_names = [a.name for a in daily_result.items]
+
+        assert "フィルター比較テスト猫" in active_names  # ACTIVE にはトライアル含む
+        assert (
+            "フィルター比較テスト猫" not in daily_names
+        )  # DAILY にはトライアル含まない
