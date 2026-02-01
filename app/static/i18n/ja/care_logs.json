@@ -79,6 +79,11 @@
     "end_date": "終了日",
     "all_cats": "すべての猫"
   },
+  "tabs": {
+    "daily": "日常記録",
+    "trial": "トライアル中",
+    "archive": "アーカイブ"
+  },
   "messages": {
     "created": "世話記録を登録しました",
     "updated": "世話記録を更新しました",

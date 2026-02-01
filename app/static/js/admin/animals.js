@@ -477,8 +477,76 @@ function showQRCode(animalId) {
   });
 }
 
+// URLパラメータからフィルターを初期化
+function initFiltersFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // ステータスフィルター
+  if (urlParams.has('status')) {
+    currentStatus = urlParams.get('status');
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+      statusFilter.value = currentStatus;
+    }
+  }
+
+  // FIV陽性フィルター（ダッシュボードからのリンク用）
+  if (urlParams.get('fiv_positive') === 'true') {
+    advancedFilters.fiv = 'positive';
+
+    // 詳細検索フォームを表示
+    const advancedSearchForm = document.getElementById('advanced-search-form');
+    const advancedSearchIcon = document.getElementById('advanced-search-icon');
+    if (advancedSearchForm) {
+      advancedSearchForm.classList.remove('hidden');
+    }
+    if (advancedSearchIcon) {
+      advancedSearchIcon.classList.add('rotate-180');
+    }
+
+    // FIVフィルターの値を設定
+    const fivFilter = document.getElementById('fiv-filter');
+    if (fivFilter) {
+      fivFilter.value = 'positive';
+    }
+  }
+
+  // FeLV陽性フィルター（ダッシュボードからのリンク用）
+  if (urlParams.get('felv_positive') === 'true') {
+    advancedFilters.felv = 'positive';
+
+    // 詳細検索フォームを表示
+    const advancedSearchForm = document.getElementById('advanced-search-form');
+    const advancedSearchIcon = document.getElementById('advanced-search-icon');
+    if (advancedSearchForm) {
+      advancedSearchForm.classList.remove('hidden');
+    }
+    if (advancedSearchIcon) {
+      advancedSearchIcon.classList.add('rotate-180');
+    }
+
+    // FeLVフィルターの値を設定
+    const felvFilter = document.getElementById('felv-filter');
+    if (felvFilter) {
+      felvFilter.value = 'positive';
+    }
+  }
+
+  // 検索キーワード
+  if (urlParams.has('q')) {
+    currentSearch = urlParams.get('q');
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+      searchInput.value = currentSearch;
+    }
+  }
+}
+
 // イベントリスナー
 document.addEventListener('DOMContentLoaded', () => {
+  // URLパラメータからフィルターを初期化
+  initFiltersFromURL();
+
   // i18nextの初期化を待ってから読み込み
   if (window.i18next && window.i18next.isInitialized) {
     loadAnimals();

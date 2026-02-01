@@ -283,12 +283,18 @@
       "done": "Done",
       "not_done": "Not done"
     },
+    "tabs": {
+      "daily": "Daily Care",
+      "trial": "Trial",
+      "archive": "Archive"
+    },
     "filter": {
       "by_animal": "Filter by cat",
       "by_date": "Filter by date",
       "by_time_slot": "Filter by time slot",
       "start_date": "Start Date",
-      "end_date": "End Date"
+      "end_date": "End Date",
+      "all_cats": "All Cats"
     },
     "messages": {
       "created": "Care log created successfully",

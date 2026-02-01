@@ -171,8 +171,11 @@ class TestI18nNamespaces:
         assert "title" in translations
         assert "description" in translations
         assert "stats" in translations
-        assert "protected" in translations["stats"]
+        assert "resident" in translations["stats"]
         assert "adoptable" in translations["stats"]
+        assert "fiv_positive" in translations["stats"]
+        assert "felv_positive" in translations["stats"]
+        assert "today_logs" in translations["stats"]
 
     def test_medical_records_namespace_structure_japanese(self) -> None:
         """日本語の医療記録名前空間の構造が正しい"""

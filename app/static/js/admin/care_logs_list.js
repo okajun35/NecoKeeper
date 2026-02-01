@@ -9,6 +9,7 @@ const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/
 // グローバル変数
 let currentPage = 1;
 let currentFilters = {};
+let currentAnimalStatus = 'DAILY'; // デフォルトは日常記録（保護中・在籍中）
 let animals = [];
 const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
 const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAnimals();
   loadDailyView();
   setupEventListeners();
+  setupTabListeners();
 
   // 言語切り替えで「すべての猫」を現在の言語に再設定
   window.addEventListener('languageChanged', () => {
@@ -74,11 +76,71 @@ function setupEventListeners() {
 }
 
 /**
+ * タブリスナーの設定
+ */
+function setupTabListeners() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newStatus = btn.dataset.status;
+      if (newStatus !== currentAnimalStatus) {
+        currentAnimalStatus = newStatus;
+        currentPage = 1;
+        updateTabStyles();
+        loadDailyView();
+        loadAnimals(); // タブ切り替え時に猫リストも更新
+      }
+    });
+  });
+}
+
+/**
+ * タブスタイルを更新
+ */
+function updateTabStyles() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    const isActive = btn.dataset.status === currentAnimalStatus;
+    if (isActive) {
+      btn.classList.remove(
+        'border-transparent',
+        'text-gray-500',
+        'hover:text-gray-700',
+        'hover:border-gray-300'
+      );
+      btn.classList.add('border-indigo-500', 'text-indigo-600');
+    } else {
+      btn.classList.remove('border-indigo-500', 'text-indigo-600');
+      btn.classList.add(
+        'border-transparent',
+        'text-gray-500',
+        'hover:text-gray-700',
+        'hover:border-gray-300'
+      );
+    }
+  });
+}
+
+/**
  * 猫リストを取得
  */
 async function loadAnimals() {
   try {
-    const response = await fetch('/api/v1/animals?page=1&page_size=100', {
+    // 現在のタブに応じたステータスフィルターを設定
+    let statusParam = '';
+    if (currentAnimalStatus === 'DAILY') {
+      statusParam = 'DAILY'; // QUARANTINE + IN_CARE（トライアル中は除く）
+    } else if (currentAnimalStatus === 'TRIAL') {
+      statusParam = 'TRIAL';
+    } else if (currentAnimalStatus === 'ARCHIVE') {
+      statusParam = 'ARCHIVE'; // ADOPTED + DECEASED
+    }
+
+    const url = statusParam
+      ? `/api/v1/animals?page=1&page_size=100&status=${statusParam}`
+      : '/api/v1/animals?page=1&page_size=100';
+
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -148,6 +210,7 @@ async function loadDailyView() {
     const params = new URLSearchParams({
       page: currentPage,
       page_size: 20,
+      animal_status: currentAnimalStatus,
     });
 
     // フィルタ条件を追加

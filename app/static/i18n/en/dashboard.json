@@ -2,10 +2,11 @@
   "title": "Dashboard",
   "description": "Overview of the cat rescue management system",
   "stats": {
-    "protected": "Protected",
+    "resident": "Resident",
     "adoptable": "Adoptable",
-    "today_logs": "Today's Logs",
-    "volunteers": "Volunteers"
+    "fiv_positive": "FIV Positive",
+    "felv_positive": "FeLV Positive",
+    "today_logs": "Today's Logs"
   },
   "recent_logs": "Recent Care Logs",
   "needs_care": "Cats Needing Care",

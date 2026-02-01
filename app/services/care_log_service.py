@@ -21,7 +21,6 @@ from app.schemas.care_log import (
     CareLogResponse,
     CareLogUpdate,
 )
-from app.utils.appetite import appetite_label
 from app.utils.i18n import tj
 
 logger = logging.getLogger(__name__)
@@ -458,7 +457,7 @@ def export_care_logs_csv(
                 log.animal_id,
                 log.recorder_name,
                 tj(f"time_slots.{log.time_slot}"),
-                appetite_label(log.appetite),
+                log.appetite,
                 log.energy,
                 "有" if log.urination else "無",
                 "済" if log.cleaning else "未",
@@ -498,6 +497,7 @@ def get_daily_view(
     end_date: date | None = None,
     page: int = 1,
     page_size: int = 20,
+    animal_status: str | None = "DAILY",
 ) -> dict[str, object]:
     """
     日次ビュー形式のデータを取得
@@ -509,6 +509,7 @@ def get_daily_view(
         end_date: 終了日（デフォルト: 今日）
         page: ページ番号
         page_size: ページサイズ
+        animal_status: 猫ステータスフィルター（DAILY/TRIAL/ARCHIVE）
 
     Returns:
         dict: 日次ビュー形式のデータ
@@ -541,6 +542,19 @@ def get_daily_view(
     animal_query = db.query(Animal)
     if animal_id is not None:
         animal_query = animal_query.filter(Animal.id == animal_id)
+
+    # ステータスフィルターを適用
+    if animal_status == "DAILY":
+        # 日常管理中（保護中・在籍中）
+        animal_query = animal_query.filter(Animal.status.in_(["QUARANTINE", "IN_CARE"]))
+    elif animal_status == "TRIAL":
+        # トライアル中
+        animal_query = animal_query.filter(Animal.status == "TRIAL")
+    elif animal_status == "ARCHIVE":
+        # アーカイブ（譲渡済み・死亡）
+        animal_query = animal_query.filter(Animal.status.in_(["ADOPTED", "DECEASED"]))
+    # animal_status が None または "ALL" の場合は全て表示
+
     animals = animal_query.all()
 
     if not animals:

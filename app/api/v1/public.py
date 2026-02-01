@@ -434,7 +434,7 @@ def get_all_animals_status_today(
 
     today = date.today()
 
-    # 保護中・治療中・譲渡可能な猫のみを取得
+    # 保護中・治療中の猫のみを取得
     animals = (
         db.query(Animal)
         .filter(
@@ -442,7 +442,6 @@ def get_all_animals_status_today(
                 [
                     AnimalStatus.QUARANTINE.value,
                     AnimalStatus.IN_CARE.value,
-                    AnimalStatus.TRIAL.value,
                 ]
             )
         )

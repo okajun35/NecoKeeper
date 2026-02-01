@@ -309,6 +309,12 @@ def list_animals(
         if status_filter == "ACTIVE":
             # ACTIVE = 保護中 + 在籍中 + トライアル中
             query = query.filter(Animal.status.in_(["QUARANTINE", "IN_CARE", "TRIAL"]))
+        elif status_filter == "DAILY":
+            # DAILY = 日常管理中（保護中 + 在籍中）- トライアル中は除く
+            query = query.filter(Animal.status.in_(["QUARANTINE", "IN_CARE"]))
+        elif status_filter == "ARCHIVE":
+            # ARCHIVE = 譲渡済み + 死亡
+            query = query.filter(Animal.status.in_(["ADOPTED", "DECEASED"]))
         else:
             query = query.filter(Animal.status == status_filter)
 
