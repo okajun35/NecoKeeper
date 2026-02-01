@@ -29,7 +29,19 @@
     "ear_cut": "耳カット",
     "collar": "首輪",
     "with": "あり",
-    "without": "なし"
+    "without": "なし",
+    "ready_for_adoption": "譲渡可",
+    "fiv": "FIV",
+    "felv": "FeLV",
+    "sterilized": "避妊・去勢",
+    "location_type": "場所",
+    "positive": "陽性",
+    "negative": "陰性",
+    "unknown": "不明",
+    "done": "済",
+    "not_done": "未",
+    "yes": "はい",
+    "no": "いいえ"
   },
   "page_size": {
     "20": "20件",
@@ -91,11 +103,14 @@
     "vaccine_type": "ワクチン種別",
     "vaccine_date": "接種日",
     "next_due_on": "次回接種予定日",
-    "vaccine_memo": "メモ"
+    "vaccine_memo": "メモ",
+    "sterilized": "避妊/去勢",
+    "location": "場所"
   },
   "status": {
+    "ACTIVE": "現在活動している猫",
     "QUARANTINE": "保護中",
-    "IN_CARE": "在籍中（施設/カフェ/預かり含む）",
+    "IN_CARE": "在籍中",
     "TRIAL": "トライアル中",
     "ADOPTED": "譲渡済み",
     "DECEASED": "死亡"
@@ -153,6 +168,19 @@
     "positive": "陽性(+)",
     "done": "実施済み",
     "not_done": "未実施"
+  },
+  "test_result": {
+    "positive": "陽性",
+    "negative": "陰性",
+    "unknown": "不明"
+  },
+  "sterilized": {
+    "done": "済",
+    "not_done": "未",
+    "unknown": "不明"
+  },
+  "badge": {
+    "ready_for_adoption": "譲渡可"
   },
   "sections": {
     "detail_info": "詳細情報"

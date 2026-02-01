@@ -14,16 +14,15 @@ const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/
 
 let currentPage = 1;
 let currentPageSize = 20;
-let currentStatus = '';
+let currentStatus = 'ACTIVE'; // デフォルトは「現在活動している猫」
 let currentSearch = '';
 let advancedFilters = {
   gender: '',
-  ageMin: null,
-  ageMax: null,
-  rescueDateFrom: '',
-  rescueDateTo: '',
-  earCut: '',
-  collar: '',
+  fiv: '',
+  felv: '',
+  isSterilized: '',
+  locationType: '',
+  isReadyForAdoption: '',
 };
 let lastAnimals = [];
 let lastPagination = { total: 0, page: 1, pageSize: currentPageSize };
@@ -79,6 +78,41 @@ function formatAgeMonths(ageMonths, isEstimated) {
   return translate(formatKey, { value: ageMonths, defaultValue: `${ageMonths}` });
 }
 
+// FIV/FeLV検査結果をフォーマット
+function formatTestResult(value, testName) {
+  if (value === true) {
+    return `<span class="text-red-600 font-medium">${translate('test_result.positive', { defaultValue: '陽性' })}</span>`;
+  } else if (value === false) {
+    return `<span class="text-green-600">${translate('test_result.negative', { defaultValue: '陰性' })}</span>`;
+  }
+  return translate('test_result.unknown', { defaultValue: '不明' });
+}
+
+// 避妊・去勢状態をフォーマット
+function formatSterilized(value) {
+  if (value === true) {
+    return translate('sterilized.done', { defaultValue: '済' });
+  } else if (value === false) {
+    return translate('sterilized.not_done', { defaultValue: '未' });
+  }
+  return translate('sterilized.unknown', { defaultValue: '不明' });
+}
+
+// 場所をフォーマット
+function formatLocation(locationType, locationNote) {
+  const typeLabels = {
+    FACILITY: translate('location_type.FACILITY', { defaultValue: '施設' }),
+    FOSTER_HOME: translate('location_type.FOSTER_HOME', { defaultValue: '預かり宅' }),
+    ADOPTER_HOME: translate('location_type.ADOPTER_HOME', { defaultValue: '譲渡先' }),
+  };
+  const typeLabel = typeLabels[locationType] || locationType || '-';
+
+  if (locationNote && locationNote.trim()) {
+    return `${typeLabel} (${locationNote})`;
+  }
+  return typeLabel;
+}
+
 // 猫一覧を読み込み
 async function loadAnimals() {
   try {
@@ -108,23 +142,20 @@ async function loadAnimals() {
     if (advancedFilters.gender) {
       params.append('gender', advancedFilters.gender);
     }
-    if (advancedFilters.ageMin !== null && advancedFilters.ageMin !== '') {
-      params.append('age_min', advancedFilters.ageMin);
+    if (advancedFilters.fiv) {
+      params.append('fiv', advancedFilters.fiv);
     }
-    if (advancedFilters.ageMax !== null && advancedFilters.ageMax !== '') {
-      params.append('age_max', advancedFilters.ageMax);
+    if (advancedFilters.felv) {
+      params.append('felv', advancedFilters.felv);
     }
-    if (advancedFilters.rescueDateFrom) {
-      params.append('rescue_date_from', advancedFilters.rescueDateFrom);
+    if (advancedFilters.isSterilized) {
+      params.append('is_sterilized', advancedFilters.isSterilized);
     }
-    if (advancedFilters.rescueDateTo) {
-      params.append('rescue_date_to', advancedFilters.rescueDateTo);
+    if (advancedFilters.locationType) {
+      params.append('location_type', advancedFilters.locationType);
     }
-    if (advancedFilters.earCut) {
-      params.append('ear_cut', advancedFilters.earCut);
-    }
-    if (advancedFilters.collar) {
-      params.append('collar', advancedFilters.collar);
+    if (advancedFilters.isReadyForAdoption) {
+      params.append('is_ready_for_adoption', advancedFilters.isReadyForAdoption);
     }
 
     const url = currentSearch
@@ -190,8 +221,30 @@ function renderAnimalsList(animals = []) {
           ? animal.name
           : translate('fallbacks.no_name', { defaultValue: '名前なし' });
 
+      // 譲渡済み・死亡の場合はグレーアウト
+      const isInactive = animal.status === 'ADOPTED' || animal.status === 'DECEASED';
+      const containerClass = isInactive
+        ? 'p-6 hover:bg-gray-50 transition-colors opacity-50 bg-gray-50'
+        : 'p-6 hover:bg-gray-50 transition-colors';
+
+      // 譲渡可バッジ（IN_CARE or TRIALの場合のみ表示）
+      const isReadyForAdoption = animal.status === 'IN_CARE' || animal.status === 'TRIAL';
+      const readyForAdoptionBadge = isReadyForAdoption
+        ? `<span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800" data-i18n="badge.ready_for_adoption" data-i18n-ns="animals">譲渡可</span>`
+        : '';
+
+      // FIV/FeLV表示
+      const fivLabel = formatTestResult(animal.fiv_positive, 'FIV');
+      const felvLabel = formatTestResult(animal.felv_positive, 'FeLV');
+
+      // 避妊・去勢表示
+      const sterilizedLabel = formatSterilized(animal.is_sterilized);
+
+      // 場所表示
+      const locationLabel = formatLocation(animal.location_type, animal.current_location_note);
+
       return `
-        <div class="p-6 hover:bg-gray-50 transition-colors">
+        <div class="${containerClass}">
             <div class="flex flex-col sm:flex-row sm:items-center gap-6">
                 <!-- 写真 -->
                  <img src="${photoUrl}"
@@ -203,13 +256,11 @@ function renderAnimalsList(animals = []) {
                 <div class="flex-1 min-w-0 w-full">
                     <div class="flex flex-wrap items-center gap-3 mb-2">
                         <h3 class="text-lg font-semibold text-gray-900">${displayName}</h3>
+                        <span class="text-sm text-gray-500">#${animal.id}</span>
                         ${getStatusBadge(animal.status)}
+                        ${readyForAdoptionBadge}
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
-                        <div>
-                            <span class="text-gray-500"><span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span>:</span>
-                            <span class="ml-1">${animal.coat_color || '-'}</span>
-                        </div>
                         <div>
                             <span class="text-gray-500"><span data-i18n="fields.gender" data-i18n-ns="animals">性別</span>:</span>
                             <span class="ml-1">${translateDBValue('gender', animal.gender)}</span>
@@ -219,16 +270,20 @@ function renderAnimalsList(animals = []) {
                             <span class="ml-1">${formatAgeMonths(animal.age_months, animal.age_is_estimated)}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500"><span data-i18n="fields.protected_at" data-i18n-ns="animals">保護日</span>:</span>
-                            <span class="ml-1">${animal.rescue_date ? formatDate(new Date(animal.rescue_date)) : '-'}</span>
+                            <span class="text-gray-500">FIV:</span>
+                            <span class="ml-1">${fivLabel}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500"><span data-i18n="fields.rescue_source" data-i18n-ns="animals">レスキュー元</span>:</span>
-                            <span class="ml-1">${animal.rescue_source || '-'}</span>
+                            <span class="text-gray-500">FeLV:</span>
+                            <span class="ml-1">${felvLabel}</span>
                         </div>
                         <div>
-                            <span class="text-gray-500"><span data-i18n="fields.breed" data-i18n-ns="animals">品種</span>:</span>
-                            <span class="ml-1">${animal.breed || '-'}</span>
+                            <span class="text-gray-500"><span data-i18n="fields.sterilized" data-i18n-ns="animals">避妊/去勢</span>:</span>
+                            <span class="ml-1">${sterilizedLabel}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500"><span data-i18n="fields.location" data-i18n-ns="animals">場所</span>:</span>
+                            <span class="ml-1">${locationLabel}</span>
                         </div>
                     </div>
                 </div>
@@ -470,6 +525,112 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPage = 1;
     loadAnimals();
   });
+
+  // 詳細検索トグル
+  const toggleAdvancedSearch = document.getElementById('toggle-advanced-search');
+  const advancedSearchForm = document.getElementById('advanced-search-form');
+  const advancedSearchIcon = document.getElementById('advanced-search-icon');
+
+  if (toggleAdvancedSearch && advancedSearchForm) {
+    toggleAdvancedSearch.addEventListener('click', () => {
+      advancedSearchForm.classList.toggle('hidden');
+      if (advancedSearchIcon) {
+        advancedSearchIcon.classList.toggle('rotate-180');
+      }
+    });
+  }
+
+  // 詳細検索フィルター - 譲渡可
+  const readyForAdoptionFilter = document.getElementById('ready-for-adoption-filter');
+  if (readyForAdoptionFilter) {
+    readyForAdoptionFilter.addEventListener('change', e => {
+      advancedFilters.isReadyForAdoption = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索フィルター - 性別
+  const genderFilter = document.getElementById('gender-filter');
+  if (genderFilter) {
+    genderFilter.addEventListener('change', e => {
+      advancedFilters.gender = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索フィルター - FIV
+  const fivFilter = document.getElementById('fiv-filter');
+  if (fivFilter) {
+    fivFilter.addEventListener('change', e => {
+      advancedFilters.fiv = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索フィルター - FeLV
+  const felvFilter = document.getElementById('felv-filter');
+  if (felvFilter) {
+    felvFilter.addEventListener('change', e => {
+      advancedFilters.felv = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索フィルター - 避妊・去勢
+  const sterilizedFilter = document.getElementById('sterilized-filter');
+  if (sterilizedFilter) {
+    sterilizedFilter.addEventListener('change', e => {
+      advancedFilters.isSterilized = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索フィルター - 場所
+  const locationTypeFilter = document.getElementById('location-type-filter');
+  if (locationTypeFilter) {
+    locationTypeFilter.addEventListener('change', e => {
+      advancedFilters.locationType = e.target.value;
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
+
+  // 詳細検索クリア
+  const clearAdvancedSearch = document.getElementById('clear-advanced-search');
+  if (clearAdvancedSearch) {
+    clearAdvancedSearch.addEventListener('click', () => {
+      // フィルタ値をリセット
+      advancedFilters = {
+        gender: '',
+        fiv: '',
+        felv: '',
+        isSterilized: '',
+        locationType: '',
+        isReadyForAdoption: '',
+      };
+
+      // UI要素をリセット
+      if (readyForAdoptionFilter) readyForAdoptionFilter.value = '';
+      if (genderFilter) genderFilter.value = '';
+      if (fivFilter) fivFilter.value = '';
+      if (felvFilter) felvFilter.value = '';
+      if (sterilizedFilter) sterilizedFilter.value = '';
+      if (locationTypeFilter) locationTypeFilter.value = '';
+
+      // ステータスフィルターもACTIVE（デフォルト）に戻す
+      const statusFilter = document.getElementById('status-filter');
+      if (statusFilter) statusFilter.value = 'ACTIVE';
+      currentStatus = 'ACTIVE';
+
+      currentPage = 1;
+      loadAnimals();
+    });
+  }
 });
 
 window.addEventListener('languageChanged', () => {

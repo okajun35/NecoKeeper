@@ -29,7 +29,19 @@
     "ear_cut": "Ear Cut",
     "collar": "Collar",
     "with": "With",
-    "without": "Without"
+    "without": "Without",
+    "ready_for_adoption": "Ready for Adoption",
+    "fiv": "FIV",
+    "felv": "FeLV",
+    "sterilized": "Sterilized",
+    "location_type": "Location",
+    "positive": "Positive",
+    "negative": "Negative",
+    "unknown": "Unknown",
+    "done": "Done",
+    "not_done": "Not Done",
+    "yes": "Yes",
+    "no": "No"
   },
   "page_size": {
     "20": "20 items",
@@ -91,9 +103,12 @@
     "vaccine_type": "Vaccine Type",
     "vaccine_date": "Vaccination Date",
     "next_due_on": "Next Due Date",
-    "vaccine_memo": "Memo"
+    "vaccine_memo": "Memo",
+    "sterilized": "Sterilized",
+    "location": "Location"
   },
   "status": {
+    "ACTIVE": "Currently Active",
     "QUARANTINE": "Protected",
     "IN_CARE": "In Care",
     "TRIAL": "Trial",
@@ -148,6 +163,19 @@
     "positive": "Positive (+)",
     "done": "Done",
     "not_done": "Not Done"
+  },
+  "test_result": {
+    "positive": "Positive",
+    "negative": "Negative",
+    "unknown": "Unknown"
+  },
+  "sterilized": {
+    "done": "Done",
+    "not_done": "Not Done",
+    "unknown": "Unknown"
+  },
+  "badge": {
+    "ready_for_adoption": "Ready"
   },
   "sections": {
     "detail_info": "Detail Information"

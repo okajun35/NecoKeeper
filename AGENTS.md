@@ -46,6 +46,16 @@
 
 ## Browser Operations
 - ブラウザ操作が必要な場合は `agent-browser` を優先して使用する。
+- `agent-browser` はターミナルコマンドとして `run_in_terminal` で実行する（MCPツールではない）。
+- 主要コマンド:
+  - `agent-browser open <url>` - URLを開く
+  - `agent-browser snapshot` - アクセシビリティツリー取得（AI向け、要素のref確認）
+  - `agent-browser click <selector>` - 要素をクリック
+  - `agent-browser fill <selector> <text>` - 入力欄をクリア＆入力
+  - `agent-browser select <selector> <value>` - ドロップダウン選択
+  - `agent-browser wait <ms>` - 待機
+  - `agent-browser close` - ブラウザを閉じる
+- セレクタは CSS セレクタまたは `snapshot` で取得した `[ref=eXX]` 形式を使用可能。
 
 ## Python Environment
 - 作業前に `.venv` を有効化してからコマンドを実行する（例: `source .venv/bin/activate`）。
