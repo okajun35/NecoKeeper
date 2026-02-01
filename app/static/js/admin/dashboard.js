@@ -20,17 +20,19 @@ async function loadStatistics() {
     // ダッシュボード統計APIを使用
     const stats = await apiRequest(`${API_BASE}/dashboard/stats`);
 
-    document.getElementById('stat-protected').textContent = stats.protected_count || 0;
+    document.getElementById('stat-resident').textContent = stats.resident_count || 0;
     document.getElementById('stat-adoptable').textContent = stats.adoptable_count || 0;
     document.getElementById('stat-today-logs').textContent = stats.today_logs_count || 0;
-    document.getElementById('stat-volunteers').textContent = stats.active_volunteers_count || 0;
+    document.getElementById('stat-fiv').textContent = stats.fiv_positive_count || 0;
+    document.getElementById('stat-felv').textContent = stats.felv_positive_count || 0;
   } catch (error) {
     console.error('Statistics load error:', error);
     // エラー時はデフォルト値を表示
-    document.getElementById('stat-protected').textContent = '0';
+    document.getElementById('stat-resident').textContent = '0';
     document.getElementById('stat-adoptable').textContent = '0';
     document.getElementById('stat-today-logs').textContent = '0';
-    document.getElementById('stat-volunteers').textContent = '0';
+    document.getElementById('stat-fiv').textContent = '0';
+    document.getElementById('stat-felv').textContent = '0';
   }
 }
 
