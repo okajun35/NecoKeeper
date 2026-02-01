@@ -27,7 +27,7 @@
         </a>
 
         <!-- 譲渡可能 -->
-        <a href="/admin/animals?status=IN_CARE,TRIAL" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
+        <a href="/admin/animals?is_ready_for_adoption=true" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
             <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.adoptable" data-i18n-ns="dashboard">譲渡可能</p>
             <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@
         </a>
 
         <!-- FIV陽性 -->
-        <a href="/admin/animals?fiv_positive=true" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
+        <a href="/admin/animals?fiv=positive" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
             <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.fiv_positive" data-i18n-ns="dashboard">FIV陽性</p>
             <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +60,7 @@
         </a>
 
         <!-- FeLV陽性 -->
-        <a href="/admin/animals?felv_positive=true" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
+        <a href="/admin/animals?felv=positive" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
             <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.felv_positive" data-i18n-ns="dashboard">FeLV陽性</p>
             <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-red-100 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 lg:w-6 lg:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
