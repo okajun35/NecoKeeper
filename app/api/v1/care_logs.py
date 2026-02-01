@@ -101,6 +101,11 @@ def get_daily_view(
     end_date: date | None = Query(None, description="終了日（デフォルト: 今日）"),
     page: int = Query(1, ge=1, description="ページ番号"),
     page_size: int = Query(20, ge=1, le=100, description="1ページあたりの件数"),
+    animal_status: str = Query(
+        "DAILY",
+        description="猫ステータスフィルター（DAILY=保護中+在籍中, TRIAL=トライアル中, ARCHIVE=譲渡済み+死亡）",
+        regex="^(DAILY|TRIAL|ARCHIVE)$",
+    ),
 ) -> dict[str, object]:
     """
     日次ビュー形式で世話記録を取得
@@ -116,6 +121,7 @@ def get_daily_view(
         end_date: 終了日（デフォルト: 今日）
         page: ページ番号
         page_size: 1ページあたりの件数
+        animal_status: 猫ステータスフィルター（DAILY/TRIAL/ARCHIVE）
 
     Returns:
         dict: 日次ビュー形式のデータ
@@ -132,6 +138,7 @@ def get_daily_view(
         end_date=end_date,
         page=page,
         page_size=page_size,
+        animal_status=animal_status,
     )
 
 

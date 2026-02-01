@@ -15,6 +15,29 @@
 
 {% block content %}
 <div class="space-y-4 lg:space-y-6">
+    <!-- タブナビゲーション -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px" aria-label="Tabs">
+                <button id="tabDaily" type="button"
+                    class="tab-btn flex-1 py-4 px-2 sm:px-4 text-center border-b-2 font-medium text-xs sm:text-sm transition-colors border-indigo-500 text-indigo-600"
+                    data-status="DAILY">
+                    <span data-i18n="tabs.daily" data-i18n-ns="care_logs">日常記録</span>
+                </button>
+                <button id="tabTrial" type="button"
+                    class="tab-btn flex-1 py-4 px-2 sm:px-4 text-center border-b-2 font-medium text-xs sm:text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    data-status="TRIAL">
+                    <span data-i18n="tabs.trial" data-i18n-ns="care_logs">トライアル中</span>
+                </button>
+                <button id="tabArchive" type="button"
+                    class="tab-btn flex-1 py-4 px-2 sm:px-4 text-center border-b-2 font-medium text-xs sm:text-sm transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    data-status="ARCHIVE">
+                    <span data-i18n="tabs.archive" data-i18n-ns="care_logs">アーカイブ</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
     <!-- フィルター -->
     <div class="bg-white rounded-lg shadow-sm p-4 lg:p-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">

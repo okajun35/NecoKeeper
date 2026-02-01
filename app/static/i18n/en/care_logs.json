@@ -79,6 +79,11 @@
     "end_date": "End date",
     "all_cats": "All Cats"
   },
+  "tabs": {
+    "daily": "Daily Care",
+    "trial": "Trial",
+    "archive": "Archive"
+  },
   "messages": {
     "created": "Care log created successfully",
     "updated": "Care log updated successfully",
