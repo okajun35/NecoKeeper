@@ -187,6 +187,83 @@
         </div>
     </div>
 </div>
+<!-- Templates for JS Rendering -->
+<template id="tmpl-animal-card">
+    <div class="p-6 hover:bg-gray-50 transition-colors js-card-container">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+            <!-- 写真 -->
+            <img src="" alt="" class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200 mx-auto sm:mx-0 js-photo">
+
+            <!-- 基本情報 -->
+            <div class="flex-1 min-w-0 w-full">
+                <div class="flex flex-wrap items-center gap-3 mb-2">
+                    <h3 class="text-lg font-semibold text-gray-900 js-name"></h3>
+                    <span class="text-sm text-gray-500 js-id"></span>
+                    <span class="js-status-badge"></span>
+                    <span
+                        class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 js-ready-badge hidden"
+                        data-i18n="badge.ready_for_adoption" data-i18n-ns="animals">譲渡可</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
+                    <div>
+                        <span class="text-gray-500"><span data-i18n="fields.gender"
+                                data-i18n-ns="animals">性別</span>:</span>
+                        <span class="ml-1 js-gender"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500"><span data-i18n="fields.age"
+                                data-i18n-ns="animals">月齢</span>:</span>
+                        <span class="ml-1 js-age"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">FIV:</span>
+                        <span class="ml-1 js-fiv"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">FeLV:</span>
+                        <span class="ml-1 js-felv"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500"><span data-i18n="fields.sterilized"
+                                data-i18n-ns="animals">避妊/去勢</span>:</span>
+                        <span class="ml-1 js-sterilized"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500"><span data-i18n="fields.location"
+                                data-i18n-ns="animals">場所</span>:</span>
+                        <span class="ml-1 js-location"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- アクション -->
+            <div class="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
+                <a href="#"
+                    class="px-4 py-2 text-sm text-white rounded-lg transition-colors bg-brand-primary hover:opacity-90 js-view-btn"
+                    style="background-color: var(--color-brand-primary);" data-i18n="actions.view_details"
+                    data-i18n-ns="animals">
+                    詳細
+                </a>
+                <a href="#"
+                    class="px-4 py-2 text-sm rounded-lg transition-colors border border-border bg-white text-text-muted hover:bg-bg-base js-edit-btn"
+                    style="background-color: #ffffff; border-color: var(--color-border); color: var(--color-text-muted);"
+                    data-i18n="actions.edit_info" data-i18n-ns="animals">
+                    編集
+                </a>
+                <button
+                    class="px-4 py-2 text-sm text-white rounded-lg transition-colors bg-brand-secondary hover:opacity-90 js-qr-btn"
+                    style="background-color: var(--color-brand-secondary);" data-i18n="actions.qr_code"
+                    data-i18n-ns="animals">
+                    QR
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="tmpl-pagination-item">
+    <button class="px-3 py-2 text-sm border rounded-lg js-page-btn"></button>
+</template>
 {% endblock %}
 
 {% block extra_scripts %}

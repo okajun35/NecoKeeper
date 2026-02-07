@@ -192,6 +192,114 @@ function formatAppetiteLabel(value) {
   return fallbackMap[key] || `${value}`;
 }
 
+/**
+ * template要素を複製して先頭の要素ノードを返す
+ * @param {string} templateId - template要素のID
+ * @returns {Element}
+ */
+function cloneTemplate(templateId) {
+  const template = document.getElementById(templateId);
+  if (!template) {
+    const message = `Template "${templateId}" not found`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  if (typeof HTMLTemplateElement !== 'undefined' && !(template instanceof HTMLTemplateElement)) {
+    const message = `Element "${templateId}" is not a <template>`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  const fragment = template.content.cloneNode(true);
+  const cloned = fragment.firstElementChild;
+  if (!cloned) {
+    const message = `Template "${templateId}" has no element child`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  return cloned;
+}
+
+/**
+ * ルート要素配下に必須セレクタが揃っているか検証
+ * @param {ParentNode|null} root - 検証対象
+ * @param {string[]} selectors - 必須セレクタ配列
+ * @param {string} context - エラー表示用コンテキスト
+ * @returns {ParentNode}
+ */
+function assertRequiredSelectors(root, selectors, context = '') {
+  if (!root) {
+    const message = `Missing root element${context ? `: ${context}` : ''}`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  const missing = selectors.filter(selector => !root.querySelector(selector));
+  if (missing.length > 0) {
+    const message = `Missing required selector(s)${context ? ` [${context}]` : ''}: ${missing.join(', ')}`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  return root;
+}
+
+/**
+ * querySelectorの結果を必須要素として取得
+ * @param {ParentNode|null} root - 検索対象
+ * @param {string} selector - CSSセレクタ
+ * @param {string} context - エラー表示用コンテキスト
+ * @returns {Element}
+ */
+function requireSelector(root, selector, context = '') {
+  if (!root) {
+    const message = `Missing root element${context ? `: ${context}` : ''}`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  const element = root.querySelector(selector);
+  if (!element) {
+    const message = `Missing required selector${context ? ` [${context}]` : ''}: ${selector}`;
+    console.error(message);
+    throw new Error(message);
+  }
+  return element;
+}
+
+/**
+ * 必須ID要素を取得
+ * @param {string} id - 要素ID
+ * @param {string} context - エラー表示用コンテキスト
+ * @returns {HTMLElement}
+ */
+function requireElementById(id, context = '') {
+  const element = document.getElementById(id);
+  if (!element) {
+    const message = `Missing required element id${context ? ` [${context}]` : ''}: #${id}`;
+    console.error(message);
+    throw new Error(message);
+  }
+  return element;
+}
+
+/**
+ * 必須ID要素の存在をまとめて検証
+ * @param {string[]} ids - 必須ID配列
+ * @param {string} context - エラー表示用コンテキスト
+ */
+function assertRequiredIds(ids, context = '') {
+  const missing = ids.filter(id => !document.getElementById(id));
+  if (missing.length > 0) {
+    const missingText = missing.map(id => `#${id}`).join(', ');
+    const message = `Missing required element id(s)${context ? ` [${context}]` : ''}: ${missingText}`;
+    console.error(message);
+    throw new Error(message);
+  }
+}
+
 const STATUS_KEY_MAP = {
   保護中: 'protected',
   protected: 'protected',
@@ -416,6 +524,11 @@ window.checkAuth = checkAuth;
 window.API_BASE = API_BASE;
 window.applyDynamicTranslations = applyDynamicTranslations;
 window.translate = translate;
+window.cloneTemplate = cloneTemplate;
+window.assertRequiredSelectors = assertRequiredSelectors;
+window.requireSelector = requireSelector;
+window.requireElementById = requireElementById;
+window.assertRequiredIds = assertRequiredIds;
 
 /**
  * 動的に生成されたコンテンツに翻訳を適用

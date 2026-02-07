@@ -93,10 +93,11 @@ function populateFilters() {
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
   // モーダル用の選択肢も設定（譲渡可能な猫のみ）
+  const adoptableStatuses = new Set(['IN_CARE', 'TRIAL', '譲渡可能']);
   document.getElementById('animalId').innerHTML =
     `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
     animals
-      .filter(a => a.status === '譲渡可能')
+      .filter(a => a.is_ready_for_adoption === true || adoptableStatuses.has(a.status))
       .map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`)
       .join('');
 
@@ -105,77 +106,145 @@ function populateFilters() {
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 // 譲渡記録を表示
 function renderRecords() {
   // モバイル表示
   const mobileList = document.getElementById('mobileList');
-  mobileList.innerHTML = filteredRecords
-    .map(record => {
-      const animal = animals.find(a => a.id === record.animal_id);
-      const applicant = applicants.find(a => a.id === record.applicant_id);
-      const decisionBadge = getDecisionBadge(record.decision);
-
-      return `
-            <div class="p-4 hover:bg-gray-50">
-                <div class="flex items-start justify-between mb-2">
-                    <div>
-                        <h3 class="font-medium text-gray-900">${animal ? escapeHtml(animal.name) : t('adoptions:records.labels.animal', { ns: 'adoptions' })}</h3>
-                        <p class="text-sm text-gray-500">${applicant ? escapeHtml(applicant.name) : t('adoptions:records.labels.applicant', { ns: 'adoptions' })}</p>
-                    </div>
-                    ${decisionBadge}
-                </div>
-                <div class="space-y-1 text-sm text-gray-600">
-                    ${record.interview_date ? `<p>${t('adoptions:records.labels.interview_date_label', { ns: 'adoptions' })}: ${formatDate(record.interview_date)}</p>` : ''}
-                    ${record.adoption_date ? `<p>${t('adoptions:records.labels.adoption_date_label', { ns: 'adoptions' })}: ${formatDate(record.adoption_date)}</p>` : ''}
-                </div>
-                <div class="mt-3 flex gap-2">
-                    <button onclick="editRecord(${record.id})" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90">
-                        ${t('common:buttons.edit', { ns: 'common' })}
-                    </button>
-                    ${
-                      !record.adoption_date && record.decision === 'approved'
-                        ? `
-                        <button onclick="openAdoptionModal(${record.animal_id}, ${record.applicant_id})" class="flex-1 px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                            ${t('adoptions:records.buttons.complete_adoption', { ns: 'adoptions' })}
-                        </button>
-                    `
-                        : ''
-                    }
-                </div>
-            </div>
-        `;
-    })
-    .join('');
-
-  // デスクトップ表示
   const desktopList = document.getElementById('desktopList');
-  desktopList.innerHTML = filteredRecords
-    .map(record => {
-      const animal = animals.find(a => a.id === record.animal_id);
-      const applicant = applicants.find(a => a.id === record.applicant_id);
-      const decisionBadge = getDecisionBadge(record.decision);
 
-      return `
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${animal ? escapeHtml(animal.name) : '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${applicant ? escapeHtml(applicant.name) : '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${record.interview_date ? formatDate(record.interview_date) : '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap">${decisionBadge}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${record.adoption_date ? formatDate(record.adoption_date) : '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick="editRecord(${record.id})" class="text-brand-primary hover:text-brand-primary-dark mr-3">${t('common:buttons.edit', { ns: 'common' })}</button>
-                    ${
-                      !record.adoption_date && record.decision === 'approved'
-                        ? `
-                        <button onclick="openAdoptionModal(${record.animal_id}, ${record.applicant_id})" class="text-green-600 hover:text-green-900">${t('adoptions:records.buttons.complete_adoption', { ns: 'adoptions' })}</button>
-                    `
-                        : ''
-                    }
-                </td>
-            </tr>
-        `;
-    })
-    .join('');
+  if (mobileList) mobileList.innerHTML = '';
+  if (desktopList) desktopList.innerHTML = '';
+
+  filteredRecords.forEach(record => {
+    const animal = animals.find(a => a.id === record.animal_id);
+    const applicant = applicants.find(a => a.id === record.applicant_id);
+    const decisionBadgeHtml = getDecisionBadge(record.decision); // Returns HTML string
+
+    // モバイル表示
+    if (mobileList) {
+      const card = cloneTemplate('tmpl-mobile-card');
+      assertRequiredSelectors(
+        card,
+        [
+          '.js-animal-name',
+          '.js-applicant-name',
+          '.js-decision',
+          '.js-interview-date-container',
+          '.js-interview-date',
+          '.js-adoption-date-container',
+          '.js-adoption-date',
+          '.js-edit-btn',
+          '.js-complete-btn',
+        ],
+        'adoption_records.tmpl-mobile-card'
+      );
+
+      requireSelector(card, '.js-animal-name', 'adoption_records.tmpl-mobile-card').textContent =
+        animal ? animal.name : t('adoptions:records.labels.animal', { ns: 'adoptions' });
+      requireSelector(card, '.js-applicant-name', 'adoption_records.tmpl-mobile-card').textContent =
+        applicant ? applicant.name : t('adoptions:records.labels.applicant', { ns: 'adoptions' });
+      requireSelector(card, '.js-decision', 'adoption_records.tmpl-mobile-card').innerHTML =
+        decisionBadgeHtml;
+
+      if (record.interview_date) {
+        requireSelector(
+          card,
+          '.js-interview-date-container',
+          'adoption_records.tmpl-mobile-card'
+        ).classList.remove('hidden');
+        requireSelector(
+          card,
+          '.js-interview-date',
+          'adoption_records.tmpl-mobile-card'
+        ).textContent = formatDate(record.interview_date);
+      }
+
+      if (record.adoption_date) {
+        requireSelector(
+          card,
+          '.js-adoption-date-container',
+          'adoption_records.tmpl-mobile-card'
+        ).classList.remove('hidden');
+        requireSelector(
+          card,
+          '.js-adoption-date',
+          'adoption_records.tmpl-mobile-card'
+        ).textContent = formatDate(record.adoption_date);
+      }
+
+      const editBtn = requireSelector(card, '.js-edit-btn', 'adoption_records.tmpl-mobile-card');
+      editBtn.onclick = () => editRecord(record.id);
+
+      if (!record.adoption_date && record.decision === 'approved') {
+        const completeBtn = requireSelector(
+          card,
+          '.js-complete-btn',
+          'adoption_records.tmpl-mobile-card'
+        );
+        completeBtn.classList.remove('hidden');
+        completeBtn.onclick = () => openAdoptionModal(record.animal_id, record.applicant_id);
+      }
+
+      translateDynamicElement(card);
+      mobileList.appendChild(card);
+    }
+
+    // デスクトップ表示
+    if (desktopList) {
+      const row = cloneTemplate('tmpl-desktop-row');
+      assertRequiredSelectors(
+        row,
+        [
+          '.js-animal-name',
+          '.js-applicant-name',
+          '.js-interview-date',
+          '.js-decision',
+          '.js-adoption-date',
+          '.js-edit-btn',
+          '.js-complete-btn',
+        ],
+        'adoption_records.tmpl-desktop-row'
+      );
+
+      requireSelector(row, '.js-animal-name', 'adoption_records.tmpl-desktop-row').textContent =
+        animal ? animal.name : '-';
+      requireSelector(row, '.js-applicant-name', 'adoption_records.tmpl-desktop-row').textContent =
+        applicant ? applicant.name : '-';
+      requireSelector(row, '.js-interview-date', 'adoption_records.tmpl-desktop-row').textContent =
+        record.interview_date ? formatDate(record.interview_date) : '-';
+      requireSelector(row, '.js-decision', 'adoption_records.tmpl-desktop-row').innerHTML =
+        decisionBadgeHtml;
+      requireSelector(row, '.js-adoption-date', 'adoption_records.tmpl-desktop-row').textContent =
+        record.adoption_date ? formatDate(record.adoption_date) : '-';
+
+      const editBtn = requireSelector(row, '.js-edit-btn', 'adoption_records.tmpl-desktop-row');
+      editBtn.onclick = () => editRecord(record.id);
+
+      if (!record.adoption_date && record.decision === 'approved') {
+        const completeBtn = requireSelector(
+          row,
+          '.js-complete-btn',
+          'adoption_records.tmpl-desktop-row'
+        );
+        completeBtn.classList.remove('hidden');
+        completeBtn.onclick = () => openAdoptionModal(record.animal_id, record.applicant_id);
+      }
+
+      translateDynamicElement(row);
+      desktopList.appendChild(row);
+    }
+  });
 }
 
 // 判定結果バッジ

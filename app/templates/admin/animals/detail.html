@@ -132,7 +132,7 @@
 {% endif %}
 <div class="space-y-4 lg:space-y-6">
     <!-- タブナビゲーション -->
-    <div class="bg-white rounded-lg shadow-sm">
+    <div id="animal-detail" class="bg-white rounded-lg shadow-sm">
         <div class="border-b border-gray-200">
             <nav class="flex flex-col gap-2 md:flex-row md:gap-0 md:overflow-x-auto" aria-label="Tabs">
                 <button id="tab-basic"
@@ -693,5 +693,74 @@
 <script>
     const animalId = {{ animal.id }};
 </script>
+<!-- Templates for JS Rendering -->
+<template id="tmpl-care-record">
+    <div class="border border-gray-200 rounded-lg p-4 js-record-card">
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <p class="font-medium js-date-time"></p>
+                <p class="text-sm text-gray-600"><span data-i18n="care_log.recorder" data-i18n-ns="animals">記録者</span>:
+                    <span class="js-recorder"></span>
+                </p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+            <div><span class="text-gray-500" data-i18n="care_log.appetite" data-i18n-ns="animals">食欲</span>: <span
+                    class="js-appetite"></span></div>
+            <div><span class="text-gray-500" data-i18n="care_log.energy" data-i18n-ns="animals">元気</span>: <span
+                    class="js-energy"></span>/5</div>
+            <div><span class="text-gray-500" data-i18n="care_log.urination" data-i18n-ns="animals">排尿</span>: <span
+                    class="js-urination"></span></div>
+            <div><span class="text-gray-500" data-i18n="care_log.cleaning" data-i18n-ns="animals">掃除</span>: <span
+                    class="js-cleaning"></span></div>
+        </div>
+        <p class="mt-2 text-sm text-gray-600 js-memo hidden"></p>
+    </div>
+</template>
+
+<template id="tmpl-medical-record">
+    <div class="border border-gray-200 rounded-lg p-4 js-record-card">
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <p class="font-medium js-date"></p>
+                <p class="text-sm text-gray-600"><span data-i18n="medical_record.vet"
+                        data-i18n-ns="animals">担当獣医師</span>: <span class="js-vet"></span></p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm mb-2">
+            <div><span class="text-gray-500" data-i18n="medical_record.weight" data-i18n-ns="animals">体重</span>: <span
+                    class="js-weight"></span>kg</div>
+            <div><span class="text-gray-500" data-i18n="medical_record.temperature" data-i18n-ns="animals">体温</span>:
+                <span class="js-temperature"></span>
+            </div>
+        </div>
+        <p class="text-sm"><span class="text-gray-500" data-i18n="medical_record.symptoms"
+                data-i18n-ns="animals">症状</span>: <span class="js-symptoms"></span></p>
+        <p class="text-sm js-action-row hidden"><span class="text-gray-500" data-i18n="medical_record.actions"
+                data-i18n-ns="animals">処置</span>: <span class="js-action"></span> <span class="js-dosage"></span></p>
+    </div>
+</template>
+
+<template id="tmpl-gallery-item">
+    <div class="js-item">
+        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden relative group">
+            <img src="" alt="" class="w-full h-full object-cover js-image">
+            <div
+                class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                <p class="text-white text-xs text-center js-overlay-caption"></p>
+            </div>
+            <button type="button"
+                class="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-700 transition-all js-delete-btn"
+                title="Delete">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <p class="mt-1 text-xs text-gray-500 js-taken-at hidden"></p>
+        <p class="text-xs text-gray-600 truncate js-caption hidden"></p>
+    </div>
+</template>
+
 <script src="/static/js/admin/animal_detail.js?v=202601210240"></script>
 {% endblock %}

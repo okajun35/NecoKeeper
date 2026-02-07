@@ -134,7 +134,7 @@ class TestCreateAnimalAutomation:
         )
 
         # Then
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_create_animal_with_minimal_data(
         self, test_client: TestClient, test_db, automation_api_key: str

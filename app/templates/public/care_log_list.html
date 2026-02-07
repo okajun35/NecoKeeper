@@ -165,6 +165,42 @@ NecoKeeper"{% endblock %}
     </div>
 </template>
 
+<template id="tmpl-log-detail-modal">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 js-modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 js-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800 js-modal-title"></h3>
+                <button type="button" class="text-gray-500 hover:text-gray-700 js-close-btn" aria-label="Close">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-3 js-details-container">
+                <!-- Detail rows will be injected here -->
+            </div>
+            <div class="pt-4 js-memo-wrapper hidden">
+                <div class="text-gray-600 mb-1 js-memo-label"></div>
+                <div class="text-sm text-gray-800 bg-gray-50 p-3 rounded js-memo-content whitespace-pre-wrap"></div>
+            </div>
+            <div class="mt-6 space-y-3">
+                <a href="#"
+                    class="w-full inline-flex justify-center py-3 bg-brand-primary text-white rounded-lg font-medium hover:opacity-90 transition-colors js-edit-btn"></a>
+                <button type="button"
+                    class="w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors js-footer-close-btn"></button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="tmpl-detail-row">
+    <div class="flex justify-between py-2 border-b">
+        <span class="text-gray-600 js-label"></span>
+        <span class="font-medium js-value"></span>
+    </div>
+</template>
+
 <!-- 固定フッター: 記録入力ボタン -->
 <div class="fixed bottom-0 left-0 right-0 {% if settings.kiroween_mode %}border-green-500{% else %}bg-white border-gray-200{% endif %} border-t p-4 shadow-lg"
     style="{% if not settings.kiroween_mode %}background-color: var(--color-bg-base); border-top-color: var(--color-border);{% endif %} {% if settings.kiroween_mode %}background-color: #000000 !important;{% endif %}">

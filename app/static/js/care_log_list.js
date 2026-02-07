@@ -373,7 +373,7 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
   }
 
   // Card Variant uses Template
-  const element = cloneTemplate('tmpl-slot-chip', FALLBACK_TEMPLATE_SLOT_CHIP);
+  const element = cloneTemplate('tmpl-slot-chip');
 
   // Interactive Container
   const container = element; // The root is the button
@@ -397,7 +397,8 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
     container.style.color = 'var(--color-text-muted)';
     // No click action for missing
     container.style.cursor = 'default';
-    container.type = 'div'; // effectively
+    container.type = 'button';
+    container.disabled = true;
   }
 
   const ariaLabel = translateCareLogs(
@@ -440,7 +441,7 @@ function renderDailyCards(summary = []) {
   container.innerHTML = '';
 
   summary.forEach(day => {
-    const card = cloneTemplate('tmpl-daily-card', FALLBACK_TEMPLATE_DAILY_CARD);
+    const card = cloneTemplate('tmpl-daily-card');
 
     // Date
     const dateEl = card.querySelector('.js-date');
@@ -512,19 +513,6 @@ function renderDailyOverview(summary = []) {
   renderDailyTable(summary);
 }
 
-const FALLBACK_TEMPLATE_LOG_ITEM = `
-    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-brand-primary/5 transition-colors cursor-pointer bg-white mb-2 js-log-container">
-        <div class="flex items-center gap-3">
-            <div class="text-2xl js-emoji"></div>
-            <div>
-                <div class="font-medium text-gray-800 js-date"></div>
-                <div class="text-sm text-gray-500 js-meta"></div>
-            </div>
-        </div>
-        <div class="font-bold text-brand-secondary js-check">○</div>
-    </div>
-`;
-
 function displayRecentLogs(logs = []) {
   const container = document.getElementById('recentLogs');
   const noLogsDiv = document.getElementById('noLogs');
@@ -545,7 +533,7 @@ function displayRecentLogs(logs = []) {
 
   logs.forEach(logItem => {
     const log = logItem || {};
-    const logDiv = cloneTemplate('tmpl-log-item', FALLBACK_TEMPLATE_LOG_ITEM);
+    const logDiv = cloneTemplate('tmpl-log-item');
 
     // Highlight Effect
     if (highlightId && log.id === Number(highlightId)) {
@@ -588,57 +576,29 @@ function displayRecentLogs(logs = []) {
   });
 }
 
-function createDetailRow(label, value) {
-  const row = document.createElement('div');
-  row.className = 'flex justify-between py-2 border-b';
-  const labelEl = document.createElement('span');
-  labelEl.className = 'text-gray-600';
-  labelEl.textContent = label;
-  const valueEl = document.createElement('span');
-  valueEl.className = 'font-medium';
-  valueEl.textContent = value;
-  row.appendChild(labelEl);
-  row.appendChild(valueEl);
-  return row;
-}
-
 function renderLogDetailModal(log) {
-  const modal = document.createElement('div');
-  modal.className =
-    'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
-  modal.addEventListener('click', event => {
-    if (event.target === modal) {
-      modal.remove();
-    }
+  const modal = cloneTemplate('tmpl-log-detail-modal');
+
+  // Close Logic
+  const closeModal = () => modal.remove();
+  modal.querySelector('.js-close-btn').addEventListener('click', closeModal);
+  modal.querySelector('.js-footer-close-btn').addEventListener('click', closeModal);
+  modal.querySelector('.js-footer-close-btn').textContent = translateCareLogs(
+    'public.modal_close',
+    '閉じる'
+  );
+  modal.querySelector('.js-modal-overlay').addEventListener('click', e => {
+    if (e.target.classList.contains('js-modal-overlay')) closeModal();
   });
 
-  const content = document.createElement('div');
-  content.className = 'bg-white rounded-lg shadow-xl max-w-md w-full p-6';
+  // Header
+  modal.querySelector('.js-modal-title').textContent = translateCareLogs(
+    'public.modal_title',
+    '記録詳細'
+  );
 
-  const header = document.createElement('div');
-  header.className = 'flex justify-between items-center mb-4';
-
-  const titleEl = document.createElement('h3');
-  titleEl.className = 'text-xl font-bold text-gray-800';
-  titleEl.textContent = translateCareLogs('public.modal_title', '記録詳細');
-
-  const closeIconButton = document.createElement('button');
-  closeIconButton.type = 'button';
-  closeIconButton.className = 'text-gray-500 hover:text-gray-700';
-  closeIconButton.setAttribute('aria-label', translateCareLogs('public.modal_close', '閉じる'));
-  closeIconButton.innerHTML = `
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-    </svg>
-  `;
-  closeIconButton.addEventListener('click', () => modal.remove());
-
-  header.appendChild(titleEl);
-  header.appendChild(closeIconButton);
-
-  const detailsContainer = document.createElement('div');
-  detailsContainer.className = 'space-y-3';
-
+  // Detail Rows
+  const container = modal.querySelector('.js-details-container');
   const detailRows = [
     {
       label: translateCareLogs('fields.log_date', '記録日'),
@@ -675,48 +635,28 @@ function renderLogDetailModal(log) {
   ];
 
   detailRows.forEach(row => {
-    detailsContainer.appendChild(createDetailRow(row.label, row.value));
+    const rowEl = cloneTemplate('tmpl-detail-row');
+    rowEl.querySelector('.js-label').textContent = row.label;
+    rowEl.querySelector('.js-value').textContent = row.value;
+    container.appendChild(rowEl);
   });
 
+  // Memo
   if (log.memo) {
-    const memoWrapper = document.createElement('div');
-    memoWrapper.className = 'py-2';
-
-    const memoLabel = document.createElement('div');
-    memoLabel.className = 'text-gray-600 mb-1';
-    memoLabel.textContent = translateCareLogs('fields.memo', 'メモ');
-
-    const memoContent = document.createElement('div');
-    memoContent.className = 'text-sm text-gray-800 bg-gray-50 p-3 rounded';
-    memoContent.textContent = log.memo;
-
-    memoWrapper.appendChild(memoLabel);
-    memoWrapper.appendChild(memoContent);
-    detailsContainer.appendChild(memoWrapper);
+    const wrapper = modal.querySelector('.js-memo-wrapper');
+    wrapper.classList.remove('hidden');
+    wrapper.querySelector('.js-memo-label').textContent = translateCareLogs('fields.memo', 'メモ');
+    wrapper.querySelector('.js-memo-content').textContent = log.memo;
   }
 
-  const footerButton = document.createElement('button');
-  footerButton.type = 'button';
-  footerButton.className =
-    'mt-6 w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors';
-  footerButton.textContent = translateCareLogs('public.modal_close', '閉じる');
-  footerButton.addEventListener('click', () => modal.remove());
-
-  const editButton = document.createElement('a');
-  editButton.className =
-    'mt-3 w-full inline-flex justify-center py-3 bg-brand-primary text-white rounded-lg font-medium hover:opacity-90 transition-colors';
-  editButton.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
+  // Edit Button
+  const editBtn = modal.querySelector('.js-edit-btn');
+  editBtn.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
   if (animalId && log?.id) {
-    editButton.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
+    editBtn.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
   } else {
-    editButton.classList.add('opacity-50', 'pointer-events-none');
+    editBtn.classList.add('opacity-50', 'pointer-events-none');
   }
-
-  content.appendChild(header);
-  content.appendChild(detailsContainer);
-  content.appendChild(editButton);
-  content.appendChild(footerButton);
-  modal.appendChild(content);
 
   document.body.appendChild(modal);
 }

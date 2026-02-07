@@ -47,6 +47,7 @@ def landing_page(request: Request):  # type: ignore[no-untyped-def]
     demo_video_url = f"https://www.youtube.com/embed/{settings.demo_video_id}"
 
     return templates.TemplateResponse(
+        request,
         "public/landing.html",
         {
             "request": request,
@@ -76,6 +77,7 @@ def care_form_page(request: Request, animal_id: int):  # type: ignore[no-untyped
         GET /public/care?animal_id=1
     """
     return templates.TemplateResponse(
+        request,
         "public/care_form.html",
         {"request": request, "animal_id": animal_id, "settings": settings},
     )
@@ -100,6 +102,7 @@ def care_log_list_page(request: Request, animal_id: int):  # type: ignore[no-unt
         GET /public/care-logs?animal_id=1
     """
     return templates.TemplateResponse(
+        request,
         "public/care_log_list.html",
         {"request": request, "animal_id": animal_id, "settings": settings},
     )
@@ -123,5 +126,7 @@ def all_animals_status_page(request: Request):  # type: ignore[no-untyped-def]
         GET /public/animals/status
     """
     return templates.TemplateResponse(
-        "public/all_animals_status.html", {"request": request, "settings": settings}
+        request,
+        "public/all_animals_status.html",
+        {"request": request, "settings": settings},
     )

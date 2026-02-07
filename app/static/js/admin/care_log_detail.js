@@ -5,8 +5,19 @@
 
 const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  const detailContainer = document.getElementById('care-log-detail');
+  const detailContainer = requireElementById('care-log-detail', 'care_log_detail.page');
   const careLogId = parseInt(detailContainer.dataset.careLogId);
 
   setupStoolConditionHelpModal();
@@ -41,107 +52,123 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast(t('messages.updated'), 'success');
     }
 
-    detailContainer.innerHTML = `
-            <div class="space-y-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.log_date">${t('fields.log_date')}</label>
-                        <p class="mt-1 text-lg">${careLog.log_date}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.time_slot">${t('fields.time_slot')}</label>
-                        <p class="mt-1 text-lg" data-i18n="care_logs:time_slots.${careLog.time_slot}">${t('time_slots.' + careLog.time_slot)}</p>
-                    </div>
-                </div>
+    detailContainer.innerHTML = '';
+    const content = cloneTemplate('tmpl-care-log-detail');
+    assertRequiredSelectors(
+      content,
+      [
+        '.js-log-date',
+        '.js-time-slot',
+        '.js-animal-name',
+        '.js-recorder-name',
+        '.js-appetite',
+        '.js-energy',
+        '.js-urination',
+        '.js-cleaning',
+        '.js-defecation',
+        '.js-stool-condition-container',
+        '.js-stool-image',
+        '.js-stool-label',
+        '.js-stool-empty',
+        '.js-memo-container',
+        '.js-memo',
+        '.js-created-at',
+        '.js-updated-at',
+        '.js-edit-btn',
+        '.js-delete-btn',
+      ],
+      'care_log_detail.tmpl-care-log-detail'
+    );
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.animal">${t('fields.animal')}</label>
-                        <p class="mt-1 text-lg">${careLog.animal_name || careLog.animal_id}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.recorder">${t('fields.recorder')}</label>
-                        <p class="mt-1 text-lg">${careLog.recorder_name}</p>
-                    </div>
-                </div>
+    // データ投入
+    requireSelector(content, '.js-log-date', 'care_log_detail.tmpl-care-log-detail').textContent =
+      careLog.log_date;
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.appetite">${t('fields.appetite')}</label>
-                        <p class="mt-1 text-lg">${formatAppetiteLabel(careLog.appetite)}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.energy">${t('fields.energy')}</label>
-                        <p class="mt-1 text-lg">${'★'.repeat(careLog.energy)}${'☆'.repeat(5 - careLog.energy)}</p>
-                    </div>
-                </div>
+    // 時間帯
+    const timeSlotLabel = t(`time_slots.${careLog.time_slot}`, {
+      defaultValue: getTimeSlotLabel(careLog.time_slot),
+    });
+    requireSelector(content, '.js-time-slot', 'care_log_detail.tmpl-care-log-detail').textContent =
+      timeSlotLabel;
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.urination">${t('fields.urination')}</label>
-                        <p class="mt-1 text-lg" data-i18n="care_logs:urination_status.${careLog.urination ? 'yes' : 'no'}">${careLog.urination ? t('urination_status.yes') : t('urination_status.no')}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.cleaning">${t('fields.cleaning')}</label>
-                        <p class="mt-1 text-lg" data-i18n="care_logs:cleaning_status.${careLog.cleaning ? 'done' : 'not_done'}">${careLog.cleaning ? t('cleaning_status.done') : t('cleaning_status.not_done')}</p>
-                    </div>
-                </div>
+    requireSelector(
+      content,
+      '.js-animal-name',
+      'care_log_detail.tmpl-care-log-detail'
+    ).textContent = careLog.animal_name || careLog.animal_id;
+    requireSelector(
+      content,
+      '.js-recorder-name',
+      'care_log_detail.tmpl-care-log-detail'
+    ).textContent = careLog.recorder_name;
 
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.defecation">${t('fields.defecation')}</label>
-                    <p class="mt-1 text-lg" data-i18n="care_logs:defecation_status.${careLog.defecation ? 'yes' : 'no'}">${careLog.defecation ? t('defecation_status.yes') : t('defecation_status.no')}</p>
-                  </div>
-                  <div>
-                    <div class="flex items-center justify-between">
-                      <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.stool_condition">${t('fields.stool_condition')}</label>
-                      <button type="button" id="stoolConditionHelpOpen" class="text-sm text-brand-primary hover:text-brand-primary-dark" data-i18n="care_logs:stool_condition_help">${t('stool_condition_help')}</button>
-                    </div>
-                    ${
-                      careLog.defecation && careLog.stool_condition
-                        ? `
-                    <div class="mt-1 flex items-center gap-3">
-                      <img src="/static/images/cat_poops/cat_poop_${careLog.stool_condition}.png" alt="stool" class="w-10 h-10">
-                      <div class="text-lg" data-i18n="care_logs:stool_condition_levels.${careLog.stool_condition}">${t('stool_condition_levels.' + careLog.stool_condition)}</div>
-                    </div>
-                    `
-                        : `<p class="mt-1 text-lg text-gray-500">-</p>`
-                    }
-                  </div>
-                </div>
+    // 食欲
+    requireSelector(content, '.js-appetite', 'care_log_detail.tmpl-care-log-detail').textContent =
+      typeof formatAppetiteLabel === 'function'
+        ? formatAppetiteLabel(careLog.appetite)
+        : careLog.appetite;
 
-                ${
-                  careLog.memo
-                    ? `
-                <div>
-                    <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.memo">${t('fields.memo')}</label>
-                    <p class="mt-1 text-gray-900 whitespace-pre-wrap">${careLog.memo}</p>
-                </div>
-                `
-                    : ''
-                }
+    // 元気 (★表示)
+    requireSelector(content, '.js-energy', 'care_log_detail.tmpl-care-log-detail').textContent =
+      '★'.repeat(careLog.energy) + '☆'.repeat(5 - careLog.energy);
 
-                <div class="pt-4 border-t">
-                    <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div>
-                            <span class="font-medium" data-i18n="care_logs:fields.created_at">${t('fields.created_at')}</span>: ${new Date(careLog.created_at).toLocaleString(i18next.language === 'en' ? 'en-US' : 'ja-JP')}
-                        </div>
-                        <div>
-                            <span class="font-medium" data-i18n="common:last_updated">${tCommon('last_updated')}</span>: ${new Date(careLog.last_updated_at).toLocaleString(i18next.language === 'en' ? 'en-US' : 'ja-JP')}
-                        </div>
-                    </div>
-                </div>
+    // 排泄・掃除
+    requireSelector(content, '.js-urination', 'care_log_detail.tmpl-care-log-detail').textContent =
+      careLog.urination ? t('urination_status.yes') : t('urination_status.no');
+    requireSelector(content, '.js-cleaning', 'care_log_detail.tmpl-care-log-detail').textContent =
+      careLog.cleaning ? t('cleaning_status.done') : t('cleaning_status.not_done');
+    requireSelector(content, '.js-defecation', 'care_log_detail.tmpl-care-log-detail').textContent =
+      careLog.defecation ? t('defecation_status.yes') : t('defecation_status.no');
 
-                <div class="flex justify-end space-x-4">
-                    <a href="${adminBasePath}/care-logs/${careLogId}/edit" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90" data-i18n="common:edit">
-                        ${tCommon('edit')}
-                    </a>
-                    <button onclick="deleteCareLog(${careLogId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" data-i18n="common:delete">
-                        ${tCommon('delete')}
-                    </button>
-                </div>
-            </div>
-        `;
+    // 便の状態 (Defecationありの場合のみ)
+    if (careLog.defecation && careLog.stool_condition) {
+      const container = requireSelector(
+        content,
+        '.js-stool-condition-container',
+        'care_log_detail.tmpl-care-log-detail'
+      );
+      container.classList.remove('hidden');
+      requireSelector(container, '.js-stool-image', 'care_log_detail.tmpl-care-log-detail').src =
+        `/static/images/cat_poops/cat_poop_${careLog.stool_condition}.png`;
+      requireSelector(
+        container,
+        '.js-stool-label',
+        'care_log_detail.tmpl-care-log-detail'
+      ).textContent = t(`stool_condition_levels.${careLog.stool_condition}`);
+    } else {
+      requireSelector(
+        content,
+        '.js-stool-empty',
+        'care_log_detail.tmpl-care-log-detail'
+      ).classList.remove('hidden');
+    }
+
+    // メモ
+    if (careLog.memo) {
+      requireSelector(
+        content,
+        '.js-memo-container',
+        'care_log_detail.tmpl-care-log-detail'
+      ).classList.remove('hidden');
+      requireSelector(content, '.js-memo', 'care_log_detail.tmpl-care-log-detail').textContent =
+        careLog.memo;
+    }
+
+    // 日時
+    const lang = i18next.language === 'en' ? 'en-US' : 'ja-JP';
+    requireSelector(content, '.js-created-at', 'care_log_detail.tmpl-care-log-detail').textContent =
+      new Date(careLog.created_at).toLocaleString(lang);
+    requireSelector(content, '.js-updated-at', 'care_log_detail.tmpl-care-log-detail').textContent =
+      new Date(careLog.last_updated_at).toLocaleString(lang);
+
+    // ボタン
+    requireSelector(content, '.js-edit-btn', 'care_log_detail.tmpl-care-log-detail').href =
+      `${adminBasePath}/care-logs/${careLogId}/edit`;
+    requireSelector(content, '.js-delete-btn', 'care_log_detail.tmpl-care-log-detail').onclick =
+      () => deleteCareLog(careLogId);
+
+    translateDynamicElement(content);
+    detailContainer.appendChild(content);
 
     // innerHTML差し替え後にopenボタンへ紐付け
     setupStoolConditionHelpModal();
@@ -177,13 +204,21 @@ function setupStoolConditionHelpModal() {
 
   openClone.addEventListener('click', open);
   closeClone.addEventListener('click', close);
-  backdrop.addEventListener('click', close);
+  if (backdrop.__stoolCloseHandler) {
+    backdrop.removeEventListener('click', backdrop.__stoolCloseHandler);
+  }
+  backdrop.__stoolCloseHandler = close;
+  backdrop.addEventListener('click', backdrop.__stoolCloseHandler);
 
-  document.addEventListener('keydown', e => {
+  if (document.__stoolModalEscHandler) {
+    document.removeEventListener('keydown', document.__stoolModalEscHandler);
+  }
+  document.__stoolModalEscHandler = e => {
     if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
       close();
     }
-  });
+  };
+  document.addEventListener('keydown', document.__stoolModalEscHandler);
 }
 
 /**

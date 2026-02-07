@@ -60,7 +60,8 @@
                 data-i18n="stats.today_logs" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">今日の記録</p>
             <div
                 class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center bg-brand-primary/10">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-brand-primary" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                     </path>
@@ -141,6 +142,34 @@
         </div>
     </div>
 </div>
+
+<template id="tmpl-recent-log">
+    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="js-animal-name font-medium text-gray-900"></span>
+                <span class="js-time-slot text-sm text-gray-500"></span>
+            </div>
+            <div class="js-details text-sm text-gray-600"></div>
+        </div>
+        <div class="flex gap-2">
+            <span class="js-appetite px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded"></span>
+            <span class="js-energy px-2 py-1 text-xs bg-green-100 text-green-800 rounded"></span>
+        </div>
+    </div>
+</template>
+
+<template id="tmpl-needs-care">
+    <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+        <img class="js-animal-photo w-12 h-12 rounded-full object-cover">
+        <div class="flex-1">
+            <div class="js-animal-name font-medium text-gray-900"></div>
+            <div class="js-missing-items text-sm text-gray-600"></div>
+        </div>
+        <a class="js-record-link px-3 py-1 text-sm text-white rounded transition-colors bg-brand-primary hover:opacity-90"
+            target="_blank" style="background-color: var(--color-brand-primary);"></a>
+    </div>
+</template>
 {% endblock %}
 
 {% block extra_scripts %}

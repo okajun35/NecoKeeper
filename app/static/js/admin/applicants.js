@@ -79,61 +79,114 @@ async function loadApplicants() {
   }
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 // 里親希望者を表示
 function renderApplicants() {
   const start = currentPage * pageSize;
   const end = start + pageSize;
   const pageApplicants = filteredApplicants.slice(start, end);
 
-  // モバイル表示
   const mobileList = document.getElementById('mobileList');
-  mobileList.innerHTML = pageApplicants
-    .map(
-      applicant => `
-        <div class="p-4 hover:bg-gray-50">
-            <div class="flex items-start justify-between mb-2">
-                <div>
-                  <h3 class="font-medium text-gray-900">${escapeHtml(applicant.name)}</h3>
-                  <p class="text-sm text-gray-500">${escapeHtml(formatContact(applicant))}</p>
-                </div>
-            </div>
-            <div class="space-y-1 text-sm text-gray-600">
-                ${formatAddress(applicant) ? `<p>住所: ${escapeHtml(formatAddress(applicant))}</p>` : ''}
-                <p>家族構成: ${formatHousehold(applicant)}</p>
-                <p>${t('applicants.labels.registration_date', { ns: 'adoptions' })}: ${formatDate(applicant.created_at)}</p>
-            </div>
-            <div class="mt-3 flex gap-2">
-                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90 text-center">
-                    ${t('buttons.edit', { ns: 'common' })}
-                </a>
-                <button onclick="viewAdoptionRecords(${applicant.id})" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-                    ${t('buttons.adoption_records', { ns: 'common' })}
-                </button>
-            </div>
-        </div>
-    `
-    )
-    .join('');
-
-  // デスクトップ表示
   const desktopList = document.getElementById('desktopList');
-  desktopList.innerHTML = pageApplicants
-    .map(
-      applicant => `
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${escapeHtml(applicant.name)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${escapeHtml(formatContact(applicant))}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">${formatAddress(applicant) ? escapeHtml(formatAddress(applicant)) : '-'}</td>
-            <td class="px-6 py-4 text-sm text-gray-600">${formatHousehold(applicant)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatDate(applicant.created_at)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="text-brand-primary hover:text-brand-primary-dark mr-3">${t('buttons.edit', { ns: 'common' })}</a>
-                <button onclick="viewAdoptionRecords(${applicant.id})" class="text-gray-600 hover:text-gray-900">${t('buttons.adoption_records', { ns: 'common' })}</button>
-            </td>
-        </tr>
-    `
-    )
-    .join('');
+
+  if (mobileList) mobileList.innerHTML = '';
+  if (desktopList) desktopList.innerHTML = '';
+
+  pageApplicants.forEach(applicant => {
+    // モバイル表示
+    if (mobileList) {
+      const card = cloneTemplate('tmpl-mobile-card');
+      assertRequiredSelectors(
+        card,
+        [
+          '.js-name',
+          '.js-contact',
+          '.js-address-container',
+          '.js-address',
+          '.js-household',
+          '.js-registration-date',
+          '.js-edit-btn',
+          '.js-records-btn',
+        ],
+        'applicants.tmpl-mobile-card'
+      );
+
+      requireSelector(card, '.js-name', 'applicants.tmpl-mobile-card').textContent = applicant.name;
+      requireSelector(card, '.js-contact', 'applicants.tmpl-mobile-card').textContent =
+        formatContact(applicant);
+
+      const address = formatAddress(applicant);
+      if (address) {
+        requireSelector(
+          card,
+          '.js-address-container',
+          'applicants.tmpl-mobile-card'
+        ).classList.remove('hidden');
+        requireSelector(card, '.js-address', 'applicants.tmpl-mobile-card').textContent = address;
+      }
+
+      requireSelector(card, '.js-household', 'applicants.tmpl-mobile-card').textContent =
+        formatHousehold(applicant);
+      requireSelector(card, '.js-registration-date', 'applicants.tmpl-mobile-card').textContent =
+        formatDate(applicant.created_at);
+
+      const editBtn = requireSelector(card, '.js-edit-btn', 'applicants.tmpl-mobile-card');
+      editBtn.href = `${adminBasePath}/adoptions/applicants/${applicant.id}/edit`;
+
+      const recordsBtn = requireSelector(card, '.js-records-btn', 'applicants.tmpl-mobile-card');
+      recordsBtn.onclick = () => viewAdoptionRecords(applicant.id);
+
+      translateDynamicElement(card);
+      mobileList.appendChild(card);
+    }
+
+    // デスクトップ表示
+    if (desktopList) {
+      const row = cloneTemplate('tmpl-desktop-row');
+      assertRequiredSelectors(
+        row,
+        [
+          '.js-name',
+          '.js-contact',
+          '.js-address',
+          '.js-household',
+          '.js-registration-date',
+          '.js-edit-btn',
+          '.js-records-btn',
+        ],
+        'applicants.tmpl-desktop-row'
+      );
+
+      requireSelector(row, '.js-name', 'applicants.tmpl-desktop-row').textContent = applicant.name;
+      requireSelector(row, '.js-contact', 'applicants.tmpl-desktop-row').textContent =
+        formatContact(applicant);
+      requireSelector(row, '.js-address', 'applicants.tmpl-desktop-row').textContent =
+        formatAddress(applicant) || '-';
+      requireSelector(row, '.js-household', 'applicants.tmpl-desktop-row').textContent =
+        formatHousehold(applicant);
+      requireSelector(row, '.js-registration-date', 'applicants.tmpl-desktop-row').textContent =
+        formatDate(applicant.created_at);
+
+      const editBtn = requireSelector(row, '.js-edit-btn', 'applicants.tmpl-desktop-row');
+      editBtn.href = `${adminBasePath}/adoptions/applicants/${applicant.id}/edit`;
+
+      const recordsBtn = requireSelector(row, '.js-records-btn', 'applicants.tmpl-desktop-row');
+      recordsBtn.onclick = () => viewAdoptionRecords(applicant.id);
+
+      translateDynamicElement(row);
+      desktopList.appendChild(row);
+    }
+  });
 
   // ページネーション情報
   updatePagination();
@@ -141,11 +194,13 @@ function renderApplicants() {
 
 // ページネーション更新
 function updatePagination() {
-  const start = currentPage * pageSize + 1;
-  const end = Math.min((currentPage + 1) * pageSize, filteredApplicants.length);
   const total = filteredApplicants.length;
+  const start = total === 0 ? 0 : currentPage * pageSize + 1;
+  const end = total === 0 ? 0 : Math.min((currentPage + 1) * pageSize, total);
+  const itemsText = window.i18n && window.i18n.t ? window.i18n.t('items', { ns: 'common' }) : '件';
 
-  document.getElementById('paginationInfo').textContent = `${start} - ${end} / ${total} 件`;
+  document.getElementById('paginationInfo').textContent =
+    `${start} - ${end} / ${total} ${itemsText}`;
 
   document.getElementById('prevBtn').disabled = currentPage === 0;
   document.getElementById('nextBtn').disabled = end >= total;

@@ -64,7 +64,7 @@ async function loadAnimals() {
     select.innerHTML = `<option value="">${t('reports:form.animal_select_label', { ns: 'reports' })}</option>`;
 
     animals.forEach(animal => {
-      const option = document.createElement('option');
+      const option = cloneTemplate('tmpl-animal-option');
       option.value = animal.id;
       option.textContent = `${animal.name || t('reports:animals.no_name', { ns: 'reports' })} (ID: ${animal.id})`;
       select.appendChild(option);
