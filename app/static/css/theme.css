@@ -3,10 +3,10 @@
    ============================================ */
 
 :root {
-    /* 
+    /*
      * Brand Colors (Nordic/Earth Theme)
      */
-    
+
     /* Primary: Terracotta (Warmth, Energy, Love) */
     --color-brand-primary: #E07A5F;
     --color-brand-primary-rgb: 224, 122, 95;
@@ -16,7 +16,7 @@
     /* Secondary: Sage Green (Health, Safety, Healing) */
     --color-brand-secondary: #81B29A;
     --color-brand-secondary-rgb: 129, 178, 154;
-    --color-brand-secondary-light: #dcee4; /* Tint */
+    --color-brand-secondary-light: #dceee4; /* Tint */
     --color-brand-secondary-dark: #5f8d77; /* Shade */
 
     /* Neutral: Soft Cream & Gunmetal */
@@ -29,7 +29,7 @@
     /* Accent & Status */
     --color-accent-gold: #F2CC8F;   /* Warnings, Stars */
     --color-status-success: #81B29A;
-    --color-status-error: #E07A5F;  
+    --color-status-error: #E07A5F;
     --color-status-info: #3D405B;
 
     /*
