@@ -30,9 +30,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'care_logs' }) : key);
-    const tCommon = key =>
-      typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'common' }) : key;
+    const t = (key, options = {}) => {
+      if (typeof translate === 'function') {
+        return translate(key, { ns: 'care_logs', ...options });
+      }
+      if (typeof i18next !== 'undefined') {
+        return i18next.t(key, { ns: 'care_logs', ...options });
+      }
+      return options.defaultValue || key;
+    };
 
     // 翻訳がまだロードされていない可能性があるため、少し待つ
     if (!i18next.isInitialized) {

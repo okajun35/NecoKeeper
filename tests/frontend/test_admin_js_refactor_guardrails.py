@@ -79,3 +79,10 @@ class TestAdminJSRefactorGuardrails:
         assert (
             "normalizedStatus === 'IN_CARE' || normalizedStatus === 'TRIAL'" in content
         )
+
+    def test_care_log_detail_translation_helper_supports_options(self) -> None:
+        content = Path("app/static/js/admin/care_log_detail.js").read_text()
+
+        assert "const t = (key, options = {}) => {" in content
+        assert "translate(key, { ns: 'care_logs', ...options })" in content
+        assert "return options.defaultValue || key;" in content
