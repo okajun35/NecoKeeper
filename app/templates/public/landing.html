@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
     <!-- Prevent search engine indexing (hackathon demo site) -->
     <meta name="robots" content="noindex, nofollow">
 
-    <meta name="description" content="NecoKeeper - AI-powered cat care management system for shelters. Digitize handwritten logs, track health records, and manage rescued cats efficiently.">
+    <meta name="description"
+        content="NecoKeeper - AI-powered cat care management system for shelters. Digitize handwritten logs, track health records, and manage rescued cats efficiently.">
     <meta name="keywords" content="cat shelter, animal care, AI, OCR, FastAPI, volunteer management">
 
     <!-- Open Graph Meta Tags -->
@@ -32,51 +34,92 @@
     <link rel="icon" type="image/svg+xml" href="/static/icons/default_icon.svg">
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (Configured) -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.1/tailwindcss.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: 'var(--color-brand-primary)',
+                            secondary: 'var(--color-brand-secondary)',
+                        },
+                        text: {
+                            main: 'var(--color-text-main)',
+                            muted: 'var(--color-text-muted)',
+                        },
+                        bg: {
+                            base: 'var(--color-bg-base)',
+                            surface: 'var(--color-bg-surface)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['var(--font-body)'],
+                        heading: ['var(--font-heading)'],
+                        mono: ['var(--font-mono)'],
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Shared design tokens -->
+    <link rel="stylesheet" href="{{ request.url_for('static', path='css/theme.css') }}">
 
     <!-- Custom Styles -->
     <style>
-        /* CSS Variables for theming */
+        /* CSS Variables for theming - extending from theme.css */
         :root {
-            /* Background */
-            --bg-primary: #f5f5f7;
-            --bg-card: #ffffff;
+            /* Map Theme Colors to Local Variable Names for compatibility */
+            --bg-primary: var(--color-bg-base);
+            --bg-card: var(--color-bg-surface);
 
             /* Accent Colors */
-            --accent-primary: #ff7f50;
-            --accent-soft: rgba(255, 127, 80, 0.08);
+            --accent-primary: var(--color-brand-primary);
+            --accent-soft: var(--color-brand-primary-light);
 
             /* Text Colors */
-            --text-primary: #111827;
-            --text-secondary: #4b5563;
-            --text-muted: #9ca3af;
+            --text-primary: var(--color-text-main);
+            --text-secondary: var(--color-text-muted);
+            --text-muted: #94a3b8;
 
             /* Border */
-            --border-soft: #e5e7eb;
+            --border-soft: var(--color-border);
 
             /* Status Colors */
-            --status-success: #15803d;
+            --status-success: var(--color-status-success);
             --status-success-bg: #ecfdf5;
             --status-success-border: #bbf7d0;
 
             /* Typography */
-            --font-display: 'Outfit', sans-serif;
-            --font-body: 'Inter', system-ui, sans-serif;
+            --font-display: var(--font-heading);
+            --font-body: var(--font-body);
 
             /* Typography Scale */
-            --text-xs: 0.75rem;    /* 12px */
-            --text-sm: 0.875rem;   /* 14px */
-            --text-base: 1rem;     /* 16px */
-            --text-lg: 1.125rem;   /* 18px */
-            --text-xl: 1.25rem;    /* 20px */
-            --text-2xl: 1.5rem;    /* 24px */
-            --text-3xl: 1.875rem;  /* 30px */
-            --text-4xl: 2.25rem;   /* 36px */
+            --text-xs: 0.75rem;
+            /* 12px */
+            --text-sm: 0.875rem;
+            /* 14px */
+            --text-base: 1rem;
+            /* 16px */
+            --text-lg: 1.125rem;
+            /* 18px */
+            --text-xl: 1.25rem;
+            /* 20px */
+            --text-2xl: 1.5rem;
+            /* 24px */
+            --text-3xl: 1.875rem;
+            /* 30px */
+            --text-4xl: 2.25rem;
+            /* 36px */
 
             /* Spacing */
             --space-1: 0.25rem;
@@ -103,7 +146,12 @@
             line-height: 1.6;
         }
 
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             font-family: var(--font-display);
         }
 
@@ -113,6 +161,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -172,7 +221,8 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background-color: var(--accent-soft);
+            background-color: var(--accent-primary);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -182,7 +232,7 @@
 
         .nav-left:hover .logo-circle {
             transform: rotate(10deg) scale(1.1);
-            background-color: rgba(255, 127, 80, 0.15);
+            background-color: var(--color-brand-primary-dark);
         }
 
         .brand-name {
@@ -223,7 +273,7 @@
         .cta-link {
             padding: var(--space-2) var(--space-4);
             border: 1px solid var(--border-soft);
-            border-radius: 20px;
+            border-radius: var(--radius-full);
             color: var(--text-primary) !important;
             transition: all 0.2s ease;
         }
@@ -251,16 +301,17 @@
             display: inline-block;
             padding: var(--space-2) var(--space-4);
             background-color: var(--accent-soft);
-            border-radius: 20px;
+            border-radius: var(--radius-full);
             font-size: 0.875rem;
-            color: var(--text-secondary);
+            color: var(--text-primary);
             margin-bottom: var(--space-4);
             transition: all 0.2s ease;
             cursor: default;
         }
 
         .badge:hover {
-            background-color: rgba(255, 127, 80, 0.15);
+            background-color: rgba(224, 122, 95, 0.15);
+            /* Terracotta Soft */
             color: var(--accent-primary);
             transform: scale(1.02);
         }
@@ -288,7 +339,7 @@
 
         .btn {
             padding: var(--space-3) var(--space-6);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-weight: 500;
             text-decoration: none;
             display: inline-flex;
@@ -304,7 +355,8 @@
             min-width: 44px;
         }
 
-        .btn-primary {
+        .btn-primary,
+        button.btn-primary {
             background-color: var(--accent-primary);
             color: white;
         }
@@ -350,14 +402,14 @@
         .panel {
             max-width: 520px;
             background-color: var(--bg-card);
-            border-radius: 1.3rem;
+            border-radius: var(--radius-lg);
             padding: var(--space-6);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-card);
             transition: all 0.2s ease;
         }
 
         .panel:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--shadow-soft);
         }
 
         .panel-header {
@@ -400,7 +452,7 @@
         .card {
             padding: var(--space-4);
             background-color: var(--bg-primary);
-            border-radius: 0.75rem;
+            border-radius: var(--radius-md);
             display: flex;
             flex-direction: column;
             gap: var(--space-2);
@@ -410,7 +462,7 @@
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-card);
         }
 
         .card strong {
@@ -494,7 +546,8 @@
 
         .video-wrapper {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            padding-bottom: 56.25%;
+            /* 16:9 aspect ratio */
             height: 0;
             overflow: hidden;
             border-radius: 0.75rem;
@@ -524,7 +577,7 @@
             color: var(--text-muted);
         }
 
-        .footer .container > div:first-child {
+        .footer .container>div:first-child {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -625,7 +678,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .footer .container > div:first-child {
+            .footer .container>div:first-child {
                 flex-direction: column;
                 gap: var(--space-2);
                 text-align: center;
@@ -648,7 +701,8 @@
                 align-items: flex-start;
             }
 
-            .hero, .panel {
+            .hero,
+            .panel {
                 flex: 1;
             }
 
@@ -699,7 +753,8 @@
                 max-width: 1000px;
             }
 
-            .hero, .panel {
+            .hero,
+            .panel {
                 max-width: 560px;
             }
         }
@@ -732,7 +787,9 @@
 
         /* Print styles */
         @media print {
-            .nav, .video-section {
+
+            .nav,
+            .video-section {
                 display: none;
             }
 
@@ -744,13 +801,15 @@
                 background-color: white;
             }
 
-            .panel, .card {
+            .panel,
+            .card {
                 box-shadow: none;
                 border: 1px solid var(--border-soft);
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Skip to main content link for keyboard users -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -766,7 +825,8 @@
                 <a href="#how" aria-label="Jump to How it works section">How it works</a>
                 <a href="#video" aria-label="Jump to Demo Video section">Demo Video</a>
                 <a href="#tech" aria-label="Jump to Tech Stack section">Tech</a>
-                <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub (opens in new tab)">GitHub</a>
+                <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer"
+                    aria-label="View source code on GitHub (opens in new tab)">GitHub</a>
                 <a class="cta-link" href="#video" aria-label="Watch demo video">Watch demo</a>
             </nav>
         </div>
@@ -795,7 +855,8 @@
                             <span aria-hidden="true">↗</span>
                         </button>
                     </a>
-                    <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub (opens in new tab)">
+                    <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer"
+                        aria-label="View source code on GitHub (opens in new tab)">
                         <button class="btn btn-ghost" type="button">
                             View source
                         </button>
@@ -803,7 +864,8 @@
                 </div>
                 <div class="hero-meta" role="list" aria-label="Key features">
                     <span role="listitem"><span aria-hidden="true">✅</span> Focus: shelters & volunteer groups</span>
-                    <span role="listitem"><span aria-hidden="true">✅</span> Tech: FastAPI, SQLAlchemy, Pydantic, MCP, AWS Kiro</span>
+                    <span role="listitem"><span aria-hidden="true">✅</span> Tech: FastAPI, SQLAlchemy, Pydantic, MCP,
+                        AWS Kiro</span>
                 </div>
             </section>
 
@@ -820,7 +882,9 @@
                     </div>
                     <div class="card" role="listitem">
                         <strong>CARE TODAY</strong>
-                        <span>Food <span aria-label="completed">✔</span> · Water <span aria-label="completed">✔</span> · Litter <span aria-label="completed">✔</span> · Play <span aria-label="not completed">✕</span></span>
+                        <span>Food <span aria-label="completed">✔</span> · Water <span aria-label="completed">✔</span> ·
+                            Litter <span aria-label="completed">✔</span> · Play <span
+                                aria-label="not completed">✕</span></span>
                     </div>
                     <div class="card" role="listitem">
                         <strong>HEALTH</strong>
@@ -838,7 +902,8 @@
                     </li>
                     <li>
                         <div class="dot" aria-hidden="true"></div>
-                        <div><strong>2.</strong> NecoKeeper reads the sheet image, extracts items with AI, and generates JSON.</div>
+                        <div><strong>2.</strong> NecoKeeper reads the sheet image, extracts items with AI, and generates
+                            JSON.</div>
                     </li>
                     <li>
                         <div class="dot" aria-hidden="true"></div>
@@ -859,15 +924,11 @@
             <div class="video-container">
                 <h2 class="video-heading" id="video-heading">See NecoKeeper in Action</h2>
                 <div class="video-wrapper" role="region" aria-label="Demo video player">
-                    <iframe
-                        src="{{ demo_video_url }}"
+                    <iframe src="{{ demo_video_url }}"
                         title="NecoKeeper Demo Video - Watch how the system works with handwritten care logs and QR codes"
                         frameborder="0"
                         allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                        class="video-iframe"
-                        loading="lazy"
-                    ></iframe>
+                        allowfullscreen class="video-iframe" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
@@ -875,11 +936,13 @@
 
     <!-- Footer -->
     <footer class="footer" id="tech" role="contentinfo" aria-label="Technology stack information">
-        <div class="container" style="display: flex; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap; gap: var(--space-2);">
+        <div class="container"
+            style="display: flex; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap; gap: var(--space-2);">
             <span role="text">Built with FastAPI · AWS Kiro · MCP</span>
             <span role="text" style="color: var(--border-soft);">·</span>
             <span role="text" style="font-weight: 500;">Hackathon Edition (Kiroween 2025)</span>
         </div>
     </footer>
 </body>
+
 </html>

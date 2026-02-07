@@ -162,6 +162,7 @@ def root(request: Request) -> Response:
         return PlainTextResponse("Not Found", status_code=404)
 
     return templates.TemplateResponse(
+        request,
         "public/landing.html",
         {
             "request": request,

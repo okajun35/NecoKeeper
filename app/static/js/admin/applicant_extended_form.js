@@ -159,7 +159,7 @@ function setupHouseholdMembers() {
     row.innerHTML = `
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">続柄</label>
-        <select class="household-relation w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <select class="household-relation w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
           <option value="">選択</option>
           <option value="husband">夫</option>
           <option value="wife">妻</option>
@@ -172,11 +172,11 @@ function setupHouseholdMembers() {
       </div>
       <div class="household-relation-other-wrapper hidden">
         <label class="block text-sm font-medium text-gray-700 mb-1">続柄（その他）</label>
-        <input type="text" class="household-relation-other w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <input type="text" class="household-relation-other w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">年齢</label>
-        <input type="number" min="0" max="150" class="household-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <input type="number" min="0" max="150" class="household-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
       </div>
       <div>
         <button type="button" class="remove-row px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">削除</button>
@@ -217,7 +217,7 @@ function setupPets() {
     row.innerHTML = `
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">種別</label>
-        <select class="pet-category w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <select class="pet-category w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
           <option value="">選択</option>
           <option value="cat">猫</option>
           <option value="other">その他</option>
@@ -225,15 +225,15 @@ function setupPets() {
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">頭数</label>
-        <input type="number" min="1" value="1" class="pet-count w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <input type="number" min="1" value="1" class="pet-count w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">品種・種類</label>
-        <input type="text" class="pet-breed w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <input type="text" class="pet-breed w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">年齢</label>
-        <input type="text" class="pet-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <input type="text" class="pet-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
       </div>
       <div>
         <button type="button" class="remove-row px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">削除</button>
@@ -499,7 +499,7 @@ function createHouseholdMemberRow(data) {
   row.innerHTML = `
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">続柄</label>
-      <select class="household-relation w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <select class="household-relation w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
         <option value="">選択</option>
         <option value="husband">夫</option>
         <option value="wife">妻</option>
@@ -512,11 +512,11 @@ function createHouseholdMemberRow(data) {
     </div>
     <div class="household-relation-other-wrapper hidden">
       <label class="block text-sm font-medium text-gray-700 mb-1">続柄（その他）</label>
-      <input type="text" class="household-relation-other w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <input type="text" class="household-relation-other w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">年齢</label>
-      <input type="number" min="0" max="150" class="household-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <input type="number" min="0" max="150" class="household-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
     </div>
     <div>
       <button type="button" class="remove-row px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">削除</button>
@@ -552,7 +552,7 @@ function createPetRow(data) {
   row.innerHTML = `
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">種別</label>
-      <select class="pet-category w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <select class="pet-category w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
         <option value="">選択</option>
         <option value="cat">猫</option>
         <option value="other">その他</option>
@@ -560,15 +560,15 @@ function createPetRow(data) {
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">頭数</label>
-      <input type="number" min="1" value="1" class="pet-count w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <input type="number" min="1" value="1" class="pet-count w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">品種・種類</label>
-      <input type="text" class="pet-breed w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <input type="text" class="pet-breed w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">年齢</label>
-      <input type="text" class="pet-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <input type="text" class="pet-age w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
     </div>
     <div>
       <button type="button" class="remove-row px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">削除</button>

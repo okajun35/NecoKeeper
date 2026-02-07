@@ -60,26 +60,26 @@ class InstallPromptManager {
     }
 
     const promptHTML = `
-            <div id="installPrompt" class="fixed top-4 left-4 right-4 bg-indigo-600 text-white rounded-lg shadow-lg p-4 z-50 animate-slide-down">
+            <div id="installPrompt" class="fixed top-4 left-4 right-4 bg-brand-primary text-white rounded-lg shadow-lg p-4 z-50 animate-slide-down">
                 <div class="flex items-start gap-3">
                     <div class="flex-shrink-0 text-2xl">
                         📱
                     </div>
                     <div class="flex-1">
                         <h3 class="font-bold mb-1">ホーム画面に追加</h3>
-                        <p class="text-sm text-indigo-100 mb-3">
+                        <p class="text-sm text-white mb-3">
                             NecoKeeperをホーム画面に追加すると、アプリのように素早くアクセスできます
                         </p>
                         <div class="flex gap-2">
-                            <button id="installBtn" class="px-4 py-2 bg-white text-indigo-600 rounded-lg font-medium text-sm hover:bg-indigo-50 transition-colors">
+                            <button id="installBtn" class="px-4 py-2 bg-white text-brand-primary rounded-lg font-medium text-sm hover:bg-brand-primary-light transition-colors">
                                 追加する
                             </button>
-                            <button id="dismissBtn" class="px-4 py-2 bg-indigo-700 text-white rounded-lg font-medium text-sm hover:bg-indigo-800 transition-colors">
+                            <button id="dismissBtn" class="px-4 py-2 bg-brand-primary-dark text-white rounded-lg font-medium text-sm hover:opacity-90 transition-colors">
                                 後で
                             </button>
                         </div>
                     </div>
-                    <button id="closePromptBtn" class="flex-shrink-0 text-indigo-200 hover:text-white">
+                    <button id="closePromptBtn" class="flex-shrink-0 text-brand-primary-light hover:text-white">
                         ✕
                     </button>
                 </div>
@@ -112,25 +112,25 @@ class InstallPromptManager {
     }
 
     const promptHTML = `
-            <div id="iosInstallPrompt" class="fixed top-4 left-4 right-4 bg-indigo-600 text-white rounded-lg shadow-lg p-4 z-50">
+            <div id="iosInstallPrompt" class="fixed top-4 left-4 right-4 bg-brand-primary text-white rounded-lg shadow-lg p-4 z-50">
                 <div class="flex items-start gap-3">
                     <div class="flex-shrink-0 text-2xl">
                         📱
                     </div>
                     <div class="flex-1">
                         <h3 class="font-bold mb-1">ホーム画面に追加</h3>
-                        <p class="text-sm text-indigo-100 mb-2">
+                        <p class="text-sm text-white mb-2">
                             このアプリをホーム画面に追加できます：
                         </p>
-                        <ol class="text-sm text-indigo-100 space-y-1 mb-3">
-                            <li>1. 画面下部の <span class="inline-block px-2 py-1 bg-indigo-700 rounded">共有</span> ボタンをタップ</li>
+                        <ol class="text-sm text-white space-y-1 mb-3">
+                            <li>1. 画面下部の <span class="inline-block px-2 py-1 bg-brand-primary-dark rounded">共有</span> ボタンをタップ</li>
                             <li>2. <span class="font-semibold">「ホーム画面に追加」</span> を選択</li>
                         </ol>
-                        <button id="dismissIOSBtn" class="px-4 py-2 bg-indigo-700 text-white rounded-lg font-medium text-sm hover:bg-indigo-800 transition-colors">
+                        <button id="dismissIOSBtn" class="px-4 py-2 bg-brand-primary-dark text-white rounded-lg font-medium text-sm hover:opacity-90 transition-colors">
                             閉じる
                         </button>
                     </div>
-                    <button id="closeIOSPromptBtn" class="flex-shrink-0 text-indigo-200 hover:text-white">
+                    <button id="closeIOSPromptBtn" class="flex-shrink-0 text-brand-primary-light hover:text-white">
                         ✕
                     </button>
                 </div>

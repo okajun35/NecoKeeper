@@ -104,7 +104,7 @@ def get_daily_view(
     animal_status: str = Query(
         "DAILY",
         description="猫ステータスフィルター（DAILY=保護中+在籍中, TRIAL=トライアル中, ARCHIVE=譲渡済み+死亡）",
-        regex="^(DAILY|TRIAL|ARCHIVE)$",
+        pattern="^(DAILY|TRIAL|ARCHIVE)$",
     ),
 ) -> dict[str, object]:
     """

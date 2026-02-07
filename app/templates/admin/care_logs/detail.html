@@ -11,7 +11,9 @@
             <h2 class="text-2xl font-bold text-gray-900" data-i18n="detail_title" data-i18n-ns="care_logs">世話記録詳細</h2>
             <p class="text-gray-600" data-i18n="detail_description" data-i18n-ns="care_logs">世話記録の詳細情報</p>
         </div>
-        <a href="{{ settings.admin_base_path }}/care-logs" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700" data-i18n="back" data-i18n-ns="common">
+        <a href="{{ settings.admin_base_path }}/care-logs"
+            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700" data-i18n="back"
+            data-i18n-ns="common">
             一覧に戻る
         </a>
     </div>
@@ -31,8 +33,10 @@
     <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center p-4">
         <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
             <div class="flex items-start justify-between gap-4">
-                <h2 class="text-lg font-bold text-gray-800" data-i18n="stool_condition_help_title" data-i18n-ns="care_logs">排泄の状態の目安</h2>
-                <button type="button" id="stoolConditionHelpClose" class="text-gray-500 hover:text-gray-700" aria-label="Close">×</button>
+                <h2 class="text-lg font-bold text-gray-800" data-i18n="stool_condition_help_title"
+                    data-i18n-ns="care_logs">排泄の状態の目安</h2>
+                <button type="button" id="stoolConditionHelpClose" class="text-gray-500 hover:text-gray-700"
+                    aria-label="Close">×</button>
             </div>
             <p class="mt-3 text-sm text-gray-600" data-i18n="stool_condition_help_intro" data-i18n-ns="care_logs">
                 写真ではありません。いちばん近い状態を選んでください。迷った場合は「良好」で問題ありません。
@@ -43,35 +47,41 @@
                     <img src="/static/images/cat_poops/cat_poop_1.png" alt="" class="w-10 h-10 flex-none">
                     <div>
                         <div class="font-medium" data-i18n="stool_condition_levels.1" data-i18n-ns="care_logs">硬い</div>
-                        <div class="text-gray-600" data-i18n="stool_condition_desc_1" data-i18n-ns="care_logs">水分が少なく、乾いた見た目。小さく分かれていることがあります。</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_1" data-i18n-ns="care_logs">
+                            水分が少なく、乾いた見た目。小さく分かれていることがあります。</div>
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <img src="/static/images/cat_poops/cat_poop_2.png" alt="" class="w-10 h-10 flex-none">
                     <div>
                         <div class="font-medium" data-i18n="stool_condition_levels.2" data-i18n-ns="care_logs">良好</div>
-                        <div class="text-gray-600" data-i18n="stool_condition_desc_2" data-i18n-ns="care_logs">形があり、適度なやわらかさ。日常的にはこの状態が目安です。</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_2" data-i18n-ns="care_logs">
+                            形があり、適度なやわらかさ。日常的にはこの状態が目安です。</div>
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <img src="/static/images/cat_poops/cat_poop_3.png" alt="" class="w-10 h-10 flex-none">
                     <div>
-                        <div class="font-medium" data-i18n="stool_condition_levels.3" data-i18n-ns="care_logs">やや柔らかい</div>
-                        <div class="text-gray-600" data-i18n="stool_condition_desc_3" data-i18n-ns="care_logs">形はあるが少しつぶれやすい。一時的な変化として見られることもあります。</div>
+                        <div class="font-medium" data-i18n="stool_condition_levels.3" data-i18n-ns="care_logs">やや柔らかい
+                        </div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_3" data-i18n-ns="care_logs">
+                            形はあるが少しつぶれやすい。一時的な変化として見られることもあります。</div>
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <img src="/static/images/cat_poops/cat_poop_4.png" alt="" class="w-10 h-10 flex-none">
                     <div>
                         <div class="font-medium" data-i18n="stool_condition_levels.4" data-i18n-ns="care_logs">下痢</div>
-                        <div class="text-gray-600" data-i18n="stool_condition_desc_4" data-i18n-ns="care_logs">形がほとんど保てない。まとまりがなく柔らかい状態です。</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_4" data-i18n-ns="care_logs">
+                            形がほとんど保てない。まとまりがなく柔らかい状態です。</div>
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <img src="/static/images/cat_poops/cat_poop_5.png" alt="" class="w-10 h-10 flex-none">
                     <div>
                         <div class="font-medium" data-i18n="stool_condition_levels.5" data-i18n-ns="care_logs">水様</div>
-                        <div class="text-gray-600" data-i18n="stool_condition_desc_5" data-i18n-ns="care_logs">ほぼ液体に近い。広がりやすく形がない状態です。</div>
+                        <div class="text-gray-600" data-i18n="stool_condition_desc_5" data-i18n-ns="care_logs">
+                            ほぼ液体に近い。広がりやすく形がない状態です。</div>
                     </div>
                 </div>
             </div>
@@ -79,7 +89,113 @@
     </div>
 </div>
 
+<!-- Templates for JS Rendering -->
+<template id="tmpl-care-log-detail">
+    <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.log_date"
+                    data-i18n-ns="care_logs">記録日</label>
+                <p class="mt-1 text-lg js-log-date"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.time_slot"
+                    data-i18n-ns="care_logs">時間帯</label>
+                <p class="mt-1 text-lg js-time-slot"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.animal"
+                    data-i18n-ns="care_logs">猫</label>
+                <p class="mt-1 text-lg js-animal-name"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.recorder"
+                    data-i18n-ns="care_logs">記録者</label>
+                <p class="mt-1 text-lg js-recorder-name"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.appetite"
+                    data-i18n-ns="care_logs">食欲</label>
+                <p class="mt-1 text-lg js-appetite"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.energy"
+                    data-i18n-ns="care_logs">元気</label>
+                <p class="mt-1 text-lg js-energy"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.urination"
+                    data-i18n-ns="care_logs">排尿</label>
+                <p class="mt-1 text-lg js-urination"></p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.cleaning"
+                    data-i18n-ns="care_logs">掃除</label>
+                <p class="mt-1 text-lg js-cleaning"></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700" data-i18n="fields.defecation"
+                    data-i18n-ns="care_logs">排泄</label>
+                <p class="mt-1 text-lg js-defecation"></p>
+            </div>
+            <div>
+                <div class="flex items-center justify-between">
+                    <label class="block text-sm font-medium text-gray-700" data-i18n="fields.stool_condition"
+                        data-i18n-ns="care_logs">便の状態</label>
+                    <button type="button" id="stoolConditionHelpOpen"
+                        class="text-sm text-brand-primary hover:text-brand-primary-dark"
+                        data-i18n="stool_condition_help" data-i18n-ns="care_logs">（目安を確認）</button>
+                </div>
+                <div class="mt-1 flex items-center gap-3 js-stool-condition-container hidden">
+                    <img src="" alt="stool" class="w-10 h-10 js-stool-image">
+                    <div class="text-lg js-stool-label"></div>
+                </div>
+                <p class="mt-1 text-lg text-gray-500 js-stool-empty hidden">-</p>
+            </div>
+        </div>
+
+        <div class="js-memo-container hidden">
+            <label class="block text-sm font-medium text-gray-700" data-i18n="fields.memo"
+                data-i18n-ns="care_logs">メモ</label>
+            <p class="mt-1 text-gray-900 whitespace-pre-wrap js-memo"></p>
+        </div>
+
+        <div class="pt-4 border-t">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                    <span class="font-medium" data-i18n="fields.created_at" data-i18n-ns="care_logs">作成日時</span>: <span
+                        class="js-created-at"></span>
+                </div>
+                <div>
+                    <span class="font-medium" data-i18n="last_updated" data-i18n-ns="common">最終更新</span>: <span
+                        class="js-updated-at"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4">
+            <a href="#" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 js-edit-btn"
+                data-i18n="edit" data-i18n-ns="common">編集</a>
+            <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 js-delete-btn" data-i18n="delete"
+                data-i18n-ns="common">削除</button>
+        </div>
+    </div>
+</template>
+
+{% endblock %}
+
 {% block extra_scripts %}
 <script src="/static/js/admin/care_log_detail.js?v=1"></script>
-{% endblock %}
 {% endblock %}

@@ -180,8 +180,11 @@ function updateStoolConditionVisibility() {
     // defecation=false の場合は stool_condition を必ずクリア
     stoolInput.value = '';
     document.querySelectorAll('.stool-condition-btn.selected').forEach(btn => {
-      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-      btn.classList.add('border-gray-300');
+      btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+      btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+      btn.style.backgroundColor = 'var(--color-bg-base)';
+      btn.style.borderColor = 'var(--color-border)';
+      btn.style.color = 'var(--color-text-main)';
     });
     setFieldErrorState('stoolCondition', false);
   }
@@ -495,13 +498,23 @@ function setupButtonGroup(className, inputId) {
     button.addEventListener('click', () => {
       // 他のボタンの選択を解除
       buttons.forEach(btn => {
-        btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-        btn.classList.add('border-gray-300');
+        btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+        btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+
+        // Inline styles override classes, so we must update them too
+        btn.style.backgroundColor = 'var(--color-bg-base)';
+        btn.style.borderColor = 'var(--color-border)';
+        btn.style.color = 'var(--color-text-main)';
       });
 
       // クリックされたボタンを選択状態に
-      button.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-      button.classList.remove('border-gray-300');
+      button.classList.add('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+      button.classList.remove('border-gray-300', 'bg-bg-base', 'text-text-main');
+
+      // Update inline styles for selection
+      button.style.backgroundColor = 'var(--color-brand-primary)';
+      button.style.borderColor = 'var(--color-brand-primary)';
+      button.style.color = '#ffffff';
 
       // hidden inputに値を設定
       input.value = button.dataset.value;
@@ -627,8 +640,11 @@ function resetForm() {
   document.getElementById('logDate').value = getTodayString();
   // ボタンの選択状態をクリア
   document.querySelectorAll('.selected').forEach(btn => {
-    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-    btn.classList.add('border-gray-300');
+    btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+    btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+    btn.style.backgroundColor = 'var(--color-bg-base)';
+    btn.style.borderColor = 'var(--color-border)';
+    btn.style.color = 'var(--color-text-main)';
   });
   // hidden inputをクリア
   [

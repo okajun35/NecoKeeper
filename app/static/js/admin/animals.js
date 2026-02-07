@@ -196,6 +196,8 @@ function renderAnimalsList(animals = []) {
   }
   lastAnimals = animals;
 
+  container.innerHTML = '';
+
   if (animals.length === 0) {
     const emptyMessage = translate('list.empty', {
       defaultValue: '猫が見つかりませんでした',
@@ -209,108 +211,107 @@ function renderAnimalsList(animals = []) {
     return;
   }
 
-  container.innerHTML = animals
-    .map(animal => {
-      // photoパスに/media/プレフィックスを追加（既に/で始まる場合は追加しない）
-      let photoUrl = DEFAULT_IMAGE_PLACEHOLDER;
-      if (animal.photo && animal.photo.trim() !== '') {
-        photoUrl = animal.photo.startsWith('/') ? animal.photo : `/media/${animal.photo}`;
-      }
-      const displayName =
-        animal.name && animal.name.trim() !== ''
-          ? animal.name
-          : translate('fallbacks.no_name', { defaultValue: '名前なし' });
+  animals.forEach(animal => {
+    const card = cloneTemplate('tmpl-animal-card');
+    assertRequiredSelectors(
+      card,
+      [
+        '.js-photo',
+        '.js-name',
+        '.js-id',
+        '.js-status-badge',
+        '.js-ready-badge',
+        '.js-gender',
+        '.js-age',
+        '.js-fiv',
+        '.js-felv',
+        '.js-sterilized',
+        '.js-location',
+        '.js-view-btn',
+        '.js-edit-btn',
+        '.js-qr-btn',
+      ],
+      'animals.tmpl-animal-card'
+    );
 
-      // 譲渡済み・死亡の場合はグレーアウト
-      const isInactive = animal.status === 'ADOPTED' || animal.status === 'DECEASED';
-      const containerClass = isInactive
-        ? 'p-6 hover:bg-gray-50 transition-colors opacity-50 bg-gray-50'
-        : 'p-6 hover:bg-gray-50 transition-colors';
+    // Fallback display name
+    const displayName =
+      animal.name && animal.name.trim() !== ''
+        ? animal.name
+        : translate('fallbacks.no_name', { defaultValue: '名前なし' });
 
-      // 譲渡可バッジ（IN_CARE or TRIALの場合のみ表示）
-      const isReadyForAdoption = animal.status === 'IN_CARE' || animal.status === 'TRIAL';
-      const readyForAdoptionBadge = isReadyForAdoption
-        ? `<span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800" data-i18n="badge.ready_for_adoption" data-i18n-ns="animals">譲渡可</span>`
-        : '';
+    // Photo
+    let photoUrl = DEFAULT_IMAGE_PLACEHOLDER;
+    if (animal.photo && animal.photo.trim() !== '') {
+      photoUrl = animal.photo.startsWith('/') ? animal.photo : `/media/${animal.photo}`;
+    }
+    const photoEl = requireSelector(card, '.js-photo', 'animals.tmpl-animal-card');
+    photoEl.src = photoUrl;
+    photoEl.alt = displayName;
+    photoEl.onerror = () => {
+      photoEl.onerror = null;
+      photoEl.src = DEFAULT_IMAGE_PLACEHOLDER;
+    };
 
-      // FIV/FeLV表示
-      const fivLabel = formatTestResult(animal.fiv_positive, 'FIV');
-      const felvLabel = formatTestResult(animal.felv_positive, 'FeLV');
+    // Basic Info
+    requireSelector(card, '.js-name', 'animals.tmpl-animal-card').textContent = displayName;
+    requireSelector(card, '.js-id', 'animals.tmpl-animal-card').textContent = `#${animal.id}`;
 
-      // 避妊・去勢表示
-      const sterilizedLabel = formatSterilized(animal.is_sterilized);
+    // Inactive State Styles
+    const isInactive = animal.status === 'ADOPTED' || animal.status === 'DECEASED';
+    if (isInactive) {
+      card.classList.add('opacity-50', 'bg-gray-50');
+    }
 
-      // 場所表示
-      const locationLabel = formatLocation(animal.location_type, animal.current_location_note);
+    // Status Badge
+    const statusBadgeEl = requireSelector(card, '.js-status-badge', 'animals.tmpl-animal-card');
+    statusBadgeEl.innerHTML = getStatusBadge(animal.status);
 
-      return `
-        <div class="${containerClass}">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                <!-- 写真 -->
-                 <img src="${photoUrl}"
-                   alt="${displayName}"
-                   onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-                     class="w-20 h-20 rounded-lg object-cover border-2 border-gray-200 mx-auto sm:mx-0">
+    // Ready for Adoption Badge
+    const isReadyForAdoption = animal.status === 'IN_CARE' || animal.status === 'TRIAL';
+    const readyBadgeEl = requireSelector(card, '.js-ready-badge', 'animals.tmpl-animal-card');
+    if (readyBadgeEl && isReadyForAdoption) {
+      readyBadgeEl.classList.remove('hidden');
+    }
 
-                <!-- 基本情報 -->
-                <div class="flex-1 min-w-0 w-full">
-                    <div class="flex flex-wrap items-center gap-3 mb-2">
-                        <h3 class="text-lg font-semibold text-gray-900">${displayName}</h3>
-                        <span class="text-sm text-gray-500">#${animal.id}</span>
-                        ${getStatusBadge(animal.status)}
-                        ${readyForAdoptionBadge}
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-sm text-gray-600">
-                        <div>
-                            <span class="text-gray-500"><span data-i18n="fields.gender" data-i18n-ns="animals">性別</span>:</span>
-                            <span class="ml-1">${translateDBValue('gender', animal.gender)}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500"><span data-i18n="fields.age" data-i18n-ns="animals">月齢</span>:</span>
-                            <span class="ml-1">${formatAgeMonths(animal.age_months, animal.age_is_estimated)}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500">FIV:</span>
-                            <span class="ml-1">${fivLabel}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500">FeLV:</span>
-                            <span class="ml-1">${felvLabel}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500"><span data-i18n="fields.sterilized" data-i18n-ns="animals">避妊/去勢</span>:</span>
-                            <span class="ml-1">${sterilizedLabel}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-500"><span data-i18n="fields.location" data-i18n-ns="animals">場所</span>:</span>
-                            <span class="ml-1">${locationLabel}</span>
-                        </div>
-                    </div>
-                </div>
+    // Details Grid
+    requireSelector(card, '.js-gender', 'animals.tmpl-animal-card').textContent = translateDBValue(
+      'gender',
+      animal.gender
+    );
+    requireSelector(card, '.js-age', 'animals.tmpl-animal-card').textContent = formatAgeMonths(
+      animal.age_months,
+      animal.age_is_estimated
+    );
+    requireSelector(card, '.js-fiv', 'animals.tmpl-animal-card').innerHTML = formatTestResult(
+      animal.fiv_positive,
+      'FIV'
+    );
+    requireSelector(card, '.js-felv', 'animals.tmpl-animal-card').innerHTML = formatTestResult(
+      animal.felv_positive,
+      'FeLV'
+    );
+    requireSelector(card, '.js-sterilized', 'animals.tmpl-animal-card').textContent =
+      formatSterilized(animal.is_sterilized);
+    requireSelector(card, '.js-location', 'animals.tmpl-animal-card').textContent = formatLocation(
+      animal.location_type,
+      animal.current_location_note
+    );
 
-                <!-- アクション -->
-                <div class="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
-                    <a href="${adminBasePath}/animals/${animal.id}"
-                       class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                       data-i18n="actions.view_details" data-i18n-ns="animals">
-                        詳細
-                    </a>
-                    <a href="${adminBasePath}/animals/${animal.id}/edit"
-                       class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                       data-i18n="actions.edit_info" data-i18n-ns="animals">
-                        編集
-                    </a>
-                    <button onclick="showQRCode(${animal.id})"
-                            class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                            data-i18n="actions.qr_code" data-i18n-ns="animals">
-                        QR
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    })
-    .join('');
+    // Actions
+    const viewBtn = requireSelector(card, '.js-view-btn', 'animals.tmpl-animal-card');
+    if (viewBtn) viewBtn.href = `${adminBasePath}/animals/${animal.id}`;
+
+    const editBtn = requireSelector(card, '.js-edit-btn', 'animals.tmpl-animal-card');
+    if (editBtn) editBtn.href = `${adminBasePath}/animals/${animal.id}/edit`;
+
+    const qrBtn = requireSelector(card, '.js-qr-btn', 'animals.tmpl-animal-card');
+    if (qrBtn) {
+      qrBtn.addEventListener('click', () => showQRCode(animal.id));
+    }
+
+    container.appendChild(card);
+  });
 
   applyDynamicTranslations(container);
   hasLoadedAnimals = true;
@@ -324,13 +325,31 @@ function renderPagination(total, page, pageSize) {
     return;
   }
   lastPagination = { total, page, pageSize };
+  container.innerHTML = '';
 
   if (totalPages <= 1) {
-    container.innerHTML = '';
     return;
   }
 
-  const pages = [];
+  // Wrapper for logic structure (keeping it simple for now, can be template-ized more if needed)
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex items-center justify-between';
+
+  // Summary Text
+  const summaryDiv = document.createElement('div');
+  summaryDiv.className = 'text-sm text-gray-600';
+  summaryDiv.textContent = translate('pagination.summary', {
+    defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, total)} 件を表示`,
+    total,
+    from: (page - 1) * pageSize + 1,
+    to: Math.min(page * pageSize, total),
+  });
+  wrapper.appendChild(summaryDiv);
+
+  // Buttons Container
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.className = 'flex gap-2';
+
   const maxVisible = 5;
   let startPage = Math.max(1, page - Math.floor(maxVisible / 2));
   let endPage = Math.min(totalPages, startPage + maxVisible - 1);
@@ -339,53 +358,58 @@ function renderPagination(total, page, pageSize) {
     startPage = Math.max(1, endPage - maxVisible + 1);
   }
 
+  // Helper to create Nav Button (Prev/Next) - keeping as createElement for simplicity as usually distinctive
+  const createNavBtn = (text, targetPage, disabled) => {
+    const btn = document.createElement('button');
+    btn.className =
+      'px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
+    btn.textContent = text;
+    btn.disabled = disabled;
+    if (!disabled) {
+      btn.addEventListener('click', () => changePage(targetPage));
+    }
+    return btn;
+  };
+
+  // Prev Button
+  buttonsDiv.appendChild(
+    createNavBtn(
+      translate('pagination.previous', { ns: COMMON_NAMESPACE, defaultValue: '前へ' }),
+      page - 1,
+      page === 1
+    )
+  );
+
+  // Number Buttons (Using Template)
   for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
+    const btn = cloneTemplate('tmpl-pagination-item');
+    btn.textContent = i;
+
+    if (i === page) {
+      btn.classList.add('bg-brand-primary', 'text-white', 'border-brand-primary');
+      // Inline styles for theme compatibility if CSS classes miss
+      btn.style.backgroundColor = 'var(--color-brand-primary)';
+      btn.style.borderColor = 'var(--color-brand-primary)';
+      btn.style.color = '#ffffff';
+    } else {
+      btn.classList.add('border-border', 'hover:bg-bg-base');
+      btn.style.borderColor = 'var(--color-border)';
+      btn.addEventListener('click', () => changePage(i));
+    }
+    buttonsDiv.appendChild(btn);
   }
 
-  container.innerHTML = `
-        <div class="flex items-center justify-between">
-            <div class="text-sm text-gray-600">
-                ${translate('pagination.summary', {
-                  defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
-                    page * pageSize,
-                    total
-                  )} 件を表示`,
-                  total,
-                  from: (page - 1) * pageSize + 1,
-                  to: Math.min(page * pageSize, total),
-                })}
-            </div>
-            <div class="flex gap-2">
-                <button onclick="changePage(${page - 1})"
-                        ${page === 1 ? 'disabled' : ''}
-                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                    ${translate('pagination.previous', {
-                      ns: COMMON_NAMESPACE,
-                      defaultValue: '前へ',
-                    })}
-                </button>
-                ${pages
-                  .map(
-                    p => `
-                    <button onclick="changePage(${p})"
-                            class="px-3 py-2 text-sm border rounded-lg ${p === page ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 hover:bg-gray-50'}">
-                        ${p}
-                    </button>
-                `
-                  )
-                  .join('')}
-                <button onclick="changePage(${page + 1})"
-                        ${page === totalPages ? 'disabled' : ''}
-                    class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                  ${translate('pagination.next', {
-                    ns: COMMON_NAMESPACE,
-                    defaultValue: '次へ',
-                  })}
-                </button>
-            </div>
-        </div>
-    `;
+  // Next Button
+  buttonsDiv.appendChild(
+    createNavBtn(
+      translate('pagination.next', { ns: COMMON_NAMESPACE, defaultValue: '次へ' }),
+      page + 1,
+      page === totalPages
+    )
+  );
+
+  wrapper.appendChild(buttonsDiv);
+  container.appendChild(wrapper);
 }
 
 // ページ変更
@@ -427,7 +451,7 @@ function showQRCode(animalId) {
 
   const linkClass = isKiroween
     ? 'text-[#33ff00] hover:text-[#66ff33] underline flex flex-nowrap items-center justify-center gap-2 whitespace-nowrap'
-    : 'text-indigo-600 hover:text-indigo-800 underline flex items-center justify-center gap-1 whitespace-nowrap';
+    : 'text-brand-primary hover:opacity-80 underline flex items-center justify-center gap-1 whitespace-nowrap';
 
   const descriptionClass = isKiroween
     ? 'mt-4 text-sm text-[#1a8000] text-center'
@@ -454,7 +478,7 @@ function showQRCode(animalId) {
         <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
       </div>
       <div class="mt-4 text-center">
-        <a href="${publicUrl}" target="_blank" class="${linkClass}">
+        <a href="${publicUrl}" target="_blank" class="${linkClass}" ${!isKiroween ? 'style="color: var(--color-brand-primary);"' : ''}>
           ${linkText}
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>

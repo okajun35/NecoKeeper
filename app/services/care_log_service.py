@@ -29,18 +29,18 @@ logger = logging.getLogger(__name__)
 def _validate_defecation_fields(defecation: bool, stool_condition: int | None) -> None:
     if defecation is False and stool_condition is not None:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="defecation=false の場合、stool_condition は null である必要があります",
         )
     if defecation is True:
         if stool_condition is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="defecation=true の場合、stool_condition は必須です",
             )
         if not (1 <= stool_condition <= 5):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="stool_condition は 1〜5 の範囲である必要があります",
             )
 
@@ -213,7 +213,7 @@ def update_care_log(
             and update_dict["time_slot"] != enforce_time_slot
         ):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="この記録の時点は変更できません",
             )
 
@@ -224,7 +224,7 @@ def update_care_log(
                 update_dict["stool_condition"] = None
             elif update_dict["stool_condition"] is not None:
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail="defecation=false の場合、stool_condition は null である必要があります",
                 )
 
@@ -534,7 +534,7 @@ def get_daily_view(
     # 日付範囲のバリデーション
     if start_date > end_date:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="開始日は終了日以前である必要があります",
         )
 
@@ -659,7 +659,7 @@ def get_daily_view(
     # ページ番号のバリデーション
     if page < 1:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="ページ番号は1以上である必要があります",
         )
 

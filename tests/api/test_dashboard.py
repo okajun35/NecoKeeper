@@ -35,6 +35,15 @@ def create_animal(
     )
 
 
+def clear_animals_and_logs(test_db: Session) -> None:
+    """テストデータを削除し、identity mapをクリアする。"""
+    test_db.query(CareLog).delete()
+    test_db.query(Animal).delete()
+    test_db.commit()
+    # SQLiteで同じPKが再利用された際のidentity map警告を防ぐ
+    test_db.expunge_all()
+
+
 class TestDashboardStats:
     """ダッシュボード統計APIのテスト"""
 
@@ -43,9 +52,7 @@ class TestDashboardStats:
     ):
         """空のデータベースでは全てゼロを返す"""
         # テスト用に作成されたデフォルト動物を削除
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         response = test_client.get("/api/v1/dashboard/stats", headers=auth_headers)
         assert response.status_code == 200
@@ -62,9 +69,7 @@ class TestDashboardStats:
     ):
         """在籍中カウントはQUARANTINE, IN_CARE, TRIALを含む"""
         # デフォルトデータをクリア
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         # 各ステータスの猫を作成
         animals = [
@@ -89,9 +94,7 @@ class TestDashboardStats:
         self, test_client, auth_headers, test_db: Session
     ):
         """譲渡可能カウントはIN_CARE, TRIALを含む"""
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         animals = [
             create_animal("隔離中猫", status="QUARANTINE", gender="female"),
@@ -114,9 +117,7 @@ class TestDashboardStats:
         self, test_client, auth_headers, test_db: Session
     ):
         """FIV陽性カウントは在籍中の猫のみを対象"""
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         animals = [
             create_animal(
@@ -151,9 +152,7 @@ class TestDashboardStats:
         self, test_client, auth_headers, test_db: Session
     ):
         """FeLV陽性カウントは在籍中の猫のみを対象"""
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         animals = [
             create_animal(
@@ -191,9 +190,7 @@ class TestDashboardStats:
         self, test_client, auth_headers, test_db: Session
     ):
         """FIVとFeLVは別々にカウントされる"""
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         animals = [
             create_animal(
@@ -229,9 +226,7 @@ class TestDashboardStats:
 
     def test_today_logs_count(self, test_client, auth_headers, test_db: Session):
         """今日の記録数をカウント"""
-        test_db.query(CareLog).delete()
-        test_db.query(Animal).delete()
-        test_db.commit()
+        clear_animals_and_logs(test_db)
 
         # テスト用動物を作成
         animal = create_animal("テスト猫", status="IN_CARE", gender="female")

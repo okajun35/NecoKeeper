@@ -8,7 +8,8 @@
 {% block page_description %}<span data-i18n="description" data-i18n-ns="volunteers">ボランティアの登録と管理</span>{% endblock %}
 
 {% block header_actions %}
-<button class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+<button
+    class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="add_new" data-i18n-ns="volunteers">新規登録</span>
 </button>
 {% endblock %}
@@ -20,14 +21,19 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
             <!-- 検索 -->
             <div class="sm:col-span-2 lg:col-span-1">
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search" data-i18n-ns="common">検索</label>
-                <input type="text" id="searchName" data-i18n-placeholder="search_placeholder" data-i18n-ns="volunteers" placeholder="名前、連絡先で検索..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search"
+                    data-i18n-ns="common">検索</label>
+                <input type="text" id="searchName" data-i18n-placeholder="search_placeholder" data-i18n-ns="volunteers"
+                    placeholder="名前、連絡先で検索..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
             <!-- ステータス -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="status" data-i18n-ns="common">ステータス</label>
-                <select id="filterStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="status"
+                    data-i18n-ns="common">ステータス</label>
+                <select id="filterStatus"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="all" data-i18n-ns="common">すべて</option>
                     <option value="active" data-i18n="status_active" data-i18n-ns="volunteers">アクティブ</option>
                     <option value="inactive" data-i18n="status_inactive" data-i18n-ns="volunteers">非アクティブ</option>
@@ -36,16 +42,23 @@
 
             <!-- 所属 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="affiliation" data-i18n-ns="volunteers">所属</label>
-                <input type="text" id="filterAffiliation" data-i18n-placeholder="affiliation_placeholder" data-i18n-ns="volunteers" placeholder="所属で検索..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="affiliation"
+                    data-i18n-ns="volunteers">所属</label>
+                <input type="text" id="filterAffiliation" data-i18n-placeholder="affiliation_placeholder"
+                    data-i18n-ns="volunteers" placeholder="所属で検索..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
         </div>
 
         <div class="mt-4 flex flex-col sm:flex-row gap-2">
-            <button id="btnSearch" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="search" data-i18n-ns="common">
+            <button id="btnSearch"
+                class="flex-1 sm:flex-none px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors"
+                data-i18n="search" data-i18n-ns="common">
                 検索
             </button>
-            <button id="btnClear" class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="clear" data-i18n-ns="common">
+            <button id="btnClear"
+                class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                data-i18n="clear" data-i18n-ns="common">
                 クリア
             </button>
         </div>
@@ -53,7 +66,7 @@
 
     <!-- ローディング表示 -->
     <div id="loading" class="hidden bg-white rounded-lg shadow-sm p-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
         <p class="mt-2 text-gray-600" data-i18n="loading" data-i18n-ns="common">読み込み中...</p>
     </div>
 
@@ -72,14 +85,20 @@
         <!-- デスクトップ: テーブル表示 -->
         <div class="hidden lg:block overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead class="bg-brand-primary/5 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="name" data-i18n-ns="volunteers">名前</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="contact" data-i18n-ns="volunteers">連絡先</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="affiliation" data-i18n-ns="volunteers">所属</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="status" data-i18n-ns="common">ステータス</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="start_date" data-i18n-ns="volunteers">開始日</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="actions" data-i18n-ns="common">操作</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="name" data-i18n-ns="volunteers">名前</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="contact" data-i18n-ns="volunteers">連絡先</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="affiliation" data-i18n-ns="volunteers">所属</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="status" data-i18n-ns="common">ステータス</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="start_date" data-i18n-ns="volunteers">開始日</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="actions" data-i18n-ns="common">操作</th>
                     </tr>
                 </thead>
                 <tbody id="desktopList" class="bg-white divide-y divide-gray-200">
@@ -89,16 +108,21 @@
         </div>
 
         <!-- ページネーション -->
-        <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
-            <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-t border-gray-200">
+        <div class="px-4 py-3 bg-brand-primary/5 border-t border-gray-200 sm:px-6">
+            <div class="flex items-center justify-between px-4 py-3 bg-brand-primary/5 border-t border-gray-200">
                 <div id="paginationInfo" class="text-sm text-gray-700">
-                    <span class="font-medium">1</span> - <span class="font-medium">2</span> / <span class="font-medium">2</span> <span data-i18n="items" data-i18n-ns="common">件</span>
+                    <span class="font-medium">1</span> - <span class="font-medium">2</span> / <span
+                        class="font-medium">2</span> <span data-i18n="items" data-i18n-ns="common">件</span>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btnPrev" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled data-i18n="previous" data-i18n-ns="common">
+                    <button id="btnPrev"
+                        class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50"
+                        disabled data-i18n="previous" data-i18n-ns="common">
                         前へ
                     </button>
-                    <button id="btnNext" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled data-i18n="next" data-i18n-ns="common">
+                    <button id="btnNext"
+                        class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50"
+                        disabled data-i18n="next" data-i18n-ns="common">
                         次へ
                     </button>
                 </div>
@@ -106,6 +130,52 @@
         </div>
     </div>
 </div>
+<!-- Templates for JS Rendering -->
+<template id="tmpl-mobile-card">
+    <div class="p-4 hover:bg-gray-50 js-card">
+        <div class="flex items-start justify-between mb-2">
+            <div>
+                <h3 class="font-medium text-gray-900 js-name"></h3>
+                <p class="text-sm text-gray-500 js-contact"></p>
+            </div>
+            <span class="px-2 py-1 text-xs rounded js-status"></span>
+        </div>
+        <div class="space-y-1 text-sm text-gray-600">
+            <p><span data-i18n="affiliation" data-i18n-ns="volunteers">所属</span>: <span class="js-affiliation"></span>
+            </p>
+            <p><span data-i18n="start_date" data-i18n-ns="volunteers">開始日</span>: <span class="js-start-date"></span>
+            </p>
+        </div>
+        <div class="mt-3 flex gap-2">
+            <button class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90 js-view-btn">
+                <span data-i18n="details" data-i18n-ns="common">詳細</span>
+            </button>
+            <button class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 js-edit-btn">
+                <span data-i18n="edit" data-i18n-ns="common">編集</span>
+            </button>
+        </div>
+    </div>
+</template>
+
+<template id="tmpl-desktop-row">
+    <tr class="hover:bg-gray-50 js-row">
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 js-name"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 js-contact"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 js-affiliation"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <span class="px-2 py-1 text-xs rounded js-status"></span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 js-start-date"></td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button class="text-brand-primary hover:text-brand-primary-dark mr-3 js-view-btn">
+                <span data-i18n="details" data-i18n-ns="common">詳細</span>
+            </button>
+            <button class="text-brand-primary hover:text-brand-primary-dark js-edit-btn">
+                <span data-i18n="edit" data-i18n-ns="common">編集</span>
+            </button>
+        </td>
+    </tr>
+</template>
 {% endblock %}
 
 {% block extra_scripts %}
