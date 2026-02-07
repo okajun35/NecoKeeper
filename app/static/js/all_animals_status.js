@@ -83,7 +83,7 @@ function displayAnimalsList(animals) {
            <img src="${photoUrl}"
              alt="${animal.animal_name}"
              onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-             class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200">
+             class="w-16 h-16 rounded-full object-cover border-2 border-brand-primary/30">
           <div class="flex-1">
             <h3 class="text-lg font-bold text-gray-800">${animal.animal_name}</h3>
           </div>

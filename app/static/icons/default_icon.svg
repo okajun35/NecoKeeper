@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#6366f1"/>
+  <rect width="64" height="64" rx="12" fill="#E07A5F"/>
   <g transform="translate(32, 34)">
     <!-- Left ear -->
     <path d="M -16 -18 L -20 -28 L -10 -22 Z" fill="#ffffff"/>
@@ -10,8 +10,8 @@
     <!-- Body -->
     <ellipse cx="0" cy="8" rx="12" ry="14" fill="#ffffff"/>
     <!-- Eyes -->
-    <circle cx="-5" cy="-14" r="2.5" fill="#6366f1"/>
-    <circle cx="5" cy="-14" r="2.5" fill="#6366f1"/>
+    <circle cx="-5" cy="-14" r="2.5" fill="#E07A5F"/>
+    <circle cx="5" cy="-14" r="2.5" fill="#E07A5F"/>
     <!-- Nose -->
     <path d="M 0 -9 L -2 -6 L 2 -6 Z" fill="#f472b6"/>
     <!-- Whiskers -->

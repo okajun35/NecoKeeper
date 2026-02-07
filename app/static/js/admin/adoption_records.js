@@ -129,7 +129,7 @@ function renderRecords() {
                     ${record.adoption_date ? `<p>${t('adoptions:records.labels.adoption_date_label', { ns: 'adoptions' })}: ${formatDate(record.adoption_date)}</p>` : ''}
                 </div>
                 <div class="mt-3 flex gap-2">
-                    <button onclick="editRecord(${record.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    <button onclick="editRecord(${record.id})" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90">
                         ${t('common:buttons.edit', { ns: 'common' })}
                     </button>
                     ${
@@ -163,7 +163,7 @@ function renderRecords() {
                 <td class="px-6 py-4 whitespace-nowrap">${decisionBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${record.adoption_date ? formatDate(record.adoption_date) : '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button onclick="editRecord(${record.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">${t('common:buttons.edit', { ns: 'common' })}</button>
+                    <button onclick="editRecord(${record.id})" class="text-brand-primary hover:text-brand-primary-dark mr-3">${t('common:buttons.edit', { ns: 'common' })}</button>
                     ${
                       !record.adoption_date && record.decision === 'approved'
                         ? `

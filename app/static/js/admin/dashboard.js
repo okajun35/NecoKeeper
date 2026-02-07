@@ -131,7 +131,8 @@ async function loadNeedsCare() {
                     </div>
                     <a href="/public/care?animal_id=${animal.animal_id}"
                        target="_blank"
-                       class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
+                       class="px-3 py-1 text-sm text-white rounded transition-colors bg-brand-primary hover:opacity-90"
+                       style="background-color: var(--color-brand-primary);">
                         ${t('dynamic.record')}
                     </a>
                 </div>

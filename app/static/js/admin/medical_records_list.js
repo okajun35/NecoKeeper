@@ -380,7 +380,7 @@ function createMobileCard(record) {
         ${billingInfo}
         <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
         <div class="flex gap-2">
-            <a href="${adminBasePath}/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            <a href="${adminBasePath}/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-brand-primary text-white rounded hover:opacity-90">
                 ${viewText}
             </a>
         </div>
@@ -423,7 +423,7 @@ function createDesktopRow(record) {
         <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">${billingText}</td>
         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="${adminBasePath}/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">${viewText}</a>
+            <a href="${adminBasePath}/medical-records/${record.id}" class="text-brand-primary hover:text-brand-primary-dark">${viewText}</a>
         </td>
     `;
   return row;

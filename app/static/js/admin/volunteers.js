@@ -110,7 +110,7 @@ function renderMobileList(items) {
         <p>${translate('start_date', { ns: 'volunteers' })}: ${window.formatDate ? window.formatDate(item.started_at) : item.started_at || '-'}</p>
       </div>
       <div class="mt-3 flex gap-2">
-        <button onclick="viewDetails(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        <button onclick="viewDetails(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90">
           ${translate('details', { ns: 'common' })}
         </button>
         <button onclick="editVolunteer(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
@@ -141,10 +141,10 @@ function renderDesktopList(items) {
       </td>
       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${window.formatDate ? window.formatDate(item.started_at) : item.started_at || '-'}</td>
       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button onclick="viewDetails(${item.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+        <button onclick="viewDetails(${item.id})" class="text-brand-primary hover:text-brand-primary-dark mr-3">
           ${translate('details', { ns: 'common' })}
         </button>
-        <button onclick="editVolunteer(${item.id})" class="text-indigo-600 hover:text-indigo-900">
+        <button onclick="editVolunteer(${item.id})" class="text-brand-primary hover:text-brand-primary-dark">
           ${translate('edit', { ns: 'common' })}
         </button>
       </td>

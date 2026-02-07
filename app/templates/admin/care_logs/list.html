@@ -20,7 +20,7 @@
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px" aria-label="Tabs">
                 <button id="tabDaily" type="button"
-                    class="tab-btn flex-1 py-4 px-2 sm:px-4 text-center border-b-2 font-medium text-xs sm:text-sm transition-colors border-indigo-500 text-indigo-600"
+                    class="tab-btn flex-1 py-4 px-2 sm:px-4 text-center border-b-2 font-medium text-xs sm:text-sm transition-colors border-brand-primary text-brand-primary"
                     data-status="DAILY">
                     <span data-i18n="tabs.daily" data-i18n-ns="care_logs">日常記録</span>
                 </button>
@@ -44,7 +44,7 @@
             <!-- 猫選択 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.animal" data-i18n-ns="care_logs">猫</label>
-                <select id="filterAnimal" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select id="filterAnimal" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="all" data-i18n-ns="common">すべて</option>
                 </select>
             </div>
@@ -52,19 +52,19 @@
             <!-- 日付範囲 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.start_date" data-i18n-ns="care_logs">開始日</label>
-                <input id="filterStartDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <input id="filterStartDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.end_date" data-i18n-ns="care_logs">終了日</label>
-                <input id="filterEndDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <input id="filterEndDate" type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
 
         </div>
 
         <div class="mt-4 flex flex-col sm:flex-row gap-2">
-            <button id="searchBtn" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="search" data-i18n-ns="common">
+            <button id="searchBtn" class="flex-1 sm:flex-none px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors" data-i18n="search" data-i18n-ns="common">
                 検索
             </button>
             <button id="clearBtn" class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="clear" data-i18n-ns="common">
@@ -75,7 +75,7 @@
 
     <!-- ローディング表示 -->
     <div id="loadingIndicator" class="hidden bg-white rounded-lg shadow-sm p-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
         <p class="mt-2 text-gray-600" data-i18n="loading" data-i18n-ns="common">読み込み中...</p>
     </div>
 
@@ -94,7 +94,7 @@
         <!-- デスクトップ: テーブル表示（日次ビュー） -->
         <div class="hidden lg:block overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead class="bg-brand-primary/5 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="date" data-i18n-ns="common">日付</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="fields.animal" data-i18n-ns="care_logs">猫</th>
@@ -110,16 +110,16 @@
         </div>
 
         <!-- ページネーション -->
-        <div id="paginationContainer" class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+        <div id="paginationContainer" class="px-4 py-3 bg-brand-primary/5 border-t border-gray-200 sm:px-6">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div id="paginationInfo" class="text-sm text-gray-700">
                     <span class="font-medium">0</span> - <span class="font-medium">0</span> / <span class="font-medium">0</span> <span data-i18n="items" data-i18n-ns="common">件</span>
                 </div>
                 <div class="flex gap-2">
-                    <button id="prevPageBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" data-i18n="previous" data-i18n-ns="pagination">
+                    <button id="prevPageBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50" data-i18n="previous" data-i18n-ns="pagination">
                         前へ
                     </button>
-                    <button id="nextPageBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" data-i18n="next" data-i18n-ns="pagination">
+                    <button id="nextPageBtn" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50" data-i18n="next" data-i18n-ns="pagination">
                         次へ
                     </button>
                 </div>

@@ -13,15 +13,15 @@ const isKiroweenMode = document.body && document.body.classList.contains('kirowe
 
 const TIME_SLOT_EMOJI = isKiroweenMode
   ? {
-      morning: '🦇',
-      noon: '🎃',
-      evening: '👻',
-    }
+    morning: '🦇',
+    noon: '🎃',
+    evening: '👻',
+  }
   : {
-      morning: '🌅',
-      noon: '☀️',
-      evening: '🌙',
-    };
+    morning: '🌅',
+    noon: '☀️',
+    evening: '🌙',
+  };
 
 let careLogData = null;
 
@@ -111,23 +111,37 @@ function updateTodayStatus(todayStatus = {}) {
     const statusEl = document.getElementById(slot.statusId);
 
     if (iconEl) {
-      iconEl.classList.remove('text-green-600', 'text-gray-400');
+      iconEl.classList.remove('text-green-600', 'text-gray-400', 'text-brand-secondary', 'text-text-muted');
+      // Reset inline
+      iconEl.style.color = '';
     }
     if (statusEl) {
-      statusEl.classList.remove('border-green-500', 'bg-green-50', 'border-gray-300');
+      statusEl.classList.remove('border-green-500', 'bg-green-50', 'border-gray-300', 'border-brand-secondary', 'bg-brand-secondary', 'border-border');
+      // Reset inline
+      statusEl.style.borderColor = '';
+      statusEl.style.backgroundColor = '';
     }
 
     const isCompleted = Boolean(todayStatus[slot.key]);
     if (iconEl) {
       iconEl.textContent = isCompleted ? '○' : '×';
-      iconEl.classList.add(isCompleted ? 'text-green-600' : 'text-gray-400');
+      if (isCompleted) {
+        iconEl.classList.add('text-brand-secondary');
+        iconEl.style.color = 'var(--color-brand-secondary)';
+      } else {
+        iconEl.classList.add('text-text-muted');
+        iconEl.style.color = 'var(--color-text-muted)';
+      }
     }
 
     if (statusEl) {
       if (isCompleted) {
-        statusEl.classList.add('border-green-500', 'bg-green-50');
+        statusEl.classList.add('border-brand-secondary');
+        statusEl.style.borderColor = 'var(--color-brand-secondary)';
+        statusEl.style.backgroundColor = 'rgba(129, 178, 154, 0.1)'; // brand-secondary with opacity
       } else {
-        statusEl.classList.add('border-gray-300');
+        statusEl.classList.add('border-border');
+        statusEl.style.borderColor = 'var(--color-border)';
       }
     }
   });
@@ -280,20 +294,99 @@ function getRelativeDayBadge(daySummary) {
   return '';
 }
 
+const FALLBACK_TEMPLATE_DAILY_CARD = `
+    <div class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+        <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+                    <div class="text-base font-semibold text-gray-800 js-date"></div>
+                    <span class="hidden inline-flex items-center rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-medium text-brand-primary-dark js-badge"></span>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 js-slots"></div>
+    </div>
+`;
+
+const FALLBACK_TEMPLATE_SLOT_CHIP = `
+    <button type="button" class="flex flex-col items-center rounded-xl border px-3 py-2 text-center transition-colors w-full js-chip-container hover:opacity-90">
+        <div class="text-2xl js-emoji"></div>
+        <div class="mt-1 text-xs font-medium js-label"></div>
+        <div class="mt-1 text-sm font-semibold js-status"></div>
+        <div class="text-xs mt-1 truncate w-full opacity-80 js-recorder hidden"></div>
+    </button>
+`;
+
+function cloneTemplate(templateId, fallbackHtml) {
+  const template = document.getElementById(templateId);
+  if (!template) {
+    // Fallback for safety if template is missing (regression safety)
+    if (fallbackHtml) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = fallbackHtml.trim();
+      return tempDiv.firstElementChild;
+    }
+    console.error(`Template ${templateId} not found`);
+    return document.createElement('div');
+  }
+  return template.content.cloneNode(true).firstElementChild;
+}
+
 function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
   const hasRecord = Boolean(slotInfo?.hasRecord);
-  const elementTag = hasRecord && slotInfo?.logId ? 'button' : 'div';
-  const element = document.createElement(elementTag);
-  if (elementTag === 'button') {
-    element.type = 'button';
-    element.addEventListener('click', () => {
-      if (slotInfo?.logId) {
-        showLogDetail(slotInfo.logId);
-      }
-    });
+  const slotLabel = getTimeSlotLabel(slotKey);
+
+  // For Table variant, we still build simple DOM because it's just a small button/icon
+  if (variant === 'table') {
+    const element = document.createElement(hasRecord && slotInfo?.logId ? 'button' : 'div');
+    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${hasRecord
+      ? 'border-brand-secondary text-brand-secondary'
+      : 'border-border bg-bg-surface text-text-muted'
+      }`;
+
+    if (hasRecord) {
+      element.style.borderColor = 'var(--color-brand-secondary)';
+      element.style.color = 'var(--color-brand-secondary)';
+      element.style.backgroundColor = 'rgba(129, 178, 154, 0.1)';
+    } else {
+      element.style.borderColor = 'var(--color-border)';
+      element.style.backgroundColor = 'var(--color-bg-surface)';
+      element.style.color = 'var(--color-text-muted)';
+    }
+
+    element.textContent = hasRecord ? '○' : '-';
+    if (hasRecord && slotInfo?.logId) {
+      element.addEventListener('click', () => showLogDetail(slotInfo.logId));
+    }
+    return element;
   }
 
-  const slotLabel = getTimeSlotLabel(slotKey);
+  // Card Variant uses Template
+  const element = cloneTemplate('tmpl-slot-chip', FALLBACK_TEMPLATE_SLOT_CHIP);
+
+  // Interactive Container
+  const container = element; // The root is the button
+
+  // Apply Styles based on status
+  if (hasRecord) {
+    container.classList.add('border-brand-secondary', 'text-brand-secondary');
+    container.classList.remove('border-border', 'bg-bg-base', 'text-text-muted');
+    container.style.borderColor = 'var(--color-brand-secondary)';
+    container.style.color = 'var(--color-brand-secondary)';
+    container.style.backgroundColor = 'rgba(129, 178, 154, 0.1)';
+
+    if (slotInfo?.logId) {
+      container.addEventListener('click', () => showLogDetail(slotInfo.logId));
+    }
+  } else {
+    container.classList.add('border-border', 'bg-bg-base', 'text-text-muted');
+    container.classList.remove('border-brand-secondary', 'text-brand-secondary');
+    container.style.borderColor = 'var(--color-border)';
+    container.style.backgroundColor = 'var(--color-bg-base)';
+    container.style.color = 'var(--color-text-muted)';
+    // No click action for missing
+    container.style.cursor = 'default';
+    container.type = 'div'; // effectively
+  }
+
   const ariaLabel = translateCareLogs(
     hasRecord ? 'public.slot_chip.recorded' : 'public.slot_chip.missing',
     hasRecord
@@ -301,49 +394,27 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
       : `${slotLabel}: ${fallbackText('Missing', '未記録')}`,
     { slot: slotLabel }
   );
-  element.setAttribute('aria-label', ariaLabel);
+  container.setAttribute('aria-label', ariaLabel);
 
-  if (variant === 'card') {
-    element.className = `flex flex-col items-center rounded-xl border px-3 py-2 text-center transition-colors ${
-      hasRecord
-        ? 'border-green-200 bg-green-50 text-green-800 hover:bg-green-100'
-        : 'border-gray-200 bg-gray-50 text-gray-500'
-    }`;
+  // Populate Data
+  const emojiEl = element.querySelector('.js-emoji');
+  if (emojiEl) emojiEl.textContent = TIME_SLOT_EMOJI[slotKey] || '📝';
 
-    const emojiEl = document.createElement('div');
-    emojiEl.className = 'text-2xl';
-    emojiEl.textContent = TIME_SLOT_EMOJI[slotKey] || '📝';
+  const labelEl = element.querySelector('.js-label');
+  if (labelEl) labelEl.textContent = slotLabel;
 
-    const labelEl = document.createElement('div');
-    labelEl.className = 'mt-1 text-xs font-medium text-gray-600';
-    labelEl.textContent = slotLabel;
-
-    const statusEl = document.createElement('div');
-    statusEl.className = `mt-1 text-sm font-semibold ${
-      hasRecord ? 'text-green-700' : 'text-gray-500'
-    }`;
+  const statusEl = element.querySelector('.js-status');
+  if (statusEl) {
     statusEl.textContent = translateCareLogs(
       hasRecord ? 'public.slot_status.recorded' : 'public.slot_status.missing',
       hasRecord ? fallbackText('Recorded', '記録あり') : fallbackText('Missing', '未記録')
     );
+  }
 
-    element.appendChild(emojiEl);
-    element.appendChild(labelEl);
-    element.appendChild(statusEl);
-
-    if (slotInfo?.recorder) {
-      const recorderEl = document.createElement('div');
-      recorderEl.className = 'text-xs text-gray-500 mt-1 truncate w-full';
-      recorderEl.textContent = slotInfo.recorder;
-      element.appendChild(recorderEl);
-    }
-  } else {
-    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
-      hasRecord
-        ? 'border-green-200 bg-green-50 text-green-700'
-        : 'border-gray-200 bg-white text-gray-400'
-    }`;
-    element.textContent = hasRecord ? '○' : '-';
+  const recorderEl = element.querySelector('.js-recorder');
+  if (recorderEl && slotInfo?.recorder) {
+    recorderEl.textContent = slotInfo.recorder;
+    recorderEl.classList.remove('hidden');
   }
 
   return element;
@@ -356,36 +427,29 @@ function renderDailyCards(summary = []) {
   container.innerHTML = '';
 
   summary.forEach(day => {
-    const card = document.createElement('div');
-    card.className = 'border border-gray-200 rounded-xl p-4 shadow-sm';
+    const card = cloneTemplate('tmpl-daily-card', FALLBACK_TEMPLATE_DAILY_CARD);
 
-    const header = document.createElement('div');
-    header.className = 'flex items-center justify-between gap-2 mb-3';
+    // Date
+    const dateEl = card.querySelector('.js-date');
+    if (dateEl) dateEl.textContent = formatDate(day.isoDate);
 
-    const title = document.createElement('div');
-    title.className = 'text-base font-semibold text-gray-800';
-    title.textContent = formatDate(day.isoDate);
-
+    // Badge
     const badgeText = getRelativeDayBadge(day);
-    if (badgeText) {
-      const badge = document.createElement('span');
-      badge.className =
-        'inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700';
-      badge.textContent = badgeText;
-      header.appendChild(badge);
+    const badgeEl = card.querySelector('.js-badge');
+    if (badgeEl && badgeText) {
+      badgeEl.textContent = badgeText;
+      badgeEl.classList.remove('hidden');
     }
 
-    header.prepend(title);
-    card.appendChild(header);
+    // Slots
+    const slotsWrapper = card.querySelector('.js-slots');
+    if (slotsWrapper) {
+      SLOT_ORDER.forEach(slotKey => {
+        const slotEl = createSlotStatusElement(slotKey, day.slots[slotKey], 'card');
+        slotsWrapper.appendChild(slotEl);
+      });
+    }
 
-    const slotsWrapper = document.createElement('div');
-    slotsWrapper.className = 'grid grid-cols-3 gap-2';
-    SLOT_ORDER.forEach(slotKey => {
-      const slotEl = createSlotStatusElement(slotKey, day.slots[slotKey], 'card');
-      slotsWrapper.appendChild(slotEl);
-    });
-
-    card.appendChild(slotsWrapper);
     container.appendChild(card);
   });
 }
@@ -402,13 +466,15 @@ function renderDailyTable(summary = []) {
     dateCell.className = 'px-4 py-3 text-sm font-medium text-gray-800 whitespace-nowrap';
     dateCell.textContent = formatDate(day.isoDate);
     const badgeText = getRelativeDayBadge(day);
+
     if (badgeText) {
       const badge = document.createElement('span');
       badge.className =
-        'ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700';
+        'ml-2 inline-flex items-center rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-medium text-brand-primary-dark';
       badge.textContent = badgeText;
       dateCell.appendChild(badge);
     }
+
     row.appendChild(dateCell);
 
     SLOT_ORDER.forEach(slotKey => {
@@ -433,6 +499,19 @@ function renderDailyOverview(summary = []) {
   renderDailyTable(summary);
 }
 
+const FALLBACK_TEMPLATE_LOG_ITEM = `
+    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-brand-primary/5 transition-colors cursor-pointer bg-white mb-2 js-log-container">
+        <div class="flex items-center gap-3">
+            <div class="text-2xl js-emoji"></div>
+            <div>
+                <div class="font-medium text-gray-800 js-date"></div>
+                <div class="text-sm text-gray-500 js-meta"></div>
+            </div>
+        </div>
+        <div class="font-bold text-brand-secondary js-check">○</div>
+    </div>
+`;
+
 function displayRecentLogs(logs = []) {
   const container = document.getElementById('recentLogs');
   const noLogsDiv = document.getElementById('noLogs');
@@ -453,50 +532,44 @@ function displayRecentLogs(logs = []) {
 
   logs.forEach(logItem => {
     const log = logItem || {};
-    const logDiv = document.createElement('div');
-    logDiv.className =
-      'flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer';
+    const logDiv = cloneTemplate('tmpl-log-item', FALLBACK_TEMPLATE_LOG_ITEM);
+
+    // Highlight Effect
     if (highlightId && log.id === Number(highlightId)) {
-      logDiv.classList.add('border-indigo-400', 'bg-indigo-50');
+      logDiv.classList.add('border-brand-primary', 'bg-brand-primary-light');
       setTimeout(() => {
-        logDiv.classList.remove('border-indigo-400', 'bg-indigo-50');
+        logDiv.classList.remove('border-brand-primary', 'bg-brand-primary-light');
       }, 3200);
     }
+
+    // Click Handler through class
     if (log && log.id) {
+      // Note: In template, the root has js-log-container class usually
       logDiv.addEventListener('click', () => showLogDetail(log.id));
     }
 
-    const leftWrapper = document.createElement('div');
-    leftWrapper.className = 'flex items-center gap-3';
+    // Emoji
+    const emojiEl = logDiv.querySelector('.js-emoji');
+    if (emojiEl) emojiEl.textContent = TIME_SLOT_EMOJI[log.time_slot] || '📝';
 
-    const emojiEl = document.createElement('div');
-    emojiEl.className = 'text-2xl';
-    emojiEl.textContent = TIME_SLOT_EMOJI[log.time_slot] || '📝';
+    // Date
+    const dateEl = logDiv.querySelector('.js-date');
+    if (dateEl) dateEl.textContent = log.log_date ? formatDate(log.log_date) : '';
 
-    const textWrapper = document.createElement('div');
+    // Meta (Time Slot + Recorder)
+    const metaEl = logDiv.querySelector('.js-meta');
+    if (metaEl) {
+      const timeSlotLabel = getTimeSlotLabel(log.time_slot);
+      metaEl.textContent = log.recorder_name
+        ? `${timeSlotLabel} - ${log.recorder_name}`
+        : timeSlotLabel;
+    }
 
-    const dateEl = document.createElement('div');
-    dateEl.className = 'font-medium text-gray-800';
-    dateEl.textContent = log.log_date ? formatDate(log.log_date) : '';
-
-    const metaEl = document.createElement('div');
-    metaEl.className = 'text-sm text-gray-500';
-    const timeSlotLabel = getTimeSlotLabel(log.time_slot);
-    metaEl.textContent = log.recorder_name
-      ? `${timeSlotLabel} - ${log.recorder_name}`
-      : timeSlotLabel;
-
-    textWrapper.appendChild(dateEl);
-    textWrapper.appendChild(metaEl);
-    leftWrapper.appendChild(emojiEl);
-    leftWrapper.appendChild(textWrapper);
-
-    const statusEl = document.createElement('div');
-    statusEl.className = 'text-green-600 font-bold';
-    statusEl.textContent = '○';
-
-    logDiv.appendChild(leftWrapper);
-    logDiv.appendChild(statusEl);
+    // Check Mark
+    const checkEl = logDiv.querySelector('.js-check');
+    if (checkEl) {
+      checkEl.style.color = 'var(--color-brand-secondary)';
+    }
 
     container.appendChild(logDiv);
   });
@@ -618,7 +691,7 @@ function renderLogDetailModal(log) {
 
   const editButton = document.createElement('a');
   editButton.className =
-    'mt-3 w-full inline-flex justify-center py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors';
+    'mt-3 w-full inline-flex justify-center py-3 bg-brand-primary text-white rounded-lg font-medium hover:opacity-90 transition-colors';
   editButton.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
   if (animalId && log?.id) {
     editButton.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;

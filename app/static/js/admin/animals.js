@@ -291,17 +291,20 @@ function renderAnimalsList(animals = []) {
                 <!-- アクション -->
                 <div class="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
                     <a href="${adminBasePath}/animals/${animal.id}"
-                       class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                       class="px-4 py-2 text-sm text-white rounded-lg transition-colors bg-brand-primary hover:opacity-90"
+                       style="background-color: var(--color-brand-primary);"
                        data-i18n="actions.view_details" data-i18n-ns="animals">
                         詳細
                     </a>
                     <a href="${adminBasePath}/animals/${animal.id}/edit"
-                       class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                       class="px-4 py-2 text-sm rounded-lg transition-colors border border-border bg-white text-text-muted hover:bg-bg-base"
+                       style="background-color: #ffffff; border-color: var(--color-border); color: var(--color-text-muted);"
                        data-i18n="actions.edit_info" data-i18n-ns="animals">
                         編集
                     </a>
                     <button onclick="showQRCode(${animal.id})"
-                            class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                            class="px-4 py-2 text-sm text-white rounded-lg transition-colors bg-brand-secondary hover:opacity-90"
+                            style="background-color: var(--color-brand-secondary);"
                             data-i18n="actions.qr_code" data-i18n-ns="animals">
                         QR
                     </button>
@@ -347,41 +350,42 @@ function renderPagination(total, page, pageSize) {
         <div class="flex items-center justify-between">
             <div class="text-sm text-gray-600">
                 ${translate('pagination.summary', {
-                  defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
-                    page * pageSize,
-                    total
-                  )} 件を表示`,
-                  total,
-                  from: (page - 1) * pageSize + 1,
-                  to: Math.min(page * pageSize, total),
-                })}
+    defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
+      page * pageSize,
+      total
+    )} 件を表示`,
+    total,
+    from: (page - 1) * pageSize + 1,
+    to: Math.min(page * pageSize, total),
+  })}
             </div>
             <div class="flex gap-2">
                 <button onclick="changePage(${page - 1})"
                         ${page === 1 ? 'disabled' : ''}
                         class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                     ${translate('pagination.previous', {
-                      ns: COMMON_NAMESPACE,
-                      defaultValue: '前へ',
-                    })}
+    ns: COMMON_NAMESPACE,
+    defaultValue: '前へ',
+  })}
                 </button>
                 ${pages
-                  .map(
-                    p => `
+      .map(
+        p => `
                     <button onclick="changePage(${p})"
-                            class="px-3 py-2 text-sm border rounded-lg ${p === page ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 hover:bg-gray-50'}">
+                            class="px-3 py-2 text-sm border rounded-lg ${p === page ? 'bg-brand-primary text-white border-brand-primary' : 'border-border hover:bg-bg-base'}"
+                            style="${p === page ? 'background-color: var(--color-brand-primary); border-color: var(--color-brand-primary); color: #ffffff;' : 'border-color: var(--color-border);'}">
                         ${p}
                     </button>
                 `
-                  )
-                  .join('')}
+      )
+      .join('')}
                 <button onclick="changePage(${page + 1})"
                         ${page === totalPages ? 'disabled' : ''}
                     class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                   ${translate('pagination.next', {
-                    ns: COMMON_NAMESPACE,
-                    defaultValue: '次へ',
-                  })}
+        ns: COMMON_NAMESPACE,
+        defaultValue: '次へ',
+      })}
                 </button>
             </div>
         </div>
@@ -427,7 +431,7 @@ function showQRCode(animalId) {
 
   const linkClass = isKiroween
     ? 'text-[#33ff00] hover:text-[#66ff33] underline flex flex-nowrap items-center justify-center gap-2 whitespace-nowrap'
-    : 'text-indigo-600 hover:text-indigo-800 underline flex items-center justify-center gap-1 whitespace-nowrap';
+    : 'text-brand-primary hover:opacity-80 underline flex items-center justify-center gap-1 whitespace-nowrap';
 
   const descriptionClass = isKiroween
     ? 'mt-4 text-sm text-[#1a8000] text-center'
@@ -454,7 +458,7 @@ function showQRCode(animalId) {
         <img src="${qrUrl}" alt="QRコード" class="w-64 h-64">
       </div>
       <div class="mt-4 text-center">
-        <a href="${publicUrl}" target="_blank" class="${linkClass}">
+        <a href="${publicUrl}" target="_blank" class="${linkClass}" ${!isKiroween ? 'style="color: var(--color-brand-primary);"' : ''}>
           ${linkText}
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>

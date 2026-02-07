@@ -108,9 +108,9 @@ function updateTabStyles() {
         'hover:text-gray-700',
         'hover:border-gray-300'
       );
-      btn.classList.add('border-indigo-500', 'text-indigo-600');
+      btn.classList.add('border-brand-primary', 'text-brand-primary');
     } else {
-      btn.classList.remove('border-indigo-500', 'text-indigo-600');
+      btn.classList.remove('border-brand-primary', 'text-brand-primary');
       btn.classList.add(
         'border-transparent',
         'text-gray-500',

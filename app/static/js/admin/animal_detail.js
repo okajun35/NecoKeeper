@@ -44,7 +44,7 @@ function setupTabs() {
 
       // すべてのタブを非アクティブ化
       tabButtons.forEach(btn => {
-        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.remove('active', 'border-brand-primary', 'text-brand-primary');
         btn.classList.add('border-transparent', 'text-gray-500');
       });
 
@@ -54,7 +54,7 @@ function setupTabs() {
       });
 
       // 選択されたタブをアクティブ化
-      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.add('active', 'border-brand-primary', 'text-brand-primary');
       button.classList.remove('border-transparent', 'text-gray-500');
 
       // 選択されたコンテンツを表示
@@ -759,7 +759,7 @@ async function loadGallery() {
       content.innerHTML = `
         <div class="text-center py-8">
           <p class="text-gray-500 mb-4">${translate('gallery.empty', { ns: 'animals' })}</p>
-          <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          <button onclick="openUploadDialog()" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">
             ${translate('gallery.upload', { ns: 'animals' })}
           </button>
         </div>
@@ -771,7 +771,7 @@ async function loadGallery() {
     let html = `
       <div class="mb-4 flex justify-between items-center">
         <p class="text-sm text-gray-600">${translate('gallery.count', { ns: 'animals', count: images.length })}</p>
-        <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        <button onclick="openUploadDialog()" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">
           ${translate('gallery.add', { ns: 'animals' })}
         </button>
       </div>
@@ -1216,10 +1216,10 @@ function setupProfileImageChange() {
 
       // タブの切り替え
       tabButtons.forEach(btn => {
-        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.remove('active', 'border-brand-primary', 'text-brand-primary');
         btn.classList.add('border-transparent', 'text-gray-500');
       });
-      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.add('active', 'border-brand-primary', 'text-brand-primary');
       button.classList.remove('border-transparent', 'text-gray-500');
 
       // コンテンツの切り替え
@@ -1357,7 +1357,7 @@ async function loadGalleryImages() {
         <div class="relative group cursor-pointer" onclick="selectGalleryImage(${image.id}, '/media/${image.image_path}')">
           <img src="/media/${image.image_path}"
                alt="${image.description || ''}"
-               class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-indigo-600 transition-colors">
+               class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-brand-primary transition-colors">
           <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
             <span class="text-white opacity-0 group-hover:opacity-100 font-medium">${selectLabel}</span>
           </div>

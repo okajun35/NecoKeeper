@@ -9,7 +9,8 @@
 
 {% block header_actions %}
 <a href="{{ settings.admin_base_path }}/animals/new"
-   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+    class="px-4 py-2 text-white rounded-lg transition-colors flex items-center gap-2 bg-brand-primary hover:opacity-90"
+    style="background-color: var(--color-brand-primary);">
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
     </svg>
@@ -24,20 +25,21 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             <!-- 検索 -->
             <div class="md:col-span-2">
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.label" data-i18n-ns="animals">検索</label>
-                <input type="text"
-                       id="search"
-                       data-i18n-placeholder="search.placeholder"
-                       data-i18n-ns="animals"
-                       placeholder="名前、柄、特徴で検索..."
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.label"
+                    data-i18n-ns="animals">検索</label>
+                <input type="text" id="search" data-i18n-placeholder="search.placeholder" data-i18n-ns="animals"
+                    placeholder="名前、柄、特徴で検索..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                    style="--tw-ring-color: var(--color-brand-primary);">
             </div>
 
             <!-- ステータスフィルター -->
             <div>
-                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.status" data-i18n-ns="animals">ステータス</label>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                    data-i18n="filter.status" data-i18n-ns="animals">ステータス</label>
                 <select id="status-filter"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                    style="--tw-ring-color: var(--color-brand-primary);">
                     <option value="ACTIVE" selected data-i18n="status.ACTIVE" data-i18n-ns="animals">現在活動している猫</option>
                     <option value="QUARANTINE" data-i18n="status.QUARANTINE" data-i18n-ns="animals">保護中</option>
                     <option value="IN_CARE" data-i18n="status.IN_CARE" data-i18n-ns="animals">在籍中</option>
@@ -51,9 +53,11 @@
 
             <!-- 表示件数 -->
             <div>
-                <label for="page-size" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.page_size" data-i18n-ns="animals">表示件数</label>
+                <label for="page-size" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.page_size"
+                    data-i18n-ns="animals">表示件数</label>
                 <select id="page-size"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                    style="--tw-ring-color: var(--color-brand-primary);">
                     <option value="20" data-i18n="page_size.20" data-i18n-ns="animals">20件</option>
                     <option value="50" data-i18n="page_size.50" data-i18n-ns="animals">50件</option>
                     <option value="100" data-i18n="page_size.100" data-i18n-ns="animals">100件</option>
@@ -64,8 +68,10 @@
         <!-- 詳細検索トグル -->
         <div class="mt-4">
             <button id="toggle-advanced-search"
-                    class="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-2">
-                <svg id="advanced-search-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="text-sm hover:opacity-80 flex items-center gap-2 text-brand-primary"
+                style="color: var(--color-brand-primary);">
+                <svg id="advanced-search-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
                 <span data-i18n="search.advanced" data-i18n-ns="animals">詳細検索</span>
@@ -77,9 +83,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 <!-- 譲渡可 -->
                 <div>
-                    <label for="ready-for-adoption-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.ready_for_adoption" data-i18n-ns="animals">譲渡可</label>
+                    <label for="ready-for-adoption-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                        data-i18n="filter.ready_for_adoption" data-i18n-ns="animals">譲渡可</label>
                     <select id="ready-for-adoption-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="true" data-i18n="filter.yes" data-i18n-ns="animals">はい</option>
                         <option value="false" data-i18n="filter.no" data-i18n-ns="animals">いいえ</option>
@@ -88,9 +95,10 @@
 
                 <!-- 性別 -->
                 <div>
-                    <label for="gender-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.gender" data-i18n-ns="animals">性別</label>
+                    <label for="gender-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                        data-i18n="filter.gender" data-i18n-ns="animals">性別</label>
                     <select id="gender-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="male" data-i18n="gender.male" data-i18n-ns="animals">オス</option>
                         <option value="female" data-i18n="gender.female" data-i18n-ns="animals">メス</option>
@@ -100,9 +108,10 @@
 
                 <!-- FIV -->
                 <div>
-                    <label for="fiv-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.fiv" data-i18n-ns="animals">FIV</label>
+                    <label for="fiv-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.fiv"
+                        data-i18n-ns="animals">FIV</label>
                     <select id="fiv-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="positive" data-i18n="filter.positive" data-i18n-ns="animals">陽性</option>
                         <option value="negative" data-i18n="filter.negative" data-i18n-ns="animals">陰性</option>
@@ -112,9 +121,10 @@
 
                 <!-- FeLV -->
                 <div>
-                    <label for="felv-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.felv" data-i18n-ns="animals">FeLV</label>
+                    <label for="felv-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                        data-i18n="filter.felv" data-i18n-ns="animals">FeLV</label>
                     <select id="felv-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="positive" data-i18n="filter.positive" data-i18n-ns="animals">陽性</option>
                         <option value="negative" data-i18n="filter.negative" data-i18n-ns="animals">陰性</option>
@@ -124,9 +134,10 @@
 
                 <!-- 避妊・去勢 -->
                 <div>
-                    <label for="sterilized-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.sterilized" data-i18n-ns="animals">避妊・去勢</label>
+                    <label for="sterilized-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                        data-i18n="filter.sterilized" data-i18n-ns="animals">避妊・去勢</label>
                     <select id="sterilized-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="true" data-i18n="filter.done" data-i18n-ns="animals">済</option>
                         <option value="false" data-i18n="filter.not_done" data-i18n-ns="animals">未</option>
@@ -136,22 +147,24 @@
 
                 <!-- 場所 -->
                 <div>
-                    <label for="location-type-filter" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="filter.location_type" data-i18n-ns="animals">場所</label>
+                    <label for="location-type-filter" class="block text-sm font-medium text-gray-700 mb-2"
+                        data-i18n="filter.location_type" data-i18n-ns="animals">場所</label>
                     <select id="location-type-filter"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                         <option value="" data-i18n="filter.all" data-i18n-ns="animals">すべて</option>
                         <option value="FACILITY" data-i18n="location_type.FACILITY" data-i18n-ns="animals">施設</option>
-                        <option value="FOSTER_HOME" data-i18n="location_type.FOSTER_HOME" data-i18n-ns="animals">預かり宅</option>
-                        <option value="ADOPTER_HOME" data-i18n="location_type.ADOPTER_HOME" data-i18n-ns="animals">譲渡先</option>
+                        <option value="FOSTER_HOME" data-i18n="location_type.FOSTER_HOME" data-i18n-ns="animals">預かり宅
+                        </option>
+                        <option value="ADOPTER_HOME" data-i18n="location_type.ADOPTER_HOME" data-i18n-ns="animals">譲渡先
+                        </option>
                     </select>
                 </div>
 
                 <!-- クリアボタン -->
                 <div class="flex items-end lg:col-span-2">
                     <button id="clear-advanced-search"
-                            class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                            data-i18n="search.clear"
-                            data-i18n-ns="animals">
+                        class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        data-i18n="search.clear" data-i18n-ns="animals">
                         クリア
                     </button>
                 </div>

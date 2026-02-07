@@ -103,7 +103,7 @@ function renderApplicants() {
                 <p>${t('applicants.labels.registration_date', { ns: 'adoptions' })}: ${formatDate(applicant.created_at)}</p>
             </div>
             <div class="mt-3 flex gap-2">
-                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 text-center">
+                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90 text-center">
                     ${t('buttons.edit', { ns: 'common' })}
                 </a>
                 <button onclick="viewAdoptionRecords(${applicant.id})" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
@@ -127,7 +127,7 @@ function renderApplicants() {
             <td class="px-6 py-4 text-sm text-gray-600">${formatHousehold(applicant)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatDate(applicant.created_at)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="text-indigo-600 hover:text-indigo-900 mr-3">${t('buttons.edit', { ns: 'common' })}</a>
+                <a href="${adminBasePath}/adoptions/applicants/${applicant.id}/edit" class="text-brand-primary hover:text-brand-primary-dark mr-3">${t('buttons.edit', { ns: 'common' })}</a>
                 <button onclick="viewAdoptionRecords(${applicant.id})" class="text-gray-600 hover:text-gray-900">${t('buttons.adoption_records', { ns: 'common' })}</button>
             </td>
         </tr>

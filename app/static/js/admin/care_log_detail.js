@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <div>
                     <div class="flex items-center justify-between">
                       <label class="block text-sm font-medium text-gray-700" data-i18n="care_logs:fields.stool_condition">${t('fields.stool_condition')}</label>
-                      <button type="button" id="stoolConditionHelpOpen" class="text-sm text-indigo-600 hover:text-indigo-800" data-i18n="care_logs:stool_condition_help">${t('stool_condition_help')}</button>
+                      <button type="button" id="stoolConditionHelpOpen" class="text-sm text-brand-primary hover:text-brand-primary-dark" data-i18n="care_logs:stool_condition_help">${t('stool_condition_help')}</button>
                     </div>
                     ${
                       careLog.defecation && careLog.stool_condition
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <a href="${adminBasePath}/care-logs/${careLogId}/edit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" data-i18n="common:edit">
+                    <a href="${adminBasePath}/care-logs/${careLogId}/edit" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90" data-i18n="common:edit">
                         ${tCommon('edit')}
                     </a>
                     <button onclick="deleteCareLog(${careLogId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" data-i18n="common:delete">

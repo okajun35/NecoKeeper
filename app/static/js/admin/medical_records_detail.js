@@ -100,7 +100,7 @@ function renderMedicalRecord(record) {
   // 猫名を表示（リンク付き）
   const animalText = record.animal_name || `${t('dynamic.cat_id')}: ${record.animal_id}`;
   const animalLink = record.animal_name
-    ? `<a href="${adminBasePath}/animals/${record.animal_id}" class="text-indigo-600 hover:text-indigo-900">${animalText}</a>`
+    ? `<a href="${adminBasePath}/animals/${record.animal_id}" class="text-brand-primary hover:text-brand-primary-dark">${animalText}</a>`
     : animalText;
   document.getElementById('recordAnimal').innerHTML = animalLink;
 

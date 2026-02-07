@@ -1,15 +1,19 @@
 {% extends "public/base.html" %}
 
-{% block title_attributes %}data-i18n-title="public.page_title" data-i18n-ns="care_logs" data-i18n-title-suffix=" - NecoKeeper"{% endblock %}
+{% block title_attributes %}data-i18n-title="public.page_title" data-i18n-ns="care_logs" data-i18n-title-suffix=" -
+NecoKeeper"{% endblock %}
 {% block title %}記録一覧 - NecoKeeper{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto p-4 pb-24">
     {% if not settings.kiroween_mode %}
     <div class="flex justify-end mb-4">
-        <button id="language-switcher" class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors shadow-sm bg-white">
+        <button id="language-switcher"
+            class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-white rounded-lg transition-colors shadow-sm bg-white">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129">
+                </path>
             </svg>
             <span class="language-text">🇯🇵 日本語</span>
         </button>
@@ -19,12 +23,9 @@
     <!-- ヘッダー: 猫情報 -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <div class="flex items-center gap-4">
-            <img id="animalPhoto"
-                 src=""
-                 alt=""
-                 data-i18n-alt="public.animal_photo_alt"
-                 data-i18n-ns="care_logs"
-                 class="w-24 h-24 rounded-full object-cover border-4 border-indigo-200">
+            <img id="animalPhoto" src="" alt="" data-i18n-alt="public.animal_photo_alt" data-i18n-ns="care_logs"
+                class="w-24 h-24 rounded-full object-cover border-4 border-brand-primary"
+                style="border-color: var(--color-brand-primary);">
             <div class="flex-1">
                 <h1 id="animalName" class="text-2xl font-bold text-gray-800 mb-1"></h1>
                 <p id="animalHeaderCaption" class="text-sm text-gray-500"></p>
@@ -33,33 +34,40 @@
     </div>
 
     <!-- エラーメッセージ -->
-    <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert" aria-live="assertive">
+    <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
+        role="alert" aria-live="assertive">
         <p class="font-medium" data-i18n="public.error_heading" data-i18n-ns="care_logs">エラーが発生しました</p>
         <p id="errorText" class="text-sm"></p>
     </div>
 
     <!-- 成功メッセージ -->
-    <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4" role="status" aria-live="polite">
-        <p id="successText" class="font-medium" data-i18n="public.success_heading" data-i18n-ns="care_logs">✓ 記録を保存しました</p>
+    <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4"
+        role="status" aria-live="polite">
+        <p id="successText" class="font-medium" data-i18n="public.success_heading" data-i18n-ns="care_logs">✓ 記録を保存しました
+        </p>
     </div>
 
     <!-- 今日の記録状況 -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-4" data-i18n="public.today_status_title" data-i18n-ns="care_logs">今日の記録状況</h2>
+        <h2 class="text-lg font-bold text-gray-800 mb-4" data-i18n="public.today_status_title" data-i18n-ns="care_logs">
+            今日の記録状況</h2>
         <div class="grid grid-cols-3 gap-3">
             <div id="morningStatus" class="text-center p-4 rounded-lg border-2">
                 <div class="text-2xl mb-1">{% if settings.kiroween_mode %}🦇{% else %}🌅{% endif %}</div>
-                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.morning" data-i18n-ns="care_logs">朝</div>
+                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.morning"
+                    data-i18n-ns="care_logs">朝</div>
                 <div class="text-lg font-bold mt-1" id="morningIcon">-</div>
             </div>
             <div id="noonStatus" class="text-center p-4 rounded-lg border-2">
                 <div class="text-2xl mb-1">{% if settings.kiroween_mode %}🎃{% else %}☀️{% endif %}</div>
-                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.noon" data-i18n-ns="care_logs">昼</div>
+                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.noon"
+                    data-i18n-ns="care_logs">昼</div>
                 <div class="text-lg font-bold mt-1" id="noonIcon">-</div>
             </div>
             <div id="eveningStatus" class="text-center p-4 rounded-lg border-2">
                 <div class="text-2xl mb-1">{% if settings.kiroween_mode %}👻{% else %}🌙{% endif %}</div>
-                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.evening" data-i18n-ns="care_logs">夜</div>
+                <div class="text-sm font-medium text-gray-700" data-i18n="public.time_slots.evening"
+                    data-i18n-ns="care_logs">夜</div>
                 <div class="text-lg font-bold mt-1" id="eveningIcon">-</div>
             </div>
         </div>
@@ -69,10 +77,13 @@
     <div class="bg-white rounded-lg shadow-md p-6 mb-6" id="dailyOverviewSection">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-                <h2 class="text-lg font-bold text-gray-800" data-i18n="public.daily_overview_title" data-i18n-ns="care_logs">過去7日の日別状況</h2>
-                <p class="text-sm text-gray-500" data-i18n="public.daily_overview_description" data-i18n-ns="care_logs">朝・昼・夜の記録有無を日ごとに確認できます</p>
+                <h2 class="text-lg font-bold text-gray-800" data-i18n="public.daily_overview_title"
+                    data-i18n-ns="care_logs">過去7日の日別状況</h2>
+                <p class="text-sm text-gray-500" data-i18n="public.daily_overview_description" data-i18n-ns="care_logs">
+                    朝・昼・夜の記録有無を日ごとに確認できます</p>
             </div>
-            <p class="text-xs text-gray-400" data-i18n="public.daily_overview_hint" data-i18n-ns="care_logs">欠けている日がないか確認しましょう</p>
+            <p class="text-xs text-gray-400" data-i18n="public.daily_overview_hint" data-i18n-ns="care_logs">
+                欠けている日がないか確認しましょう</p>
         </div>
 
         <div class="lg:hidden mt-4 space-y-3" id="dailyStatusCards"></div>
@@ -80,12 +91,16 @@
         <div class="hidden lg:block mt-4 overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider">
-                <tr>
-                    <th class="px-4 py-3 text-left" data-i18n="public.daily_table.date" data-i18n-ns="care_logs">日付</th>
-                    <th class="px-4 py-3 text-center" data-i18n="public.time_slots.morning" data-i18n-ns="care_logs">朝</th>
-                    <th class="px-4 py-3 text-center" data-i18n="public.time_slots.noon" data-i18n-ns="care_logs">昼</th>
-                    <th class="px-4 py-3 text-center" data-i18n="public.time_slots.evening" data-i18n-ns="care_logs">夜</th>
-                </tr>
+                    <tr>
+                        <th class="px-4 py-3 text-left" data-i18n="public.daily_table.date" data-i18n-ns="care_logs">日付
+                        </th>
+                        <th class="px-4 py-3 text-center" data-i18n="public.time_slots.morning"
+                            data-i18n-ns="care_logs">朝</th>
+                        <th class="px-4 py-3 text-center" data-i18n="public.time_slots.noon" data-i18n-ns="care_logs">昼
+                        </th>
+                        <th class="px-4 py-3 text-center" data-i18n="public.time_slots.evening"
+                            data-i18n-ns="care_logs">夜</th>
+                    </tr>
                 </thead>
                 <tbody id="dailyStatusTableBody" class="divide-y divide-gray-200"></tbody>
             </table>
@@ -95,8 +110,10 @@
     <!-- 最新の記録一覧 -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-            <h2 class="text-lg font-bold text-gray-800" data-i18n="public.latest_logs_title" data-i18n-ns="care_logs">最新の記録</h2>
-            <p class="text-sm text-gray-500" data-i18n="public.latest_logs_description" data-i18n-ns="care_logs">最新の入力順で表示しています</p>
+            <h2 class="text-lg font-bold text-gray-800" data-i18n="public.latest_logs_title" data-i18n-ns="care_logs">
+                最新の記録</h2>
+            <p class="text-sm text-gray-500" data-i18n="public.latest_logs_description" data-i18n-ns="care_logs">
+                最新の入力順で表示しています</p>
         </div>
         <div id="recentLogs" class="space-y-3">
             <!-- JavaScriptで動的に生成 -->
@@ -110,16 +127,58 @@
 </div>
 
 <!-- 固定フッター: 記録入力ボタン -->
-<div class="fixed bottom-0 left-0 right-0 {% if settings.kiroween_mode %}border-green-500{% else %}bg-white border-gray-200{% endif %} border-t p-4 shadow-lg" {% if settings.kiroween_mode %}style="background-color: #000000 !important;"{% endif %}>
+<!-- Templates for JS Rendering -->
+<template id="tmpl-daily-card">
+    <div class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+        <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+                <div class="text-base font-semibold text-gray-800 js-date"></div>
+                <span
+                    class="hidden inline-flex items-center rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-medium text-brand-primary-dark js-badge"></span>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 js-slots"></div>
+    </div>
+</template>
+
+<template id="tmpl-slot-chip">
+    <button type="button"
+        class="flex flex-col items-center rounded-xl border px-3 py-2 text-center transition-colors w-full js-chip-container hover:opacity-90">
+        <div class="text-2xl js-emoji"></div>
+        <div class="mt-1 text-xs font-medium js-label"></div>
+        <div class="mt-1 text-sm font-semibold js-status"></div>
+        <div class="text-xs mt-1 truncate w-full opacity-80 js-recorder hidden"></div>
+    </button>
+</template>
+
+<template id="tmpl-log-item">
+    <div
+        class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-brand-primary/5 transition-colors cursor-pointer bg-white mb-2 js-log-container">
+        <div class="flex items-center gap-3">
+            <div class="text-2xl js-emoji"></div>
+            <div>
+                <div class="font-medium text-gray-800 js-date"></div>
+                <div class="text-sm text-gray-500 js-meta"></div>
+            </div>
+        </div>
+        <div class="font-bold text-brand-secondary js-check">○</div>
+    </div>
+</template>
+
+<!-- 固定フッター: 記録入力ボタン -->
+<div class="fixed bottom-0 left-0 right-0 {% if settings.kiroween_mode %}border-green-500{% else %}bg-white border-gray-200{% endif %} border-t p-4 shadow-lg"
+    style="{% if not settings.kiroween_mode %}background-color: var(--color-bg-base); border-top-color: var(--color-border);{% endif %} {% if settings.kiroween_mode %}background-color: #000000 !important;{% endif %}">
     <div class="max-w-2xl mx-auto space-y-2">
-        <a id="addRecordBtn"
-           href="#"
-           class="block w-full py-3 px-6 {% if settings.kiroween_mode %}bg-black text-[#33ff00] border border-[#33ff00] hover:bg-[#0d4000]{% else %}bg-indigo-600 text-white hover:bg-indigo-700{% endif %} text-center rounded-lg font-medium transition-colors"
-           data-i18n="public.add_record" data-i18n-ns="care_logs">
+        <a id="addRecordBtn" href="#"
+            class="block w-full py-3 px-6 {% if settings.kiroween_mode %}bg-black text-[#33ff00] border border-[#33ff00] hover:bg-[#0d4000]{% else %}bg-brand-primary text-white hover:opacity-90{% endif %} text-center rounded-lg font-medium transition-colors"
+            style="{% if not settings.kiroween_mode %}background-color: var(--color-brand-primary); border-radius: var(--radius-md);{% endif %}"
+            data-i18n="public.add_record" data-i18n-ns="care_logs">
             記録を入力する
         </a>
         <a href="/public/animals/status"
-           class="block w-full py-2 px-4 {% if settings.kiroween_mode %}bg-black text-green-500 border-green-500 hover:bg-gray-900{% else %}bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-50{% endif %} text-center rounded-lg font-medium border-2 transition-colors text-sm">
+            class="block w-full py-2 px-4 {% if settings.kiroween_mode %}bg-black text-green-500 border-green-500 hover:bg-gray-900{% else %}bg-bg-surface text-brand-primary border-brand-primary hover:bg-brand-primary/5{% endif %} text-center rounded-lg font-medium border-2 transition-colors text-sm"
+            style="{% if not settings.kiroween_mode %}background-color: var(--color-bg-surface); color: var(--color-brand-primary); border-color: var(--color-brand-primary); border-radius: var(--radius-md);{% endif %}"
+            data-i18n="public.view_all_status" data-i18n-ns="care_logs">
             <span data-i18n="public.view_all_status" data-i18n-ns="care_logs">全猫の記録状況を見る</span>
         </a>
     </div>
