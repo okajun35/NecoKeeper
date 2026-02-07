@@ -71,6 +71,9 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Shared design tokens -->
+    <link rel="stylesheet" href="{{ request.url_for('static', path='css/theme.css') }}">
+
     <!-- Custom Styles -->
     <style>
         /* CSS Variables for theming - extending from theme.css */
@@ -352,7 +355,8 @@
             min-width: 44px;
         }
 
-        .btn-primary {
+        .btn-primary,
+        button.btn-primary {
             background-color: var(--accent-primary);
             color: white;
         }

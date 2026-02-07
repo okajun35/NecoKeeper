@@ -69,3 +69,13 @@ class TestAdminJSRefactorGuardrails:
         assert "assertRequiredSelectors(" in animal_detail
         assert "assertRequiredSelectors(" in care_log_detail
         assert "assertRequiredSelectors(" in medical_detail
+
+    def test_adoption_records_uses_adoptable_animals_for_selection(self) -> None:
+        content = Path("app/static/js/admin/adoption_records.js").read_text()
+
+        assert "/api/v1/animals?limit=1000&is_ready_for_adoption=true" in content
+        assert "function isAdoptableAnimal(animal)" in content
+        assert "const selectableAnimals =" in content
+        assert (
+            "normalizedStatus === 'IN_CARE' || normalizedStatus === 'TRIAL'" in content
+        )

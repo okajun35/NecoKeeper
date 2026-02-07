@@ -5,6 +5,7 @@
 let allRecords = [];
 let filteredRecords = [];
 let animals = [];
+let adoptableAnimals = [];
 let applicants = [];
 
 // Helper function for safe i18next translation
@@ -15,6 +16,30 @@ function t(key, options = {}) {
   // Fallback: return last part of key
   const parts = key.split('.');
   return parts[parts.length - 1];
+}
+
+function isAdoptableAnimal(animal) {
+  if (!animal) return false;
+  // ダッシュボードの adoptable_count と同じ定義（IN_CARE / TRIAL）
+  const normalizedStatus = String(animal.status || '')
+    .trim()
+    .toUpperCase();
+  return normalizedStatus === 'IN_CARE' || normalizedStatus === 'TRIAL';
+}
+
+function ensureAnimalOptionExists(selectElement, animalId) {
+  if (!selectElement || !animalId) return;
+
+  const optionValue = String(animalId);
+  if (selectElement.querySelector(`option[value="${optionValue}"]`)) return;
+
+  const animal = animals.find(a => a.id === animalId);
+  if (!animal) return;
+
+  const option = document.createElement('option');
+  option.value = optionValue;
+  option.textContent = animal.name;
+  selectElement.appendChild(option);
 }
 
 // 初期化
@@ -57,15 +82,19 @@ async function loadData() {
 
   try {
     // 並列で全データを取得
-    const [recordsData, animalsData, applicantsData] = await Promise.all([
+    const [recordsData, animalsData, adoptableAnimalsData, applicantsData] = await Promise.all([
       apiRequest('/api/v1/adoptions/records?limit=1000'),
       apiRequest('/api/v1/animals?limit=1000'),
+      apiRequest('/api/v1/animals?limit=1000&is_ready_for_adoption=true'),
       apiRequest('/api/v1/adoptions/applicants-extended?limit=1000'),
     ]);
 
     // APIレスポンスが配列かオブジェクト（{items: [...]}）かを確認
     allRecords = Array.isArray(recordsData) ? recordsData : recordsData.items || [];
     animals = Array.isArray(animalsData) ? animalsData : animalsData.items || [];
+    adoptableAnimals = Array.isArray(adoptableAnimalsData)
+      ? adoptableAnimalsData
+      : adoptableAnimalsData.items || [];
     applicants = Array.isArray(applicantsData) ? applicantsData : applicantsData.items || [];
 
     filteredRecords = [...allRecords];
@@ -80,11 +109,14 @@ async function loadData() {
 
 // フィルター選択肢を設定
 function populateFilters() {
+  const selectableAnimals =
+    adoptableAnimals.length > 0 ? adoptableAnimals : animals.filter(isAdoptableAnimal);
+
   // 猫フィルター
   const animalFilter = document.getElementById('animalFilter');
   animalFilter.innerHTML =
     `<option value="">${t('common:filters.all', { ns: 'common' })}</option>` +
-    animals.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+    selectableAnimals.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
   // 里親希望者フィルター
   const applicantFilter = document.getElementById('applicantFilter');
@@ -92,14 +124,10 @@ function populateFilters() {
     `<option value="">${t('common:filters.all', { ns: 'common' })}</option>` +
     applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
-  // モーダル用の選択肢も設定（譲渡可能な猫のみ）
-  const adoptableStatuses = new Set(['IN_CARE', 'TRIAL', '譲渡可能']);
+  // モーダル用の選択肢（基本は譲渡可能な猫のみ）
   document.getElementById('animalId').innerHTML =
     `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
-    animals
-      .filter(a => a.is_ready_for_adoption === true || adoptableStatuses.has(a.status))
-      .map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`)
-      .join('');
+    selectableAnimals.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
   document.getElementById('applicantId').innerHTML =
     `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
@@ -289,13 +317,16 @@ function openInterviewModal(record = null) {
   const modal = document.getElementById('interviewModal');
   const form = document.getElementById('interviewForm');
   const title = document.getElementById('interviewModalTitle');
+  const animalSelect = document.getElementById('animalId');
 
   form.reset();
 
   if (record) {
     title.textContent = t('adoptions:records.modal.title_edit', { ns: 'adoptions' });
     document.getElementById('recordId').value = record.id;
-    document.getElementById('animalId').value = record.animal_id;
+    // 既存記録編集時は、現在譲渡可能でなくても対象猫を選択できるようにする
+    ensureAnimalOptionExists(animalSelect, record.animal_id);
+    animalSelect.value = String(record.animal_id);
     document.getElementById('applicantId').value = record.applicant_id;
     document.getElementById('interviewDate').value = record.interview_date || '';
     document.getElementById('interviewNote').value = record.interview_note || '';
@@ -303,6 +334,7 @@ function openInterviewModal(record = null) {
   } else {
     title.textContent = t('adoptions:records.modal.title_new', { ns: 'adoptions' });
     document.getElementById('recordId').value = '';
+    animalSelect.value = '';
     document.getElementById('decision').value = 'pending';
   }
 
