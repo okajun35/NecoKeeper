@@ -350,42 +350,42 @@ function renderPagination(total, page, pageSize) {
         <div class="flex items-center justify-between">
             <div class="text-sm text-gray-600">
                 ${translate('pagination.summary', {
-    defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
-      page * pageSize,
-      total
-    )} 件を表示`,
-    total,
-    from: (page - 1) * pageSize + 1,
-    to: Math.min(page * pageSize, total),
-  })}
+                  defaultValue: `全 ${total} 件中 ${(page - 1) * pageSize + 1} - ${Math.min(
+                    page * pageSize,
+                    total
+                  )} 件を表示`,
+                  total,
+                  from: (page - 1) * pageSize + 1,
+                  to: Math.min(page * pageSize, total),
+                })}
             </div>
             <div class="flex gap-2">
                 <button onclick="changePage(${page - 1})"
                         ${page === 1 ? 'disabled' : ''}
                         class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                     ${translate('pagination.previous', {
-    ns: COMMON_NAMESPACE,
-    defaultValue: '前へ',
-  })}
+                      ns: COMMON_NAMESPACE,
+                      defaultValue: '前へ',
+                    })}
                 </button>
                 ${pages
-      .map(
-        p => `
+                  .map(
+                    p => `
                     <button onclick="changePage(${p})"
                             class="px-3 py-2 text-sm border rounded-lg ${p === page ? 'bg-brand-primary text-white border-brand-primary' : 'border-border hover:bg-bg-base'}"
                             style="${p === page ? 'background-color: var(--color-brand-primary); border-color: var(--color-brand-primary); color: #ffffff;' : 'border-color: var(--color-border);'}">
                         ${p}
                     </button>
                 `
-      )
-      .join('')}
+                  )
+                  .join('')}
                 <button onclick="changePage(${page + 1})"
                         ${page === totalPages ? 'disabled' : ''}
                     class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                   ${translate('pagination.next', {
-        ns: COMMON_NAMESPACE,
-        defaultValue: '次へ',
-      })}
+                    ns: COMMON_NAMESPACE,
+                    defaultValue: '次へ',
+                  })}
                 </button>
             </div>
         </div>

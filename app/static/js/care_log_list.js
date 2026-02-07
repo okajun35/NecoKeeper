@@ -13,15 +13,15 @@ const isKiroweenMode = document.body && document.body.classList.contains('kirowe
 
 const TIME_SLOT_EMOJI = isKiroweenMode
   ? {
-    morning: '🦇',
-    noon: '🎃',
-    evening: '👻',
-  }
+      morning: '🦇',
+      noon: '🎃',
+      evening: '👻',
+    }
   : {
-    morning: '🌅',
-    noon: '☀️',
-    evening: '🌙',
-  };
+      morning: '🌅',
+      noon: '☀️',
+      evening: '🌙',
+    };
 
 let careLogData = null;
 
@@ -111,12 +111,24 @@ function updateTodayStatus(todayStatus = {}) {
     const statusEl = document.getElementById(slot.statusId);
 
     if (iconEl) {
-      iconEl.classList.remove('text-green-600', 'text-gray-400', 'text-brand-secondary', 'text-text-muted');
+      iconEl.classList.remove(
+        'text-green-600',
+        'text-gray-400',
+        'text-brand-secondary',
+        'text-text-muted'
+      );
       // Reset inline
       iconEl.style.color = '';
     }
     if (statusEl) {
-      statusEl.classList.remove('border-green-500', 'bg-green-50', 'border-gray-300', 'border-brand-secondary', 'bg-brand-secondary', 'border-border');
+      statusEl.classList.remove(
+        'border-green-500',
+        'bg-green-50',
+        'border-gray-300',
+        'border-brand-secondary',
+        'bg-brand-secondary',
+        'border-border'
+      );
       // Reset inline
       statusEl.style.borderColor = '';
       statusEl.style.backgroundColor = '';
@@ -337,10 +349,11 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
   // For Table variant, we still build simple DOM because it's just a small button/icon
   if (variant === 'table') {
     const element = document.createElement(hasRecord && slotInfo?.logId ? 'button' : 'div');
-    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${hasRecord
-      ? 'border-brand-secondary text-brand-secondary'
-      : 'border-border bg-bg-surface text-text-muted'
-      }`;
+    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
+      hasRecord
+        ? 'border-brand-secondary text-brand-secondary'
+        : 'border-border bg-bg-surface text-text-muted'
+    }`;
 
     if (hasRecord) {
       element.style.borderColor = 'var(--color-brand-secondary)';
