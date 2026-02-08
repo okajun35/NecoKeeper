@@ -28,11 +28,18 @@ ALLOWED_CARE_IMAGE_MIME_TYPES = {
     "image/webp",
 }
 
+HEIC_MIME_TYPES = {
+    "image/heic",
+    "image/heif",
+}
+
 ALLOWED_CARE_IMAGE_FORMATS = {
     "JPEG",
     "PNG",
     "WEBP",
 }
+
+COMPRESSION_QUALITY_STEPS = (75, 65, 55, 45)
 
 CARE_IMAGE_MEDIA_TYPES = {
     ".jpg": "image/jpeg",
@@ -59,6 +66,45 @@ def _safe_resolved_path(image_key: str) -> Path:
     return resolved
 
 
+def _compress_webp(image: Image.Image, long_edge: int, quality: int) -> bytes:
+    """指定長辺・品質で WebP へ圧縮する（アスペクト比維持）。"""
+    working = image.copy()
+    working.thumbnail((long_edge, long_edge), Image.Resampling.LANCZOS)
+    output = io.BytesIO()
+    working.save(
+        output,
+        format="WEBP",
+        quality=quality,
+        method=6,
+    )
+    return output.getvalue()
+
+
+def _compress_with_ladder(image: Image.Image) -> bytes:
+    """
+    受信画像を段階圧縮し、保存上限内のバイト列を返す。
+
+    試行順:
+    1. 長辺=max_long_edge, quality=75→65→55→45
+    2. 長辺=fallback_long_edge, quality=75→65→55→45
+    """
+    long_edges = [settings.care_log_image_max_long_edge]
+    if settings.care_log_image_fallback_long_edge not in long_edges:
+        long_edges.append(settings.care_log_image_fallback_long_edge)
+
+    max_size = settings.care_log_image_max_size_bytes
+    for long_edge in long_edges:
+        for quality in COMPRESSION_QUALITY_STEPS:
+            optimized = _compress_webp(image, long_edge=long_edge, quality=quality)
+            if len(optimized) <= max_size:
+                return optimized
+
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail="画像を2MB以下にできませんでした。別の画像で再投稿してください。",
+    )
+
+
 def save_care_log_image(file: UploadFile) -> tuple[str, str]:
     """
     世話記録画像を保存する。
@@ -66,13 +112,19 @@ def save_care_log_image(file: UploadFile) -> tuple[str, str]:
     Returns:
         tuple[str, str]: (保存キー, media_type)
     """
-    if file.content_type not in ALLOWED_CARE_IMAGE_MIME_TYPES:
+    content_type = (file.content_type or "").lower()
+    if content_type in HEIC_MIME_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="HEICは非対応です。JPEGで再投稿してください。",
+        )
+    if content_type not in ALLOWED_CARE_IMAGE_MIME_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="画像は JPEG/PNG/WebP のみ対応しています",
         )
 
-    validate_image_file(file, max_size=settings.care_log_image_max_size_bytes)
+    validate_image_file(file, max_size=settings.care_log_image_receive_max_size_bytes)
 
     try:
         file.file.seek(0)
@@ -80,6 +132,11 @@ def save_care_log_image(file: UploadFile) -> tuple[str, str]:
 
         with Image.open(io.BytesIO(raw)) as image:
             detected_format = (image.format or "").upper()
+            if detected_format in {"HEIC", "HEIF"}:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="HEICは非対応です。JPEGで再投稿してください。",
+                )
             if detected_format not in ALLOWED_CARE_IMAGE_FORMATS:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
@@ -90,17 +147,7 @@ def save_care_log_image(file: UploadFile) -> tuple[str, str]:
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
-            max_edge = settings.care_log_image_max_long_edge
-            image.thumbnail((max_edge, max_edge), Image.Resampling.LANCZOS)
-
-            output = io.BytesIO()
-            image.save(
-                output,
-                format="WEBP",
-                quality=settings.care_log_image_quality,
-                method=6,
-            )
-            optimized = output.getvalue()
+            optimized = _compress_with_ladder(image)
     except UnidentifiedImageError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -113,15 +160,6 @@ def save_care_log_image(file: UploadFile) -> tuple[str, str]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="画像処理に失敗しました",
         ) from exc
-
-    if len(optimized) > settings.care_log_image_max_size_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"画像サイズが大きすぎます。"
-                f"最大 {settings.care_log_image_max_size_mb:.1f}MB です"
-            ),
-        )
 
     now = get_jst_now()
     image_key = f"{now:%Y/%m}/{uuid.uuid4().hex}.webp"

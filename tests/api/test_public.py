@@ -7,6 +7,7 @@ Public APIエンドポイントのテスト
 from __future__ import annotations
 
 import io
+import os
 from datetime import date
 
 from fastapi.testclient import TestClient
@@ -22,6 +23,18 @@ def _create_image_bytes(fmt: str = "JPEG") -> bytes:
     image = Image.new("RGB", (128, 128), color=(220, 120, 90))
     buf = io.BytesIO()
     image.save(buf, format=fmt)
+    return buf.getvalue()
+
+
+def _create_noisy_image_bytes(
+    width: int = 2200,
+    height: int = 1600,
+    fmt: str = "JPEG",
+    quality: int = 96,
+) -> bytes:
+    image = Image.frombytes("RGB", (width, height), os.urandom(width * height * 3))
+    buf = io.BytesIO()
+    image.save(buf, format=fmt, quality=quality)
     return buf.getvalue()
 
 
@@ -253,6 +266,142 @@ class TestCreateCareLogPublic:
 
         assert response.status_code == 400
         assert "JPEG/PNG/WebP" in response.json()["detail"]
+
+    def test_create_care_log_public_with_heic_returns_400(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """異常系: HEICは専用メッセージで拒否される"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="HEICテストボランティア",
+            contact="090-3333-4444",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "5",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+        }
+        files = {"image": ("sample.heic", b"not-a-heic", "image/heic")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 400
+        assert "HEICは非対応" in response.json()["detail"]
+
+    def test_create_care_log_public_accepts_input_over_2mb_and_saves_under_limit(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """正常系: 2MB超入力でも受信上限内なら圧縮後2MB以下で保存できる"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+        monkeypatch.setattr(settings, "care_log_image_receive_max_size_mb", 10.0)
+        monkeypatch.setattr(
+            care_log_image_service.settings,
+            "care_log_image_receive_max_size_mb",
+            10.0,
+        )
+        monkeypatch.setattr(settings, "care_log_image_max_size_mb", 2.0)
+        monkeypatch.setattr(
+            care_log_image_service.settings,
+            "care_log_image_max_size_mb",
+            2.0,
+        )
+        monkeypatch.setattr(settings, "care_log_image_max_long_edge", 1920)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_max_long_edge", 1920
+        )
+        monkeypatch.setattr(settings, "care_log_image_fallback_long_edge", 1280)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_fallback_long_edge", 1280
+        )
+
+        volunteer = Volunteer(
+            name="圧縮テストボランティア",
+            contact="090-5555-6666",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        original_bytes = _create_noisy_image_bytes()
+        assert len(original_bytes) > 2 * 1024 * 1024
+        assert len(original_bytes) <= settings.care_log_image_receive_max_size_bytes
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "5",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+            "memo": "2MB超入力の圧縮確認",
+        }
+        files = {"image": ("large.jpg", original_bytes, "image/jpeg")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["has_image"] is True
+
+        saved = (
+            test_db.query(CareLog)
+            .filter(CareLog.id == data["id"], CareLog.animal_id == test_animal.id)
+            .first()
+        )
+        assert saved is not None
+        assert saved.care_image_path is not None
+        saved_path = care_log_image_service.get_care_log_image_path(
+            saved.care_image_path
+        )
+        assert saved_path.stat().st_size <= settings.care_log_image_max_size_bytes
 
     def test_create_care_log_public_with_defecation_and_stool_condition_success(
         self, test_client: TestClient, test_animal: Animal, test_db: Session

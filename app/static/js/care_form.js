@@ -41,6 +41,7 @@ const REQUIRED_FIELD_CONFIG = [
   { id: 'volunteer', key: 'recorder' },
 ];
 const CARE_IMAGE_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const CARE_IMAGE_HEIC_MIME_TYPES = ['image/heic', 'image/heif'];
 
 function renderCareTemplate(template, options = {}) {
   if (typeof template !== 'string') return template;
@@ -347,11 +348,11 @@ function getSelectedCareImage() {
   return input.files[0];
 }
 
-function getCareImageMaxSizeBytes() {
+function getCareImageReceiveMaxSizeBytes() {
   const form = document.getElementById('careForm');
-  const maxSizeMb = Number(form?.dataset?.imageMaxSizeMb || '2');
+  const maxSizeMb = Number(form?.dataset?.imageReceiveMaxSizeMb || '10');
   if (Number.isNaN(maxSizeMb) || maxSizeMb <= 0) {
-    return 2 * 1024 * 1024;
+    return 10 * 1024 * 1024;
   }
   return maxSizeMb * 1024 * 1024;
 }
@@ -398,7 +399,18 @@ function validateCareImage(imageFile) {
     return { isValid: true };
   }
 
-  if (!CARE_IMAGE_ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+  const fileType = (imageFile.type || '').toLowerCase();
+  if (CARE_IMAGE_HEIC_MIME_TYPES.includes(fileType)) {
+    return {
+      isValid: false,
+      message: fallbackText(
+        'HEIC is not supported. Please re-submit as JPEG.',
+        'HEICは非対応です。JPEGで再投稿してください。'
+      ),
+    };
+  }
+
+  if (!CARE_IMAGE_ALLOWED_MIME_TYPES.includes(fileType)) {
     return {
       isValid: false,
       message: fallbackText(
@@ -408,7 +420,7 @@ function validateCareImage(imageFile) {
     };
   }
 
-  const maxSizeBytes = getCareImageMaxSizeBytes();
+  const maxSizeBytes = getCareImageReceiveMaxSizeBytes();
   if (imageFile.size > maxSizeBytes) {
     const maxSizeMb = (maxSizeBytes / (1024 * 1024)).toFixed(1);
     return {
@@ -896,15 +908,23 @@ async function handleSubmit(e) {
           body: multipart,
         });
         if (!response.ok) {
-          throw new Error(
-            translateCare(
-              'error_api_failed',
-              fallbackText(
-                'Submission failed. Please try again later.',
-                '送信に失敗しました。時間をおいて再度お試しください。'
-              )
+          const defaultMessage = translateCare(
+            'error_api_failed',
+            fallbackText(
+              'Submission failed. Please try again later.',
+              '送信に失敗しました。時間をおいて再度お試しください。'
             )
           );
+          let serverMessage = defaultMessage;
+          try {
+            const errorPayload = await response.json();
+            if (typeof errorPayload?.detail === 'string' && errorPayload.detail.trim() !== '') {
+              serverMessage = errorPayload.detail;
+            }
+          } catch {
+            // ignore JSON parse errors and keep default message
+          }
+          throw new Error(serverMessage);
         }
 
         showToast(

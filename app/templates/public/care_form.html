@@ -71,7 +71,9 @@ endblock %}
     </div>
 
     <!-- 入力フォーム -->
-    <form id="careForm" class="space-y-6" novalidate data-image-max-size-mb="{{ settings.care_log_image_max_size_mb }}">
+    <form id="careForm" class="space-y-6" novalidate
+        data-image-receive-max-size-mb="{{ settings.care_log_image_receive_max_size_mb }}"
+        data-image-save-max-size-mb="{{ settings.care_log_image_max_size_mb }}">
         <!-- 記録日 -->
         <div class="bg-bg-surface rounded-2xl shadow-card p-6 border border-border" data-field="logDate"
             style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
@@ -368,8 +370,10 @@ endblock %}
                 style="border-color: var(--color-border); border-radius: var(--radius-md); background-color: var(--color-bg-base);">
             <p class="mt-2 text-xs text-text-muted" style="color: var(--color-text-muted);">
                 <span data-i18n="care_image_note_prefix" data-i18n-ns="care">最大</span>
-                {{ settings.care_log_image_max_size_mb }}MB。
-                <span data-i18n="care_image_note_suffix" data-i18n-ns="care">送信後、public画面では画像は表示されません。</span>
+                {{ settings.care_log_image_receive_max_size_mb }}MB
+                <span data-i18n="care_image_note_receive_suffix" data-i18n-ns="care">まで受け付け、保存時に</span>
+                {{ settings.care_log_image_max_size_mb }}MB
+                <span data-i18n="care_image_note_suffix" data-i18n-ns="care">以下に圧縮します。送信後、public画面では画像は表示されません。</span>
             </p>
 
             <div id="careImagePreviewContainer" class="hidden mt-3">
