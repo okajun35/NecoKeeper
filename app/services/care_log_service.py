@@ -76,6 +76,7 @@ def _to_care_log_response(care_log: CareLog) -> CareLogResponse:
         has_image=care_log.has_image,
         care_image_uploaded_at=care_log.care_image_uploaded_at,
         care_image_deleted_at=care_log.care_image_deleted_at,
+        care_image_missing_at=care_log.care_image_missing_at,
     )
 
 
@@ -110,6 +111,7 @@ def create_care_log(
             care_log.care_image_path = care_image_path
             care_log.care_image_uploaded_at = get_jst_now()
             care_log.care_image_deleted_at = None
+            care_log.care_image_missing_at = None
         db.add(care_log)
         db.commit()
         db.refresh(care_log)

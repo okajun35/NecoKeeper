@@ -160,6 +160,9 @@ class CareLogResponse(CareLogBase):
     care_image_deleted_at: datetime | None = Field(
         None, description="世話記録画像削除日時"
     )
+    care_image_missing_at: datetime | None = Field(
+        None, description="世話記録画像欠損検知日時"
+    )
 
 
 class CareLogListResponse(BaseModel):

@@ -8,6 +8,7 @@ Publicの世話記録に添付される画像を非公開ストレージへ保�
 from __future__ import annotations
 
 import io
+import logging
 import uuid
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from app.utils.image import validate_image_file
 from app.utils.timezone import get_jst_now
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 ALLOWED_CARE_IMAGE_MIME_TYPES = {
     "image/jpeg",
@@ -132,6 +134,11 @@ def get_care_log_image_path(image_key: str) -> Path:
     """画像キーから絶対パスを解決し、存在チェックを行う。"""
     path = _safe_resolved_path(image_key)
     if not path.exists() or not path.is_file():
+        logger.warning(
+            "Care log image file not found (image_key=%s, resolved_path=%s)",
+            image_key,
+            path,
+        )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="画像が見つかりません",

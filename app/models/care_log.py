@@ -160,6 +160,11 @@ class CareLog(Base):
         nullable=True,
         comment="世話記録画像論理削除日時（JST）",
     )
+    care_image_missing_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像欠損検知日時（JST）",
+    )
 
     # メタデータ（記録時の情報）
     ip_address: Mapped[str | None] = mapped_column(
@@ -235,4 +240,8 @@ class CareLog(Base):
     @property
     def has_image(self) -> bool:
         """有効な画像を保持しているか判定する。"""
-        return bool(self.care_image_path and self.care_image_deleted_at is None)
+        return bool(
+            self.care_image_path
+            and self.care_image_deleted_at is None
+            and self.care_image_missing_at is None
+        )
