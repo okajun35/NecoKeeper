@@ -588,15 +588,35 @@ def get_all_animals_status_today(
     animal_statuses: list[AnimalStatusSummary] = []
     for animal in animals:
         animal_logs = [log for log in today_logs if log.animal_id == animal.id]
+        latest_log_by_slot: dict[str, CareLog] = {}
+        for log in animal_logs:
+            current = latest_log_by_slot.get(log.time_slot)
+            if current is None or (log.id and current.id and log.id > current.id):
+                latest_log_by_slot[log.time_slot] = log
 
         animal_statuses.append(
             AnimalStatusSummary(
                 animal_id=animal.id,
                 animal_name=animal.name or "名前なし",
                 animal_photo=animal.photo,
-                morning_recorded=any(log.time_slot == "morning" for log in animal_logs),
-                noon_recorded=any(log.time_slot == "noon" for log in animal_logs),
-                evening_recorded=any(log.time_slot == "evening" for log in animal_logs),
+                morning_recorded="morning" in latest_log_by_slot,
+                noon_recorded="noon" in latest_log_by_slot,
+                evening_recorded="evening" in latest_log_by_slot,
+                morning_log_id=(
+                    latest_log_by_slot["morning"].id
+                    if "morning" in latest_log_by_slot
+                    else None
+                ),
+                noon_log_id=(
+                    latest_log_by_slot["noon"].id
+                    if "noon" in latest_log_by_slot
+                    else None
+                ),
+                evening_log_id=(
+                    latest_log_by_slot["evening"].id
+                    if "evening" in latest_log_by_slot
+                    else None
+                ),
             )
         )
 

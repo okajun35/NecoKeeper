@@ -1158,6 +1158,9 @@ class TestGetAllAnimalsStatusToday:
         assert animal1_status["morning_recorded"] is True
         assert animal1_status["noon_recorded"] is False
         assert animal1_status["evening_recorded"] is True
+        assert animal1_status["morning_log_id"] == log1_morning.id
+        assert animal1_status["noon_log_id"] is None
+        assert animal1_status["evening_log_id"] == log1_evening.id
 
         # 猫2の記録状況
         animal2_status = next(
@@ -1167,6 +1170,9 @@ class TestGetAllAnimalsStatusToday:
         assert animal2_status["morning_recorded"] is False
         assert animal2_status["noon_recorded"] is True
         assert animal2_status["evening_recorded"] is False
+        assert animal2_status["morning_log_id"] is None
+        assert animal2_status["noon_log_id"] == log2_noon.id
+        assert animal2_status["evening_log_id"] is None
 
     def test_get_all_animals_status_today_excludes_trial(
         self, test_client: TestClient, test_db: Session, test_animal: Animal
@@ -1250,6 +1256,9 @@ class TestGetAllAnimalsStatusToday:
         assert animal_status["morning_recorded"] is False
         assert animal_status["noon_recorded"] is False
         assert animal_status["evening_recorded"] is False
+        assert animal_status["morning_log_id"] is None
+        assert animal_status["noon_log_id"] is None
+        assert animal_status["evening_log_id"] is None
 
     def test_get_all_animals_status_today_empty(
         self, test_client: TestClient, test_db: Session, test_animal: Animal

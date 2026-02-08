@@ -208,6 +208,9 @@ class AnimalStatusSummary(BaseModel):
     morning_recorded: bool = Field(..., description="朝の記録済みフラグ")
     noon_recorded: bool = Field(..., description="昼の記録済みフラグ")
     evening_recorded: bool = Field(..., description="夕の記録済みフラグ")
+    morning_log_id: int | None = Field(None, description="朝の記録ID（存在する場合）")
+    noon_log_id: int | None = Field(None, description="昼の記録ID（存在する場合）")
+    evening_log_id: int | None = Field(None, description="夕の記録ID（存在する場合）")
 
 
 class AllAnimalsStatusResponse(BaseModel):
