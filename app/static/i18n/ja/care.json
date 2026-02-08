@@ -45,7 +45,7 @@
   "cleaning_not_done": "未",
   "notes": "メモ",
   "notes_placeholder": "気になることがあれば記入してください",
-  "care_image_optional": "写真登録（任意）",
+  "care_image_optional": "写真登録",
   "care_image_pick": "写真を追加",
   "care_image_note_prefix": "最大",
   "care_image_note_receive_suffix": "まで受け付け、保存時に",
