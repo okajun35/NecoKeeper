@@ -358,17 +358,30 @@ endblock %}
                 placeholder="気になることがあれば記入してください"></textarea>
         </div>
 
-        <!-- 気になる写真（任意） -->
+        <!-- 写真登録（任意） -->
         <div class="bg-bg-surface rounded-2xl shadow-card p-6 border border-border" data-field="careImage"
             style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
             <label for="careImage" class="block text-sm font-medium text-text-muted mb-3 font-sans"
                 style="color: var(--color-text-muted);" data-i18n="care_image_optional" data-i18n-ns="care">
-                気になる写真（任意）
+                写真登録（任意）
             </label>
             <input type="file" id="careImage" name="image" accept="image/jpeg,image/png,image/webp" capture="environment"
-                class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-transparent font-sans bg-bg-base"
-                style="border-color: var(--color-border); border-radius: var(--radius-md); background-color: var(--color-bg-base);">
-            <p class="mt-2 text-xs text-text-muted" style="color: var(--color-text-muted);">
+                class="sr-only"
+                aria-describedby="careImageNote careImageSelectedFileName">
+            <label for="careImage"
+                class="inline-flex items-center gap-2 px-4 py-3 border-2 border-border rounded-xl font-medium cursor-pointer hover:border-brand-primary hover:bg-brand-primary/5 transition-colors bg-bg-base"
+                style="border-color: var(--color-border); border-radius: var(--radius-md); background-color: var(--color-bg-base); color: var(--color-text-main);">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="M3 7a2 2 0 0 1 2-2h2l1.2-1.5A2 2 0 0 1 9.8 3h4.4a2 2 0 0 1 1.6.8L17 5h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                    <circle cx="12" cy="12" r="3.5" />
+                </svg>
+                <span data-i18n="care_image_pick" data-i18n-ns="care">写真を追加</span>
+            </label>
+            <p id="careImageSelectedFileName" class="mt-2 text-xs text-text-muted hidden"
+                style="color: var(--color-text-muted);"></p>
+            <p id="careImageNote" class="mt-2 text-xs text-text-muted" style="color: var(--color-text-muted);">
                 <span data-i18n="care_image_note_prefix" data-i18n-ns="care">最大</span>
                 {{ settings.care_log_image_receive_max_size_mb }}MB
                 <span data-i18n="care_image_note_receive_suffix" data-i18n-ns="care">まで受け付け、保存時に</span>

@@ -361,6 +361,7 @@ function clearCareImageSelection() {
   const input = getCareImageInput();
   const previewContainer = document.getElementById('careImagePreviewContainer');
   const preview = document.getElementById('careImagePreview');
+  const selectedFileName = document.getElementById('careImageSelectedFileName');
 
   if (input) {
     input.value = '';
@@ -371,12 +372,17 @@ function clearCareImageSelection() {
   if (previewContainer) {
     previewContainer.classList.add('hidden');
   }
+  if (selectedFileName) {
+    selectedFileName.textContent = '';
+    selectedFileName.classList.add('hidden');
+  }
 }
 
 function updateCareImagePreview() {
   const image = getSelectedCareImage();
   const previewContainer = document.getElementById('careImagePreviewContainer');
   const preview = document.getElementById('careImagePreview');
+  const selectedFileName = document.getElementById('careImageSelectedFileName');
 
   if (!previewContainer || !preview) {
     return;
@@ -385,7 +391,16 @@ function updateCareImagePreview() {
   if (!image) {
     preview.src = '';
     previewContainer.classList.add('hidden');
+    if (selectedFileName) {
+      selectedFileName.textContent = '';
+      selectedFileName.classList.add('hidden');
+    }
     return;
+  }
+
+  if (selectedFileName) {
+    selectedFileName.textContent = image.name;
+    selectedFileName.classList.remove('hidden');
   }
 
   const objectUrl = URL.createObjectURL(image);
