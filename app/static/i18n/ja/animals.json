@@ -254,6 +254,7 @@
     "change_status": "ステータス変更",
     "generate_qr": "QRカード生成",
     "generate_form": "紙記録フォーム生成",
+    "register_care_log": "世話記録を登録",
     "change_photo": "画像を変更",
     "update_status": "ステータス更新",
     "update_location": "所在地更新",
