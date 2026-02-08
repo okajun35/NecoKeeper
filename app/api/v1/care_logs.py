@@ -6,15 +6,19 @@
 
 from __future__ import annotations
 
+import json
+import logging
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
 from app.auth.permissions import require_permission
 from app.database import get_db
+from app.models.audit_log import AuditLog
 from app.models.care_log import CareLog
 from app.models.user import User
 from app.schemas.care_log import (
@@ -24,8 +28,14 @@ from app.schemas.care_log import (
     CareLogUpdate,
 )
 from app.services import care_log_service
+from app.services.care_log_image_service import (
+    get_care_log_image_media_type,
+    get_care_log_image_path,
+)
+from app.utils.timezone import get_jst_now
 
 router = APIRouter(prefix="/care-logs", tags=["世話記録"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("", response_model=CareLogListResponse)
@@ -254,3 +264,102 @@ def update_care_log(
         care_log_data=care_log_data,
         user_id=current_user.id,
     )
+
+
+@router.get("/{care_log_id}/image", response_class=FileResponse)
+def get_care_log_image(
+    care_log_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> FileResponse:
+    """世話記録画像を認証付きで返却する。"""
+    care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+    if not care_log:
+        logger.warning(
+            "Care log image request failed: care log not found (care_log_id=%s)",
+            care_log_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {care_log_id} の画像が見つかりません",
+        )
+
+    if care_log.care_image_deleted_at is not None:
+        logger.warning(
+            "Care log image request failed: image already deleted "
+            "(care_log_id=%s, deleted_at=%s)",
+            care_log_id,
+            care_log.care_image_deleted_at,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {care_log_id} の画像が見つかりません",
+        )
+
+    if care_log.care_image_missing_at is not None:
+        logger.warning(
+            "Care log image request failed: image already marked missing "
+            "(care_log_id=%s, missing_at=%s)",
+            care_log_id,
+            care_log.care_image_missing_at,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {care_log_id} の画像が見つかりません",
+        )
+
+    if not care_log.care_image_path:
+        logger.warning(
+            "Care log image request failed: image path is empty (care_log_id=%s)",
+            care_log_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {care_log_id} の画像が見つかりません",
+        )
+
+    try:
+        image_path = get_care_log_image_path(care_log.care_image_path)
+    except HTTPException as exc:
+        if exc.status_code == status.HTTP_404_NOT_FOUND:
+            detected_at = get_jst_now()
+            logger.error(
+                "Care log image file missing. Marking as missing "
+                "(care_log_id=%s, image_key=%s)",
+                care_log_id,
+                care_log.care_image_path,
+            )
+            if care_log.care_image_missing_at is None:
+                care_log.care_image_missing_at = detected_at
+                db.add(
+                    AuditLog(
+                        user_id=current_user.id,
+                        action="care_log_image_missing_detected",
+                        target_type="care_logs",
+                        target_id=care_log_id,
+                        details=json.dumps(
+                            {
+                                "image_key": care_log.care_image_path,
+                                "reason": "file_not_found",
+                                "detected_at": detected_at.isoformat(),
+                            },
+                            ensure_ascii=False,
+                        ),
+                    )
+                )
+                try:
+                    db.commit()
+                except Exception:
+                    db.rollback()
+                    logger.exception(
+                        "Failed to persist care image missing event "
+                        "(care_log_id=%s, image_key=%s)",
+                        care_log_id,
+                        care_log.care_image_path,
+                    )
+        raise
+
+    media_type = get_care_log_image_media_type(care_log.care_image_path)
+    filename = f"care-log-{care_log_id}{image_path.suffix}"
+
+    return FileResponse(path=image_path, media_type=media_type, filename=filename)

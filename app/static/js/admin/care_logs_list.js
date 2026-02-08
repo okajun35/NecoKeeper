@@ -363,12 +363,13 @@ function createRecordLink(item, timeSlot) {
 
   if (record.exists) {
     // 記録あり: ○ → 詳細/編集画面
-    link.textContent = '○';
+    link.textContent = record.has_image ? '○📷' : '○';
     link.href = `${adminBasePath}/care-logs/${record.log_id}`;
     link.classList.add('text-green-600');
     const appetiteLabel = fallbackText('Appetite', '食欲');
     const energyLabel = fallbackText('Energy', '元気');
-    link.title = `${appetiteLabel}: ${formatAppetiteLabel(record.appetite)}, ${energyLabel}: ${record.energy}`;
+    const photoSuffix = record.has_image ? fallbackText(', Photo attached', '、写真あり') : '';
+    link.title = `${appetiteLabel}: ${formatAppetiteLabel(record.appetite)}, ${energyLabel}: ${record.energy}${photoSuffix}`;
   } else {
     // 記録なし: × → 新規登録画面
     link.textContent = '×';

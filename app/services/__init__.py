@@ -7,6 +7,7 @@
 from app.services import (
     adoption_service,
     animal_service,
+    care_log_image_service,
     care_log_service,
     csv_service,
     excel_service,
@@ -24,6 +25,7 @@ from app.services import (
 __all__ = [
     "adoption_service",
     "animal_service",
+    "care_log_image_service",
     "care_log_service",
     "csv_service",
     "excel_service",

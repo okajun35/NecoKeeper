@@ -2,10 +2,21 @@
 世話記録APIの統合テスト
 """
 
+import io
 from datetime import date
 
+from PIL import Image
+
 from app.models.animal import Animal
+from app.models.audit_log import AuditLog
 from app.models.care_log import CareLog
+
+
+def _create_webp_bytes() -> bytes:
+    image = Image.new("RGB", (64, 64), color=(80, 140, 220))
+    buf = io.BytesIO()
+    image.save(buf, format="WEBP")
+    return buf.getvalue()
 
 
 class TestCareLogCRUD:
@@ -244,3 +255,158 @@ class TestLatestCareLog:
         assert data["recorder_name"] == "新しい記録者"
         assert data["time_slot"] == "noon"
         assert data["appetite"] == 1.0
+
+
+class TestCareLogImageAPI:
+    """世話記録画像取得APIのテスト"""
+
+    def test_get_care_log_image_success_with_auth(
+        self, test_client, test_db, auth_token, tmp_path, monkeypatch
+    ):
+        from app.config import get_settings
+        from app.services import care_log_image_service
+        from app.utils.timezone import get_jst_now
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        animal = test_db.query(Animal).first()
+        assert animal is not None
+
+        image_key = "2026/02/test.webp"
+        image_path = tmp_path / "care_log_images" / image_key
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        image_path.write_bytes(_create_webp_bytes())
+
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=animal.id,
+            recorder_name="画像付き記録者",
+            time_slot="morning",
+            appetite=0.75,
+            energy=4,
+            urination=True,
+            cleaning=True,
+            care_image_path=image_key,
+            care_image_uploaded_at=get_jst_now(),
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        response = test_client.get(
+            f"/api/v1/care-logs/{care_log.id}/image",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("image/webp")
+        assert len(response.content) > 0
+
+    def test_get_care_log_image_unauthorized(
+        self, test_client, test_db, tmp_path, monkeypatch
+    ):
+        from app.config import get_settings
+        from app.services import care_log_image_service
+        from app.utils.timezone import get_jst_now
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        animal = test_db.query(Animal).first()
+        assert animal is not None
+
+        image_key = "2026/02/test.webp"
+        image_path = tmp_path / "care_log_images" / image_key
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        image_path.write_bytes(_create_webp_bytes())
+
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=animal.id,
+            recorder_name="画像付き記録者",
+            time_slot="noon",
+            appetite=1.0,
+            energy=5,
+            urination=True,
+            cleaning=True,
+            care_image_path=image_key,
+            care_image_uploaded_at=get_jst_now(),
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        response = test_client.get(f"/api/v1/care-logs/{care_log.id}/image")
+
+        assert response.status_code == 401
+
+    def test_get_care_log_image_marks_deleted_when_file_missing(
+        self, test_client, test_db, auth_token, tmp_path, monkeypatch, caplog
+    ):
+        from app.config import get_settings
+        from app.services import care_log_image_service
+        from app.utils.timezone import get_jst_now
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        animal = test_db.query(Animal).first()
+        assert animal is not None
+
+        care_log = CareLog(
+            log_date=date.today(),
+            animal_id=animal.id,
+            recorder_name="画像欠損記録者",
+            time_slot="evening",
+            appetite=0.5,
+            energy=2,
+            urination=True,
+            cleaning=True,
+            care_image_path="2026/02/missing.webp",
+            care_image_uploaded_at=get_jst_now(),
+        )
+        test_db.add(care_log)
+        test_db.commit()
+        test_db.refresh(care_log)
+
+        with caplog.at_level("WARNING"):
+            response = test_client.get(
+                f"/api/v1/care-logs/{care_log.id}/image",
+                headers={"Authorization": f"Bearer {auth_token}"},
+            )
+
+        assert response.status_code == 404
+        assert "Marking as missing" in caplog.text
+
+        test_db.refresh(care_log)
+        assert care_log.care_image_deleted_at is None
+        assert care_log.care_image_missing_at is not None
+
+        audit_log = (
+            test_db.query(AuditLog)
+            .filter(AuditLog.action == "care_log_image_missing_detected")
+            .filter(AuditLog.target_type == "care_logs")
+            .filter(AuditLog.target_id == care_log.id)
+            .first()
+        )
+        assert audit_log is not None
+
+        detail_response = test_client.get(
+            f"/api/v1/care-logs/{care_log.id}",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        assert detail_response.status_code == 200
+        assert detail_response.json()["has_image"] is False

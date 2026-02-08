@@ -100,6 +100,40 @@ class Settings(BaseSettings):
         gt=0,
         le=100.0,
     )
+    care_log_image_dir: str = Field(
+        default="./data/private/care_log_images",
+        description="世話記録画像（非公開）保存ディレクトリ",
+    )
+    care_log_image_max_size_mb: float = Field(
+        default=2.0,
+        description="世話記録画像の最大ファイルサイズ（MB）",
+        gt=0,
+        le=20.0,
+    )
+    care_log_image_receive_max_size_mb: float = Field(
+        default=10.0,
+        description="世話記録画像の受信時最大ファイルサイズ（MB）",
+        gt=0,
+        le=50.0,
+    )
+    care_log_image_max_long_edge: int = Field(
+        default=1920,
+        description="世話記録画像の長辺最大ピクセル",
+        ge=640,
+        le=4096,
+    )
+    care_log_image_fallback_long_edge: int = Field(
+        default=1280,
+        description="世話記録画像圧縮失敗時の再試行長辺ピクセル",
+        ge=640,
+        le=4096,
+    )
+    care_log_image_quality: int = Field(
+        default=82,
+        description="世話記録画像の圧縮品質（WebP/JPEG）",
+        ge=50,
+        le=95,
+    )
 
     # ログ設定
     log_level: Literal[
@@ -288,6 +322,18 @@ class Settings(BaseSettings):
         """後方互換性のためのエイリアス"""
 
         return self.max_image_size_bytes
+
+    @property
+    def care_log_image_max_size_bytes(self) -> int:
+        """世話記録画像アップロード制限（バイト）"""
+
+        return int(self.care_log_image_max_size_mb * 1024 * 1024)
+
+    @property
+    def care_log_image_receive_max_size_bytes(self) -> int:
+        """世話記録画像受信時の制限（バイト）"""
+
+        return int(self.care_log_image_receive_max_size_mb * 1024 * 1024)
 
     @field_validator("cors_origins", mode="before")
     @classmethod

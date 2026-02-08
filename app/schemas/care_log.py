@@ -153,6 +153,16 @@ class CareLogResponse(CareLogBase):
     created_at: datetime
     last_updated_at: datetime
     last_updated_by: int | None
+    has_image: bool = Field(False, description="有効な添付画像があるか")
+    care_image_uploaded_at: datetime | None = Field(
+        None, description="世話記録画像アップロード日時"
+    )
+    care_image_deleted_at: datetime | None = Field(
+        None, description="世話記録画像削除日時"
+    )
+    care_image_missing_at: datetime | None = Field(
+        None, description="世話記録画像欠損検知日時"
+    )
 
 
 class CareLogListResponse(BaseModel):
@@ -198,6 +208,9 @@ class AnimalStatusSummary(BaseModel):
     morning_recorded: bool = Field(..., description="朝の記録済みフラグ")
     noon_recorded: bool = Field(..., description="昼の記録済みフラグ")
     evening_recorded: bool = Field(..., description="夕の記録済みフラグ")
+    morning_log_id: int | None = Field(None, description="朝の記録ID（存在する場合）")
+    noon_log_id: int | None = Field(None, description="昼の記録ID（存在する場合）")
+    evening_log_id: int | None = Field(None, description="夕の記録ID（存在する場合）")
 
 
 class AllAnimalsStatusResponse(BaseModel):
@@ -216,6 +229,7 @@ class TimeSlotRecord(BaseModel):
     energy: int | None = Field(None, ge=1, le=5, description="元気")
     urination: bool | None = Field(None, description="排尿有無")
     cleaning: bool | None = Field(None, description="清掃済み")
+    has_image: bool = Field(False, description="画像の有無")
 
 
 class DailyViewRecord(BaseModel):

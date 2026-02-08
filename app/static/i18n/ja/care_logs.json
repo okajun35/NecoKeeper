@@ -24,6 +24,10 @@
     "log_date": "記録日",
     "created_at": "登録日時"
   },
+  "care_image": {
+    "label": "気になる写真",
+    "admin_only_notice": "管理画面のみで閲覧できます（public側には再表示されません）。"
+  },
   "time_slots": {
     "morning": "朝",
     "noon": "昼",

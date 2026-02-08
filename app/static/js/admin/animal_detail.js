@@ -640,6 +640,52 @@ function translateDynamicElement(element) {
   }
 }
 
+function createCareRegisterHeader() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mb-4 flex justify-end';
+
+  const link = document.createElement('a');
+  link.href = `${adminBasePath}/care-logs/new?animal_id=${animalId}`;
+  link.className =
+    'px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors text-sm font-medium';
+  link.style.backgroundColor = 'var(--color-brand-primary)';
+  link.setAttribute('data-i18n', 'actions.register_care_log');
+  link.setAttribute('data-i18n-ns', 'animals');
+  link.textContent = translate('actions.register_care_log', {
+    ns: 'animals',
+    defaultValue: '世話記録を登録',
+  });
+
+  wrapper.appendChild(link);
+  translateDynamicElement(wrapper);
+  return wrapper;
+}
+
+function makeRecordCardNavigable(card, url) {
+  if (!card || !url) return;
+
+  card.classList.add('cursor-pointer', 'hover:border-brand-primary', 'transition-colors');
+  card.setAttribute('role', 'link');
+  card.setAttribute('tabindex', '0');
+
+  const navigate = () => {
+    window.location.href = url;
+  };
+
+  card.addEventListener('click', event => {
+    const interactiveTarget = event.target.closest('a, button, input, select, textarea');
+    if (interactiveTarget) return;
+    navigate();
+  });
+
+  card.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      navigate();
+    }
+  });
+}
+
 // 世話記録の読み込み
 async function loadCareRecords() {
   const content = requireElementById('content-care', 'animal_detail.care');
@@ -657,9 +703,13 @@ async function loadCareRecords() {
 
     const data = await response.json();
     content.innerHTML = ''; // コンテンツをクリア
+    content.appendChild(createCareRegisterHeader());
 
     if (data.items.length === 0) {
-      content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('care_log.empty', { ns: 'animals' })}</div>`;
+      const empty = document.createElement('div');
+      empty.className = 'text-center py-8 text-gray-500';
+      empty.textContent = translate('care_log.empty', { ns: 'animals' });
+      content.appendChild(empty);
       return;
     }
 
@@ -715,6 +765,7 @@ async function loadCareRecords() {
         memoEl.classList.remove('hidden');
       }
 
+      makeRecordCardNavigable(card, `${adminBasePath}/care-logs/${record.id}`);
       translateDynamicElement(card);
       listContainer.appendChild(card);
     });
@@ -799,6 +850,7 @@ async function loadMedicalRecords() {
         }
       }
 
+      makeRecordCardNavigable(card, `${adminBasePath}/medical-records/${record.id}`);
       translateDynamicElement(card);
       listContainer.appendChild(card);
     });
