@@ -6,14 +6,23 @@ Public APIエンドポイントのテスト
 
 from __future__ import annotations
 
+import io
 from datetime import date
 
 from fastapi.testclient import TestClient
+from PIL import Image
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
 from app.models.care_log import CareLog
 from app.models.volunteer import Volunteer
+
+
+def _create_image_bytes(fmt: str = "JPEG") -> bytes:
+    image = Image.new("RGB", (128, 128), color=(220, 120, 90))
+    buf = io.BytesIO()
+    image.save(buf, format=fmt)
+    return buf.getvalue()
 
 
 class TestGetAnimalInfo:
@@ -131,6 +140,67 @@ class TestCreateCareLogPublic:
         assert data["memo"] == "元気です"
         assert data["ip_address"] is not None  # IPアドレスが記録される
         assert data["user_agent"] is not None  # User-Agentが記録される
+
+    def test_create_care_log_public_with_image_multipart_success(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """正常系: multipart/form-dataで画像付き世話記録を登録できる"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="画像テストボランティア",
+            contact="090-0000-0000",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "5",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+            "memo": "写真ありメモ",
+        }
+        files = {"image": ("concern.jpg", _create_image_bytes(), "image/jpeg")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["has_image"] is True
+        assert data["care_image_uploaded_at"] is not None
+
+        saved = (
+            test_db.query(CareLog)
+            .filter(CareLog.id == data["id"], CareLog.animal_id == test_animal.id)
+            .first()
+        )
+        assert saved is not None
+        assert saved.care_image_path is not None
+        assert saved.care_image_deleted_at is None
 
     def test_create_care_log_public_with_defecation_and_stool_condition_success(
         self, test_client: TestClient, test_animal: Animal, test_db: Session

@@ -22,6 +22,7 @@ from app.schemas.care_log import (
     CareLogUpdate,
 )
 from app.utils.i18n import tj
+from app.utils.timezone import get_jst_now
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,44 @@ def _validate_defecation_fields(defecation: bool, stool_condition: int | None) -
             )
 
 
-def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
+def _to_care_log_response(care_log: CareLog) -> CareLogResponse:
+    animal_name = None
+    if care_log.animal:
+        animal_name = care_log.animal.name or f"ID:{care_log.animal_id}"
+
+    return CareLogResponse(
+        id=care_log.id,
+        animal_id=care_log.animal_id,
+        animal_name=animal_name,
+        recorder_id=care_log.recorder_id,
+        recorder_name=care_log.recorder_name,
+        log_date=care_log.log_date,
+        time_slot=care_log.time_slot,
+        appetite=care_log.appetite,
+        energy=care_log.energy,
+        urination=care_log.urination,
+        defecation=care_log.defecation,
+        stool_condition=care_log.stool_condition,
+        cleaning=care_log.cleaning,
+        memo=care_log.memo,
+        from_paper=care_log.from_paper,
+        ip_address=care_log.ip_address,
+        user_agent=care_log.user_agent,
+        device_tag=care_log.device_tag,
+        created_at=care_log.created_at,
+        last_updated_at=care_log.last_updated_at,
+        last_updated_by=care_log.last_updated_by,
+        has_image=care_log.has_image,
+        care_image_uploaded_at=care_log.care_image_uploaded_at,
+        care_image_deleted_at=care_log.care_image_deleted_at,
+    )
+
+
+def create_care_log(
+    db: Session,
+    care_log_data: CareLogCreate,
+    care_image_path: str | None = None,
+) -> CareLog:
     """
     世話記録を登録
 
@@ -68,6 +106,10 @@ def create_care_log(db: Session, care_log_data: CareLogCreate) -> CareLog:
         )
 
         care_log = CareLog(**care_log_data.model_dump())
+        if care_image_path:
+            care_log.care_image_path = care_image_path
+            care_log.care_image_uploaded_at = get_jst_now()
+            care_log.care_image_deleted_at = None
         db.add(care_log)
         db.commit()
         db.refresh(care_log)
@@ -113,35 +155,7 @@ def get_care_log(db: Session, care_log_id: int) -> CareLogResponse:
                 detail=f"ID {care_log_id} の世話記録が見つかりません",
             )
 
-        # 猫名を取得
-        animal_name = None
-        if care_log.animal:
-            animal_name = care_log.animal.name or f"ID:{care_log.animal_id}"
-
-        # CareLogResponseを作成
-        return CareLogResponse(
-            id=care_log.id,
-            animal_id=care_log.animal_id,
-            animal_name=animal_name,
-            recorder_id=care_log.recorder_id,
-            recorder_name=care_log.recorder_name,
-            log_date=care_log.log_date,
-            time_slot=care_log.time_slot,
-            appetite=care_log.appetite,
-            energy=care_log.energy,
-            urination=care_log.urination,
-            defecation=care_log.defecation,
-            stool_condition=care_log.stool_condition,
-            cleaning=care_log.cleaning,
-            memo=care_log.memo,
-            from_paper=care_log.from_paper,
-            ip_address=care_log.ip_address,
-            user_agent=care_log.user_agent,
-            device_tag=care_log.device_tag,
-            created_at=care_log.created_at,
-            last_updated_at=care_log.last_updated_at,
-            last_updated_by=care_log.last_updated_by,
-        )
+        return _to_care_log_response(care_log)
 
     except HTTPException:
         raise
@@ -249,34 +263,7 @@ def update_care_log(
 
         logger.info(f"世話記録を更新しました: ID={care_log_id}")
 
-        # 猫名を取得してCareLogResponseを返す
-        animal_name = None
-        if care_log.animal:
-            animal_name = care_log.animal.name or f"ID:{care_log.animal_id}"
-
-        return CareLogResponse(
-            id=care_log.id,
-            animal_id=care_log.animal_id,
-            animal_name=animal_name,
-            recorder_id=care_log.recorder_id,
-            recorder_name=care_log.recorder_name,
-            log_date=care_log.log_date,
-            time_slot=care_log.time_slot,
-            appetite=care_log.appetite,
-            energy=care_log.energy,
-            urination=care_log.urination,
-            defecation=care_log.defecation,
-            stool_condition=care_log.stool_condition,
-            cleaning=care_log.cleaning,
-            memo=care_log.memo,
-            from_paper=care_log.from_paper,
-            ip_address=care_log.ip_address,
-            user_agent=care_log.user_agent,
-            device_tag=care_log.device_tag,
-            created_at=care_log.created_at,
-            last_updated_at=care_log.last_updated_at,
-            last_updated_by=care_log.last_updated_by,
-        )
+        return _to_care_log_response(care_log)
 
     except HTTPException:
         raise
@@ -350,39 +337,10 @@ def list_care_logs(
     # 総ページ数を計算
     total_pages = (total + page_size - 1) // page_size
 
-    # レスポンスアイテムを作成（animal_nameを追加）
+    # レスポンスアイテムを作成
     items: list[CareLogResponse] = []
     for log in care_logs:
-        # 猫名を取得
-        animal_name = None
-        if log.animal:
-            animal_name = log.animal.name or f"ID:{log.animal_id}"
-
-        # CareLogResponseを作成
-        log_response = CareLogResponse(
-            id=log.id,
-            animal_id=log.animal_id,
-            animal_name=animal_name,
-            recorder_id=log.recorder_id,
-            recorder_name=log.recorder_name,
-            log_date=log.log_date,
-            time_slot=log.time_slot,
-            appetite=log.appetite,
-            energy=log.energy,
-            urination=log.urination,
-            defecation=log.defecation,
-            stool_condition=log.stool_condition,
-            cleaning=log.cleaning,
-            memo=log.memo,
-            from_paper=log.from_paper,
-            ip_address=log.ip_address,
-            user_agent=log.user_agent,
-            device_tag=log.device_tag,
-            created_at=log.created_at,
-            last_updated_at=log.last_updated_at,
-            last_updated_by=log.last_updated_by,
-        )
-        items.append(log_response)
+        items.append(_to_care_log_response(log))
 
     return CareLogListResponse(
         items=items,
@@ -615,6 +573,7 @@ def get_daily_view(
                 "energy": morning_log.energy if morning_log else None,
                 "urination": morning_log.urination if morning_log else None,
                 "cleaning": morning_log.cleaning if morning_log else None,
+                "has_image": morning_log.has_image if morning_log else False,
             }
 
             noon_record = {
@@ -624,6 +583,7 @@ def get_daily_view(
                 "energy": noon_log.energy if noon_log else None,
                 "urination": noon_log.urination if noon_log else None,
                 "cleaning": noon_log.cleaning if noon_log else None,
+                "has_image": noon_log.has_image if noon_log else False,
             }
 
             evening_record = {
@@ -633,6 +593,7 @@ def get_daily_view(
                 "energy": evening_log.energy if evening_log else None,
                 "urination": evening_log.urination if evening_log else None,
                 "cleaning": evening_log.cleaning if evening_log else None,
+                "has_image": evening_log.has_image if evening_log else False,
             }
 
             # 辞書形式で作成

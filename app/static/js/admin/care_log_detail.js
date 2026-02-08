@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         '.js-stool-empty',
         '.js-memo-container',
         '.js-memo',
+        '.js-care-image-section',
+        '.js-care-image-open',
+        '.js-care-image-thumb',
         '.js-created-at',
         '.js-updated-at',
         '.js-edit-btn',
@@ -160,6 +163,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         careLog.memo;
     }
 
+    let imageUrl = null;
+    if (careLog.has_image) {
+      imageUrl = `/api/v1/care-logs/${careLog.id}/image`;
+      const imageSection = requireSelector(
+        content,
+        '.js-care-image-section',
+        'care_log_detail.tmpl-care-log-detail'
+      );
+      const imageThumb = requireSelector(
+        content,
+        '.js-care-image-thumb',
+        'care_log_detail.tmpl-care-log-detail'
+      );
+      imageThumb.src = imageUrl;
+      imageThumb.onerror = () => {
+        imageSection.classList.add('hidden');
+      };
+      imageSection.classList.remove('hidden');
+    }
+
     // 日時
     const lang = i18next.language === 'en' ? 'en-US' : 'ja-JP';
     requireSelector(content, '.js-created-at', 'care_log_detail.tmpl-care-log-detail').textContent =
@@ -178,6 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // innerHTML差し替え後にopenボタンへ紐付け
     setupStoolConditionHelpModal();
+    setupCareLogImageModal(imageUrl);
   } catch (error) {
     console.error('Error loading care log:', error);
     const errorMessage =
@@ -190,6 +214,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
   }
 });
+
+function setupCareLogImageModal(imageUrl) {
+  const modal = document.getElementById('careLogImageModal');
+  const modalImage = document.getElementById('careLogImageModalImage');
+  const closeBtn = document.getElementById('careLogImageClose');
+  const backdrop = document.getElementById('careLogImageBackdrop');
+  const openBtn = document.querySelector('.js-care-image-open');
+
+  if (!modal || !modalImage || !closeBtn || !backdrop || !openBtn || !imageUrl) return;
+
+  const open = () => {
+    modalImage.src = imageUrl;
+    modal.classList.remove('hidden');
+  };
+  const close = () => {
+    modal.classList.add('hidden');
+  };
+
+  const openClone = openBtn.cloneNode(true);
+  openBtn.parentNode.replaceChild(openClone, openBtn);
+  openClone.addEventListener('click', open);
+
+  if (closeBtn.__careImageCloseHandler) {
+    closeBtn.removeEventListener('click', closeBtn.__careImageCloseHandler);
+  }
+  closeBtn.__careImageCloseHandler = close;
+  closeBtn.addEventListener('click', closeBtn.__careImageCloseHandler);
+
+  if (backdrop.__careImageCloseHandler) {
+    backdrop.removeEventListener('click', backdrop.__careImageCloseHandler);
+  }
+  backdrop.__careImageCloseHandler = close;
+  backdrop.addEventListener('click', backdrop.__careImageCloseHandler);
+
+  if (document.__careImageEscHandler) {
+    document.removeEventListener('keydown', document.__careImageEscHandler);
+  }
+  document.__careImageEscHandler = e => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      close();
+    }
+  };
+  document.addEventListener('keydown', document.__careImageEscHandler);
+}
 
 function setupStoolConditionHelpModal() {
   const modal = document.getElementById('stoolConditionHelpModal');

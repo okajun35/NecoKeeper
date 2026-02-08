@@ -145,6 +145,21 @@ class CareLog(Base):
     )
 
     memo: Mapped[str | None] = mapped_column(Text, nullable=True, comment="メモ")
+    care_image_path: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="世話記録画像の保存キー（非公開ストレージ）",
+    )
+    care_image_uploaded_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像アップロード日時（JST）",
+    )
+    care_image_deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像論理削除日時（JST）",
+    )
 
     # メタデータ（記録時の情報）
     ip_address: Mapped[str | None] = mapped_column(
@@ -216,3 +231,8 @@ class CareLog(Base):
             f"{self.created_at.strftime('%Y-%m-%d %H:%M')} - "
             f"{self.recorder_name}（{self.time_slot}）"
         )
+
+    @property
+    def has_image(self) -> bool:
+        """有効な画像を保持しているか判定する。"""
+        return bool(self.care_image_path and self.care_image_deleted_at is None)

@@ -9,10 +9,12 @@ Requirements: Requirement 3, Requirement 13, Requirement 18
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, cast
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
+from starlette.datastructures import FormData
 
 from app.database import get_db
 from app.models.animal import Animal
@@ -27,10 +29,111 @@ from app.schemas.care_log import (
     CareLogUpdate,
 )
 from app.schemas.volunteer import VolunteerResponse
-from app.services import care_log_service, volunteer_service
+from app.services import care_log_image_service, care_log_service, volunteer_service
 from app.utils.enums import AnimalStatus
 
 router = APIRouter(prefix="/public", tags=["Public API（認証不要）"])
+
+
+def _required_form_value(form: FormData, key: str) -> str:
+    value = form.get(key)
+    if value is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"{key} は必須です",
+        )
+    text = str(value).strip()
+    if text == "":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"{key} は必須です",
+        )
+    return text
+
+
+def _optional_form_value(form: FormData, key: str) -> str | None:
+    value = form.get(key)
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text if text != "" else None
+
+
+def _parse_bool_form(value: str, key: str) -> bool:
+    normalized = value.strip().lower()
+    if normalized in {"true", "1", "yes", "on"}:
+        return True
+    if normalized in {"false", "0", "no", "off"}:
+        return False
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=f"{key} は true/false で指定してください",
+    )
+
+
+def _parse_care_log_multipart_form(
+    form: FormData,
+) -> tuple[CareLogCreate, UploadFile | None]:
+    try:
+        payload: dict[str, str | int | float | bool | None] = {
+            "animal_id": int(_required_form_value(form, "animal_id")),
+            "recorder_name": _required_form_value(form, "recorder_name"),
+            "log_date": _required_form_value(form, "log_date"),
+            "time_slot": _required_form_value(form, "time_slot"),
+            "appetite": float(_required_form_value(form, "appetite")),
+            "energy": int(_required_form_value(form, "energy")),
+            "urination": _parse_bool_form(
+                _required_form_value(form, "urination"), "urination"
+            ),
+            "defecation": _parse_bool_form(
+                _required_form_value(form, "defecation"), "defecation"
+            ),
+            "cleaning": _parse_bool_form(
+                _required_form_value(form, "cleaning"), "cleaning"
+            ),
+            "memo": _optional_form_value(form, "memo"),
+            "from_paper": _parse_bool_form(
+                _optional_form_value(form, "from_paper") or "false", "from_paper"
+            ),
+        }
+
+        recorder_id = _optional_form_value(form, "recorder_id")
+        if recorder_id is not None:
+            payload["recorder_id"] = int(recorder_id)
+
+        stool_condition = _optional_form_value(form, "stool_condition")
+        if stool_condition is not None:
+            payload["stool_condition"] = int(stool_condition)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="フォームの数値項目が不正です",
+        ) from exc
+
+    notes = _optional_form_value(form, "notes")
+    if notes is not None and payload.get("memo") is None:
+        payload["memo"] = notes
+
+    try:
+        care_log_data = CareLogCreate.model_validate(payload)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=exc.errors(include_context=False, include_url=False),
+        ) from exc
+
+    image_obj = form.get("image")
+    image_file = cast(
+        UploadFile | None,
+        image_obj
+        if isinstance(image_obj, UploadFile)
+        or (hasattr(image_obj, "filename") and hasattr(image_obj, "file"))
+        else None,
+    )
+    if image_file and not image_file.filename:
+        image_file = None
+
+    return care_log_data, image_file
 
 
 @router.put("/care-logs/animal/{animal_id}/{log_id}", response_model=CareLogResponse)
@@ -155,8 +258,7 @@ def get_active_volunteers(
 @router.post(
     "/care-logs", response_model=CareLogResponse, status_code=status.HTTP_201_CREATED
 )
-def create_care_log_public(
-    care_log_data: CareLogCreate,
+async def create_care_log_public(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
 ) -> CareLog:
@@ -190,6 +292,27 @@ def create_care_log_public(
             "memo": "元気です"
         }
     """
+    content_type = request.headers.get("content-type", "")
+    image_file: UploadFile | None = None
+
+    if content_type.startswith("multipart/form-data"):
+        form = await request.form()
+        care_log_data, image_file = _parse_care_log_multipart_form(form)
+    else:
+        try:
+            payload = await request.json()
+            care_log_data = CareLogCreate.model_validate(payload)
+        except ValidationError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=exc.errors(include_context=False, include_url=False),
+            ) from exc
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="不正なリクエスト形式です",
+            ) from exc
+
     # 猫の存在確認
     animal = db.query(Animal).filter(Animal.id == care_log_data.animal_id).first()
     if not animal:
@@ -202,11 +325,20 @@ def create_care_log_public(
     care_log_data.ip_address = request.client.host if request.client else None
     care_log_data.user_agent = request.headers.get("user-agent")
 
+    care_image_path: str | None = None
+    if image_file:
+        care_image_path, _ = care_log_image_service.save_care_log_image(image_file)
+
     # 世話記録を作成
-    care_log = care_log_service.create_care_log(
-        db=db,
-        care_log_data=care_log_data,
-    )
+    try:
+        care_log = care_log_service.create_care_log(
+            db=db,
+            care_log_data=care_log_data,
+            care_image_path=care_image_path,
+        )
+    except Exception:
+        care_log_image_service.remove_care_log_image(care_image_path)
+        raise
 
     return care_log
 

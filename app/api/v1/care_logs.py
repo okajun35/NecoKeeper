@@ -9,7 +9,8 @@ from __future__ import annotations
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
@@ -24,6 +25,10 @@ from app.schemas.care_log import (
     CareLogUpdate,
 )
 from app.services import care_log_service
+from app.services.care_log_image_service import (
+    get_care_log_image_media_type,
+    get_care_log_image_path,
+)
 
 router = APIRouter(prefix="/care-logs", tags=["世話記録"])
 
@@ -254,3 +259,24 @@ def update_care_log(
         care_log_data=care_log_data,
         user_id=current_user.id,
     )
+
+
+@router.get("/{care_log_id}/image", response_class=FileResponse)
+def get_care_log_image(
+    care_log_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> FileResponse:
+    """世話記録画像を認証付きで返却する。"""
+    care_log = db.query(CareLog).filter(CareLog.id == care_log_id).first()
+    if not care_log or not care_log.has_image or not care_log.care_image_path:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"ID {care_log_id} の画像が見つかりません",
+        )
+
+    image_path = get_care_log_image_path(care_log.care_image_path)
+    media_type = get_care_log_image_media_type(care_log.care_image_path)
+    filename = f"care-log-{care_log_id}{image_path.suffix}"
+
+    return FileResponse(path=image_path, media_type=media_type, filename=filename)
