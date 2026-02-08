@@ -63,10 +63,20 @@ function setupStoolConditionHelpModal() {
 function setSelectedButton(buttons, selectedButton) {
   buttons.forEach(btn => {
     if (btn === selectedButton) {
-      btn.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.add(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.remove('border-gray-300');
     } else {
-      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.remove(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.add('border-gray-300');
     }
   });
@@ -74,7 +84,12 @@ function setSelectedButton(buttons, selectedButton) {
 
 function clearSelectedButtons(buttons) {
   buttons.forEach(btn => {
-    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+    btn.classList.remove(
+      'selected',
+      'border-brand-primary',
+      'bg-brand-primary-light',
+      'text-brand-primary-dark'
+    );
     btn.classList.add('border-gray-300');
   });
 }

@@ -24,6 +24,10 @@
     "log_date": "Log Date",
     "created_at": "Created At"
   },
+  "care_image": {
+    "label": "Concern photo",
+    "admin_only_notice": "Visible only in admin view (not shown again on the public side)."
+  },
   "time_slots": {
     "morning": "Morning",
     "noon": "Noon",

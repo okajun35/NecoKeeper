@@ -67,7 +67,7 @@ def login_page(
         return RedirectResponse(url=admin_base_path, status_code=302)
 
     return templates.TemplateResponse(
-        "admin/login.html", {"request": request, "settings": settings}
+        request, "admin/login.html", {"request": request, "settings": settings}
     )
 
 
@@ -98,6 +98,7 @@ def dashboard_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/dashboard.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -128,6 +129,7 @@ def animals_list_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -157,6 +159,7 @@ def animal_new_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -201,6 +204,7 @@ def animal_detail_page(
     display_image = animal_service.get_display_image(db, animal_id)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/detail.html",
         {
             "request": request,
@@ -236,6 +240,7 @@ def animal_edit_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/edit.html",
         {
             "request": request,
@@ -270,6 +275,7 @@ def care_logs_list_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -298,6 +304,7 @@ def care_log_new_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -328,6 +335,7 @@ def care_log_detail_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/detail.html",
         {
             "request": request,
@@ -363,6 +371,7 @@ def care_log_edit_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/edit.html",
         {
             "request": request,
@@ -397,6 +406,7 @@ def volunteers_list_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -412,6 +422,7 @@ def volunteer_new_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -428,6 +439,7 @@ def volunteer_edit_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/edit.html",
         {
             "request": request,
@@ -449,6 +461,7 @@ def volunteer_detail_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/detail.html",
         {
             "request": request,
@@ -483,6 +496,7 @@ def medical_records_list_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -511,6 +525,7 @@ def medical_record_new_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -541,6 +556,7 @@ def medical_record_detail_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/detail.html",
         {
             "request": request,
@@ -576,6 +592,7 @@ def medical_record_edit_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/edit.html",
         {
             "request": request,
@@ -610,6 +627,7 @@ def medical_actions_list_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_actions/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -639,6 +657,7 @@ def adoptions_applicants_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/applicants.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -667,6 +686,7 @@ def adoptions_applicants_new_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/applicant_extended_form.html",
         {
             "request": request,
@@ -733,6 +753,7 @@ def adoptions_applicants_edit_page(
         ) from e
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/applicant_extended_form.html",
         {
             "request": request,
@@ -768,6 +789,7 @@ def adoptions_records_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/records.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -797,6 +819,7 @@ def reports_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/index.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -812,6 +835,7 @@ def care_reports_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/care.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -827,16 +851,14 @@ def medical_reports_page(
         return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/medical.html",
         {"request": request, "user": current_user, "settings": settings},
     )
 
 
-@router.get("/settings", response_class=HTMLResponse)
-def settings_page(
-    request: Request,
-    current_user: User | None = Depends(get_current_user_optional),
-) -> Response:
+@router.get("/settings")
+def settings_page() -> Response:
     """設定ページは未提供のため404を返す。"""
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

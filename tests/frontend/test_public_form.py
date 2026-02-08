@@ -53,6 +53,9 @@ class TestPublicFormRendering:
         assert 'id="stoolCondition"' in html
         assert 'id="cleaning"' in html
         assert 'id="memo"' in html
+        assert 'id="careImage"' in html
+        assert 'id="careImagePreviewContainer"' in html
+        assert 'id="careImageClearBtn"' in html
         assert 'id="volunteer"' in html
 
         # 便状態ヘルプモーダル

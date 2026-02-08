@@ -36,9 +36,13 @@ async function loadAllAnimalsStatus() {
 /**
  * 猫一覧を表示
  */
-function createSlotButton(animalId, slotKey, recorded) {
+function createSlotButton(animalId, slotKey, recorded, logId) {
   const link = document.createElement('a');
-  link.href = `/public/care?animal_id=${animalId}&time_slot=${slotKey}`;
+  if (recorded && logId) {
+    link.href = `/public/care?animal_id=${animalId}&log_id=${logId}`;
+  } else {
+    link.href = `/public/care?animal_id=${animalId}&time_slot=${slotKey}`;
+  }
   link.className = `block w-full h-full text-center p-3 rounded-lg border-2 transition-colors ${recorded ? 'border-green-500 bg-green-50 hover:bg-green-100' : 'border-gray-300 hover:bg-gray-100'}`;
 
   const iconMap = { morning: '🌅', noon: '☀️', evening: '🌙' };
@@ -83,7 +87,7 @@ function displayAnimalsList(animals) {
            <img src="${photoUrl}"
              alt="${animal.animal_name}"
              onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-             class="w-16 h-16 rounded-full object-cover border-2 border-indigo-200">
+             class="w-16 h-16 rounded-full object-cover border-2 border-brand-primary/30">
           <div class="flex-1">
             <h3 class="text-lg font-bold text-gray-800">${animal.animal_name}</h3>
           </div>
@@ -92,9 +96,15 @@ function displayAnimalsList(animals) {
 
     const grid = document.createElement('div');
     grid.className = 'grid grid-cols-3 gap-3 mb-4';
-    grid.appendChild(createSlotButton(animal.animal_id, 'morning', animal.morning_recorded));
-    grid.appendChild(createSlotButton(animal.animal_id, 'noon', animal.noon_recorded));
-    grid.appendChild(createSlotButton(animal.animal_id, 'evening', animal.evening_recorded));
+    grid.appendChild(
+      createSlotButton(animal.animal_id, 'morning', animal.morning_recorded, animal.morning_log_id)
+    );
+    grid.appendChild(
+      createSlotButton(animal.animal_id, 'noon', animal.noon_recorded, animal.noon_log_id)
+    );
+    grid.appendChild(
+      createSlotButton(animal.animal_id, 'evening', animal.evening_recorded, animal.evening_log_id)
+    );
     animalCard.appendChild(grid);
 
     const links = document.createElement('div');

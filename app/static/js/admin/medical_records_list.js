@@ -330,74 +330,129 @@ function renderMedicalRecords(data) {
   });
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 // モバイルカードを作成
 function createMobileCard(record) {
-  const card = document.createElement('div');
-  card.className = 'p-4 hover:bg-gray-50';
+  const card = cloneTemplate('tmpl-mobile-card');
+  assertRequiredSelectors(
+    card,
+    [
+      '.js-date',
+      '.js-animal-name',
+      '.js-vet-name',
+      '.js-weight',
+      '.js-temp',
+      '.js-symptoms',
+      '.js-view-btn',
+      '.js-medical-action-container',
+      '.js-medical-action',
+      '.js-billing-container',
+      '.js-billing',
+    ],
+    'medical_records_list.tmpl-mobile-card'
+  );
 
   // 翻訳テキストを取得
-  const weightLabel =
-    window.i18n && window.i18n.t ? window.i18n.t('weight', { ns: 'medical_records' }) : '体重';
-  const tempLabel =
-    window.i18n && window.i18n.t ? window.i18n.t('temperature', { ns: 'medical_records' }) : '体温';
-  const viewText =
-    window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
-  const medicalActionLabel = fallbackText('Medical Action', '診療行為');
-  const billingLabel = fallbackText('Billing Amount', '請求価格');
   const vetDisplayName =
     formatVetDisplayName(record.vet_name) || (record.vet_id ? `ID: ${record.vet_id}` : '-');
 
+  requireSelector(card, '.js-date', 'medical_records_list.tmpl-mobile-card').textContent =
+    record.date;
+  requireSelector(card, '.js-animal-name', 'medical_records_list.tmpl-mobile-card').textContent =
+    record.animal_name || 'ID: ' + record.animal_id;
+  requireSelector(card, '.js-vet-name', 'medical_records_list.tmpl-mobile-card').textContent =
+    vetDisplayName;
+  requireSelector(card, '.js-weight', 'medical_records_list.tmpl-mobile-card').textContent =
+    record.weight ? record.weight + 'kg' : '-';
+  requireSelector(card, '.js-temp', 'medical_records_list.tmpl-mobile-card').textContent =
+    record.temperature ? record.temperature + '℃' : '-';
+  requireSelector(card, '.js-symptoms', 'medical_records_list.tmpl-mobile-card').textContent =
+    record.symptoms;
+
+  const viewBtn = requireSelector(card, '.js-view-btn', 'medical_records_list.tmpl-mobile-card');
+  viewBtn.href = `${adminBasePath}/medical-records/${record.id}`;
+
   // 診療行為と投薬情報
-  let medicalActionInfo = '';
+  const medicalActionContainer = requireSelector(
+    card,
+    '.js-medical-action-container',
+    'medical_records_list.tmpl-mobile-card'
+  );
   if (record.medical_action_name) {
-    medicalActionInfo = `<div class="text-sm text-gray-600 mb-2">
-      <span class="text-gray-500">${medicalActionLabel}:</span> ${record.medical_action_name}
-      ${record.dosage ? ` (${record.dosage}${record.dosage_unit || ''})` : ''}
-    </div>`;
+    medicalActionContainer.classList.remove('hidden');
+    let text = record.medical_action_name;
+    if (record.dosage) text += ` (${record.dosage}${record.dosage_unit || ''})`;
+    requireSelector(
+      card,
+      '.js-medical-action',
+      'medical_records_list.tmpl-mobile-card'
+    ).textContent = text;
   }
 
   // 請求価格情報
-  let billingInfo = '';
+  const billingContainer = requireSelector(
+    card,
+    '.js-billing-container',
+    'medical_records_list.tmpl-mobile-card'
+  );
   if (record.billing_amount) {
-    billingInfo = `<div class="text-sm text-gray-600 mb-2">
-      <span class="text-gray-500">${billingLabel}:</span> <span class="font-medium">¥${Number(record.billing_amount).toLocaleString()}</span>
-    </div>`;
+    billingContainer.classList.remove('hidden');
+    requireSelector(card, '.js-billing', 'medical_records_list.tmpl-mobile-card').textContent =
+      `¥${Number(record.billing_amount).toLocaleString()}`;
   }
 
-  card.innerHTML = `
-        <div class="flex justify-between items-start mb-2">
-            <div>
-                <p class="font-medium text-gray-900">${record.date}</p>
-                <p class="text-sm text-gray-600">${record.animal_name || 'ID: ' + record.animal_id}</p>
-            </div>
-          <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${vetDisplayName}</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-            <div><span class="text-gray-500">${weightLabel}:</span> ${record.weight ? record.weight + 'kg' : '-'}</div>
-            <div><span class="text-gray-500">${tempLabel}:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
-        </div>
-        ${medicalActionInfo}
-        ${billingInfo}
-        <p class="text-sm text-gray-600 mb-3">${record.symptoms}</p>
-        <div class="flex gap-2">
-            <a href="${adminBasePath}/medical-records/${record.id}" class="flex-1 px-3 py-2 text-sm text-center bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                ${viewText}
-            </a>
-        </div>
-    `;
+  translateDynamicElement(card);
   return card;
 }
 
 // デスクトップ行を作成
 function createDesktopRow(record) {
-  const row = document.createElement('tr');
-  row.className = 'hover:bg-gray-50';
+  const row = cloneTemplate('tmpl-desktop-row');
+  assertRequiredSelectors(
+    row,
+    [
+      '.js-date',
+      '.js-animal-name',
+      '.js-vet-name',
+      '.js-weight',
+      '.js-temp',
+      '.js-symptoms',
+      '.js-view-btn',
+      '.js-medical-action',
+      '.js-billing',
+    ],
+    'medical_records_list.tmpl-desktop-row'
+  );
 
   // 翻訳テキストを取得
-  const viewText =
-    window.i18n && window.i18n.t ? window.i18n.t('view', { ns: 'medical_records' }) : '詳細';
   const vetDisplayName =
     formatVetDisplayName(record.vet_name) || (record.vet_id ? `ID: ${record.vet_id}` : '-');
+
+  requireSelector(row, '.js-date', 'medical_records_list.tmpl-desktop-row').textContent =
+    record.date;
+  requireSelector(row, '.js-animal-name', 'medical_records_list.tmpl-desktop-row').textContent =
+    record.animal_name || 'ID: ' + record.animal_id;
+  requireSelector(row, '.js-vet-name', 'medical_records_list.tmpl-desktop-row').textContent =
+    vetDisplayName;
+  requireSelector(row, '.js-weight', 'medical_records_list.tmpl-desktop-row').textContent =
+    record.weight ? record.weight + 'kg' : '-';
+  requireSelector(row, '.js-temp', 'medical_records_list.tmpl-desktop-row').textContent =
+    record.temperature ? record.temperature + '℃' : '-';
+  requireSelector(row, '.js-symptoms', 'medical_records_list.tmpl-desktop-row').textContent =
+    record.symptoms;
+
+  const viewBtn = requireSelector(row, '.js-view-btn', 'medical_records_list.tmpl-desktop-row');
+  viewBtn.href = `${adminBasePath}/medical-records/${record.id}`;
 
   // 診療行為と投薬情報
   let medicalActionText = '-';
@@ -407,25 +462,17 @@ function createDesktopRow(record) {
       medicalActionText += ` (${record.dosage}${record.dosage_unit || ''})`;
     }
   }
+  requireSelector(row, '.js-medical-action', 'medical_records_list.tmpl-desktop-row').textContent =
+    medicalActionText;
 
   // 請求価格
   const billingText = record.billing_amount
     ? `¥${Number(record.billing_amount).toLocaleString()}`
     : '-';
+  requireSelector(row, '.js-billing', 'medical_records_list.tmpl-desktop-row').textContent =
+    billingText;
 
-  row.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.date}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.animal_name || 'ID: ' + record.animal_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${vetDisplayName}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.weight ? record.weight + 'kg' : '-'}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${record.temperature ? record.temperature + '℃' : '-'}</td>
-        <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${record.symptoms}</td>
-        <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${medicalActionText}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">${billingText}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <a href="${adminBasePath}/medical-records/${record.id}" class="text-indigo-600 hover:text-indigo-900">${viewText}</a>
-        </td>
-    `;
+  translateDynamicElement(row);
   return row;
 }
 

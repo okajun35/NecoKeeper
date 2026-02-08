@@ -465,14 +465,14 @@ body.kiroween-mode .text-red-800 {
 }
 
 /* Action buttons */
-body.kiroween-mode .bg-indigo-600 {
+body.kiroween-mode .bg-brand-primary {
   background: transparent !important;
   border: var(--terminal-border-width) solid var(--terminal-green) !important;
   color: var(--terminal-green) !important;
 }
 
-body.kiroween-mode .bg-indigo-600:hover,
-body.kiroween-mode .hover\:bg-indigo-700:hover {
+body.kiroween-mode .bg-brand-primary:hover,
+body.kiroween-mode .hover\:bg-brand-primary-dark:hover {
   background: rgba(51, 255, 0, 0.2) !important;
   color: var(--terminal-bright-green) !important;
 }
@@ -1641,14 +1641,14 @@ body.kiroween-mode svg.w-4 {
 }
 
 /* User section in sidebar */
-body.kiroween-mode aside .bg-indigo-100,
-body.kiroween-mode #sidebar .bg-indigo-100 {
+body.kiroween-mode aside .bg-brand-primary-light,
+body.kiroween-mode #sidebar .bg-brand-primary-light {
   background: transparent !important;
   border: var(--terminal-border-width) solid var(--terminal-dim) !important;
 }
 
-body.kiroween-mode aside .text-indigo-600,
-body.kiroween-mode #sidebar .text-indigo-600 {
+body.kiroween-mode aside .text-brand-primary,
+body.kiroween-mode #sidebar .text-brand-primary {
   color: var(--terminal-green) !important;
 }
 
@@ -1954,7 +1954,7 @@ body.kiroween-mode .gap-6 {
    Dashboard Statistics Card Overrides
    ============================================ */
 /* Stats icon containers */
-body.kiroween-mode .bg-indigo-100,
+body.kiroween-mode .bg-brand-primary-light,
 body.kiroween-mode .bg-green-100,
 body.kiroween-mode .bg-blue-100,
 body.kiroween-mode .bg-purple-100 {
@@ -1963,14 +1963,14 @@ body.kiroween-mode .bg-purple-100 {
 }
 
 /* Stats icons stroke color */
-body.kiroween-mode .text-indigo-600,
+body.kiroween-mode .text-brand-primary,
 body.kiroween-mode .text-green-600,
 body.kiroween-mode .text-blue-600,
 body.kiroween-mode .text-purple-600 {
   color: var(--terminal-green) !important;
 }
 
-body.kiroween-mode .text-indigo-600 svg,
+body.kiroween-mode .text-brand-primary svg,
 body.kiroween-mode .text-green-600 svg,
 body.kiroween-mode .text-blue-600 svg,
 body.kiroween-mode .text-purple-600 svg {

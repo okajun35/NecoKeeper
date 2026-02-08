@@ -5,9 +5,12 @@
 const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 let currentPage = 1;
 const pageSize = 20;
+let pageInitialized = false;
 
-// ページ読み込み時の初期化
-document.addEventListener('i18nextInitialized', () => {
+function initializePage() {
+  if (pageInitialized) return;
+  pageInitialized = true;
+
   loadVolunteers();
 
   // 検索・フィルターのイベントリスナー
@@ -30,7 +33,13 @@ document.addEventListener('i18nextInitialized', () => {
 
   // 言語切り替え時に再読み込み
   document.addEventListener('languageChanged', loadVolunteers);
-});
+}
+
+// ページ読み込み時の初期化
+document.addEventListener('i18nextInitialized', initializePage, { once: true });
+if (window.i18n && typeof window.i18n.getCurrentLanguage === 'function') {
+  initializePage();
+}
 
 // ボランティア一覧を読み込み
 async function loadVolunteers() {
@@ -87,37 +96,70 @@ async function loadVolunteers() {
   }
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 // モバイルリスト描画
 function renderMobileList(items) {
   const container = document.getElementById('mobileList');
   if (!container) return;
 
   items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'p-4 hover:bg-gray-50';
-    card.innerHTML = `
-      <div class="flex items-start justify-between mb-2">
-        <div>
-          <h3 class="font-medium text-gray-900">${item.name}</h3>
-          <p class="text-sm text-gray-500">${item.contact || ''}</p>
-        </div>
-        <span class="px-2 py-1 text-xs ${item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} rounded">
-          ${translate(item.status === 'active' ? 'status_active' : 'status_inactive', { ns: 'volunteers' })}
-        </span>
-      </div>
-      <div class="space-y-1 text-sm text-gray-600">
-        <p>${translate('affiliation', { ns: 'volunteers' })}: ${item.affiliation || '-'}</p>
-        <p>${translate('start_date', { ns: 'volunteers' })}: ${window.formatDate ? window.formatDate(item.started_at) : item.started_at || '-'}</p>
-      </div>
-      <div class="mt-3 flex gap-2">
-        <button onclick="viewDetails(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
-          ${translate('details', { ns: 'common' })}
-        </button>
-        <button onclick="editVolunteer(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
-          ${translate('edit', { ns: 'common' })}
-        </button>
-      </div>
-    `;
+    const card = cloneTemplate('tmpl-mobile-card');
+    assertRequiredSelectors(
+      card,
+      [
+        '.js-name',
+        '.js-contact',
+        '.js-status',
+        '.js-affiliation',
+        '.js-start-date',
+        '.js-view-btn',
+        '.js-edit-btn',
+      ],
+      'volunteers.tmpl-mobile-card'
+    );
+
+    // 基本情報
+    requireSelector(card, '.js-name', 'volunteers.tmpl-mobile-card').textContent = item.name;
+    requireSelector(card, '.js-contact', 'volunteers.tmpl-mobile-card').textContent =
+      item.contact || '';
+
+    // ステータス
+    const statusSpan = requireSelector(card, '.js-status', 'volunteers.tmpl-mobile-card');
+    if (item.status === 'active') {
+      statusSpan.classList.add('bg-green-100', 'text-green-800');
+      statusSpan.textContent = translate('status_active', { ns: 'volunteers' });
+    } else {
+      statusSpan.classList.add('bg-gray-100', 'text-gray-800');
+      statusSpan.textContent = translate('status_inactive', { ns: 'volunteers' });
+    }
+
+    // 詳細情報
+    requireSelector(card, '.js-affiliation', 'volunteers.tmpl-mobile-card').textContent =
+      item.affiliation || '-';
+
+    const startDate = window.formatDate
+      ? window.formatDate(item.started_at)
+      : item.started_at || '-';
+    requireSelector(card, '.js-start-date', 'volunteers.tmpl-mobile-card').textContent = startDate;
+
+    // ボタン
+    const viewBtn = requireSelector(card, '.js-view-btn', 'volunteers.tmpl-mobile-card');
+    viewBtn.onclick = () => viewDetails(item.id);
+
+    const editBtn = requireSelector(card, '.js-edit-btn', 'volunteers.tmpl-mobile-card');
+    editBtn.onclick = () => editVolunteer(item.id);
+
+    translateDynamicElement(card);
     container.appendChild(card);
   });
 }
@@ -128,27 +170,50 @@ function renderDesktopList(items) {
   if (!tbody) return;
 
   items.forEach(item => {
-    const row = document.createElement('tr');
-    row.className = 'hover:bg-gray-50';
-    row.innerHTML = `
-      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.contact || '-'}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.affiliation || '-'}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm">
-        <span class="px-2 py-1 text-xs ${item.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} rounded">
-          ${translate(item.status === 'active' ? 'status_active' : 'status_inactive', { ns: 'volunteers' })}
-        </span>
-      </td>
-      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${window.formatDate ? window.formatDate(item.started_at) : item.started_at || '-'}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button onclick="viewDetails(${item.id})" class="text-indigo-600 hover:text-indigo-900 mr-3">
-          ${translate('details', { ns: 'common' })}
-        </button>
-        <button onclick="editVolunteer(${item.id})" class="text-indigo-600 hover:text-indigo-900">
-          ${translate('edit', { ns: 'common' })}
-        </button>
-      </td>
-    `;
+    const row = cloneTemplate('tmpl-desktop-row');
+    assertRequiredSelectors(
+      row,
+      [
+        '.js-name',
+        '.js-contact',
+        '.js-affiliation',
+        '.js-status',
+        '.js-start-date',
+        '.js-view-btn',
+        '.js-edit-btn',
+      ],
+      'volunteers.tmpl-desktop-row'
+    );
+
+    requireSelector(row, '.js-name', 'volunteers.tmpl-desktop-row').textContent = item.name;
+    requireSelector(row, '.js-contact', 'volunteers.tmpl-desktop-row').textContent =
+      item.contact || '-';
+    requireSelector(row, '.js-affiliation', 'volunteers.tmpl-desktop-row').textContent =
+      item.affiliation || '-';
+
+    // ステータス
+    const statusSpan = requireSelector(row, '.js-status', 'volunteers.tmpl-desktop-row');
+    if (item.status === 'active') {
+      statusSpan.classList.add('bg-green-100', 'text-green-800');
+      statusSpan.textContent = translate('status_active', { ns: 'volunteers' });
+    } else {
+      statusSpan.classList.add('bg-gray-100', 'text-gray-800');
+      statusSpan.textContent = translate('status_inactive', { ns: 'volunteers' });
+    }
+
+    const startDate = window.formatDate
+      ? window.formatDate(item.started_at)
+      : item.started_at || '-';
+    requireSelector(row, '.js-start-date', 'volunteers.tmpl-desktop-row').textContent = startDate;
+
+    // ボタン
+    const viewBtn = requireSelector(row, '.js-view-btn', 'volunteers.tmpl-desktop-row');
+    viewBtn.onclick = () => viewDetails(item.id);
+
+    const editBtn = requireSelector(row, '.js-edit-btn', 'volunteers.tmpl-desktop-row');
+    editBtn.onclick = () => editVolunteer(item.id);
+
+    translateDynamicElement(row);
     tbody.appendChild(row);
   });
 }

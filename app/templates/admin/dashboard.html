@@ -12,92 +12,164 @@
     <!-- 統計カード -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-6">
         <!-- 在籍中の猫 -->
-        <a href="{{ settings.admin_base_path }}/animals?status=ACTIVE" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
-            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.resident" data-i18n-ns="dashboard">在籍中</p>
-            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+        <a href="{{ settings.admin_base_path }}/animals?status=ACTIVE"
+            class="bg-bg-surface rounded-2xl shadow-card p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-card-hover transition-all cursor-pointer border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-text-muted truncate w-full"
+                data-i18n="stats.resident" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">在籍中</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(220, 118, 51, 0.1);">
                 {% if settings.kiroween_mode %}
                 <img src="/static/icons/halloween_icon.webp" class="w-6 h-6 object-contain" alt="Resident">
                 {% else %}
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-brand-primary" style="color: var(--color-brand-primary);"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
                 </svg>
                 {% endif %}
             </div>
-            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-resident">-</p>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-text-main font-heading"
+                id="stat-resident" style="color: var(--color-text-main);">-</p>
         </a>
 
         <!-- 譲渡可能 -->
-        <a href="{{ settings.admin_base_path }}/animals?is_ready_for_adoption=true" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
-            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.adoptable" data-i18n-ns="dashboard">譲渡可能</p>
-            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        <a href="{{ settings.admin_base_path }}/animals?is_ready_for_adoption=true"
+            class="bg-bg-surface rounded-2xl shadow-card p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-card-hover transition-all cursor-pointer border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-text-muted truncate w-full"
+                data-i18n="stats.adoptable" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">譲渡可能</p>
+            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(138, 154, 91, 0.1);">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-brand-secondary" style="color: var(--color-brand-secondary);"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
-            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-adoptable">-</p>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-text-main font-heading"
+                id="stat-adoptable" style="color: var(--color-text-main);">-</p>
         </a>
 
         <!-- 今日の記録 -->
-        <a href="{{ settings.admin_base_path }}/care-logs" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
-            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.today_logs" data-i18n-ns="dashboard">今日の記録</p>
-            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        <a href="{{ settings.admin_base_path }}/care-logs"
+            class="bg-bg-surface rounded-2xl shadow-card p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-card-hover transition-all cursor-pointer border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-text-muted truncate w-full"
+                data-i18n="stats.today_logs" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">今日の記録</p>
+            <div
+                class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center bg-brand-primary/10">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-brand-primary" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
                 </svg>
             </div>
-            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-today-logs">-</p>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-text-main font-heading"
+                id="stat-today-logs" style="color: var(--color-text-main);">-</p>
         </a>
 
         <!-- FIV陽性 -->
-        <a href="{{ settings.admin_base_path }}/animals?fiv=positive" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
-            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.fiv_positive" data-i18n-ns="dashboard">FIV陽性</p>
-            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        <a href="{{ settings.admin_base_path }}/animals?fiv=positive"
+            class="bg-bg-surface rounded-2xl shadow-card p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-card-hover transition-all cursor-pointer border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-text-muted truncate w-full"
+                data-i18n="stats.fiv_positive" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">FIV陽性
+            </p>
+            <div
+                class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center bg-orange-50">
+                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
                 </svg>
             </div>
-            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-fiv">-</p>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-text-main font-heading" id="stat-fiv"
+                style="color: var(--color-text-main);">-</p>
         </a>
 
         <!-- FeLV陽性 -->
-        <a href="{{ settings.admin_base_path }}/animals?felv=positive" class="bg-white rounded-lg shadow-md p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-lg transition-shadow cursor-pointer">
-            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-gray-600 truncate w-full" data-i18n="stats.felv_positive" data-i18n-ns="dashboard">FeLV陽性</p>
-            <div class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 bg-red-100 rounded-lg flex items-center justify-center">
+        <a href="{{ settings.admin_base_path }}/animals?felv=positive"
+            class="bg-bg-surface rounded-2xl shadow-card p-4 lg:p-6 dashboard-stat-card flex flex-col items-center justify-center gap-y-2 text-center hover:shadow-card-hover transition-all cursor-pointer border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <p class="dashboard-stat-label text-xs lg:text-sm font-medium text-text-muted truncate w-full"
+                data-i18n="stats.felv_positive" data-i18n-ns="dashboard" style="color: var(--color-text-muted);">FeLV陽性
+            </p>
+            <div
+                class="dashboard-stat-icon w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center bg-red-50">
                 <svg class="w-5 h-5 lg:w-6 lg:h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
                 </svg>
             </div>
-            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-gray-900" id="stat-felv">-</p>
+            <p class="dashboard-stat-value text-2xl lg:text-3xl font-bold text-text-main font-heading" id="stat-felv"
+                style="color: var(--color-text-main);">-</p>
         </a>
     </div>
 
     <!-- 最近の活動 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- 最近の世話記録 -->
-        <div class="bg-white rounded-lg shadow-md">
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900" data-i18n="recent_logs" data-i18n-ns="dashboard">最近の世話記録</h3>
+        <div class="bg-bg-surface rounded-2xl shadow-card border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <div class="p-6 border-b border-border" style="border-color: var(--color-border);">
+                <h3 class="text-lg font-semibold text-text-main font-heading" data-i18n="recent_logs"
+                    data-i18n-ns="dashboard" style="color: var(--color-text-main);">最近の世話記録</h3>
             </div>
             <div class="p-6">
                 <div id="recent-logs" class="space-y-4">
-                    <div class="text-center text-gray-500 py-8">読み込み中...</div>
+                    <div class="text-center text-text-muted py-8" style="color: var(--color-text-muted);">読み込み中...</div>
                 </div>
             </div>
         </div>
 
         <!-- 記録が必要な猫 -->
-        <div class="bg-white rounded-lg shadow-md">
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900" data-i18n="needs_care" data-i18n-ns="dashboard">記録が必要な猫</h3>
+        <div class="bg-bg-surface rounded-2xl shadow-card border border-border"
+            style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <div class="p-6 border-b border-border" style="border-color: var(--color-border);">
+                <h3 class="text-lg font-semibold text-text-main font-heading" data-i18n="needs_care"
+                    data-i18n-ns="dashboard" style="color: var(--color-text-main);">記録が必要な猫</h3>
             </div>
             <div class="p-6">
                 <div id="needs-care" class="space-y-4">
-                    <div class="text-center text-gray-500 py-8">読み込み中...</div>
+                    <div class="text-center text-text-muted py-8" style="color: var(--color-text-muted);">読み込み中...</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<template id="tmpl-recent-log">
+    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+        <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="js-animal-name font-medium text-gray-900"></span>
+                <span class="js-time-slot text-sm text-gray-500"></span>
+            </div>
+            <div class="js-details text-sm text-gray-600"></div>
+        </div>
+        <div class="flex gap-2">
+            <span class="js-appetite px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded"></span>
+            <span class="js-energy px-2 py-1 text-xs bg-green-100 text-green-800 rounded"></span>
+        </div>
+    </div>
+</template>
+
+<template id="tmpl-needs-care">
+    <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+        <img class="js-animal-photo w-12 h-12 rounded-full object-cover">
+        <div class="flex-1">
+            <div class="js-animal-name font-medium text-gray-900"></div>
+            <div class="js-missing-items text-sm text-gray-600"></div>
+        </div>
+        <a class="js-record-link px-3 py-1 text-sm text-white rounded transition-colors bg-brand-primary hover:opacity-90"
+            target="_blank" style="background-color: var(--color-brand-primary);"></a>
+    </div>
+</template>
 {% endblock %}
 
 {% block extra_scripts %}

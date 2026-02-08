@@ -104,7 +104,7 @@ function renderMobileList(items) {
                 <p>${translate('table.procedure_fee', { ns: 'medical_actions' })}: ${formatPrice(item.procedure_fee, item.currency)}</p>
             </div>
             <div class="mt-3 flex gap-2">
-                <button onclick="editAction(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                <button onclick="editAction(${item.id})" class="flex-1 px-3 py-1.5 text-sm bg-brand-primary text-white rounded hover:opacity-90">
                     ${translate('buttons.edit', { ns: 'medical_actions' })}
                 </button>
             </div>
@@ -131,7 +131,7 @@ function renderDesktopList(items) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">${formatPrice(item.procedure_fee, item.currency)}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-center">${item.currency}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onclick="editAction(${item.id})" class="text-indigo-600 hover:text-indigo-900">${translate('buttons.edit', { ns: 'medical_actions' })}</button>
+                <button onclick="editAction(${item.id})" class="text-brand-primary hover:text-brand-primary-dark">${translate('buttons.edit', { ns: 'medical_actions' })}</button>
             </td>
         `;
     tbody.appendChild(row);

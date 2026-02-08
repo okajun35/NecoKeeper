@@ -44,7 +44,7 @@ function setupTabs() {
 
       // すべてのタブを非アクティブ化
       tabButtons.forEach(btn => {
-        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.remove('active', 'border-brand-primary', 'text-brand-primary');
         btn.classList.add('border-transparent', 'text-gray-500');
       });
 
@@ -54,7 +54,7 @@ function setupTabs() {
       });
 
       // 選択されたタブをアクティブ化
-      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.add('active', 'border-brand-primary', 'text-brand-primary');
       button.classList.remove('border-transparent', 'text-gray-500');
 
       // 選択されたコンテンツを表示
@@ -629,9 +629,66 @@ async function updateStatusAndLocation(confirm = false) {
   }
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
+function createCareRegisterHeader() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mb-4 flex justify-end';
+
+  const link = document.createElement('a');
+  link.href = `${adminBasePath}/care-logs/new?animal_id=${animalId}`;
+  link.className =
+    'px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors text-sm font-medium';
+  link.style.backgroundColor = 'var(--color-brand-primary)';
+  link.setAttribute('data-i18n', 'actions.register_care_log');
+  link.setAttribute('data-i18n-ns', 'animals');
+  link.textContent = translate('actions.register_care_log', {
+    ns: 'animals',
+    defaultValue: '世話記録を登録',
+  });
+
+  wrapper.appendChild(link);
+  translateDynamicElement(wrapper);
+  return wrapper;
+}
+
+function makeRecordCardNavigable(card, url) {
+  if (!card || !url) return;
+
+  card.classList.add('cursor-pointer', 'hover:border-brand-primary', 'transition-colors');
+  card.setAttribute('role', 'link');
+  card.setAttribute('tabindex', '0');
+
+  const navigate = () => {
+    window.location.href = url;
+  };
+
+  card.addEventListener('click', event => {
+    const interactiveTarget = event.target.closest('a, button, input, select, textarea');
+    if (interactiveTarget) return;
+    navigate();
+  });
+
+  card.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      navigate();
+    }
+  });
+}
+
 // 世話記録の読み込み
 async function loadCareRecords() {
-  const content = document.getElementById('content-care');
+  const content = requireElementById('content-care', 'animal_detail.care');
 
   try {
     const response = await fetch(`/api/v1/care-logs?animal_id=${animalId}&page=1&page_size=10`, {
@@ -645,36 +702,75 @@ async function loadCareRecords() {
     }
 
     const data = await response.json();
+    content.innerHTML = ''; // コンテンツをクリア
+    content.appendChild(createCareRegisterHeader());
 
     if (data.items.length === 0) {
-      content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('care_log.empty', { ns: 'animals' })}</div>`;
+      const empty = document.createElement('div');
+      empty.className = 'text-center py-8 text-gray-500';
+      empty.textContent = translate('care_log.empty', { ns: 'animals' });
+      content.appendChild(empty);
       return;
     }
 
     // 世話記録の表示
-    let html = '<div class="space-y-4">';
-    data.items.forEach(record => {
-      html += `
-        <div class="border border-gray-200 rounded-lg p-4">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <p class="font-medium">${record.created_at.split('T')[0]} - ${record.time_slot || translate('care_log.unset', { ns: 'animals' })}</p>
-              <p class="text-sm text-gray-600">${translate('care_log.recorder', { ns: 'animals' })}: ${record.recorder_name || translate('care_log.unknown', { ns: 'animals' })}</p>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">${translate('care_log.appetite', { ns: 'animals' })}:</span> ${formatAppetiteLabel(record.appetite)}</div>
-            <div><span class="text-gray-500">${translate('care_log.energy', { ns: 'animals' })}:</span> ${record.energy}/5</div>
-            <div><span class="text-gray-500">${translate('care_log.urination', { ns: 'animals' })}:</span> ${record.urination ? translate('care_log.yes', { ns: 'animals' }) : translate('care_log.no', { ns: 'animals' })}</div>
-            <div><span class="text-gray-500">${translate('care_log.cleaning', { ns: 'animals' })}:</span> ${record.cleaning ? translate('care_log.done', { ns: 'animals' }) : translate('care_log.not_done', { ns: 'animals' })}</div>
-          </div>
-          ${record.memo ? `<p class="mt-2 text-sm text-gray-600">${record.memo}</p>` : ''}
-        </div>
-      `;
-    });
-    html += '</div>';
+    const listContainer = document.createElement('div');
+    listContainer.className = 'space-y-4';
 
-    content.innerHTML = html;
+    data.items.forEach(record => {
+      const card = cloneTemplate('tmpl-care-record');
+      assertRequiredSelectors(
+        card,
+        [
+          '.js-date-time',
+          '.js-recorder',
+          '.js-appetite',
+          '.js-energy',
+          '.js-urination',
+          '.js-cleaning',
+          '.js-memo',
+        ],
+        'animal_detail.tmpl-care-record'
+      );
+
+      // 日時
+      const timeSlot = record.time_slot
+        ? translate(`care_logs:time_slots.${record.time_slot}`, { defaultValue: record.time_slot })
+        : translate('care_log.unset', { ns: 'animals' });
+      requireSelector(card, '.js-date-time', 'animal_detail.tmpl-care-record').textContent =
+        `${record.created_at.split('T')[0]} - ${timeSlot}`;
+
+      // 記録者
+      requireSelector(card, '.js-recorder', 'animal_detail.tmpl-care-record').textContent =
+        record.recorder_name || translate('care_log.unknown', { ns: 'animals' });
+
+      // 各種状態
+      requireSelector(card, '.js-appetite', 'animal_detail.tmpl-care-record').textContent =
+        formatAppetiteLabel(record.appetite);
+      requireSelector(card, '.js-energy', 'animal_detail.tmpl-care-record').textContent =
+        record.energy;
+      requireSelector(card, '.js-urination', 'animal_detail.tmpl-care-record').textContent =
+        record.urination
+          ? translate('care_log.yes', { ns: 'animals' })
+          : translate('care_log.no', { ns: 'animals' });
+      requireSelector(card, '.js-cleaning', 'animal_detail.tmpl-care-record').textContent =
+        record.cleaning
+          ? translate('care_log.done', { ns: 'animals' })
+          : translate('care_log.not_done', { ns: 'animals' });
+
+      // メモ
+      if (record.memo) {
+        const memoEl = requireSelector(card, '.js-memo', 'animal_detail.tmpl-care-record');
+        memoEl.textContent = record.memo;
+        memoEl.classList.remove('hidden');
+      }
+
+      makeRecordCardNavigable(card, `${adminBasePath}/care-logs/${record.id}`);
+      translateDynamicElement(card);
+      listContainer.appendChild(card);
+    });
+
+    content.appendChild(listContainer);
   } catch (error) {
     console.error('Error loading care records:', error);
     content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('care_log.load_error', { ns: 'animals' })}</div>`;
@@ -683,7 +779,7 @@ async function loadCareRecords() {
 
 // 診療記録の読み込み
 async function loadMedicalRecords() {
-  const content = document.getElementById('content-medical');
+  const content = requireElementById('content-medical', 'animal_detail.medical');
 
   try {
     const response = await fetch(
@@ -700,6 +796,7 @@ async function loadMedicalRecords() {
     }
 
     const data = await response.json();
+    content.innerHTML = '';
 
     if (data.items.length === 0) {
       content.innerHTML = `<div class="text-center py-8 text-gray-500">${translate('medical_record.empty', { ns: 'animals' })}</div>`;
@@ -707,28 +804,58 @@ async function loadMedicalRecords() {
     }
 
     // 診療記録の表示
-    let html = '<div class="space-y-4">';
-    data.items.forEach(record => {
-      html += `
-        <div class="border border-gray-200 rounded-lg p-4">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <p class="font-medium">${record.date}</p>
-              <p class="text-sm text-gray-600">${translate('medical_record.vet', { ns: 'animals' })}: ${record.vet_name || translate('medical_record.unknown', { ns: 'animals' })}</p>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-sm mb-2">
-            <div><span class="text-gray-500">${translate('medical_record.weight', { ns: 'animals' })}:</span> ${record.weight}kg</div>
-            <div><span class="text-gray-500">${translate('medical_record.temperature', { ns: 'animals' })}:</span> ${record.temperature ? record.temperature + '℃' : '-'}</div>
-          </div>
-          <p class="text-sm"><span class="text-gray-500">${translate('medical_record.symptoms', { ns: 'animals' })}:</span> ${record.symptoms}</p>
-          ${record.medical_action_name ? `<p class="text-sm"><span class="text-gray-500">${translate('medical_record.actions', { ns: 'animals' })}:</span> ${record.medical_action_name} ${record.dosage ? '(' + record.dosage + record.dosage_unit + ')' : ''}</p>` : ''}
-        </div>
-      `;
-    });
-    html += '</div>';
+    const listContainer = document.createElement('div');
+    listContainer.className = 'space-y-4';
 
-    content.innerHTML = html;
+    data.items.forEach(record => {
+      const card = cloneTemplate('tmpl-medical-record');
+      assertRequiredSelectors(
+        card,
+        [
+          '.js-date',
+          '.js-vet',
+          '.js-weight',
+          '.js-temperature',
+          '.js-symptoms',
+          '.js-action-row',
+          '.js-action',
+          '.js-dosage',
+        ],
+        'animal_detail.tmpl-medical-record'
+      );
+
+      requireSelector(card, '.js-date', 'animal_detail.tmpl-medical-record').textContent =
+        record.date;
+      requireSelector(card, '.js-vet', 'animal_detail.tmpl-medical-record').textContent =
+        record.vet_name || translate('medical_record.unknown', { ns: 'animals' });
+      requireSelector(card, '.js-weight', 'animal_detail.tmpl-medical-record').textContent =
+        record.weight;
+      requireSelector(card, '.js-temperature', 'animal_detail.tmpl-medical-record').textContent =
+        record.temperature ? record.temperature + '℃' : '-';
+      requireSelector(card, '.js-symptoms', 'animal_detail.tmpl-medical-record').textContent =
+        record.symptoms;
+
+      if (record.medical_action_name) {
+        const actionRow = requireSelector(
+          card,
+          '.js-action-row',
+          'animal_detail.tmpl-medical-record'
+        );
+        actionRow.classList.remove('hidden');
+        requireSelector(card, '.js-action', 'animal_detail.tmpl-medical-record').textContent =
+          record.medical_action_name;
+        if (record.dosage) {
+          requireSelector(card, '.js-dosage', 'animal_detail.tmpl-medical-record').textContent =
+            `(${record.dosage}${record.dosage_unit || ''})`;
+        }
+      }
+
+      makeRecordCardNavigable(card, `${adminBasePath}/medical-records/${record.id}`);
+      translateDynamicElement(card);
+      listContainer.appendChild(card);
+    });
+
+    content.appendChild(listContainer);
   } catch (error) {
     console.error('Error loading medical records:', error);
     content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('medical_record.load_error', { ns: 'animals' })}</div>`;
@@ -737,7 +864,7 @@ async function loadMedicalRecords() {
 
 // 画像ギャラリーの読み込み
 async function loadGallery() {
-  const content = document.getElementById('content-gallery');
+  const content = requireElementById('content-gallery', 'animal_detail.gallery');
 
   try {
     const response = await fetch(
@@ -754,12 +881,13 @@ async function loadGallery() {
     }
 
     const images = await response.json();
+    content.innerHTML = '';
 
     if (images.length === 0) {
       content.innerHTML = `
         <div class="text-center py-8">
           <p class="text-gray-500 mb-4">${translate('gallery.empty', { ns: 'animals' })}</p>
-          <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          <button onclick="openUploadDialog()" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">
             ${translate('gallery.upload', { ns: 'animals' })}
           </button>
         </div>
@@ -767,24 +895,35 @@ async function loadGallery() {
       return;
     }
 
-    // 画像ギャラリーの表示
-    let html = `
+    // ヘッダー（件数と追加ボタン）
+    const headerHtml = `
       <div class="mb-4 flex justify-between items-center">
         <p class="text-sm text-gray-600">${translate('gallery.count', { ns: 'animals', count: images.length })}</p>
-        <button onclick="openUploadDialog()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+        <button onclick="openUploadDialog()" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">
           ${translate('gallery.add', { ns: 'animals' })}
         </button>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
     `;
+    const headerDiv = document.createElement('div');
+    headerDiv.innerHTML = headerHtml;
+    content.appendChild(headerDiv);
 
+    const listContainer = document.createElement('div');
+    listContainer.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4';
     const locale = window.i18next?.language === 'en' ? 'en-US' : 'ja-JP';
 
     images.forEach(image => {
-      // 画像パスに/media/プレフィックスを追加
+      const card = cloneTemplate('tmpl-gallery-item');
+      assertRequiredSelectors(
+        card,
+        ['.js-image', '.js-overlay-caption', '.js-caption', '.js-taken-at', '.js-delete-btn'],
+        'animal_detail.tmpl-gallery-item'
+      );
+
       const imageSrc = image.image_path.startsWith('/')
         ? image.image_path
         : `/media/${image.image_path}`;
+
       const rawDescription = (image.description || '').trim();
       const displayDescription =
         rawDescription === 'プロフィール画像'
@@ -793,33 +932,54 @@ async function loadGallery() {
               defaultValue: rawDescription || 'プロフィール画像',
             })
           : rawDescription;
-      const imageAlt = displayDescription || translate('gallery.cat_image', { ns: 'animals' });
 
-      html += `
-        <div class="relative group">
-          <img src="${imageSrc}"
-               alt="${imageAlt}"
-              onerror="this.onerror=null; this.src='${DEFAULT_IMAGE_PLACEHOLDER}';"
-               class="w-full h-48 object-cover rounded-lg cursor-pointer"
-               onclick="openImageModal('${imageSrc}', '${imageAlt}')">
-          <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onclick="deleteImage(${image.id})" class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-          ${image.taken_at ? `<p class="text-xs text-gray-500 mt-1">${new Date(image.taken_at).toLocaleDateString(locale)}</p>` : ''}
-          ${displayDescription ? `<p class="text-xs text-gray-600 mt-1 truncate">${displayDescription}</p>` : ''}
-        </div>
-      `;
+      const imgEl = requireSelector(card, '.js-image', 'animal_detail.tmpl-gallery-item');
+      imgEl.src = imageSrc;
+      imgEl.alt = displayDescription || translate('gallery.cat_image', { ns: 'animals' });
+      imgEl.onerror = () => {
+        imgEl.onerror = null;
+        imgEl.src = DEFAULT_IMAGE_PLACEHOLDER;
+      };
+      imgEl.style.cursor = 'pointer';
+      imgEl.onclick = () =>
+        openImageModal(
+          imageSrc,
+          displayDescription || translate('gallery.cat_image', { ns: 'animals' })
+        );
+
+      const overlayCaption = requireSelector(
+        card,
+        '.js-overlay-caption',
+        'animal_detail.tmpl-gallery-item'
+      );
+      overlayCaption.textContent = displayDescription;
+
+      const captionEl = requireSelector(card, '.js-caption', 'animal_detail.tmpl-gallery-item');
+      if (displayDescription) {
+        captionEl.textContent = displayDescription;
+        captionEl.classList.remove('hidden');
+      }
+
+      const takenAtEl = requireSelector(card, '.js-taken-at', 'animal_detail.tmpl-gallery-item');
+      if (image.taken_at) {
+        takenAtEl.textContent = new Date(image.taken_at).toLocaleDateString(locale);
+        takenAtEl.classList.remove('hidden');
+      }
+
+      const deleteBtn = requireSelector(card, '.js-delete-btn', 'animal_detail.tmpl-gallery-item');
+      deleteBtn.addEventListener('click', event => {
+        event.stopPropagation();
+        deleteImage(image.id);
+      });
+
+      translateDynamicElement(card);
+      listContainer.appendChild(card);
     });
 
-    html += '</div>';
-    content.innerHTML = html;
+    content.appendChild(listContainer);
   } catch (error) {
     console.error('Error loading gallery:', error);
-    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('gallery.load_error', { ns: 'animals' })}</div>`;
+    content.innerHTML = `<div class="text-center py-8 text-red-500">${translate('gallery.fetch_error', { ns: 'animals' })}</div>`;
   }
 }
 
@@ -1216,10 +1376,10 @@ function setupProfileImageChange() {
 
       // タブの切り替え
       tabButtons.forEach(btn => {
-        btn.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+        btn.classList.remove('active', 'border-brand-primary', 'text-brand-primary');
         btn.classList.add('border-transparent', 'text-gray-500');
       });
-      button.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+      button.classList.add('active', 'border-brand-primary', 'text-brand-primary');
       button.classList.remove('border-transparent', 'text-gray-500');
 
       // コンテンツの切り替え
@@ -1357,7 +1517,7 @@ async function loadGalleryImages() {
         <div class="relative group cursor-pointer" onclick="selectGalleryImage(${image.id}, '/media/${image.image_path}')">
           <img src="/media/${image.image_path}"
                alt="${image.description || ''}"
-               class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-indigo-600 transition-colors">
+               class="w-full h-32 object-cover rounded-lg border-2 border-gray-300 hover:border-brand-primary transition-colors">
           <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
             <span class="text-white opacity-0 group-hover:opacity-100 font-medium">${selectLabel}</span>
           </div>

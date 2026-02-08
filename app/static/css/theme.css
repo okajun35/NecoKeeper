@@ -1,0 +1,75 @@
+/* ============================================
+   NecoKeeper Design System: "Organic Warmth"
+   ============================================ */
+
+:root {
+    /*
+     * Brand Colors (Nordic/Earth Theme)
+     */
+
+    /* Primary: Terracotta (Warmth, Energy, Love) */
+    --color-brand-primary: #E07A5F;
+    --color-brand-primary-rgb: 224, 122, 95;
+    --color-brand-primary-light: #f2ccc2; /* Tint for backgrounds */
+    --color-brand-primary-dark: #c25b3e;   /* Shade for hover */
+
+    /* Secondary: Sage Green (Health, Safety, Healing) */
+    --color-brand-secondary: #81B29A;
+    --color-brand-secondary-rgb: 129, 178, 154;
+    --color-brand-secondary-light: #dceee4; /* Tint */
+    --color-brand-secondary-dark: #5f8d77; /* Shade */
+
+    /* Neutral: Soft Cream & Gunmetal */
+    --color-bg-base: #F2F4F8;       /* Main Page Background */
+    --color-bg-surface: #FFFFFF;    /* Card/Modal Background */
+    --color-text-main: #3D405B;     /* Main Text (Gunmetal Navy) */
+    --color-text-muted: #64748b;    /* Secondary Text (Slate) */
+    --color-border: #cbd5e1;       /* Border Color */
+
+    /* Accent & Status */
+    --color-accent-gold: #F2CC8F;   /* Warnings, Stars */
+    --color-status-success: #81B29A;
+    --color-status-error: #E07A5F;
+    --color-status-info: #3D405B;
+
+    /*
+     * Typography
+     */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /*
+     * Shapes & Effects
+     */
+    --radius-sm: 0.5rem;    /* 8px */
+    --radius-md: 1rem;      /* 16px */
+    --radius-lg: 1.5rem;    /* 24px */
+    --radius-full: 9999px;
+
+    --shadow-soft: 0 4px 20px -2px rgba(61, 64, 91, 0.1);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* Base Styles */
+body {
+    background-color: var(--color-bg-base);
+    color: var(--color-text-main);
+    font-family: var(--font-body);
+    /* Improve font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text-main);
+}
+
+/* Kiroween Mode Overrides (Preserve Kiroween) */
+body.kiroween-mode {
+    --color-bg-base: #000000;
+    --color-text-main: #33ff00;
+    --font-body: 'Courier New', monospace;
+    --font-heading: 'Courier New', monospace;
+}

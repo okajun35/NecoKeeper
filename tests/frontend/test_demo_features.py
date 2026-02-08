@@ -55,6 +55,22 @@ def test_root_returns_404_when_demo_features_disabled(client_factory) -> None:
     assert response.status_code == 404
 
 
+def test_root_includes_theme_css_when_demo_features_enabled(client_factory) -> None:
+    """
+    正常系: DEMO_FEATURES=true の場合、ランディングページで theme.css を読み込む
+
+    Given: DEMO_FEATURES=true
+    When: / にアクセス
+    Then: theme.css のリンクが含まれる
+    """
+    client = client_factory({"DEMO_FEATURES": "true"})
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "/static/css/theme.css" in response.text
+
+
 def test_login_page_hides_dev_account_when_demo_features_disabled(
     client_factory,
 ) -> None:
