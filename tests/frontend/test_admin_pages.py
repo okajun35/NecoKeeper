@@ -206,6 +206,34 @@ class TestDashboardPages:
         assert b"text/html" in response.headers["content-type"].encode()
 
 
+class TestSettingsPage:
+    """設定ページの公開契約テスト"""
+
+    def test_settings_page_returns_404_with_auth(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
+        """認証済みでも設定ページは常に404を返す"""
+        response = test_client.get(
+            "/admin/settings",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 404
+        assert response.headers["content-type"].startswith("application/json")
+        assert response.json()["detail"] == "設定ページは現在利用できません"
+
+    def test_settings_page_returns_404_without_auth(
+        self, test_client: TestClient
+    ) -> None:
+        """未認証でも設定ページはログイン誘導せず404を返す"""
+        response = test_client.get("/admin/settings", follow_redirects=False)
+
+        assert response.status_code == 404
+        assert response.headers["content-type"].startswith("application/json")
+        assert response.json()["detail"] == "設定ページは現在利用できません"
+
+
 class TestAuthPages:
     """認証画面のテスト"""
 
