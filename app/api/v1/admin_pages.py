@@ -837,25 +837,8 @@ def settings_page(
     request: Request,
     current_user: User | None = Depends(get_current_user_optional),
 ) -> Response:
-    """
-    設定ページを表示
-
-    システム設定を管理。
-    画像制限、バックアップ設定などを含む。
-
-    Args:
-        request: FastAPIリクエストオブジェクト
-
-    Returns:
-        HTMLResponse: 設定ページのHTML
-
-    Example:
-        GET /admin/settings
-    """
-    if not current_user:
-        return RedirectResponse(url=admin_login_path, status_code=302)
-
-    return templates.TemplateResponse(
-        "admin/settings/index.html",
-        {"request": request, "user": current_user, "settings": settings},
+    """設定ページは未提供のため404を返す。"""
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="設定ページは現在利用できません",
     )
