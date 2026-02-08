@@ -360,14 +360,16 @@ endblock %}
         <div class="bg-bg-surface rounded-2xl shadow-card p-6 border border-border" data-field="careImage"
             style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
             <label for="careImage" class="block text-sm font-medium text-text-muted mb-3 font-sans"
-                style="color: var(--color-text-muted);">
+                style="color: var(--color-text-muted);" data-i18n="care_image_optional" data-i18n-ns="care">
                 気になる写真（任意）
             </label>
             <input type="file" id="careImage" name="image" accept="image/jpeg,image/png,image/webp" capture="environment"
                 class="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-brand-primary focus:border-transparent font-sans bg-bg-base"
                 style="border-color: var(--color-border); border-radius: var(--radius-md); background-color: var(--color-bg-base);">
             <p class="mt-2 text-xs text-text-muted" style="color: var(--color-text-muted);">
-                最大 {{ settings.care_log_image_max_size_mb }}MB。送信後、public画面では画像は表示されません。
+                <span data-i18n="care_image_note_prefix" data-i18n-ns="care">最大</span>
+                {{ settings.care_log_image_max_size_mb }}MB。
+                <span data-i18n="care_image_note_suffix" data-i18n-ns="care">送信後、public画面では画像は表示されません。</span>
             </p>
 
             <div id="careImagePreviewContainer" class="hidden mt-3">
@@ -376,7 +378,8 @@ endblock %}
                     style="border-color: var(--color-border);">
                 <button id="careImageClearBtn" type="button"
                     class="mt-2 px-3 py-2 text-sm rounded-lg border border-border text-text-main hover:bg-black/5"
-                    style="border-color: var(--color-border); color: var(--color-text-main);">
+                    style="border-color: var(--color-border); color: var(--color-text-main);" data-i18n="care_image_clear"
+                    data-i18n-ns="care">
                     画像を外す
                 </button>
             </div>

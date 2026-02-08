@@ -202,6 +202,58 @@ class TestCreateCareLogPublic:
         assert saved.care_image_path is not None
         assert saved.care_image_deleted_at is None
 
+    def test_create_care_log_public_with_spoofed_image_format_returns_400(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """異常系: content-type偽装で実データ形式が不正な画像は400"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="偽装画像テストボランティア",
+            contact="090-1111-2222",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "5",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+        }
+        files = {
+            # 実体はGIFだが filename/content-type をPNGに偽装
+            "image": ("spoofed.png", _create_image_bytes("GIF"), "image/png")
+        }
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 400
+        assert "JPEG/PNG/WebP" in response.json()["detail"]
+
     def test_create_care_log_public_with_defecation_and_stool_condition_success(
         self, test_client: TestClient, test_animal: Animal, test_db: Session
     ):

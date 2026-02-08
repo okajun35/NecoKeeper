@@ -28,6 +28,12 @@ ALLOWED_CARE_IMAGE_MIME_TYPES = {
     "image/webp",
 }
 
+ALLOWED_CARE_IMAGE_FORMATS = {
+    "JPEG",
+    "PNG",
+    "WEBP",
+}
+
 CARE_IMAGE_MEDIA_TYPES = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
@@ -73,6 +79,13 @@ def save_care_log_image(file: UploadFile) -> tuple[str, str]:
         raw = file.file.read()
 
         with Image.open(io.BytesIO(raw)) as image:
+            detected_format = (image.format or "").upper()
+            if detected_format not in ALLOWED_CARE_IMAGE_FORMATS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="画像は JPEG/PNG/WebP のみ対応しています",
+                )
+
             image = ImageOps.exif_transpose(image)
             if image.mode != "RGB":
                 image = image.convert("RGB")
