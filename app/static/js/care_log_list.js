@@ -443,6 +443,12 @@ function renderDailyCards(summary = []) {
   summary.forEach(day => {
     const card = cloneTemplate('tmpl-daily-card');
 
+    // Safety check: card must not be null
+    if (!card) {
+      console.error('[care_log_list] Failed to clone tmpl-daily-card');
+      return;
+    }
+
     // Date
     const dateEl = card.querySelector('.js-date');
     if (dateEl) dateEl.textContent = formatDate(day.isoDate);
@@ -535,6 +541,12 @@ function displayRecentLogs(logs = []) {
     const log = logItem || {};
     const logDiv = cloneTemplate('tmpl-log-item');
 
+    // Safety check: logDiv must not be null
+    if (!logDiv) {
+      console.error('[care_log_list] Failed to clone tmpl-log-item');
+      return;
+    }
+
     // Highlight Effect
     if (highlightId && log.id === Number(highlightId)) {
       logDiv.classList.add('border-brand-primary', 'bg-brand-primary-light');
@@ -579,26 +591,45 @@ function displayRecentLogs(logs = []) {
 function renderLogDetailModal(log) {
   const modal = cloneTemplate('tmpl-log-detail-modal');
 
+  // Safety check: modal must not be null
+  if (!modal) {
+    console.error('[care_log_list] Failed to clone tmpl-log-detail-modal template');
+    showError(translateCareLogs('public.errors.modal_error', 'モーダルの作成に失敗しました'));
+    return;
+  }
+
   // Close Logic
   const closeModal = () => modal.remove();
-  modal.querySelector('.js-close-btn').addEventListener('click', closeModal);
-  modal.querySelector('.js-footer-close-btn').addEventListener('click', closeModal);
-  modal.querySelector('.js-footer-close-btn').textContent = translateCareLogs(
-    'public.modal_close',
-    '閉じる'
-  );
-  modal.querySelector('.js-modal-overlay').addEventListener('click', e => {
-    if (e.target.classList.contains('js-modal-overlay')) closeModal();
-  });
+  const closeBtn = modal.querySelector('.js-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  const footerCloseBtn = modal.querySelector('.js-footer-close-btn');
+  if (footerCloseBtn) {
+    footerCloseBtn.addEventListener('click', closeModal);
+    footerCloseBtn.textContent = translateCareLogs('public.modal_close', '閉じる');
+  }
+
+  const modalOverlay = modal.querySelector('.js-modal-overlay');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', e => {
+      if (e.target.classList.contains('js-modal-overlay')) closeModal();
+    });
+  }
 
   // Header
-  modal.querySelector('.js-modal-title').textContent = translateCareLogs(
-    'public.modal_title',
-    '記録詳細'
-  );
+  const modalTitle = modal.querySelector('.js-modal-title');
+  if (modalTitle) {
+    modalTitle.textContent = translateCareLogs('public.modal_title', '記録詳細');
+  }
 
   // Detail Rows
   const container = modal.querySelector('.js-details-container');
+  if (!container) {
+    console.error('[care_log_list] Failed to find .js-details-container in modal');
+    return;
+  }
   const detailRows = [
     {
       label: translateCareLogs('fields.log_date', '記録日'),
@@ -636,26 +667,38 @@ function renderLogDetailModal(log) {
 
   detailRows.forEach(row => {
     const rowEl = cloneTemplate('tmpl-detail-row');
-    rowEl.querySelector('.js-label').textContent = row.label;
-    rowEl.querySelector('.js-value').textContent = row.value;
+    if (!rowEl) {
+      console.error('[care_log_list] Failed to clone tmpl-detail-row');
+      return;
+    }
+    const labelEl = rowEl.querySelector('.js-label');
+    const valueEl = rowEl.querySelector('.js-value');
+    if (labelEl) labelEl.textContent = row.label;
+    if (valueEl) valueEl.textContent = row.value;
     container.appendChild(rowEl);
   });
 
   // Memo
   if (log.memo) {
     const wrapper = modal.querySelector('.js-memo-wrapper');
-    wrapper.classList.remove('hidden');
-    wrapper.querySelector('.js-memo-label').textContent = translateCareLogs('fields.memo', 'メモ');
-    wrapper.querySelector('.js-memo-content').textContent = log.memo;
+    if (wrapper) {
+      wrapper.classList.remove('hidden');
+      const memoLabel = wrapper.querySelector('.js-memo-label');
+      const memoContent = wrapper.querySelector('.js-memo-content');
+      if (memoLabel) memoLabel.textContent = translateCareLogs('fields.memo', 'メモ');
+      if (memoContent) memoContent.textContent = log.memo;
+    }
   }
 
   // Edit Button
   const editBtn = modal.querySelector('.js-edit-btn');
-  editBtn.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
-  if (animalId && log?.id) {
-    editBtn.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
-  } else {
-    editBtn.classList.add('opacity-50', 'pointer-events-none');
+  if (editBtn) {
+    editBtn.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
+    if (animalId && log?.id) {
+      editBtn.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
+    } else {
+      editBtn.classList.add('opacity-50', 'pointer-events-none');
+    }
   }
 
   document.body.appendChild(modal);
