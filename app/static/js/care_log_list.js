@@ -327,19 +327,53 @@ const FALLBACK_TEMPLATE_SLOT_CHIP = `
     </button>
 `;
 
-function cloneTemplate(templateId, fallbackHtml) {
+function cloneTemplate(templateId, fallbackHtml, requiredSelectors = []) {
+  const missingRequiredSelectors = element =>
+    requiredSelectors.filter(selector => {
+      const selfMatches = typeof element.matches === 'function' ? element.matches(selector) : false;
+      return !selfMatches && !element.querySelector(selector);
+    });
+
   const template = document.getElementById(templateId);
-  if (!template) {
-    // Fallback for safety if template is missing (regression safety)
-    if (fallbackHtml) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = fallbackHtml.trim();
-      return tempDiv.firstElementChild;
+  if (template) {
+    const clonedElement = template.content.cloneNode(true).firstElementChild;
+    if (clonedElement) {
+      const missingSelectors = missingRequiredSelectors(clonedElement);
+      if (!missingSelectors.length) {
+        return clonedElement;
+      }
+      console.error(
+        `[care_log_list] Template ${templateId} is missing required selectors: ${missingSelectors.join(', ')}`
+      );
+    } else {
+      console.error(`[care_log_list] Template ${templateId} has no root element`);
     }
-    console.error(`Template ${templateId} not found`);
-    return document.createElement('div');
+  } else {
+    console.error(`[care_log_list] Template ${templateId} not found`);
   }
-  return template.content.cloneNode(true).firstElementChild;
+
+  if (!fallbackHtml) {
+    return null;
+  }
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = fallbackHtml.trim();
+  const fallbackElement = tempDiv.firstElementChild;
+  if (!fallbackElement) {
+    console.error(`[care_log_list] Fallback template ${templateId} has no root element`);
+    return null;
+  }
+
+  const missingFallbackSelectors = missingRequiredSelectors(fallbackElement);
+  if (missingFallbackSelectors.length) {
+    console.error(
+      `[care_log_list] Fallback template ${templateId} is missing required selectors: ${missingFallbackSelectors.join(', ')}`
+    );
+    return null;
+  }
+
+  console.warn(`[care_log_list] Using fallback template for ${templateId}`);
+  return fallbackElement;
 }
 
 function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
@@ -373,7 +407,19 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
   }
 
   // Card Variant uses Template
-  const element = cloneTemplate('tmpl-slot-chip');
+  const element = cloneTemplate('tmpl-slot-chip', FALLBACK_TEMPLATE_SLOT_CHIP, [
+    '.js-emoji',
+    '.js-label',
+    '.js-status',
+  ]);
+  if (!element) {
+    console.error('[care_log_list] Failed to clone tmpl-slot-chip');
+    const degraded = document.createElement(hasRecord && slotInfo?.logId ? 'button' : 'div');
+    degraded.className =
+      'mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold';
+    degraded.textContent = hasRecord ? '○' : '-';
+    return degraded;
+  }
 
   // Interactive Container
   const container = element; // The root is the button
@@ -441,7 +487,10 @@ function renderDailyCards(summary = []) {
   container.innerHTML = '';
 
   summary.forEach(day => {
-    const card = cloneTemplate('tmpl-daily-card');
+    const card = cloneTemplate('tmpl-daily-card', FALLBACK_TEMPLATE_DAILY_CARD, [
+      '.js-date',
+      '.js-slots',
+    ]);
 
     // Safety check: card must not be null
     if (!card) {
@@ -539,7 +588,12 @@ function displayRecentLogs(logs = []) {
 
   logs.forEach(logItem => {
     const log = logItem || {};
-    const logDiv = cloneTemplate('tmpl-log-item');
+    const logDiv = cloneTemplate('tmpl-log-item', null, [
+      '.js-emoji',
+      '.js-date',
+      '.js-meta',
+      '.js-check',
+    ]);
 
     // Safety check: logDiv must not be null
     if (!logDiv) {
@@ -589,7 +643,10 @@ function displayRecentLogs(logs = []) {
 }
 
 function renderLogDetailModal(log) {
-  const modal = cloneTemplate('tmpl-log-detail-modal');
+  const modal = cloneTemplate('tmpl-log-detail-modal', null, [
+    '.js-modal-overlay',
+    '.js-details-container',
+  ]);
 
   // Safety check: modal must not be null
   if (!modal) {
@@ -628,6 +685,12 @@ function renderLogDetailModal(log) {
   const container = modal.querySelector('.js-details-container');
   if (!container) {
     console.error('[care_log_list] Failed to find .js-details-container in modal');
+    showError(
+      translateCareLogs(
+        'public.errors.modal_missing_details',
+        '記録詳細の表示に失敗しました。しばらくしてから再度お試しください。'
+      )
+    );
     return;
   }
   const detailRows = [
@@ -666,7 +729,7 @@ function renderLogDetailModal(log) {
   ];
 
   detailRows.forEach(row => {
-    const rowEl = cloneTemplate('tmpl-detail-row');
+    const rowEl = cloneTemplate('tmpl-detail-row', null, ['.js-label', '.js-value']);
     if (!rowEl) {
       console.error('[care_log_list] Failed to clone tmpl-detail-row');
       return;

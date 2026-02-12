@@ -139,7 +139,9 @@
     "errors": {
       "missing_animal_id": "猫のIDが指定されていません",
       "load_list_failed": "記録一覧の取得に失敗しました",
-      "load_detail_failed": "記録詳細の取得に失敗しました"
+      "load_detail_failed": "記録詳細の取得に失敗しました",
+      "modal_error": "モーダルの作成に失敗しました",
+      "modal_missing_details": "記録詳細の表示に失敗しました。しばらくしてから再度お試しください。"
     },
     "unnamed_animal": "名前未設定"
   }

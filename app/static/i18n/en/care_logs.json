@@ -139,7 +139,9 @@
     "errors": {
       "missing_animal_id": "Animal ID was not specified",
       "load_list_failed": "Failed to load care logs",
-      "load_detail_failed": "Failed to load care log details"
+      "load_detail_failed": "Failed to load care log details",
+      "modal_error": "Failed to create the modal",
+      "modal_missing_details": "Failed to render care log details. Please try again in a moment."
     },
     "unnamed_animal": "Unnamed cat"
   }
