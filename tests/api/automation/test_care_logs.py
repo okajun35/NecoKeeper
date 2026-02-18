@@ -406,6 +406,7 @@ class TestCreateCareLogAutomation:
             "recorder_name": "テストユーザー",
             "log_date": "2025-11-24",
             "time_slot": "noon",
+            "vomiting": False,
             # appetite, energy, urination, cleaning, from_paperはデフォルト値を使用
         }
 
@@ -423,6 +424,7 @@ class TestCreateCareLogAutomation:
         # デフォルト値の検証
         assert data["appetite"] == 1.0  # デフォルト
         assert data["energy"] == 3  # デフォルト
+        assert data["vomiting"] is False
         assert data["urination"] is False  # デフォルト
         assert data["cleaning"] is False  # デフォルト
         assert data["from_paper"] is False  # デフォルト

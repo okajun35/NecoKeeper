@@ -159,6 +159,28 @@ class TestCareLogPages:
         assert b'id="stoolConditionHelpBackdrop"' in response.content
         assert b'id="stoolConditionHelpClose"' in response.content
 
+    def test_care_log_edit_page_energy_order_and_label(
+        self, test_client: TestClient, auth_token: str, test_care_logs
+    ) -> None:
+        """正常系: 編集画面の元気選択肢も 元気→低活力→ぐったり（数字なし）"""
+        care_log_id = test_care_logs[0].id
+        response = test_client.get(
+            f"/admin/care-logs/{care_log_id}/edit",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        html = response.text
+        assert html.index('value="3" data-i18n="energy_levels.3"') < html.index(
+            'value="2" data-i18n="energy_levels.2"'
+        )
+        assert html.index('value="2" data-i18n="energy_levels.2"') < html.index(
+            'value="1" data-i18n="energy_levels.1"'
+        )
+        assert "1 (ぐったり)" not in html
+        assert "2 (低活力)" not in html
+        assert "3 (元気)" not in html
+
 
 class TestAdoptionPages:
     """里親管理画面のテスト"""

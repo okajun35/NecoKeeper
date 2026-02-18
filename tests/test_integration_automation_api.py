@@ -97,6 +97,7 @@ class TestAutomationAPIIntegration:
             "time_slot": "morning",
             "appetite": 1.0,
             "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -181,6 +182,7 @@ class TestAutomationAPIIntegration:
             "time_slot": "morning",
             "appetite": 1.0,
             "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -346,6 +348,7 @@ class TestAutomationAPIIntegration:
             "time_slot": "morning",
             "appetite": 1.0,
             "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
             "from_paper": True,

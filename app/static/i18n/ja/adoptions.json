@@ -4,8 +4,12 @@
     "description": "里親希望者の登録と管理",
     "search_placeholder": "名前、連絡先で検索...",
     "fields": {
+      "request_type": "種別",
       "name": "氏名",
+      "phone": "電話番号",
       "contact": "連絡先",
+      "contact_method": "連絡手段",
+      "status": "状態",
       "address": "住所",
       "family": "家族構成",
       "environment": "飼育環境",
@@ -23,9 +27,41 @@
       "environment": "例: マンション、ペット可",
       "conditions": "例: 成猫希望、オス希望"
     },
+    "buttons": {
+      "new_intake": "受付を登録",
+      "detail": "詳細",
+      "convert_to_application": "申込化"
+    },
+    "filters": {
+      "request_type": "種別"
+    },
+    "request_types": {
+      "all": "すべて",
+      "application": "譲渡申込",
+      "consultation": "相談",
+      "both": "相談/譲渡申込"
+    },
+    "statuses": {
+      "not_applicable": "-",
+      "applied_with_consultation": "申込済（相談あり）",
+      "applied_with_consultation_status": "申込済（相談: {{status}}）"
+    },
+    "consultation_status": {
+      "open": "受付中",
+      "converted": "申込化済み",
+      "closed": "対応終了"
+    },
+    "contact": {
+      "line": "LINE",
+      "email": "メール",
+      "phone": "電話"
+    },
     "modal": {
       "title_new": "里親希望者登録",
       "title_edit": "里親希望者編集"
+    },
+    "messages": {
+      "load_failed": "データの取得に失敗しました"
     }
   },
   "records": {
@@ -62,11 +98,16 @@
       "adoption_warning": "⚠️ 譲渡完了すると、猫のステータスが「譲渡済み」に変更されます。",
       "registered": "登録しました",
       "updated": "更新しました",
-      "adoption_completed": "譲渡完了しました"
+      "adoption_completed": "譲渡完了しました",
+      "no_applicant_candidates": "候補がありません。受付登録を先に行ってください。",
+      "applicant_not_selected": "里親希望者を候補から選択してください"
     },
     "labels": {
       "interview_date_label": "面談日",
       "adoption_date_label": "譲渡日"
+    },
+    "placeholders": {
+      "applicant_search": "氏名・ふりがな・電話番号・連絡先で検索（2文字以上）"
     }
   }
 }

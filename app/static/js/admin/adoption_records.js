@@ -265,8 +265,11 @@ function renderApplicantSearchResults(candidates) {
   if (!resultsBox) return;
 
   if (!Array.isArray(candidates) || candidates.length === 0) {
-    resultsBox.innerHTML =
-      '<div class="px-3 py-2 text-sm text-gray-500">候補がありません。受付登録を先に行ってください。</div>';
+    const noCandidatesMessage = t('adoptions:records.messages.no_applicant_candidates', {
+      ns: 'adoptions',
+      defaultValue: '候補がありません。受付登録を先に行ってください。',
+    });
+    resultsBox.innerHTML = `<div class="px-3 py-2 text-sm text-gray-500">${escapeHtml(noCandidatesMessage)}</div>`;
     resultsBox.classList.remove('hidden');
     return;
   }
@@ -584,7 +587,15 @@ async function saveInterview(e) {
   const recordId = document.getElementById('recordId').value;
   const applicantIdValue = document.getElementById('applicantId').value;
   if (!applicantIdValue) {
-    alert('里親希望者を候補から選択してください');
+    const message = t('adoptions:records.messages.applicant_not_selected', {
+      ns: 'adoptions',
+      defaultValue: '里親希望者を候補から選択してください',
+    });
+    if (typeof showToast === 'function') {
+      showToast(message, 'error');
+    } else {
+      alert(message);
+    }
     return;
   }
 

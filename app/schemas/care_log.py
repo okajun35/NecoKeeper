@@ -35,7 +35,7 @@ class CareLogBase(BaseModel):
         1.0, ge=0.0, le=1.0, description="食欲（1.0=完食, 0.0=食べない）"
     )
     energy: int = Field(3, ge=1, le=3, description="元気（1〜3段階、3が最良）")
-    vomiting: bool = Field(False, description="嘔吐有無")
+    vomiting: bool = Field(..., description="嘔吐有無")
     urination: bool = Field(False, description="排尿有無")
     defecation: bool = Field(False, description="排便有無")
     stool_condition: StoolCondition | None = Field(

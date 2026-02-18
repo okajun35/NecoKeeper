@@ -46,7 +46,12 @@ async function fetchJson(url) {
     credentials: 'same-origin',
   });
   if (!response.ok) {
-    throw new Error('データの取得に失敗しました');
+    throw new Error(
+      t('adoptions:applicants.messages.load_failed', {
+        ns: 'adoptions',
+        defaultValue: 'データの取得に失敗しました',
+      })
+    );
   }
   return response.json();
 }
@@ -195,28 +200,68 @@ function translateDynamicElement(element) {
 }
 
 function formatRequestType(entry) {
-  if (entry.request_type === 'both') return '相談/譲渡申込';
-  return entry.request_type === 'consultation' ? '相談' : '譲渡申込';
+  if (entry.request_type === 'both') {
+    return t('adoptions:applicants.request_types.both', {
+      ns: 'adoptions',
+      defaultValue: '相談/譲渡申込',
+    });
+  }
+  return entry.request_type === 'consultation'
+    ? t('adoptions:applicants.request_types.consultation', {
+        ns: 'adoptions',
+        defaultValue: '相談',
+      })
+    : t('adoptions:applicants.request_types.application', {
+        ns: 'adoptions',
+        defaultValue: '譲渡申込',
+      });
 }
 
 function formatStatus(entry) {
-  if (entry.request_type === 'application') return '-';
+  const notApplicable = t('adoptions:applicants.statuses.not_applicable', {
+    ns: 'adoptions',
+    defaultValue: '-',
+  });
+  if (entry.request_type === 'application') return notApplicable;
   if (entry.request_type === 'both') {
     const consultationStatus = formatConsultationStatus(entry.status);
-    return consultationStatus === '-'
-      ? '申込済（相談あり）'
-      : `申込済（相談: ${consultationStatus}）`;
+    return consultationStatus === notApplicable
+      ? t('adoptions:applicants.statuses.applied_with_consultation', {
+          ns: 'adoptions',
+          defaultValue: '申込済（相談あり）',
+        })
+      : t('adoptions:applicants.statuses.applied_with_consultation_status', {
+          ns: 'adoptions',
+          status: consultationStatus,
+          defaultValue: '申込済（相談: {{status}}）',
+        });
   }
   return formatConsultationStatus(entry.status);
 }
 
 function formatConsultationStatus(status) {
-  const map = {
-    open: '受付中',
-    converted: '申込化済み',
-    closed: '対応終了',
-  };
-  return map[status] || status || '-';
+  if (status === 'open') {
+    return t('adoptions:applicants.consultation_status.open', {
+      ns: 'adoptions',
+      defaultValue: '受付中',
+    });
+  }
+  if (status === 'converted') {
+    return t('adoptions:applicants.consultation_status.converted', {
+      ns: 'adoptions',
+      defaultValue: '申込化済み',
+    });
+  }
+  if (status === 'closed') {
+    return t('adoptions:applicants.consultation_status.closed', {
+      ns: 'adoptions',
+      defaultValue: '対応終了',
+    });
+  }
+  return (
+    status ||
+    t('adoptions:applicants.statuses.not_applicable', { ns: 'adoptions', defaultValue: '-' })
+  );
 }
 
 function getDetailUrl(entry) {
@@ -257,15 +302,15 @@ function getEditUrl(entry) {
 
 function formatContact(entry) {
   if (entry.contact_type === 'line' && entry.contact_line_id) {
-    return `LINE: ${entry.contact_line_id}`;
+    return `${t('adoptions:applicants.contact.line', { ns: 'adoptions', defaultValue: 'LINE' })}: ${entry.contact_line_id}`;
   }
   if (entry.contact_type === 'email' && entry.contact_email) {
-    return `メール: ${entry.contact_email}`;
+    return `${t('adoptions:applicants.contact.email', { ns: 'adoptions', defaultValue: 'メール' })}: ${entry.contact_email}`;
   }
   if (entry.phone) {
-    return `電話: ${entry.phone}`;
+    return `${t('adoptions:applicants.contact.phone', { ns: 'adoptions', defaultValue: '電話' })}: ${entry.phone}`;
   }
-  return '-';
+  return t('adoptions:applicants.statuses.not_applicable', { ns: 'adoptions', defaultValue: '-' });
 }
 
 function filterEntries() {
