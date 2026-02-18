@@ -82,6 +82,9 @@ def _parse_care_log_multipart_form(
             "time_slot": _required_form_value(form, "time_slot"),
             "appetite": float(_required_form_value(form, "appetite")),
             "energy": int(_required_form_value(form, "energy")),
+            "vomiting": _parse_bool_form(
+                _required_form_value(form, "vomiting"), "vomiting"
+            ),
             "urination": _parse_bool_form(
                 _required_form_value(form, "urination"), "urination"
             ),
@@ -286,7 +289,8 @@ async def create_care_log_public(
             "recorder_id": 1,
             "time_slot": "朝",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": false,
             "urination": true,
             "cleaning": true,
             "memo": "元気です"
@@ -498,7 +502,8 @@ def get_care_log_detail(
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": false,
             "urination": true,
             "cleaning": true,
             "memo": "元気です",

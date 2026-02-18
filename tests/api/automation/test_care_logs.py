@@ -49,7 +49,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
             "memo": "排便: あり, 嘔吐: なし, 投薬: なし",
@@ -76,7 +77,7 @@ class TestCreateCareLogAutomation:
         assert data["log_date"] == "2025-11-24"
         assert data["time_slot"] == "morning"
         assert data["appetite"] == 1.0
-        assert data["energy"] == 5
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is False
         assert data["memo"] == "排便: あり, 嘔吐: なし, 投薬: なし"
@@ -126,7 +127,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -178,7 +180,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -230,7 +233,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "invalid_slot",  # 無効な時点
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -278,7 +282,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }
@@ -331,8 +336,9 @@ class TestCreateCareLogAutomation:
             "recorder_name": "OCR自動取込",
             "log_date": "2025-11-24",
             "time_slot": "evening",
-            "appetite": 0.75,
+            "appetite": 1.0,
             "energy": 3,
+            "vomiting": False,
             "urination": False,
             "cleaning": True,
             "memo": "特記事項なし",
@@ -359,7 +365,7 @@ class TestCreateCareLogAutomation:
         assert data["recorder_name"] == "OCR自動取込"
         assert data["log_date"] == "2025-11-24"
         assert data["time_slot"] == "evening"
-        assert data["appetite"] == 0.75
+        assert data["appetite"] == 1.0
         assert data["energy"] == 3
         assert data["urination"] is False
         assert data["cleaning"] is True
@@ -459,7 +465,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": time_slot,
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
         }
@@ -507,7 +514,8 @@ class TestCreateCareLogAutomation:
             "log_date": "2025-11-24",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": False,
         }

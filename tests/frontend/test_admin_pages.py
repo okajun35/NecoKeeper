@@ -11,6 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.config import get_settings
+from app.models.applicant import Applicant
 
 settings = get_settings()
 
@@ -114,6 +115,27 @@ class TestCareLogPages:
         assert b'id="stoolConditionHelpBackdrop"' in response.content
         assert b'id="stoolConditionHelpClose"' in response.content
 
+    def test_care_log_new_page_energy_order_and_label(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
+        """正常系: 元気の選択肢は 元気→低活力→ぐったり（数字なし）で表示される"""
+        response = test_client.get(
+            "/admin/care-logs/new",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        html = response.text
+        assert html.index('value="3" data-i18n="energy_levels.3"') < html.index(
+            'value="2" data-i18n="energy_levels.2"'
+        )
+        assert html.index('value="2" data-i18n="energy_levels.2"') < html.index(
+            'value="1" data-i18n="energy_levels.1"'
+        )
+        assert "1 (ぐったり)" not in html
+        assert "2 (低活力)" not in html
+        assert "3 (元気)" not in html
+
     def test_care_log_edit_page_includes_defecation_elements(
         self, test_client: TestClient, auth_token: str, test_care_logs
     ) -> None:
@@ -136,6 +158,57 @@ class TestCareLogPages:
         assert b'id="stoolConditionHelpModal"' in response.content
         assert b'id="stoolConditionHelpBackdrop"' in response.content
         assert b'id="stoolConditionHelpClose"' in response.content
+
+
+class TestAdoptionPages:
+    """里親管理画面のテスト"""
+
+    def test_consultation_new_page_has_intake_type_switch(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
+        """正常系: 里親相談新規ページに受付種別切り替えが表示される"""
+        response = test_client.get(
+            "/admin/adoptions/consultations/new",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert "受付種別".encode() in response.content
+        assert b'name="intake_type"' in response.content
+        assert "譲渡申込として進める".encode() in response.content
+
+    def test_applicant_detail_page(
+        self, test_client: TestClient, auth_token: str, test_db
+    ) -> None:
+        """正常系: 里親申込詳細ページが表示される"""
+        applicant = Applicant(name="里親テスト", contact="090-0000-0000")
+        test_db.add(applicant)
+        test_db.commit()
+        test_db.refresh(applicant)
+
+        response = test_client.get(
+            f"/admin/adoptions/applicants/{applicant.id}",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert "里親申込詳細".encode() in response.content
+
+    def test_adoption_records_page_has_applicant_search_input(
+        self, test_client: TestClient, auth_token: str
+    ) -> None:
+        """正常系: 面談記録モーダルに里親希望者検索UIが含まれる"""
+        response = test_client.get(
+            "/admin/adoptions/records",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+
+        assert response.status_code == 200
+        assert b"text/html" in response.headers["content-type"].encode()
+        assert b'id="applicantSearchInput"' in response.content
+        assert b'id="applicantSearchResults"' in response.content
 
 
 class TestMedicalRecordPages:

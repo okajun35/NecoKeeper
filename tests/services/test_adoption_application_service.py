@@ -10,7 +10,9 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from app.models.adoption_consultation import AdoptionConsultation
 from app.schemas.adoption import (
+    AdoptionConsultationCreate,
     ApplicantCreateExtended,
     ApplicantHouseholdMemberCreate,
     ApplicantPetCreate,
@@ -658,3 +660,91 @@ class TestGetApplicantExtended:
         assert result.name == "取得太郎"
         assert len(result.household_members) == 1
         assert len(result.pets) == 1
+
+
+class TestConsultationService:
+    """里親相談サービスのテスト"""
+
+    def test_create_consultation_success(self, test_db, test_user):
+        consultation_data = AdoptionConsultationCreate(
+            name_kana="サトウハナコ",
+            name="佐藤花子",
+            phone="090-1234-5678",
+            contact_type="line",
+            contact_line_id="sato_line",
+            contact_email=None,
+            consultation_note="まずは相談したいです",
+        )
+
+        result = adoption_service.create_consultation(
+            test_db, consultation_data, user_id=test_user.id
+        )
+
+        assert result.id is not None
+        assert result.status == "open"
+        assert result.name == "佐藤花子"
+
+    def test_create_applicant_with_source_consultation_marks_converted(
+        self, test_db, test_user
+    ):
+        consultation = AdoptionConsultation(
+            name_kana="タナカハナコ",
+            name="田中花子",
+            phone="08012345678",
+            contact_type="email",
+            contact_email="tanaka@example.com",
+            consultation_note="相談内容",
+            status="open",
+        )
+        test_db.add(consultation)
+        test_db.commit()
+        test_db.refresh(consultation)
+
+        applicant_data = ApplicantCreateExtended(
+            name_kana="タナカハナコ",
+            name="田中花子",
+            age=28,
+            phone="080-1234-5678",
+            contact_type="email",
+            contact_line_id=None,
+            contact_email="tanaka@example.com",
+            postal_code="150-0001",
+            address1="東京都渋谷区",
+            address2=None,
+            occupation="company_employee",
+            occupation_other=None,
+            desired_cat_alias="未定",
+            emergency_relation="parents",
+            emergency_relation_other=None,
+            emergency_name="田中一郎",
+            emergency_phone="090-9999-1111",
+            family_intent="all_positive",
+            pet_permission="allowed",
+            pet_limit_type="limited",
+            pet_limit_count=2,
+            housing_type="apartment",
+            housing_ownership="rented",
+            relocation_plan="none",
+            relocation_time_note=None,
+            relocation_cat_plan=None,
+            allergy_status="none",
+            smoker_in_household="no",
+            monthly_budget_yen=12000,
+            alone_time_status="none",
+            alone_time_weekly_days=None,
+            alone_time_hours=None,
+            has_existing_cat="no",
+            has_other_pets="no",
+            household_members=[],
+            pets=[],
+            source_consultation_id=consultation.id,
+        )
+
+        result = adoption_service.create_applicant_extended(
+            test_db, applicant_data, user_id=test_user.id
+        )
+        test_db.refresh(consultation)
+
+        assert result.id is not None
+        assert consultation.status == "converted"
+        assert consultation.applicant_id == result.id

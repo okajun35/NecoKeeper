@@ -16,6 +16,7 @@
     "time_slot": "Time Slot",
     "appetite": "Appetite",
     "energy": "Energy",
+    "vomiting": "Vomiting",
     "urination": "Urination",
     "cleaning": "Cage Cleaning",
     "defecation": "Defecation",
@@ -35,18 +36,18 @@
     "evening": "Evening"
   },
   "appetite_levels": {
-    "1": "Not eating",
-    "2": "Left 3/4",
-    "3": "Left half",
-    "4": "Left 1/4",
-    "5": "Finished"
+    "1": "Mostly left",
+    "2": "Half",
+    "3": "Almost finished"
   },
   "energy_levels": {
-    "1": "1 (Lethargic)",
-    "2": "2 (Low energy)",
-    "3": "3 (Normal)",
-    "4": "4 (Energetic)",
-    "5": "5 (Very energetic)"
+    "1": "Lethargic",
+    "2": "Low activity",
+    "3": "Active"
+  },
+  "vomiting_status": {
+    "yes": "Yes",
+    "no": "No"
   },
   "urination_status": {
     "yes": "Yes",

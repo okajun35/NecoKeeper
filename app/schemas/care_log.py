@@ -13,14 +13,14 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from app.utils.stool_condition import StoolCondition
 
-APPETITE_ALLOWED_VALUES = {1.0, 0.75, 0.5, 0.25, 0.0}
+APPETITE_ALLOWED_VALUES = {1.0, 0.5, 0.0}
 
 
 def normalize_appetite_value(value: float) -> float:
     """食欲の値を正規化して許容値か検証する。"""
     normalized = round(float(value), 2)
     if normalized not in APPETITE_ALLOWED_VALUES:
-        raise ValueError("食欲は 1.0/0.75/0.5/0.25/0.0 のいずれかである必要があります")
+        raise ValueError("食欲は 1.0/0.5/0.0 のいずれかである必要があります")
     return normalized
 
 
@@ -34,7 +34,8 @@ class CareLogBase(BaseModel):
     appetite: float = Field(
         1.0, ge=0.0, le=1.0, description="食欲（1.0=完食, 0.0=食べない）"
     )
-    energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
+    energy: int = Field(3, ge=1, le=3, description="元気（1〜3段階、3が最良）")
+    vomiting: bool = Field(False, description="嘔吐有無")
     urination: bool = Field(False, description="排尿有無")
     defecation: bool = Field(False, description="排便有無")
     stool_condition: StoolCondition | None = Field(
@@ -93,7 +94,8 @@ class CareLogUpdate(BaseModel):
     log_date: date_type | None = None
     time_slot: str | None = None
     appetite: float | None = Field(None, ge=0.0, le=1.0)
-    energy: int | None = Field(None, ge=1, le=5)
+    energy: int | None = Field(None, ge=1, le=3)
+    vomiting: bool | None = None
     urination: bool | None = None
     defecation: bool | None = None
     stool_condition: StoolCondition | None = Field(
@@ -226,7 +228,8 @@ class TimeSlotRecord(BaseModel):
     exists: bool = Field(..., description="記録の有無")
     log_id: int | None = Field(None, description="記録ID（記録がある場合）")
     appetite: float | None = Field(None, ge=0.0, le=1.0, description="食欲")
-    energy: int | None = Field(None, ge=1, le=5, description="元気")
+    energy: int | None = Field(None, ge=1, le=3, description="元気")
+    vomiting: bool | None = Field(None, description="嘔吐有無")
     urination: bool | None = Field(None, description="排尿有無")
     cleaning: bool | None = Field(None, description="清掃済み")
     has_image: bool = Field(False, description="画像の有無")

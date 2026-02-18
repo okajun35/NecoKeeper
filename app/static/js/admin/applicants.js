@@ -1,82 +1,186 @@
 /**
- * 里親希望者管理画面のJavaScript
+ * 里親希望者/相談 一覧画面
  */
 
 const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 let currentPage = 0;
 const pageSize = 20;
-let allApplicants = [];
-let filteredApplicants = [];
+let allEntries = [];
+let filteredEntries = [];
 
-// i18next翻訳ヘルパー
 function t(key, options = {}) {
   if (typeof i18next !== 'undefined' && i18next.isInitialized) {
     return i18next.t(key, options);
   }
-  // フォールバック: キーの最後の部分を返す
   const parts = key.split('.');
   return parts[parts.length - 1];
 }
 
-// 初期化
 document.addEventListener('DOMContentLoaded', () => {
-  // i18nextの初期化を待つ
   const checkI18n = setInterval(() => {
     if (typeof i18next !== 'undefined' && i18next.isInitialized) {
       clearInterval(checkI18n);
-      loadApplicants();
+      loadEntries();
       setupEventListeners();
     }
   }, 50);
 });
 
-// イベントリスナー設定
 function setupEventListeners() {
-  document.getElementById('searchBtn').addEventListener('click', () => filterApplicants());
+  document.getElementById('searchBtn').addEventListener('click', () => filterEntries());
   document.getElementById('clearBtn').addEventListener('click', () => clearSearch());
   document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
   document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+  document.getElementById('requestTypeFilter').addEventListener('change', () => loadEntries());
 }
 
-// 里親希望者一覧を読み込み
-async function loadApplicants() {
+async function fetchJson(url) {
+  const token = localStorage.getItem('access_token');
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, {
+    headers,
+    credentials: 'same-origin',
+  });
+  if (!response.ok) {
+    throw new Error('データの取得に失敗しました');
+  }
+  return response.json();
+}
+
+async function loadEntries() {
   showLoading(true);
   hideError();
 
   try {
-    const token = localStorage.getItem('access_token');
-    const response = await fetch('/api/v1/adoptions/applicants-extended?limit=1000', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const requestType = getSelectedRequestType();
+    const entries = await fetchJson(
+      `/api/v1/adoptions/intake-entries?limit=1000&request_type=${encodeURIComponent(requestType)}`
+    );
 
-    if (!response.ok) {
-      throw new Error('データの取得に失敗しました');
-    }
+    allEntries = [...entries].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    const data = await response.json();
-
-    // レスポンスが配列であることを確認
-    if (!Array.isArray(data)) {
-      console.error('Invalid response format:', data);
-      throw new Error('データ形式が不正です');
-    }
-
-    allApplicants = data;
-    filteredApplicants = [...allApplicants];
-    currentPage = 0;
-    renderApplicants();
+    filterEntries();
   } catch (error) {
-    console.error('Error loading applicants:', error);
+    console.error('Error loading adoption entries:', error);
     showError(error.message);
-    // エラー時は空の配列を設定
-    allApplicants = [];
-    filteredApplicants = [];
-    renderApplicants();
+    allEntries = [];
+    filteredEntries = [];
+    renderEntries();
   } finally {
     showLoading(false);
   }
+}
+
+function renderEntries() {
+  const start = currentPage * pageSize;
+  const end = start + pageSize;
+  const pageEntries = filteredEntries.slice(start, end);
+
+  const mobileList = document.getElementById('mobileList');
+  const desktopList = document.getElementById('desktopList');
+
+  if (mobileList) mobileList.innerHTML = '';
+  if (desktopList) desktopList.innerHTML = '';
+
+  pageEntries.forEach(entry => {
+    if (mobileList) {
+      const card = cloneTemplate('tmpl-mobile-card');
+      assertRequiredSelectors(
+        card,
+        [
+          '.js-request-type',
+          '.js-name',
+          '.js-phone',
+          '.js-contact',
+          '.js-registration-date',
+          '.js-status',
+          '.js-detail-btn',
+          '.js-edit-btn',
+          '.js-apply-btn',
+        ],
+        'applicants.tmpl-mobile-card'
+      );
+
+      requireSelector(card, '.js-request-type', 'applicants.tmpl-mobile-card').textContent =
+        formatRequestType(entry);
+      requireSelector(card, '.js-name', 'applicants.tmpl-mobile-card').textContent = entry.name;
+      requireSelector(card, '.js-phone', 'applicants.tmpl-mobile-card').textContent =
+        entry.phone || '-';
+      requireSelector(card, '.js-contact', 'applicants.tmpl-mobile-card').textContent =
+        formatContact(entry);
+      requireSelector(card, '.js-registration-date', 'applicants.tmpl-mobile-card').textContent =
+        formatDate(entry.created_at);
+      requireSelector(card, '.js-status', 'applicants.tmpl-mobile-card').textContent =
+        formatStatus(entry);
+
+      const detailBtn = requireSelector(card, '.js-detail-btn', 'applicants.tmpl-mobile-card');
+      detailBtn.href = getDetailUrl(entry);
+
+      const editBtn = requireSelector(card, '.js-edit-btn', 'applicants.tmpl-mobile-card');
+      editBtn.href = getEditUrl(entry);
+
+      const applyBtn = requireSelector(card, '.js-apply-btn', 'applicants.tmpl-mobile-card');
+      if (entry.request_type === 'consultation' && entry.status !== 'converted') {
+        applyBtn.classList.remove('hidden');
+        applyBtn.href = `${adminBasePath}/adoptions/applicants/new?consultation_id=${entry.id}`;
+      }
+
+      translateDynamicElement(card);
+      mobileList.appendChild(card);
+    }
+
+    if (desktopList) {
+      const row = cloneTemplate('tmpl-desktop-row');
+      assertRequiredSelectors(
+        row,
+        [
+          '.js-request-type',
+          '.js-name',
+          '.js-phone',
+          '.js-contact',
+          '.js-registration-date',
+          '.js-status',
+          '.js-detail-btn',
+          '.js-edit-btn',
+          '.js-apply-btn',
+        ],
+        'applicants.tmpl-desktop-row'
+      );
+
+      requireSelector(row, '.js-request-type', 'applicants.tmpl-desktop-row').textContent =
+        formatRequestType(entry);
+      requireSelector(row, '.js-name', 'applicants.tmpl-desktop-row').textContent = entry.name;
+      requireSelector(row, '.js-phone', 'applicants.tmpl-desktop-row').textContent =
+        entry.phone || '-';
+      requireSelector(row, '.js-contact', 'applicants.tmpl-desktop-row').textContent =
+        formatContact(entry);
+      requireSelector(row, '.js-registration-date', 'applicants.tmpl-desktop-row').textContent =
+        formatDate(entry.created_at);
+      requireSelector(row, '.js-status', 'applicants.tmpl-desktop-row').textContent =
+        formatStatus(entry);
+
+      const detailBtn = requireSelector(row, '.js-detail-btn', 'applicants.tmpl-desktop-row');
+      detailBtn.href = getDetailUrl(entry);
+
+      const editBtn = requireSelector(row, '.js-edit-btn', 'applicants.tmpl-desktop-row');
+      editBtn.href = getEditUrl(entry);
+
+      const applyBtn = requireSelector(row, '.js-apply-btn', 'applicants.tmpl-desktop-row');
+      if (entry.request_type === 'consultation' && entry.status !== 'converted') {
+        applyBtn.classList.remove('hidden');
+        applyBtn.href = `${adminBasePath}/adoptions/applicants/new?consultation_id=${entry.id}`;
+      }
+
+      translateDynamicElement(row);
+      desktopList.appendChild(row);
+    }
+  });
+
+  updatePagination();
 }
 
 function translateDynamicElement(element) {
@@ -90,111 +194,127 @@ function translateDynamicElement(element) {
   }
 }
 
-// 里親希望者を表示
-function renderApplicants() {
-  const start = currentPage * pageSize;
-  const end = start + pageSize;
-  const pageApplicants = filteredApplicants.slice(start, end);
-
-  const mobileList = document.getElementById('mobileList');
-  const desktopList = document.getElementById('desktopList');
-
-  if (mobileList) mobileList.innerHTML = '';
-  if (desktopList) desktopList.innerHTML = '';
-
-  pageApplicants.forEach(applicant => {
-    // モバイル表示
-    if (mobileList) {
-      const card = cloneTemplate('tmpl-mobile-card');
-      assertRequiredSelectors(
-        card,
-        [
-          '.js-name',
-          '.js-contact',
-          '.js-address-container',
-          '.js-address',
-          '.js-household',
-          '.js-registration-date',
-          '.js-edit-btn',
-          '.js-records-btn',
-        ],
-        'applicants.tmpl-mobile-card'
-      );
-
-      requireSelector(card, '.js-name', 'applicants.tmpl-mobile-card').textContent = applicant.name;
-      requireSelector(card, '.js-contact', 'applicants.tmpl-mobile-card').textContent =
-        formatContact(applicant);
-
-      const address = formatAddress(applicant);
-      if (address) {
-        requireSelector(
-          card,
-          '.js-address-container',
-          'applicants.tmpl-mobile-card'
-        ).classList.remove('hidden');
-        requireSelector(card, '.js-address', 'applicants.tmpl-mobile-card').textContent = address;
-      }
-
-      requireSelector(card, '.js-household', 'applicants.tmpl-mobile-card').textContent =
-        formatHousehold(applicant);
-      requireSelector(card, '.js-registration-date', 'applicants.tmpl-mobile-card').textContent =
-        formatDate(applicant.created_at);
-
-      const editBtn = requireSelector(card, '.js-edit-btn', 'applicants.tmpl-mobile-card');
-      editBtn.href = `${adminBasePath}/adoptions/applicants/${applicant.id}/edit`;
-
-      const recordsBtn = requireSelector(card, '.js-records-btn', 'applicants.tmpl-mobile-card');
-      recordsBtn.onclick = () => viewAdoptionRecords(applicant.id);
-
-      translateDynamicElement(card);
-      mobileList.appendChild(card);
-    }
-
-    // デスクトップ表示
-    if (desktopList) {
-      const row = cloneTemplate('tmpl-desktop-row');
-      assertRequiredSelectors(
-        row,
-        [
-          '.js-name',
-          '.js-contact',
-          '.js-address',
-          '.js-household',
-          '.js-registration-date',
-          '.js-edit-btn',
-          '.js-records-btn',
-        ],
-        'applicants.tmpl-desktop-row'
-      );
-
-      requireSelector(row, '.js-name', 'applicants.tmpl-desktop-row').textContent = applicant.name;
-      requireSelector(row, '.js-contact', 'applicants.tmpl-desktop-row').textContent =
-        formatContact(applicant);
-      requireSelector(row, '.js-address', 'applicants.tmpl-desktop-row').textContent =
-        formatAddress(applicant) || '-';
-      requireSelector(row, '.js-household', 'applicants.tmpl-desktop-row').textContent =
-        formatHousehold(applicant);
-      requireSelector(row, '.js-registration-date', 'applicants.tmpl-desktop-row').textContent =
-        formatDate(applicant.created_at);
-
-      const editBtn = requireSelector(row, '.js-edit-btn', 'applicants.tmpl-desktop-row');
-      editBtn.href = `${adminBasePath}/adoptions/applicants/${applicant.id}/edit`;
-
-      const recordsBtn = requireSelector(row, '.js-records-btn', 'applicants.tmpl-desktop-row');
-      recordsBtn.onclick = () => viewAdoptionRecords(applicant.id);
-
-      translateDynamicElement(row);
-      desktopList.appendChild(row);
-    }
-  });
-
-  // ページネーション情報
-  updatePagination();
+function formatRequestType(entry) {
+  if (entry.request_type === 'both') return '相談/譲渡申込';
+  return entry.request_type === 'consultation' ? '相談' : '譲渡申込';
 }
 
-// ページネーション更新
+function formatStatus(entry) {
+  if (entry.request_type === 'application') return '-';
+  if (entry.request_type === 'both') {
+    const consultationStatus = formatConsultationStatus(entry.status);
+    return consultationStatus === '-'
+      ? '申込済（相談あり）'
+      : `申込済（相談: ${consultationStatus}）`;
+  }
+  return formatConsultationStatus(entry.status);
+}
+
+function formatConsultationStatus(status) {
+  const map = {
+    open: '受付中',
+    converted: '申込化済み',
+    closed: '対応終了',
+  };
+  return map[status] || status || '-';
+}
+
+function getDetailUrl(entry) {
+  const applicationId = getApplicationId(entry);
+  const consultationId = getConsultationId(entry);
+
+  if (entry.request_type === 'both') {
+    if (applicationId) {
+      return `${adminBasePath}/adoptions/applicants/${applicationId}`;
+    }
+    if (consultationId) {
+      return `${adminBasePath}/adoptions/consultations/${consultationId}`;
+    }
+  }
+  if (entry.request_type === 'consultation') {
+    return `${adminBasePath}/adoptions/consultations/${consultationId || entry.id}`;
+  }
+  return `${adminBasePath}/adoptions/applicants/${applicationId || entry.id}`;
+}
+
+function getEditUrl(entry) {
+  const applicationId = getApplicationId(entry);
+  const consultationId = getConsultationId(entry);
+
+  if (entry.request_type === 'both') {
+    if (applicationId) {
+      return `${adminBasePath}/adoptions/applicants/${applicationId}/edit`;
+    }
+    if (consultationId) {
+      return `${adminBasePath}/adoptions/consultations/${consultationId}/edit`;
+    }
+  }
+  if (entry.request_type === 'consultation') {
+    return `${adminBasePath}/adoptions/consultations/${consultationId || entry.id}/edit`;
+  }
+  return `${adminBasePath}/adoptions/applicants/${applicationId || entry.id}/edit`;
+}
+
+function formatContact(entry) {
+  if (entry.contact_type === 'line' && entry.contact_line_id) {
+    return `LINE: ${entry.contact_line_id}`;
+  }
+  if (entry.contact_type === 'email' && entry.contact_email) {
+    return `メール: ${entry.contact_email}`;
+  }
+  if (entry.phone) {
+    return `電話: ${entry.phone}`;
+  }
+  return '-';
+}
+
+function filterEntries() {
+  const searchText = document.getElementById('searchInput').value.toLowerCase();
+  filteredEntries = allEntries.filter(entry => {
+    if (!searchText) {
+      return true;
+    }
+
+    const values = [
+      entry.name,
+      entry.name_kana,
+      entry.phone,
+      entry.contact_line_id,
+      entry.contact_email,
+      entry.consultation_note,
+      formatContact(entry),
+    ]
+      .filter(Boolean)
+      .map(value => value.toLowerCase());
+
+    return values.some(value => value.includes(searchText));
+  });
+  currentPage = 0;
+  renderEntries();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('requestTypeFilter').value = 'all';
+  loadEntries();
+}
+
+function getSelectedRequestType() {
+  const requestTypeFilter = document.getElementById('requestTypeFilter');
+  if (!requestTypeFilter) return 'all';
+  return requestTypeFilter.value || 'all';
+}
+
+function getApplicationId(entry) {
+  return entry.application_id || (entry.request_type === 'application' ? entry.id : null);
+}
+
+function getConsultationId(entry) {
+  return entry.consultation_id || (entry.request_type === 'consultation' ? entry.id : null);
+}
+
 function updatePagination() {
-  const total = filteredApplicants.length;
+  const total = filteredEntries.length;
   const start = total === 0 ? 0 : currentPage * pageSize + 1;
   const end = total === 0 ? 0 : Math.min((currentPage + 1) * pageSize, total);
   const itemsText = window.i18n && window.i18n.t ? window.i18n.t('items', { ns: 'common' }) : '件';
@@ -206,77 +326,9 @@ function updatePagination() {
   document.getElementById('nextBtn').disabled = end >= total;
 }
 
-// ページ変更
 function changePage(delta) {
   currentPage += delta;
-  renderApplicants();
-}
-
-// フィルター
-function filterApplicants() {
-  const searchText = document.getElementById('searchInput').value.toLowerCase();
-
-  filteredApplicants = allApplicants.filter(applicant => {
-    const name = applicant.name?.toLowerCase() ?? '';
-    const contact = formatContact(applicant).toLowerCase();
-    const phone = applicant.phone?.toLowerCase?.() ?? '';
-    const email = applicant.contact_email?.toLowerCase?.() ?? '';
-    const lineId = applicant.contact_line_id?.toLowerCase?.() ?? '';
-    return (
-      name.includes(searchText) ||
-      contact.includes(searchText) ||
-      phone.includes(searchText) ||
-      email.includes(searchText) ||
-      lineId.includes(searchText)
-    );
-  });
-
-  currentPage = 0;
-  renderApplicants();
-}
-
-// 検索クリア
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  filteredApplicants = [...allApplicants];
-  currentPage = 0;
-  renderApplicants();
-}
-
-// 譲渡記録を表示
-function viewAdoptionRecords(applicantId) {
-  window.location.href = `${adminBasePath}/adoptions/records?applicant_id=${applicantId}`;
-}
-
-function formatContact(applicant) {
-  if (applicant.contact_type === 'line' && applicant.contact_line_id) {
-    return `LINE: ${applicant.contact_line_id}`;
-  }
-  if (applicant.contact_email) {
-    return `メール: ${applicant.contact_email}`;
-  }
-  if (applicant.phone) {
-    return `電話: ${applicant.phone}`;
-  }
-  return '-';
-}
-
-function formatAddress(applicant) {
-  const parts = [applicant.address1, applicant.address2].filter(Boolean);
-  return parts.join(' ');
-}
-
-function formatHousehold(applicant) {
-  const count = applicant.household_members?.length ?? 0;
-  return `${count}人`;
-}
-
-// 注: formatDate等はcommon.jsで定義済み
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  renderEntries();
 }
 
 function showLoading(show) {

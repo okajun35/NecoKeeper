@@ -131,7 +131,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "memo": "元気です",
@@ -147,7 +148,7 @@ class TestCreateCareLogPublic:
         assert data["recorder_id"] == volunteer.id
         assert data["time_slot"] == "morning"
         assert data["appetite"] == 1.0
-        assert data["energy"] == 5
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is True
         assert data["memo"] == "元気です"
@@ -189,7 +190,8 @@ class TestCreateCareLogPublic:
             "log_date": "2026-02-08",
             "time_slot": "morning",
             "appetite": "1.0",
-            "energy": "5",
+            "energy": "3",
+            "vomiting": "false",
             "urination": "true",
             "defecation": "false",
             "cleaning": "true",
@@ -250,7 +252,8 @@ class TestCreateCareLogPublic:
             "log_date": "2026-02-08",
             "time_slot": "morning",
             "appetite": "1.0",
-            "energy": "5",
+            "energy": "3",
+            "vomiting": "false",
             "urination": "true",
             "defecation": "false",
             "cleaning": "true",
@@ -302,7 +305,8 @@ class TestCreateCareLogPublic:
             "log_date": "2026-02-08",
             "time_slot": "morning",
             "appetite": "1.0",
-            "energy": "5",
+            "energy": "3",
+            "vomiting": "false",
             "urination": "true",
             "defecation": "false",
             "cleaning": "true",
@@ -375,7 +379,8 @@ class TestCreateCareLogPublic:
             "log_date": "2026-02-08",
             "time_slot": "morning",
             "appetite": "1.0",
-            "energy": "5",
+            "energy": "3",
+            "vomiting": "false",
             "urination": "true",
             "defecation": "false",
             "cleaning": "true",
@@ -424,7 +429,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "defecation": True,
             "stool_condition": 2,
@@ -462,7 +468,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "defecation": True,
             "cleaning": True,
@@ -495,7 +502,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "notes": "notesでもOK",
@@ -532,6 +540,7 @@ class TestCreateCareLogPublic:
             "time_slot": "morning",
             "appetite": 0.5,
             "energy": 3,
+            "vomiting": False,
             "urination": False,
             "cleaning": False,
         }
@@ -566,7 +575,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
         }
@@ -599,7 +609,8 @@ class TestCreateCareLogPublic:
             "log_date": "2025-11-15",
             "time_slot": "深夜",  # 不正な時点
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
         }
@@ -649,7 +660,7 @@ class TestGetLatestCareLog:
             recorder_name="テストボランティア",
             time_slot="noon",
             appetite=1.0,
-            energy=5,
+            energy=3,
             urination=False,
             defecation=True,
             stool_condition=2,
@@ -669,7 +680,7 @@ class TestGetLatestCareLog:
         assert data["id"] == new_log.id
         assert data["time_slot"] == "noon"
         assert data["appetite"] == 1.0
-        assert data["energy"] == 5
+        assert data["energy"] == 3
         assert data["memo"] == "最新の記録"
 
 
@@ -712,7 +723,7 @@ class TestUpdateCareLogPublic:
         volunteer = self._make_volunteer(test_db)
         care_log = self._make_care_log(test_db, test_animal, volunteer)
 
-        payload = {"memo": "更新しました", "energy": 4, "cleaning": False}
+        payload = {"memo": "更新しました", "energy": 3, "cleaning": False}
 
         response = test_client.put(
             f"/api/v1/public/care-logs/animal/{test_animal.id}/{care_log.id}",
@@ -723,7 +734,7 @@ class TestUpdateCareLogPublic:
         assert response.status_code == 200
         data = response.json()
         assert data["memo"] == "更新しました"
-        assert data["energy"] == 4
+        assert data["energy"] == 3
         assert data["cleaning"] is False
         assert data["animal_id"] == test_animal.id
         assert data["time_slot"] == "morning"  # 時点は変更不可
@@ -829,7 +840,7 @@ class TestUpdateCareLogPublic:
             recorder_name="テストボランティア",
             time_slot="morning",
             appetite=1.0,
-            energy=5,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="猫1の記録",
@@ -890,7 +901,7 @@ class TestGetAnimalCareLogsList:
             log_date=today,
             time_slot="morning",
             appetite=1.0,
-            energy=5,
+            energy=3,
             urination=True,
             cleaning=True,
         )
@@ -900,8 +911,8 @@ class TestGetAnimalCareLogsList:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="evening",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=False,
         )
@@ -991,7 +1002,7 @@ class TestGetCareLogDetail:
             recorder_name="テストボランティア",
             time_slot="morning",
             appetite=1.0,
-            energy=5,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="詳細テスト",
@@ -1012,7 +1023,7 @@ class TestGetCareLogDetail:
         assert data["animal_id"] == test_animal.id
         assert data["time_slot"] == "morning"
         assert data["appetite"] == 1.0
-        assert data["energy"] == 5
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is True
         assert data["memo"] == "詳細テスト"
@@ -1107,7 +1118,7 @@ class TestGetAllAnimalsStatusToday:
             log_date=today,
             time_slot="morning",
             appetite=1.0,
-            energy=5,
+            energy=3,
             urination=True,
             cleaning=True,
         )
@@ -1117,8 +1128,8 @@ class TestGetAllAnimalsStatusToday:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="evening",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=False,
         )

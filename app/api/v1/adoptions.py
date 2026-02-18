@@ -15,6 +15,10 @@ from app.auth.dependencies import get_current_user_from_cookie_or_header
 from app.database import get_db
 from app.models.user import User
 from app.schemas.adoption import (
+    AdoptionConsultationCreate,
+    AdoptionConsultationResponse,
+    AdoptionConsultationUpdate,
+    AdoptionIntakeEntryResponse,
     AdoptionRecordCreate,
     AdoptionRecordResponse,
     AdoptionRecordUpdate,
@@ -25,6 +29,7 @@ from app.schemas.adoption import (
     ApplicantPetResponse,
     ApplicantResponseExtended,
     ApplicantUpdateExtended,
+    IntakeRequestType,
 )
 from app.services import adoption_service
 
@@ -60,6 +65,31 @@ def list_applicants_extended(  # type: ignore[no-untyped-def]
         list[ApplicantResponseExtended]: 里親希望者のリスト（詳細情報付き）
     """
     applicants = adoption_service.list_applicants_extended(db, skip=skip, limit=limit)
+    return applicants
+
+
+@router.get(
+    "/applicants-extended/search",
+    response_model=list[ApplicantResponseExtended],
+)
+def search_applicants_extended(  # type: ignore[no-untyped-def]
+    q: str,
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親希望者を検索（部分一致）
+
+    面談記録登録画面向けの候補検索API。
+    """
+    applicants = adoption_service.search_applicants_extended(
+        db,
+        q=q,
+        skip=skip,
+        limit=limit,
+    )
     return applicants
 
 
@@ -143,6 +173,113 @@ def update_applicant_extended(  # type: ignore[no-untyped-def]
         db, applicant_id, applicant_data, user_id=current_user.id
     )
     return applicant
+
+
+# ========================================
+# AdoptionConsultation（里親相談）エンドポイント
+# ========================================
+
+
+@router.get(
+    "/consultations",
+    response_model=list[AdoptionConsultationResponse],
+)
+def list_consultations(  # type: ignore[no-untyped-def]
+    skip: int = 0,
+    limit: int = 100,
+    status_filter: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親相談一覧を取得
+    """
+    consultations = adoption_service.list_consultations(
+        db, skip=skip, limit=limit, status_filter=status_filter
+    )
+    return consultations
+
+
+@router.post(
+    "/consultations",
+    response_model=AdoptionConsultationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_consultation(  # type: ignore[no-untyped-def]
+    consultation_data: AdoptionConsultationCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親相談を登録
+    """
+    consultation = adoption_service.create_consultation(
+        db, consultation_data, user_id=current_user.id
+    )
+    return consultation
+
+
+@router.get(
+    "/consultations/{consultation_id}",
+    response_model=AdoptionConsultationResponse,
+)
+def get_consultation(  # type: ignore[no-untyped-def]
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親相談を取得
+    """
+    consultation = adoption_service.get_consultation(db, consultation_id)
+    return consultation
+
+
+@router.put(
+    "/consultations/{consultation_id}",
+    response_model=AdoptionConsultationResponse,
+)
+def update_consultation(  # type: ignore[no-untyped-def]
+    consultation_id: int,
+    consultation_data: AdoptionConsultationUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    里親相談を更新
+    """
+    consultation = adoption_service.update_consultation(
+        db, consultation_id, consultation_data, user_id=current_user.id
+    )
+    return consultation
+
+
+@router.get(
+    "/intake-entries",
+    response_model=list[AdoptionIntakeEntryResponse],
+)
+def list_intake_entries(  # type: ignore[no-untyped-def]
+    skip: int = 0,
+    limit: int = 100,
+    request_type: IntakeRequestType = "all",
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_from_cookie_or_header),
+):
+    """
+    受付一覧（相談/譲渡申込）を取得
+
+    request_type:
+    - all: 同一人物の相談と申込を統合して返す
+    - consultation: 相談のみ返す
+    - application: 申込のみ返す
+    """
+    entries = adoption_service.list_intake_entries(
+        db=db,
+        skip=skip,
+        limit=limit,
+        request_type=request_type,
+    )
+    return entries
 
 
 # ========================================

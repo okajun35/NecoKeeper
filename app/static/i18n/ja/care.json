@@ -10,16 +10,19 @@
   "time_slot_evening": "夜",
   "appetite": "食欲",
   "appetite_levels": {
-    "1": "食べない",
-    "2": "3/4残し",
-    "3": "半分残し",
-    "4": "1/4残し",
-    "5": "完食"
+    "1": "ほぼ残す",
+    "2": "半分くらい",
+    "3": "ほぼ完食"
   },
   "energy": "元気",
-  "energy_low": "低い",
-  "energy_normal": "普通",
-  "energy_high": "高い",
+  "energy_levels": {
+    "1": "ぐったり",
+    "2": "低活力",
+    "3": "元気"
+  },
+  "vomiting": "嘔吐",
+  "vomiting_yes": "あり",
+  "vomiting_no": "なし",
   "urination": "排尿",
   "urination_yes": "あり",
   "urination_no": "なし",

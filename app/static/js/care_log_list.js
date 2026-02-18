@@ -187,20 +187,18 @@ function getTimeSlotLabel(timeSlot) {
   return translateCareLogs(`public.time_slots.${timeSlot}`, fallback);
 }
 
-function formatScoreValue(value) {
+function formatScoreValue(value, max = 3) {
   if (value === null || value === undefined) {
     return '-';
   }
-  return `${value} / 5`;
+  return `${value} / ${max}`;
 }
 
 function getAppetiteLevelKey(value) {
   const normalized = Math.round(Number(value) * 100) / 100;
   const map = {
-    1: '5',
-    0.75: '4',
-    0.5: '3',
-    0.25: '2',
+    1: '3',
+    0.5: '2',
     0: '1',
   };
   return map[normalized] || null;
@@ -217,11 +215,9 @@ function formatAppetiteValue(value) {
   }
 
   const fallbackMap = {
-    5: fallbackText('Finished', '完食'),
-    4: fallbackText('Left 1/4', '1/4残し'),
-    3: fallbackText('Left half', '半分残し'),
-    2: fallbackText('Left 3/4', '3/4残し'),
-    1: fallbackText('Not eating', '食べない'),
+    3: fallbackText('Almost finished', 'ほぼ完食'),
+    2: fallbackText('Half', '半分くらい'),
+    1: fallbackText('Mostly left', 'ほぼ残す'),
   };
   return translateCareLogs(`appetite_levels.${key}`, fallbackMap[key] || `${value}`);
 }

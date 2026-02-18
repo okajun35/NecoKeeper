@@ -110,9 +110,18 @@ function updateStoolConditionVisibility() {
 }
 
 function setupDefecationAndStoolConditionUI() {
+  const vomitingInput = document.getElementById('vomiting');
   const defecationInput = document.getElementById('defecation');
   const stoolInput = document.getElementById('stoolCondition');
-  if (!defecationInput || !stoolInput) return;
+  if (!vomitingInput || !defecationInput || !stoolInput) return;
+
+  const vomitingButtons = Array.from(document.querySelectorAll('.vomiting-btn'));
+  vomitingButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      vomitingInput.value = btn.dataset.value;
+      setSelectedButton(vomitingButtons, btn);
+    });
+  });
 
   const defecationButtons = Array.from(document.querySelectorAll('.defecation-btn'));
   defecationButtons.forEach(btn => {
@@ -167,6 +176,15 @@ async function loadCareLog(id) {
     document.getElementById('time_slot').value = data.time_slot;
     document.getElementById('appetite').value = data.appetite;
     document.getElementById('energy').value = data.energy;
+    const vomitingInput = document.getElementById('vomiting');
+    if (vomitingInput) {
+      vomitingInput.value = typeof data.vomiting === 'boolean' ? String(data.vomiting) : '';
+      const vomitingBtn = document.querySelector(
+        `.vomiting-btn[data-value="${vomitingInput.value}"]`
+      );
+      if (vomitingBtn)
+        setSelectedButton(Array.from(document.querySelectorAll('.vomiting-btn')), vomitingBtn);
+    }
     document.getElementById('urination').checked = data.urination;
     document.getElementById('cleaning').checked = data.cleaning;
     document.getElementById('memo').value = data.memo || '';
@@ -212,11 +230,13 @@ async function handleFormSubmit(e, id) {
       time_slot: document.getElementById('time_slot').value,
       appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
+      vomiting: false,
       urination: document.getElementById('urination').checked,
       cleaning: document.getElementById('cleaning').checked,
       memo: document.getElementById('memo').value || null,
     };
 
+    const vomitingRaw = document.getElementById('vomiting')?.value;
     const defecationRaw = document.getElementById('defecation')?.value;
     const stoolConditionRaw = document.getElementById('stoolCondition')?.value;
 
@@ -227,12 +247,14 @@ async function handleFormSubmit(e, id) {
       !formData.time_slot ||
       Number.isNaN(formData.appetite) ||
       !formData.energy ||
+      (vomitingRaw !== 'true' && vomitingRaw !== 'false') ||
       (defecationRaw !== 'true' && defecationRaw !== 'false')
     ) {
       showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
       return;
     }
 
+    formData.vomiting = vomitingRaw === 'true';
     formData.defecation = defecationRaw === 'true';
 
     // 条件付き必須: defecation=true の場合は stool_condition 必須

@@ -26,7 +26,7 @@ from app.database import Base
 from app.utils.timezone import get_jst_now
 
 if TYPE_CHECKING:
-    pass
+    from app.models.adoption_consultation import AdoptionConsultation
 
 
 class Applicant(Base):
@@ -287,6 +287,12 @@ class Applicant(Base):
         "ApplicantPet",
         back_populates="applicant",
         cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    consultations: Mapped[list[AdoptionConsultation]] = relationship(
+        "AdoptionConsultation",
+        back_populates="applicant",
         lazy="selectin",
     )
 

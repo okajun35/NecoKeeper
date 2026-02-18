@@ -145,10 +145,8 @@ function parseBooleanSelect(value) {
 function getAppetiteLevelKey(value) {
   const normalized = Math.round(Number(value) * 100) / 100;
   const map = {
-    1: '5',
-    0.75: '4',
-    0.5: '3',
-    0.25: '2',
+    1: '3',
+    0.5: '2',
     0: '1',
   };
   return map[normalized] || null;
@@ -168,18 +166,14 @@ function formatAppetiteLabel(value) {
   const fallbackMap =
     language === 'en'
       ? {
-          5: 'Finished',
-          4: 'Left 1/4',
-          3: 'Left half',
-          2: 'Left 3/4',
+          3: 'Almost finished',
+          2: 'Half',
           1: 'Not eating',
         }
       : {
-          5: '完食',
-          4: '1/4残し',
-          3: '半分残し',
-          2: '3/4残し',
-          1: '食べない',
+          3: 'ほぼ完食',
+          2: '半分くらい',
+          1: 'ほぼ残す',
         };
 
   if (window.i18next) {

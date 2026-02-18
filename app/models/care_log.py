@@ -44,7 +44,8 @@ class CareLog(Base):
         recorder_name: 記録者名（必須）
         time_slot: 時点（morning/noon/evening）
         appetite: 食欲（0.0〜1.0、1.0=完食、デフォルト: 1.0）
-        energy: 元気（1〜5段階、5が最良、デフォルト: 3）
+        energy: 元気（1〜3段階、3が最良、デフォルト: 3）
+        vomiting: 嘔吐有無（True=有り、False=無し）
         urination: 排尿有無（True=有り、False=無し）
         defecation: 排便有無（True=有り、False=無し）
         stool_condition: 便の状態（1〜5、排便が有りの場合のみ）
@@ -111,7 +112,15 @@ class CareLog(Base):
         nullable=False,
         default=3,
         server_default="3",
-        comment="元気（1〜5段階、5が最良）",
+        comment="元気（1〜3段階、3が最良）",
+    )
+
+    vomiting: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="0",
+        comment="嘔吐有無（True=有り、False=無し）",
     )
 
     urination: Mapped[bool] = mapped_column(

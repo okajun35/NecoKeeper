@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         '.js-recorder-name',
         '.js-appetite',
         '.js-energy',
+        '.js-vomiting',
         '.js-urination',
         '.js-cleaning',
         '.js-defecation',
@@ -118,10 +119,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         : careLog.appetite;
 
     // 元気 (★表示)
+    const energyValue = Number(careLog.energy || 0);
     requireSelector(content, '.js-energy', 'care_log_detail.tmpl-care-log-detail').textContent =
-      '★'.repeat(careLog.energy) + '☆'.repeat(5 - careLog.energy);
+      '★'.repeat(Math.max(0, Math.min(3, energyValue))) + '☆'.repeat(Math.max(0, 3 - energyValue));
 
-    // 排泄・掃除
+    // 嘔吐・排泄・掃除
+    requireSelector(content, '.js-vomiting', 'care_log_detail.tmpl-care-log-detail').textContent =
+      careLog.vomiting ? t('vomiting_status.yes') : t('vomiting_status.no');
     requireSelector(content, '.js-urination', 'care_log_detail.tmpl-care-log-detail').textContent =
       careLog.urination ? t('urination_status.yes') : t('urination_status.no');
     requireSelector(content, '.js-cleaning', 'care_log_detail.tmpl-care-log-detail').textContent =
