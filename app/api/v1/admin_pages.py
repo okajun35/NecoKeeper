@@ -666,7 +666,9 @@ def adoptions_applicants_page(
 @router.get("/adoptions/applicants/new", response_class=HTMLResponse)
 def adoptions_applicants_new_page(
     request: Request,
+    consultation_id: int | None = None,
     current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
 ) -> Response:
     """
     里親申込フォーム（新規登録）ページを表示
@@ -685,6 +687,23 @@ def adoptions_applicants_new_page(
     if not current_user:
         return RedirectResponse(url=admin_login_path, status_code=302)
 
+    consultation = None
+    if consultation_id is not None:
+        from app.schemas.adoption import AdoptionConsultationResponse
+        from app.services import adoption_service
+
+        try:
+            consultation_model = adoption_service.get_consultation(db, consultation_id)
+            consultation = AdoptionConsultationResponse.model_validate(
+                consultation_model
+            )
+        except HTTPException as e:
+            if e.status_code == 404:
+                return RedirectResponse(
+                    url=f"{admin_base_path}/adoptions/applicants", status_code=302
+                )
+            raise
+
     return templates.TemplateResponse(
         request,
         "admin/adoptions/applicant_extended_form.html",
@@ -693,6 +712,48 @@ def adoptions_applicants_new_page(
             "user": current_user,
             "settings": settings,
             "mode": "new",
+            "consultation": consultation,
+        },
+    )
+
+
+@router.get(
+    "/adoptions/applicants/{applicant_id}",
+    response_class=HTMLResponse,
+)
+def adoptions_applicants_detail_page(
+    applicant_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親申込詳細ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import ApplicantResponseExtended
+    from app.services import adoption_service
+
+    try:
+        applicant_model = adoption_service.get_applicant_extended(db, applicant_id)
+        applicant = ApplicantResponseExtended.model_validate(applicant_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/applicant_detail.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "applicant": applicant,
         },
     )
 
@@ -761,6 +822,112 @@ def adoptions_applicants_edit_page(
             "settings": settings,
             "mode": "edit",
             "applicant": applicant,
+        },
+    )
+
+
+@router.get("/adoptions/consultations/new", response_class=HTMLResponse)
+def adoptions_consultations_new_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """
+    里親相談フォーム（新規登録）ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "new",
+        },
+    )
+
+
+@router.get(
+    "/adoptions/consultations/{consultation_id}",
+    response_class=HTMLResponse,
+)
+def adoptions_consultations_detail_page(
+    consultation_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親相談詳細ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import AdoptionConsultationResponse
+    from app.services import adoption_service
+
+    try:
+        consultation_model = adoption_service.get_consultation(db, consultation_id)
+        consultation = AdoptionConsultationResponse.model_validate(consultation_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_detail.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "consultation": consultation,
+        },
+    )
+
+
+@router.get(
+    "/adoptions/consultations/{consultation_id}/edit",
+    response_class=HTMLResponse,
+)
+def adoptions_consultations_edit_page(
+    consultation_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親相談フォーム（編集）ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import AdoptionConsultationResponse
+    from app.services import adoption_service
+
+    try:
+        consultation_model = adoption_service.get_consultation(db, consultation_id)
+        consultation = AdoptionConsultationResponse.model_validate(consultation_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "edit",
+            "consultation": consultation,
         },
     )
 

@@ -8,17 +8,22 @@ Issue #91: 譲渡記録の充実化
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Sequence
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from fastapi import HTTPException, status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
+from app.models.adoption_consultation import AdoptionConsultation
 from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.applicant import Applicant, ApplicantHouseholdMember, ApplicantPet
 from app.schemas.adoption import (
+    AdoptionConsultationCreate,
+    AdoptionConsultationUpdate,
     AdoptionRecordCreate,
     AdoptionRecordUpdate,
     ApplicantCreateExtended,
@@ -417,6 +422,23 @@ def _validate_contact_info(data: dict[str, Any]) -> None:
         raise ValueError("メール連絡を選択した場合、メールアドレスの入力が必須です")
 
 
+def _validate_consultation_contact_info(data: dict[str, Any]) -> None:
+    """
+    相談の連絡手段整合性チェック
+
+    Args:
+        data: 相談データ（既存値+更新値）
+
+    Raises:
+        ValueError: バリデーションエラー時
+    """
+    contact_type = data.get("contact_type")
+    if contact_type == "line" and not data.get("contact_line_id"):
+        raise ValueError("LINE連絡を選択した場合、LINE IDの入力が必須です")
+    if contact_type == "email" and not data.get("contact_email"):
+        raise ValueError("メール連絡を選択した場合、メールアドレスの入力が必須です")
+
+
 def _validate_relocation_plan(data: dict[str, Any]) -> None:
     """
     転居予定の整合性チェック（更新時用）
@@ -538,13 +560,35 @@ def create_applicant_extended(
     _validate_applicant_extended(applicant_data)
 
     try:
+        consultation: AdoptionConsultation | None = None
+        if applicant_data.source_consultation_id is not None:
+            consultation = get_consultation(db, applicant_data.source_consultation_id)
+            if consultation.status == "closed":
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="対応終了の相談は申込に変換できません",
+                )
+            if (
+                consultation.status == "converted"
+                and consultation.applicant_id is not None
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="この相談はすでに申込化されています",
+                )
+
         # メインデータを準備（household_membersとpetsを除外）
-        main_data = applicant_data.model_dump(exclude={"household_members", "pets"})
+        main_data = applicant_data.model_dump(
+            exclude={"household_members", "pets", "source_consultation_id"}
+        )
 
         # 後方互換用フィールドを設定
         main_data["contact"] = (
             applicant_data.contact_line_id or applicant_data.contact_email or ""
         )
+        if consultation and not main_data.get("conditions"):
+            # 相談内容は既存の後方互換フィールド conditions に保存する
+            main_data["conditions"] = consultation.consultation_note
 
         # Applicantを作成
         applicant = Applicant(**main_data)
@@ -567,6 +611,10 @@ def create_applicant_extended(
             )
             db.add(pet)
 
+        if consultation:
+            consultation.status = "converted"
+            consultation.applicant_id = applicant.id
+
         db.commit()
         db.refresh(applicant)
 
@@ -581,12 +629,386 @@ def create_applicant_extended(
     except ValueError:
         # バリデーションエラーはそのまま再送出
         raise
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error(f"拡張里親申込の登録に失敗しました: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="里親申込の登録に失敗しました",
+        ) from e
+
+
+def get_consultation(db: Session, consultation_id: int) -> AdoptionConsultation:
+    """
+    里親相談を取得
+
+    Args:
+        db: データベースセッション
+        consultation_id: 相談ID
+
+    Returns:
+        AdoptionConsultation: 里親相談
+
+    Raises:
+        HTTPException: 相談が見つからない場合
+    """
+    consultation = (
+        db.query(AdoptionConsultation)
+        .filter(AdoptionConsultation.id == consultation_id)
+        .first()
+    )
+    if not consultation:
+        logger.warning(f"里親相談が見つかりません: ID={consultation_id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"里親相談（ID: {consultation_id}）が見つかりません",
+        )
+    return consultation
+
+
+def list_consultations(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    status_filter: str | None = None,
+) -> Sequence[AdoptionConsultation]:
+    """
+    里親相談一覧を取得
+
+    Args:
+        db: データベースセッション
+        skip: スキップ件数
+        limit: 取得件数上限
+        status_filter: ステータスフィルター（open/converted/closed）
+
+    Returns:
+        Sequence[AdoptionConsultation]: 里親相談一覧
+    """
+    query = db.query(AdoptionConsultation)
+    if status_filter:
+        query = query.filter(AdoptionConsultation.status == status_filter)
+
+    return (
+        query.order_by(AdoptionConsultation.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def list_intake_entries(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    request_type: str = "all",
+) -> list[dict[str, Any]]:
+    """
+    受付一覧（相談/譲渡申込）を取得
+
+    Args:
+        db: データベースセッション
+        skip: スキップ件数
+        limit: 取得件数上限
+        request_type: 取得種別（all/application/consultation）
+
+    Returns:
+        list[dict[str, Any]]: 受付一覧データ
+    """
+    if request_type == "application":
+        applicants = (
+            db.query(Applicant)
+            .order_by(Applicant.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+        return [_build_intake_entry_from_applicant(a) for a in applicants]
+
+    if request_type == "consultation":
+        consultations = (
+            db.query(AdoptionConsultation)
+            .order_by(AdoptionConsultation.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+        return [_build_intake_entry_from_consultation(c) for c in consultations]
+
+    applicants = db.query(Applicant).order_by(Applicant.created_at.desc()).all()
+    consultations = (
+        db.query(AdoptionConsultation)
+        .order_by(AdoptionConsultation.created_at.desc())
+        .all()
+    )
+
+    merged = _merge_intake_entries_for_all(
+        [
+            *[_build_intake_entry_from_applicant(a) for a in applicants],
+            *[_build_intake_entry_from_consultation(c) for c in consultations],
+        ]
+    )
+    end = skip + limit
+    return merged[skip:end]
+
+
+def _build_intake_entry_from_applicant(applicant: Applicant) -> dict[str, Any]:
+    return {
+        "id": applicant.id,
+        "request_type": "application",
+        "application_id": applicant.id,
+        "consultation_id": None,
+        "name_kana": applicant.name_kana,
+        "name": applicant.name,
+        "phone": applicant.phone,
+        "contact_type": applicant.contact_type,
+        "contact_line_id": applicant.contact_line_id,
+        "contact_email": applicant.contact_email,
+        "consultation_note": None,
+        "status": None,
+        "created_at": applicant.created_at,
+    }
+
+
+def _build_intake_entry_from_consultation(
+    consultation: AdoptionConsultation,
+) -> dict[str, Any]:
+    return {
+        "id": consultation.id,
+        "request_type": "consultation",
+        "application_id": consultation.applicant_id,
+        "consultation_id": consultation.id,
+        "name_kana": consultation.name_kana,
+        "name": consultation.name,
+        "phone": consultation.phone,
+        "contact_type": consultation.contact_type,
+        "contact_line_id": consultation.contact_line_id,
+        "contact_email": consultation.contact_email,
+        "consultation_note": consultation.consultation_note,
+        "status": consultation.status,
+        "created_at": consultation.created_at,
+    }
+
+
+def _merge_intake_entries_for_all(
+    entries: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    sorted_entries = sorted(
+        entries,
+        key=lambda entry: _cast_datetime(entry.get("created_at")),
+        reverse=True,
+    )
+    merged_entries: list[dict[str, Any]] = []
+    index_by_key: dict[str, int] = {}
+
+    for entry in sorted_entries:
+        dedupe_key = _build_intake_dedupe_key(entry)
+        if not dedupe_key:
+            merged_entries.append(dict(entry))
+            continue
+
+        existing_index = index_by_key.get(dedupe_key)
+        if existing_index is None:
+            merged_entries.append(dict(entry))
+            index_by_key[dedupe_key] = len(merged_entries) - 1
+            continue
+
+        existing = merged_entries[existing_index]
+        if (
+            existing.get("request_type") == entry.get("request_type")
+            or existing.get("request_type") == "both"
+        ):
+            merged_entries.append(dict(entry))
+            continue
+
+        merged_entries[existing_index] = _merge_two_intake_entries(existing, entry)
+
+    return merged_entries
+
+
+def _merge_two_intake_entries(
+    primary: dict[str, Any], secondary: dict[str, Any]
+) -> dict[str, Any]:
+    merged = dict(primary)
+    merged["request_type"] = "both"
+    merged["application_id"] = _get_application_id(primary) or _get_application_id(
+        secondary
+    )
+    merged["consultation_id"] = _get_consultation_id(primary) or _get_consultation_id(
+        secondary
+    )
+
+    if not merged.get("consultation_note"):
+        merged["consultation_note"] = primary.get("consultation_note") or secondary.get(
+            "consultation_note"
+        )
+
+    consultation_status = (
+        (
+            primary.get("status")
+            if primary.get("request_type") == "consultation"
+            else None
+        )
+        or (
+            secondary.get("status")
+            if secondary.get("request_type") == "consultation"
+            else None
+        )
+        or None
+    )
+    merged["status"] = consultation_status
+
+    if not merged.get("phone"):
+        merged["phone"] = secondary.get("phone")
+    if not merged.get("contact_type"):
+        merged["contact_type"] = secondary.get("contact_type")
+    if not merged.get("contact_line_id"):
+        merged["contact_line_id"] = secondary.get("contact_line_id")
+    if not merged.get("contact_email"):
+        merged["contact_email"] = secondary.get("contact_email")
+    if not merged.get("name_kana"):
+        merged["name_kana"] = secondary.get("name_kana")
+
+    return merged
+
+
+def _build_intake_dedupe_key(entry: dict[str, Any]) -> str | None:
+    normalized_name = _normalize_name(entry.get("name"))
+    normalized_phone = _normalize_phone(entry.get("phone"))
+    normalized_contact_type = _normalize_contact_type(entry.get("contact_type"))
+
+    if not normalized_name or not normalized_phone or not normalized_contact_type:
+        return None
+
+    return f"{normalized_name}|{normalized_phone}|{normalized_contact_type}"
+
+
+def _normalize_name(name: Any) -> str:
+    return re.sub(r"\s+", "", str(name or "")).strip().lower()
+
+
+def _normalize_phone(phone: Any) -> str:
+    return re.sub(r"\D", "", str(phone or ""))
+
+
+def _normalize_contact_type(contact_type: Any) -> str:
+    return str(contact_type or "").strip().lower()
+
+
+def _get_application_id(entry: dict[str, Any]) -> int | None:
+    application_id = entry.get("application_id")
+    if application_id:
+        return int(application_id)
+    if entry.get("request_type") == "application":
+        entry_id = entry.get("id")
+        return int(entry_id) if entry_id else None
+    return None
+
+
+def _get_consultation_id(entry: dict[str, Any]) -> int | None:
+    consultation_id = entry.get("consultation_id")
+    if consultation_id:
+        return int(consultation_id)
+    if entry.get("request_type") == "consultation":
+        entry_id = entry.get("id")
+        return int(entry_id) if entry_id else None
+    return None
+
+
+def _cast_datetime(value: Any) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    return datetime.min
+
+
+def create_consultation(
+    db: Session,
+    consultation_data: AdoptionConsultationCreate,
+    user_id: int,
+) -> AdoptionConsultation:
+    """
+    里親相談を登録
+
+    Args:
+        db: データベースセッション
+        consultation_data: 相談データ
+        user_id: 登録者ID
+
+    Returns:
+        AdoptionConsultation: 登録された相談
+    """
+    try:
+        consultation = AdoptionConsultation(**consultation_data.model_dump())
+        db.add(consultation)
+        db.commit()
+        db.refresh(consultation)
+
+        logger.info(
+            f"里親相談を登録しました: ID={consultation.id}, 名前={consultation.name}, 登録者={user_id}"
+        )
+        return consultation
+    except Exception as e:
+        db.rollback()
+        logger.error(f"里親相談の登録に失敗しました: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="里親相談の登録に失敗しました",
+        ) from e
+
+
+def update_consultation(
+    db: Session,
+    consultation_id: int,
+    consultation_data: AdoptionConsultationUpdate,
+    user_id: int,
+) -> AdoptionConsultation:
+    """
+    里親相談を更新
+
+    Args:
+        db: データベースセッション
+        consultation_id: 相談ID
+        consultation_data: 更新データ
+        user_id: 更新者ID
+
+    Returns:
+        AdoptionConsultation: 更新された相談
+    """
+    consultation = get_consultation(db, consultation_id)
+
+    try:
+        update_dict = consultation_data.model_dump(exclude_unset=True)
+
+        merged_data: dict[str, Any] = {}
+        for column in consultation.__table__.columns:
+            key = column.name
+            if key in update_dict:
+                merged_data[key] = update_dict[key]
+            else:
+                merged_data[key] = getattr(consultation, key, None)
+
+        _validate_consultation_contact_info(merged_data)
+
+        for key, value in update_dict.items():
+            setattr(consultation, key, value)
+
+        db.commit()
+        db.refresh(consultation)
+
+        logger.info(f"里親相談を更新しました: ID={consultation_id}, 更新者={user_id}")
+        return consultation
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(e),
+        ) from e
+    except Exception as e:
+        db.rollback()
+        logger.error(f"里親相談の更新に失敗しました: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="里親相談の更新に失敗しました",
         ) from e
 
 
@@ -641,6 +1063,54 @@ def list_applicants_extended(
     return (
         db.query(Applicant)
         .order_by(Applicant.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def search_applicants_extended(
+    db: Session, q: str, skip: int = 0, limit: int = 20
+) -> Sequence[Applicant]:
+    """
+    拡張里親申込を検索（部分一致）
+
+    検索対象:
+    - 氏名
+    - ふりがな
+    - 電話番号
+    - 連絡先（メール/LINE ID）
+
+    並び順:
+    - updated_at DESC
+    - id DESC
+    """
+    keyword = (q or "").strip()
+    if len(keyword) < 2:
+        return []
+
+    like_keyword = f"%{keyword}%"
+
+    conditions = [
+        Applicant.name.ilike(like_keyword),
+        Applicant.name_kana.ilike(like_keyword),
+        Applicant.contact_email.ilike(like_keyword),
+        Applicant.contact_line_id.ilike(like_keyword),
+    ]
+
+    normalized_phone_keyword = re.sub(r"\D", "", keyword)
+    if len(normalized_phone_keyword) >= 2:
+        normalized_phone = func.replace(
+            func.replace(func.coalesce(Applicant.phone, ""), "-", ""),
+            " ",
+            "",
+        )
+        conditions.append(normalized_phone.ilike(f"%{normalized_phone_keyword}%"))
+
+    return (
+        db.query(Applicant)
+        .filter(or_(*conditions))
+        .order_by(Applicant.updated_at.desc(), Applicant.id.desc())
         .offset(skip)
         .limit(limit)
         .all()

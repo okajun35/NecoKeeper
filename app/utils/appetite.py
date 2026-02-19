@@ -7,10 +7,8 @@ from __future__ import annotations
 from app.utils.i18n import tj
 
 APPETITE_VALUE_TO_LEVEL_KEY = {
-    1.0: "5",
-    0.75: "4",
-    0.5: "3",
-    0.25: "2",
+    1.0: "3",
+    0.5: "2",
     0.0: "1",
 }
 
@@ -23,7 +21,7 @@ def normalize_appetite_value(value: float | None) -> float | None:
 
 
 def appetite_level_key(value: float | None) -> str | None:
-    """食欲の値からレベルキー（1-5）を返す。"""
+    """食欲の値からレベルキー（1-3）を返す。"""
     normalized = normalize_appetite_value(value)
     if normalized is None:
         return None

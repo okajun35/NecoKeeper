@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // 編集モードの場合はデータを読み込む
   if (window.FORM_MODE === 'edit' && window.APPLICANT_DATA) {
     loadApplicantData(window.APPLICANT_DATA);
+  } else if (window.FORM_MODE === 'new' && window.CONSULTATION_DATA) {
+    loadConsultationData(window.CONSULTATION_DATA);
   }
 });
 
@@ -350,6 +352,7 @@ function buildPayload() {
     has_other_pets: value('has_other_pets'),
     household_members: collectHouseholdMembers(),
     pets: collectPets(),
+    source_consultation_id: toNumber('source_consultation_id'),
   };
 }
 
@@ -590,4 +593,32 @@ function createPetRow(data) {
   row.querySelector('.remove-row').addEventListener('click', () => row.remove());
 
   return row;
+}
+
+function loadConsultationData(data) {
+  const setValue = (id, value) => {
+    const el = document.getElementById(id);
+    if (el && value != null) {
+      el.value = value;
+    }
+  };
+
+  const formatPhone = phone => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/[^\d]/g, '');
+    if (cleaned.length === 11) {
+      return cleaned.substring(0, 3) + '-' + cleaned.substring(3, 7) + '-' + cleaned.substring(7);
+    }
+    return phone;
+  };
+
+  setValue('name_kana', data.name_kana);
+  setValue('name', data.name);
+  setValue('phone', formatPhone(data.phone));
+  setValue('contact_type', data.contact_type);
+  setValue('contact_line_id', data.contact_line_id);
+  setValue('contact_email', data.contact_email);
+  setValue('source_consultation_id', data.id);
+
+  setupConditionalFields();
 }

@@ -7,6 +7,12 @@ let filteredRecords = [];
 let animals = [];
 let adoptableAnimals = [];
 let applicants = [];
+let applicantSearchTimer = null;
+let currentApplicantCandidates = [];
+
+const APPLICANT_SEARCH_DEBOUNCE_MS = 200;
+const APPLICANT_SEARCH_MIN_LENGTH = 2;
+const APPLICANT_SEARCH_LIMIT = 20;
 
 // Helper function for safe i18next translation
 function t(key, options = {}) {
@@ -42,6 +48,64 @@ function ensureAnimalOptionExists(selectElement, animalId) {
   selectElement.appendChild(option);
 }
 
+function upsertApplicantCache(applicant) {
+  if (!applicant || !applicant.id) return;
+  const index = applicants.findIndex(a => a.id === applicant.id);
+  if (index >= 0) {
+    applicants[index] = { ...applicants[index], ...applicant };
+    return;
+  }
+  applicants.push(applicant);
+}
+
+function ensureApplicantOptionExists(selectElement, applicantRef, fallbackApplicant = null) {
+  if (!selectElement || !applicantRef) return;
+
+  const applicantId =
+    typeof applicantRef === 'object' ? parseInt(applicantRef.id, 10) : parseInt(applicantRef, 10);
+  if (!applicantId) return;
+
+  const optionValue = String(applicantId);
+  if (selectElement.querySelector(`option[value="${optionValue}"]`)) return;
+
+  const directApplicant = typeof applicantRef === 'object' ? applicantRef : null;
+  const applicant =
+    directApplicant || fallbackApplicant || applicants.find(a => a.id === applicantId);
+  if (applicant) {
+    upsertApplicantCache(applicant);
+  }
+
+  const option = document.createElement('option');
+  option.value = optionValue;
+  option.textContent = applicant?.name || `申込者 #${optionValue}`;
+  selectElement.appendChild(option);
+}
+
+async function fetchApplicantById(applicantId) {
+  if (!applicantId) return null;
+  try {
+    const applicant = await apiRequest(`/api/v1/adoptions/applicants-extended/${applicantId}`);
+    if (!applicant || !applicant.id) return null;
+    return applicant;
+  } catch (error) {
+    console.warn(`Failed to fetch applicant by id: ${applicantId}`, error);
+    return null;
+  }
+}
+
+async function resolveApplicantForRecord(applicantId) {
+  if (!applicantId) return null;
+
+  const cachedApplicant = applicants.find(a => a.id === applicantId);
+  if (cachedApplicant) return cachedApplicant;
+
+  const fetchedApplicant = await fetchApplicantById(applicantId);
+  if (!fetchedApplicant) return null;
+
+  upsertApplicantCache(fetchedApplicant);
+  return fetchedApplicant;
+}
+
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
   // Wait for i18next to initialize before loading data
@@ -73,6 +137,7 @@ function setupEventListeners() {
     .getElementById('cancelAdoptionBtn')
     .addEventListener('click', () => closeAdoptionModal());
   document.getElementById('adoptionForm').addEventListener('submit', e => completeAdoption(e));
+  setupApplicantSearch();
 }
 
 // データを読み込み
@@ -129,9 +194,142 @@ function populateFilters() {
     `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
     selectableAnimals.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
 
-  document.getElementById('applicantId').innerHTML =
-    `<option value="">${t('common:messages.please_select', { ns: 'common' })}</option>` +
-    applicants.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+  document.getElementById('applicantId').innerHTML = `<option value=""></option>`;
+}
+
+function setupApplicantSearch() {
+  const searchInput = document.getElementById('applicantSearchInput');
+  const resultsBox = document.getElementById('applicantSearchResults');
+  const selectedLabel = document.getElementById('applicantSearchSelected');
+  const applicantSelect = document.getElementById('applicantId');
+
+  if (!searchInput || !resultsBox || !selectedLabel || !applicantSelect) return;
+
+  searchInput.addEventListener('input', () => {
+    applicantSelect.value = '';
+    selectedLabel.classList.add('hidden');
+    selectedLabel.textContent = '';
+    scheduleApplicantSearch();
+  });
+
+  searchInput.addEventListener('focus', () => {
+    if (searchInput.value.trim().length >= APPLICANT_SEARCH_MIN_LENGTH) {
+      scheduleApplicantSearch();
+    }
+  });
+
+  document.addEventListener('click', event => {
+    if (!event.target) return;
+    if (!resultsBox.contains(event.target) && event.target !== searchInput) {
+      hideApplicantSearchResults();
+    }
+  });
+}
+
+function scheduleApplicantSearch() {
+  if (applicantSearchTimer) {
+    clearTimeout(applicantSearchTimer);
+  }
+
+  applicantSearchTimer = setTimeout(async () => {
+    await searchApplicantsForModal();
+  }, APPLICANT_SEARCH_DEBOUNCE_MS);
+}
+
+async function searchApplicantsForModal() {
+  const searchInput = document.getElementById('applicantSearchInput');
+  if (!searchInput) return;
+
+  const keyword = searchInput.value.trim();
+  if (keyword.length < APPLICANT_SEARCH_MIN_LENGTH) {
+    currentApplicantCandidates = [];
+    hideApplicantSearchResults();
+    return;
+  }
+
+  try {
+    const results = await apiRequest(
+      `/api/v1/adoptions/applicants-extended/search?q=${encodeURIComponent(keyword)}&limit=${APPLICANT_SEARCH_LIMIT}`
+    );
+    currentApplicantCandidates = Array.isArray(results) ? results : [];
+    renderApplicantSearchResults(currentApplicantCandidates);
+  } catch (error) {
+    console.error('Failed to search applicants:', error);
+    currentApplicantCandidates = [];
+    renderApplicantSearchResults([]);
+  }
+}
+
+function renderApplicantSearchResults(candidates) {
+  const resultsBox = document.getElementById('applicantSearchResults');
+  if (!resultsBox) return;
+
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    const noCandidatesMessage = t('adoptions:records.messages.no_applicant_candidates', {
+      ns: 'adoptions',
+      defaultValue: '候補がありません。受付登録を先に行ってください。',
+    });
+    resultsBox.innerHTML = `<div class="px-3 py-2 text-sm text-gray-500">${escapeHtml(noCandidatesMessage)}</div>`;
+    resultsBox.classList.remove('hidden');
+    return;
+  }
+
+  resultsBox.innerHTML = candidates
+    .map(candidate => {
+      const contact = formatApplicantSearchContact(candidate);
+      return `
+        <button type="button" class="w-full text-left px-3 py-2 hover:bg-brand-primary/5 border-b border-gray-100 last:border-b-0 js-applicant-candidate" data-applicant-id="${candidate.id}">
+          <div class="text-sm font-medium text-gray-900">${escapeHtml(candidate.name || '-')}</div>
+          <div class="text-xs text-gray-600 mt-0.5">${escapeHtml(contact)}</div>
+        </button>
+      `;
+    })
+    .join('');
+
+  resultsBox.classList.remove('hidden');
+  resultsBox.querySelectorAll('.js-applicant-candidate').forEach(button => {
+    button.addEventListener('click', () => {
+      const applicantId = parseInt(button.dataset.applicantId || '', 10);
+      selectApplicantCandidate(applicantId);
+    });
+  });
+}
+
+function hideApplicantSearchResults() {
+  const resultsBox = document.getElementById('applicantSearchResults');
+  if (!resultsBox) return;
+  resultsBox.classList.add('hidden');
+}
+
+function selectApplicantCandidate(applicantId) {
+  const searchInput = document.getElementById('applicantSearchInput');
+  const selectedLabel = document.getElementById('applicantSearchSelected');
+  const applicantSelect = document.getElementById('applicantId');
+
+  if (!searchInput || !selectedLabel || !applicantSelect || !applicantId) return;
+
+  const selected =
+    currentApplicantCandidates.find(item => item.id === applicantId) ||
+    applicants.find(item => item.id === applicantId);
+  if (!selected) return;
+
+  ensureApplicantOptionExists(applicantSelect, selected);
+  applicantSelect.value = String(selected.id);
+  searchInput.value = selected.name || '';
+  selectedLabel.textContent = `選択中: ${formatApplicantSearchContact(selected)}`;
+  selectedLabel.classList.remove('hidden');
+  hideApplicantSearchResults();
+}
+
+function formatApplicantSearchContact(applicant) {
+  const phone = applicant.phone || '-';
+  let contact = '連絡先未設定';
+  if (applicant.contact_type === 'line' && applicant.contact_line_id) {
+    contact = `LINE: ${applicant.contact_line_id}`;
+  } else if (applicant.contact_type === 'email' && applicant.contact_email) {
+    contact = `メール: ${applicant.contact_email}`;
+  }
+  return `${phone} / ${contact}`;
 }
 
 function translateDynamicElement(element) {
@@ -313,13 +511,33 @@ function clearFilter() {
 }
 
 // 面談記録モーダルを開く
-function openInterviewModal(record = null) {
+async function openInterviewModal(record = null) {
   const modal = document.getElementById('interviewModal');
   const form = document.getElementById('interviewForm');
   const title = document.getElementById('interviewModalTitle');
   const animalSelect = document.getElementById('animalId');
+  const applicantSelect = document.getElementById('applicantId');
+  const searchInput = document.getElementById('applicantSearchInput');
+  const selectedLabel = document.getElementById('applicantSearchSelected');
 
   form.reset();
+  hideApplicantSearchResults();
+  currentApplicantCandidates = [];
+  if (applicantSearchTimer) {
+    clearTimeout(applicantSearchTimer);
+    applicantSearchTimer = null;
+  }
+
+  if (applicantSelect) {
+    applicantSelect.innerHTML = '<option value=""></option>';
+  }
+  if (searchInput) {
+    searchInput.value = '';
+  }
+  if (selectedLabel) {
+    selectedLabel.classList.add('hidden');
+    selectedLabel.textContent = '';
+  }
 
   if (record) {
     title.textContent = t('adoptions:records.modal.title_edit', { ns: 'adoptions' });
@@ -327,7 +545,20 @@ function openInterviewModal(record = null) {
     // 既存記録編集時は、現在譲渡可能でなくても対象猫を選択できるようにする
     ensureAnimalOptionExists(animalSelect, record.animal_id);
     animalSelect.value = String(record.animal_id);
-    document.getElementById('applicantId').value = record.applicant_id;
+    const selectedApplicant = await resolveApplicantForRecord(record.applicant_id);
+    ensureApplicantOptionExists(applicantSelect, record.applicant_id, selectedApplicant);
+    if (applicantSelect) {
+      applicantSelect.value = String(record.applicant_id);
+    }
+    if (searchInput) {
+      searchInput.value = selectedApplicant?.name || `申込者 #${record.applicant_id}`;
+    }
+    if (selectedLabel) {
+      selectedLabel.textContent = selectedApplicant
+        ? `選択中: ${formatApplicantSearchContact(selectedApplicant)}`
+        : `選択中: 申込者 #${record.applicant_id}`;
+      selectedLabel.classList.remove('hidden');
+    }
     document.getElementById('interviewDate').value = record.interview_date || '';
     document.getElementById('interviewNote').value = record.interview_note || '';
     document.getElementById('decision').value = record.decision || 'pending';
@@ -335,6 +566,9 @@ function openInterviewModal(record = null) {
     title.textContent = t('adoptions:records.modal.title_new', { ns: 'adoptions' });
     document.getElementById('recordId').value = '';
     animalSelect.value = '';
+    if (applicantSelect) {
+      applicantSelect.value = '';
+    }
     document.getElementById('decision').value = 'pending';
   }
 
@@ -351,9 +585,23 @@ async function saveInterview(e) {
   e.preventDefault();
 
   const recordId = document.getElementById('recordId').value;
+  const applicantIdValue = document.getElementById('applicantId').value;
+  if (!applicantIdValue) {
+    const message = t('adoptions:records.messages.applicant_not_selected', {
+      ns: 'adoptions',
+      defaultValue: '里親希望者を候補から選択してください',
+    });
+    if (typeof showToast === 'function') {
+      showToast(message, 'error');
+    } else {
+      alert(message);
+    }
+    return;
+  }
+
   const data = {
     animal_id: parseInt(document.getElementById('animalId').value),
-    applicant_id: parseInt(document.getElementById('applicantId').value),
+    applicant_id: parseInt(applicantIdValue, 10),
     interview_date: document.getElementById('interviewDate').value || null,
     interview_note: document.getElementById('interviewNote').value || null,
     decision: document.getElementById('decision').value || 'pending',
@@ -398,7 +646,7 @@ async function saveInterview(e) {
 async function editRecord(id) {
   const record = allRecords.find(r => r.id === id);
   if (record) {
-    openInterviewModal(record);
+    await openInterviewModal(record);
   }
 }
 

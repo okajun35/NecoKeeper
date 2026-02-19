@@ -130,32 +130,20 @@ endblock %}
                 <button type="button"
                     class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-xs font-heading bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="1" data-i18n="appetite_levels.5" data-i18n-ns="care">
-                    完食
+                    data-value="1" data-i18n="appetite_levels.3" data-i18n-ns="care">
+                    ほぼ完食
                 </button>
                 <button type="button"
                     class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-xs font-heading bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="0.75" data-i18n="appetite_levels.4" data-i18n-ns="care">
-                    1/4残し
-                </button>
-                <button type="button"
-                    class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-xs font-heading bg-bg-base"
-                    style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="0.5" data-i18n="appetite_levels.3" data-i18n-ns="care">
-                    半分残し
-                </button>
-                <button type="button"
-                    class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-xs font-heading bg-bg-base"
-                    style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="0.25" data-i18n="appetite_levels.2" data-i18n-ns="care">
-                    3/4残し
+                    data-value="0.5" data-i18n="appetite_levels.2" data-i18n-ns="care">
+                    半分くらい
                 </button>
                 <button type="button"
                     class="appetite-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-xs font-heading bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
                     data-value="0" data-i18n="appetite_levels.1" data-i18n-ns="care">
-                    食べない
+                    ほぼ残す
                 </button>
             </div>
             <input type="hidden" id="appetite" name="appetite" required>
@@ -173,38 +161,21 @@ endblock %}
                 <button type="button"
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="1">
-                    1
+                    data-value="3" data-i18n="energy_levels.3" data-i18n-ns="care">
+                    元気
                 </button>
                 <button type="button"
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="2">
-                    2
+                    data-value="2" data-i18n="energy_levels.2" data-i18n-ns="care">
+                    低活力
                 </button>
                 <button type="button"
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="3">
-                    3
+                    data-value="1" data-i18n="energy_levels.1" data-i18n-ns="care">
+                    ぐったり
                 </button>
-                <button type="button"
-                    class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
-                    style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="4">
-                    4
-                </button>
-                <button type="button"
-                    class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
-                    style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
-                    data-value="5">
-                    5
-                </button>
-            </div>
-            <div class="flex justify-between text-xs text-text-muted mt-2 px-1" style="color: var(--color-text-muted);">
-                <span data-i18n="energy_low" data-i18n-ns="care">低い</span>
-                <span data-i18n="energy_normal" data-i18n-ns="care">普通</span>
-                <span data-i18n="energy_high" data-i18n-ns="care">高い</span>
             </div>
             <input type="hidden" id="energy" name="energy" required>
         </div>
@@ -212,6 +183,30 @@ endblock %}
         <!-- 排尿・清掃 -->
         <div class="bg-bg-surface rounded-2xl shadow-card p-6 border border-border space-y-4"
             style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
+            <!-- 嘔吐 -->
+            <div data-field="vomiting">
+                <label class="block text-sm font-medium text-text-muted mb-3 font-sans"
+                    style="color: var(--color-text-muted);">
+                    <span data-i18n="vomiting" data-i18n-ns="care">嘔吐</span>
+                    <span class="text-red-500" data-i18n="required" data-i18n-ns="care">*</span>
+                </label>
+                <div class="flex gap-3">
+                    <button type="button"
+                        class="vomiting-btn flex-1 py-3 px-4 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-colors bg-bg-base"
+                        style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
+                        data-value="true" data-i18n="vomiting_yes" data-i18n-ns="care">
+                        あり
+                    </button>
+                    <button type="button"
+                        class="vomiting-btn flex-1 py-3 px-4 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-colors bg-bg-base"
+                        style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
+                        data-value="false" data-i18n="vomiting_no" data-i18n-ns="care">
+                        なし
+                    </button>
+                </div>
+                <input type="hidden" id="vomiting" name="vomiting">
+            </div>
+
             <!-- 排尿 -->
             <div data-field="urination">
                 <label class="block text-sm font-medium text-text-muted mb-3 font-sans"

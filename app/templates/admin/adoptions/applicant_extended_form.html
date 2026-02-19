@@ -13,8 +13,14 @@
 {% block content %}
 <div class="max-w-5xl mx-auto space-y-6">
     <div id="formError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"></div>
+    {% if consultation %}
+    <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg">
+        相談ID {{ consultation.id }} から申込を作成しています。最低限の情報は事前入力されます。
+    </div>
+    {% endif %}
 
     <form id="applicant-extended-form" class="space-y-6">
+        <input type="hidden" id="source_consultation_id" value="{% if consultation %}{{ consultation.id }}{% endif %}">
         <!-- 基本情報 -->
         <section class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900">基本情報</h3>
@@ -323,6 +329,9 @@
     window.FORM_MODE = "{{ mode }}";
     {% if mode == 'edit' and applicant %}
     window.APPLICANT_DATA = {{ applicant.model_dump_json()|safe }};
+    {% endif %}
+    {% if consultation %}
+    window.CONSULTATION_DATA = {{ consultation.model_dump_json()|safe }};
     {% endif %}
 </script>
 {% endblock %}

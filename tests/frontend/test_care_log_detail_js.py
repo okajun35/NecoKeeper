@@ -24,8 +24,9 @@ class TestCareLogDetailJSLoad:
             animal_id=test_animal.id,
             log_date=date(2024, 11, 20),
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="元気です",
@@ -47,8 +48,8 @@ class TestCareLogDetailJSLoad:
         assert data["animal_id"] == test_animal.id
         assert data["log_date"] == "2024-11-20"
         assert data["time_slot"] == "morning"
-        assert data["appetite"] == 0.75
-        assert data["energy"] == 5
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is True
         assert data["memo"] == "元気です"

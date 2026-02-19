@@ -35,6 +35,7 @@ const REQUIRED_FIELD_CONFIG = [
   { id: 'timeSlot', key: 'time_slot' },
   { id: 'appetite', key: 'appetite' },
   { id: 'energy', key: 'energy' },
+  { id: 'vomiting', key: 'vomiting' },
   { id: 'urination', key: 'urination' },
   { id: 'defecation', key: 'defecation' },
   { id: 'cleaning', key: 'cleaning' },
@@ -539,7 +540,11 @@ async function loadCareLogForEdit() {
       if (btn) btn.click();
     }
 
-    // 排尿/排便/便状態
+    // 嘔吐/排尿/排便/便状態
+    if (typeof log.vomiting === 'boolean') {
+      const btn = document.querySelector(`.vomiting-btn[data-value="${log.vomiting}"]`);
+      if (btn) btn.click();
+    }
     if (typeof log.urination === 'boolean') {
       const btn = document.querySelector(`.urination-btn[data-value="${log.urination}"]`);
       if (btn) btn.click();
@@ -713,6 +718,11 @@ async function copyLastValues() {
       if (energyBtn) energyBtn.click();
     }
 
+    if (typeof lastLog.vomiting === 'boolean') {
+      const vomitingBtn = document.querySelector(`.vomiting-btn[data-value="${lastLog.vomiting}"]`);
+      if (vomitingBtn) vomitingBtn.click();
+    }
+
     if (typeof lastLog.urination === 'boolean') {
       const urinationBtn = document.querySelector(
         `.urination-btn[data-value="${lastLog.urination}"]`
@@ -778,6 +788,7 @@ function resetForm() {
     'timeSlot',
     'appetite',
     'energy',
+    'vomiting',
     'urination',
     'defecation',
     'stoolCondition',
@@ -825,6 +836,12 @@ async function handleSubmit(e) {
       time_slot: document.getElementById('timeSlot').value,
       appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
+      vomiting:
+        document.getElementById('vomiting').value === 'true'
+          ? true
+          : document.getElementById('vomiting').value === 'false'
+            ? false
+            : null,
       urination:
         document.getElementById('urination').value === 'true'
           ? true
@@ -995,6 +1012,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupButtonGroup('time-slot-btn', 'timeSlot');
   setupButtonGroup('appetite-btn', 'appetite');
   setupButtonGroup('energy-btn', 'energy');
+  setupButtonGroup('vomiting-btn', 'vomiting');
   setupButtonGroup('urination-btn', 'urination');
   setupButtonGroup('defecation-btn', 'defecation');
   setupButtonGroup('stool-condition-btn', 'stoolCondition');

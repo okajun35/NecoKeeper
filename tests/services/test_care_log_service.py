@@ -34,8 +34,9 @@ class TestCreateCareLog:
             recorder_name="テスト記録者",
             log_date=date.today(),
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="元気です",
@@ -49,8 +50,8 @@ class TestCreateCareLog:
         assert result.animal_id == test_animal.id
         assert result.recorder_name == "テスト記録者"
         assert result.time_slot == "morning"
-        assert result.appetite == 0.75
-        assert result.energy == 5
+        assert result.appetite == 1.0
+        assert result.energy == 3
         assert result.urination is True
         assert result.cleaning is True
         assert result.memo == "元気です"
@@ -67,6 +68,7 @@ class TestCreateCareLog:
             time_slot="noon",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=False,
             cleaning=False,
         )
@@ -93,6 +95,7 @@ class TestCreateCareLog:
                 time_slot=time_slot,
                 appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -115,6 +118,7 @@ class TestCreateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=False,
             stool_condition=2,
@@ -139,6 +143,7 @@ class TestCreateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=None,
@@ -167,6 +172,7 @@ class TestCreateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=stool_condition,
@@ -192,8 +198,9 @@ class TestGetCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -239,6 +246,7 @@ class TestUpdateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -248,7 +256,8 @@ class TestUpdateCareLog:
 
         update_data = CareLogUpdate(
             appetite=1.0,
-            energy=5,
+            energy=3,
+            vomiting=False,
             memo="更新されました",
         )
 
@@ -259,7 +268,7 @@ class TestUpdateCareLog:
 
         # Then
         assert result.appetite == 1.0
-        assert result.energy == 5
+        assert result.energy == 3
         assert result.memo == "更新されました"
         assert result.last_updated_by == test_user.id
 
@@ -275,6 +284,7 @@ class TestUpdateCareLog:
             time_slot="noon",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -283,7 +293,7 @@ class TestUpdateCareLog:
         test_db.refresh(care_log)
 
         original_appetite = care_log.appetite
-        update_data = CareLogUpdate(energy=5)
+        update_data = CareLogUpdate(energy=3)
 
         # When
         result = care_log_service.update_care_log(
@@ -291,7 +301,7 @@ class TestUpdateCareLog:
         )
 
         # Then
-        assert result.energy == 5
+        assert result.energy == 3
         assert result.appetite == original_appetite  # 変更されていない
 
     def test_update_care_log_defecation_true_without_stool_condition_raises_422(
@@ -306,6 +316,7 @@ class TestUpdateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=False,
             stool_condition=None,
@@ -337,6 +348,7 @@ class TestUpdateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=2,
@@ -369,6 +381,7 @@ class TestUpdateCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=2,
@@ -419,6 +432,7 @@ class TestListCareLogs:
                 time_slot="morning",
                 appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -447,6 +461,7 @@ class TestListCareLogs:
                 time_slot="morning",
                 appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -478,6 +493,7 @@ class TestListCareLogs:
                 time_slot="morning",
                 appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -491,6 +507,7 @@ class TestListCareLogs:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -521,6 +538,7 @@ class TestListCareLogs:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(yesterday, datetime.min.time()),
@@ -535,6 +553,7 @@ class TestListCareLogs:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(today, datetime.min.time()),
@@ -564,6 +583,7 @@ class TestListCareLogs:
                 time_slot=time_slot,
                 appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -599,8 +619,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="テストメモ",
@@ -634,8 +655,9 @@ class TestExportCareLogsCSV:
             animal_id=target_animal.id,
             recorder_name="対象記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -649,6 +671,7 @@ class TestExportCareLogsCSV:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -678,6 +701,7 @@ class TestExportCareLogsCSV:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(yesterday, datetime.min.time()),
@@ -690,8 +714,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="今日の記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(today, datetime.min.time()),
@@ -730,6 +755,7 @@ class TestExportCareLogsCSV:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=False,
         )
@@ -758,6 +784,7 @@ class TestGetLatestCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.now() - timedelta(hours=2),
@@ -772,7 +799,8 @@ class TestGetLatestCareLog:
             recorder_name="新しい記録者",
             time_slot="noon",
             appetite=1.0,
-            energy=5,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.now(),
@@ -813,6 +841,7 @@ class TestGetLatestCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=same_time,
@@ -825,8 +854,9 @@ class TestGetLatestCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者2",
             time_slot="noon",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=same_time,

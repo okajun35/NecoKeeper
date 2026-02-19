@@ -36,8 +36,9 @@ class TestCareLogCRUD:
                 "recorder_name": "テスト記録者",
                 "log_date": "2025-11-15",
                 "time_slot": "morning",
-                "appetite": 0.75,
-                "energy": 5,
+                "appetite": 1.0,
+                "energy": 3,
+                "vomiting": False,
                 "urination": True,
                 "cleaning": True,
                 "memo": "元気です",
@@ -49,8 +50,8 @@ class TestCareLogCRUD:
         assert data["animal_id"] == animal_id
         assert data["recorder_name"] == "テスト記録者"
         assert data["time_slot"] == "morning"
-        assert data["appetite"] == 0.75
-        assert data["energy"] == 5
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
 
     def test_list_care_logs(self, test_client, test_db, auth_token):
         """世話記録一覧を取得できる"""
@@ -62,8 +63,9 @@ class TestCareLogCRUD:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -90,7 +92,8 @@ class TestCareLogCRUD:
             recorder_name="テスト記録者",
             time_slot="noon",
             appetite=0.5,
-            energy=4,
+            energy=3,
+            vomiting=False,
             urination=False,
             cleaning=False,
         )
@@ -120,6 +123,7 @@ class TestCareLogCRUD:
             time_slot="evening",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -130,13 +134,13 @@ class TestCareLogCRUD:
         response = test_client.put(
             f"/api/v1/care-logs/{care_log_id}",
             headers={"Authorization": f"Bearer {auth_token}"},
-            json={"appetite": 1.0, "energy": 5, "memo": "更新されました"},
+            json={"appetite": 1.0, "energy": 3, "memo": "更新されました"},
         )
 
         assert response.status_code == 200
         data = response.json()
         assert data["appetite"] == 1.0
-        assert data["energy"] == 5
+        assert data["energy"] == 3
         assert data["memo"] == "更新されました"
 
     def test_filter_by_animal_id(self, test_client, test_db, auth_token):
@@ -150,8 +154,9 @@ class TestCareLogCRUD:
             animal_id=animal_id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -183,8 +188,9 @@ class TestCareLogCSVExport:
             animal_id=animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="テストメモ",
@@ -225,6 +231,7 @@ class TestLatestCareLog:
             time_slot="morning",
             appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -238,7 +245,8 @@ class TestLatestCareLog:
             recorder_name="新しい記録者",
             time_slot="noon",
             appetite=1.0,
-            energy=5,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -287,8 +295,9 @@ class TestCareLogImageAPI:
             animal_id=animal.id,
             recorder_name="画像付き記録者",
             time_slot="morning",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             care_image_path=image_key,
@@ -335,7 +344,8 @@ class TestCareLogImageAPI:
             recorder_name="画像付き記録者",
             time_slot="noon",
             appetite=1.0,
-            energy=5,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             care_image_path=image_key,
@@ -373,6 +383,7 @@ class TestCareLogImageAPI:
             time_slot="evening",
             appetite=0.5,
             energy=2,
+            vomiting=False,
             urination=True,
             cleaning=True,
             care_image_path="2026/02/missing.webp",

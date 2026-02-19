@@ -45,6 +45,9 @@ class ApplicantResponse(ApplicantBase):
 
 # 選択肢の型定義
 ContactType = Literal["line", "email"]
+ConsultationStatusType = Literal["open", "converted", "closed"]
+IntakeRequestType = Literal["all", "application", "consultation"]
+IntakeEntryType = Literal["application", "consultation", "both"]
 OccupationType = Literal["company_employee", "public_servant", "self_employed", "other"]
 EmergencyRelationType = Literal["parents", "siblings", "other"]
 FamilyIntentType = Literal["all_positive", "some_not_positive", "single_household"]
@@ -192,6 +195,11 @@ class ApplicantCreateExtended(BaseModel):
     )
     pets: list[ApplicantPetCreate] = Field(
         default_factory=list, description="先住ペット"
+    )
+    source_consultation_id: int | None = Field(
+        None,
+        ge=1,
+        description="変換元の相談ID（相談→申込導線で利用）",
     )
 
     @model_validator(mode="before")
@@ -449,6 +457,109 @@ class ApplicantResponseExtended(BaseModel):
     updated_at: datetime = Field(..., description="更新日時")
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ========================================
+# AdoptionConsultation（里親相談）スキーマ
+# ========================================
+
+
+class AdoptionConsultationBase(BaseModel):
+    """里親相談の共通フィールド"""
+
+    name_kana: str = Field(..., max_length=100, description="ふりがな")
+    name: str = Field(..., max_length=100, description="氏名")
+    phone: str = Field(..., max_length=50, description="電話番号")
+    contact_type: ContactType = Field(..., description="連絡手段（line/email）")
+    contact_line_id: str | None = Field(None, max_length=100, description="LINE ID")
+    contact_email: str | None = Field(
+        None, max_length=255, description="メールアドレス"
+    )
+    consultation_note: str = Field(..., description="相談内容")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_phone(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """電話番号のハイフンを除去"""
+        if isinstance(data, dict) and data.get("phone"):
+            data["phone"] = data["phone"].replace("-", "").replace(" ", "")
+        return data
+
+    @model_validator(mode="after")
+    def validate_contact_info(self) -> AdoptionConsultationBase:
+        """連絡手段の整合性チェック"""
+        if self.contact_type == "line" and not self.contact_line_id:
+            raise ValueError("LINE連絡を選択した場合、LINE IDの入力が必須です")
+        if self.contact_type == "email" and not self.contact_email:
+            raise ValueError("メール連絡を選択した場合、メールアドレスの入力が必須です")
+        return self
+
+
+class AdoptionConsultationCreate(AdoptionConsultationBase):
+    """里親相談作成スキーマ"""
+
+    pass
+
+
+class AdoptionConsultationUpdate(BaseModel):
+    """里親相談更新スキーマ（全フィールド任意）"""
+
+    name_kana: str | None = Field(None, max_length=100, description="ふりがな")
+    name: str | None = Field(None, max_length=100, description="氏名")
+    phone: str | None = Field(None, max_length=50, description="電話番号")
+    contact_type: ContactType | None = Field(None, description="連絡手段（line/email）")
+    contact_line_id: str | None = Field(None, max_length=100, description="LINE ID")
+    contact_email: str | None = Field(
+        None, max_length=255, description="メールアドレス"
+    )
+    consultation_note: str | None = Field(None, description="相談内容")
+    status: ConsultationStatusType | None = Field(None, description="相談ステータス")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_phone(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """電話番号のハイフンを除去"""
+        if isinstance(data, dict) and data.get("phone"):
+            data["phone"] = data["phone"].replace("-", "").replace(" ", "")
+        return data
+
+
+class AdoptionConsultationResponse(AdoptionConsultationBase):
+    """里親相談レスポンススキーマ"""
+
+    id: int = Field(..., description="相談ID")
+    status: ConsultationStatusType = Field(..., description="相談ステータス")
+    applicant_id: int | None = Field(None, description="変換先の里親申込ID")
+    created_at: datetime = Field(..., description="作成日時")
+    updated_at: datetime = Field(..., description="更新日時")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ========================================
+# IntakeEntry（受付統合一覧）スキーマ
+# ========================================
+
+
+class AdoptionIntakeEntryResponse(BaseModel):
+    """受付統合一覧レスポンススキーマ"""
+
+    id: int = Field(..., description="一覧表示用ID")
+    request_type: IntakeEntryType = Field(
+        ...,
+        description="受付種別（application/consultation/both）",
+    )
+    application_id: int | None = Field(None, description="譲渡申込ID")
+    consultation_id: int | None = Field(None, description="相談ID")
+    name_kana: str | None = Field(None, description="ふりがな")
+    name: str = Field(..., description="氏名")
+    phone: str | None = Field(None, description="電話番号")
+    contact_type: ContactType | None = Field(None, description="連絡手段")
+    contact_line_id: str | None = Field(None, description="LINE ID")
+    contact_email: str | None = Field(None, description="メールアドレス")
+    consultation_note: str | None = Field(None, description="相談内容")
+    status: ConsultationStatusType | None = Field(None, description="相談ステータス")
+    created_at: datetime = Field(..., description="作成日時")
 
 
 # ========================================

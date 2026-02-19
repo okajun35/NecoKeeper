@@ -4,6 +4,7 @@ ORMモデルパッケージ
 すべてのSQLAlchemyモデルをここからインポートします。
 """
 
+from app.models.adoption_consultation import AdoptionConsultation
 from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
@@ -19,6 +20,7 @@ from app.models.vaccination_record import VaccinationRecord
 from app.models.volunteer import Volunteer
 
 __all__ = [
+    "AdoptionConsultation",
     "AdoptionRecord",
     "Animal",
     "AnimalImage",

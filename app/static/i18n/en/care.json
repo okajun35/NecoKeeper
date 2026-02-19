@@ -10,16 +10,19 @@
   "time_slot_evening": "Evening",
   "appetite": "Appetite",
   "appetite_levels": {
-    "1": "Not eating",
-    "2": "Left 3/4",
-    "3": "Left half",
-    "4": "Left 1/4",
-    "5": "Finished"
+    "1": "Mostly left",
+    "2": "Half",
+    "3": "Almost finished"
   },
   "energy": "Energy",
-  "energy_low": "Low",
-  "energy_normal": "Normal",
-  "energy_high": "High",
+  "energy_levels": {
+    "1": "Lethargic",
+    "2": "Low activity",
+    "3": "Active"
+  },
+  "vomiting": "Vomiting",
+  "vomiting_yes": "Yes",
+  "vomiting_no": "No",
   "urination": "Urination",
   "urination_yes": "Yes",
   "urination_no": "No",

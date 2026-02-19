@@ -71,6 +71,27 @@ class TestPublicFormRendering:
         # JavaScript（分離されたファイル）
         assert "/static/js/care_form.js" in html
 
+    def test_care_form_energy_order_and_label(
+        self, test_client: TestClient, test_animal: Animal
+    ):
+        """正常系: public側の元気は 元気→低活力→ぐったり（数字なし）で表示される"""
+        response = test_client.get(
+            f"/public/care?animal_id={test_animal.id}",
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        html = response.text
+        assert html.index('data-value="3" data-i18n="energy_levels.3"') < html.index(
+            'data-value="2" data-i18n="energy_levels.2"'
+        )
+        assert html.index('data-value="2" data-i18n="energy_levels.2"') < html.index(
+            'data-value="1" data-i18n="energy_levels.1"'
+        )
+        assert "1 (ぐったり)" not in html
+        assert "2 (低活力)" not in html
+        assert "3 (元気)" not in html
+
     def test_care_form_includes_pwa_manifest(
         self, test_client: TestClient, test_animal: Animal
     ):
@@ -156,7 +177,8 @@ class TestPublicFormDataFlow:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "notes": "旧notesフィールドで送信",
@@ -205,7 +227,8 @@ class TestPublicFormDataFlow:
             "log_date": "2025-11-15",
             "time_slot": "morning",
             "appetite": 1.0,
-            "energy": 5,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "memo": "元気です",
@@ -248,8 +271,9 @@ class TestPublicFormDataFlow:
             "recorder_name": volunteer.name,
             "log_date": "2025-11-15",
             "time_slot": "noon",
-            "appetite": 0.75,
-            "energy": 4,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": False,
             "cleaning": True,
             "memo": "前回の記録",
@@ -263,8 +287,8 @@ class TestPublicFormDataFlow:
         assert response.status_code == 200
         data = response.json()
         assert data["time_slot"] == "noon"
-        assert data["appetite"] == 0.75
-        assert data["energy"] == 4
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
         assert data["urination"] is False
         assert data["cleaning"] is True
         # メモはコピーされない（仕様）

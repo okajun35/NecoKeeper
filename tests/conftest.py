@@ -26,6 +26,7 @@ warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
+from app.models.adoption_consultation import AdoptionConsultation
 from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
@@ -89,6 +90,7 @@ def test_db() -> Generator[Session, None, None]:
 
         db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
+        db.query(AdoptionConsultation).delete()
         db.query(ApplicantHouseholdMember).delete()  # 家族構成
         db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
@@ -142,6 +144,7 @@ def test_db() -> Generator[Session, None, None]:
 
         db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
+        db.query(AdoptionConsultation).delete()
         db.query(ApplicantHouseholdMember).delete()  # 家族構成
         db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
@@ -292,8 +295,8 @@ def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
             animal_id=test_animal.id,
             time_slot="morning",
             recorder_name="テストユーザー",
-            appetite=0.75,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="朝の記録",
@@ -315,7 +318,7 @@ def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
             time_slot="evening",
             recorder_name="テストユーザー",
             appetite=1.0,
-            energy=4,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="夕方の記録",

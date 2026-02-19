@@ -56,11 +56,9 @@
                 </label>
                 <select id="appetite" name="appetite" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
-                    <option value="1" data-i18n="appetite_levels.5" data-i18n-ns="care_logs">完食</option>
-                    <option value="0.75" data-i18n="appetite_levels.4" data-i18n-ns="care_logs">1/4残し</option>
-                    <option value="0.5" data-i18n="appetite_levels.3" data-i18n-ns="care_logs">半分残し</option>
-                    <option value="0.25" data-i18n="appetite_levels.2" data-i18n-ns="care_logs">3/4残し</option>
-                    <option value="0" data-i18n="appetite_levels.1" data-i18n-ns="care_logs">食べない</option>
+                    <option value="1" data-i18n="appetite_levels.3" data-i18n-ns="care_logs">ほぼ完食</option>
+                    <option value="0.5" data-i18n="appetite_levels.2" data-i18n-ns="care_logs">半分くらい</option>
+                    <option value="0" data-i18n="appetite_levels.1" data-i18n-ns="care_logs">ほぼ残す</option>
                 </select>
             </div>
 
@@ -71,12 +69,30 @@
                 </label>
                 <select id="energy" name="energy" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
-                    <option value="1" data-i18n="energy_levels.1" data-i18n-ns="care_logs">1 (ぐったり)</option>
-                    <option value="2" data-i18n="energy_levels.2" data-i18n-ns="care_logs">2 (元気がない)</option>
-                    <option value="3" data-i18n="energy_levels.3" data-i18n-ns="care_logs">3 (普通)</option>
-                    <option value="4" data-i18n="energy_levels.4" data-i18n-ns="care_logs">4 (元気)</option>
-                    <option value="5" data-i18n="energy_levels.5" data-i18n-ns="care_logs">5 (とても元気)</option>
+                    <option value="3" data-i18n="energy_levels.3" data-i18n-ns="care_logs">元気</option>
+                    <option value="2" data-i18n="energy_levels.2" data-i18n-ns="care_logs">低活力</option>
+                    <option value="1" data-i18n="energy_levels.1" data-i18n-ns="care_logs">ぐったり</option>
                 </select>
+            </div>
+
+            <!-- 嘔吐 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <span data-i18n="fields.vomiting" data-i18n-ns="care_logs">嘔吐</span> <span class="text-red-500">*</span>
+                </label>
+                <div class="flex gap-3">
+                    <button type="button"
+                            class="vomiting-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
+                            data-value="true"
+                            data-i18n="vomiting_status.yes"
+                            data-i18n-ns="care_logs">あり</button>
+                    <button type="button"
+                            class="vomiting-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
+                            data-value="false"
+                            data-i18n="vomiting_status.no"
+                            data-i18n-ns="care_logs">なし</button>
+                </div>
+                <input type="hidden" id="vomiting" name="vomiting">
             </div>
 
             <!-- 排尿 -->
