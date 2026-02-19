@@ -6,6 +6,8 @@
 - 編集画面: 詳細情報は読み取り専用表示、基本情報とステータス/所在地が編集可能
 """
 
+from datetime import date
+
 
 class TestAnimalDetailPage:
     """猫詳細画面のテスト"""
@@ -63,6 +65,31 @@ class TestAnimalDetailPage:
 
         # 更新ボタンが存在する
         assert 'id="updateStatusAndLocationBtn"' in html
+
+    def test_detail_page_displays_medical_info_as_readonly(
+        self, test_client, test_db, auth_token, test_animal
+    ):
+        """詳細画面で医療情報が読み取り専用で表示される"""
+        test_animal.fiv_positive = True
+        test_animal.felv_positive = False
+        test_animal.is_sterilized = True
+        test_animal.sterilized_on = date(2025, 1, 15)
+        test_db.commit()
+
+        response = test_client.get(
+            f"/admin/animals/{test_animal.id}",
+            headers={"Authorization": f"Bearer {auth_token}"},
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        html = response.text
+
+        assert 'id="fivResultDisplay"' in html
+        assert 'id="felvResultDisplay"' in html
+        assert 'id="sterilizedStatusDisplay"' in html
+        assert 'id="sterilizedOnDisplay"' in html
+        assert "2025-01-15" in html
 
 
 class TestAnimalEditPage:
