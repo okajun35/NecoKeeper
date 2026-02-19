@@ -10,11 +10,14 @@ t-wada準拠のテスト設計:
 
 from __future__ import annotations
 
+import logging
+
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
+from app.models.animal_image import AnimalImage
 from app.models.status_history import StatusHistory
 from app.models.user import User
 from app.schemas.animal import AnimalCreate, AnimalUpdate
@@ -609,3 +612,66 @@ class TestGetAnimalsStatusFilter:
         assert (
             "フィルター比較テスト猫" not in daily_names
         )  # DAILY にはトライアル含まない
+
+
+class TestGetDisplayImage:
+    """表示画像のフォールバック挙動テスト"""
+
+    def test_fallbacks_to_gallery_when_profile_photo_file_is_missing(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        temp_media_dir,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """プロフィール画像欠損時はギャラリー画像へフォールバックする"""
+        test_animal.photo = f"/media/animals/{test_animal.id}/gallery/missing-photo.jpg"
+
+        relative_gallery_path = f"animals/{test_animal.id}/gallery/fallback-photo.jpg"
+        gallery_file = temp_media_dir / relative_gallery_path
+        gallery_file.parent.mkdir(parents=True, exist_ok=True)
+        gallery_file.write_bytes(b"fallback")
+
+        gallery_image = AnimalImage(
+            animal_id=test_animal.id,
+            image_path=relative_gallery_path,
+            description="fallback",
+            file_size=8,
+        )
+        test_db.add(gallery_image)
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.animal_service")
+
+        image_path = animal_service.get_display_image(test_db, test_animal.id)
+
+        assert image_path == f"/media/{relative_gallery_path}"
+        assert "event=image_file_missing caller=display" in caplog.text
+
+    def test_returns_default_when_all_images_are_missing(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        temp_media_dir,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """全画像欠損時も例外を出さずデフォルト画像を返す"""
+        from app.config import get_settings
+
+        test_animal.photo = f"/media/animals/{test_animal.id}/gallery/missing-photo.jpg"
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.animal_service")
+
+        image_path = animal_service.get_display_image(test_db, test_animal.id)
+        settings = get_settings()
+        expected_default = (
+            "/static/icons/halloween_logo_2.webp"
+            if settings.kiroween_mode
+            else "/static/images/default-cat.svg"
+        )
+
+        assert image_path == expected_default
+        assert "event=image_file_missing caller=display" in caplog.text

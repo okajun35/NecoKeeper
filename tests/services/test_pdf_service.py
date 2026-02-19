@@ -6,6 +6,11 @@ Requirements: Requirement 2, Requirement 7, Requirement 9, Requirement 28.3
 
 from __future__ import annotations
 
+import base64
+import logging
+import uuid
+from pathlib import Path
+
 import pytest
 from sqlalchemy.orm import Session
 
@@ -25,6 +30,16 @@ def _extract_pdf_text(pdf_bytes: bytes) -> str:
     # PDF text extraction may insert unpredictable whitespace/newlines depending on
     # fonts/layout/environment. Normalize whitespace so tests are stable.
     return " ".join(raw_text.split())
+
+
+def _write_test_png(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(
+        base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8"
+            "/x8AAwMCAO+X8+QAAAAASUVORK5CYII="
+        )
+    )
 
 
 class TestGenerateQRCardPDF:
@@ -91,6 +106,60 @@ class TestGenerateQRCardPDF:
         assert isinstance(pdf_bytes, bytes)
         assert len(pdf_bytes) > 0
         assert pdf_bytes.startswith(b"%PDF")
+
+    def test_generate_qr_card_pdf_uses_media_dir_for_photo_resolution(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """正常系: MEDIA_DIR配下の画像を解決できる"""
+        settings = pdf_service.get_settings()
+        relative_path = (
+            f"animals/{test_animal.id}/gallery/test-photo-{uuid.uuid4().hex}.png"
+        )
+        photo_file = Path(settings.media_dir) / relative_path
+        _write_test_png(photo_file)
+
+        test_animal.photo = f"/media/{relative_path}"
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.pdf_service")
+
+        pdf_bytes = pdf_service.generate_qr_card_pdf(
+            db=test_db,
+            animal_id=test_animal.id,
+            base_url="https://test.example.com",
+        )
+
+        assert pdf_bytes.startswith(b"%PDF")
+        assert "event=image_file_missing caller=pdf" not in caplog.text
+
+    def test_generate_qr_card_pdf_missing_photo_logs_warning(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """正常系: 画像欠損時もPDF生成し、警告ログを残す"""
+        relative_path = (
+            f"animals/{test_animal.id}/gallery/missing-photo-{uuid.uuid4().hex}.png"
+        )
+        test_animal.photo = f"/media/{relative_path}"
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.pdf_service")
+
+        pdf_bytes = pdf_service.generate_qr_card_pdf(
+            db=test_db,
+            animal_id=test_animal.id,
+            base_url="https://test.example.com",
+        )
+
+        assert pdf_bytes.startswith(b"%PDF")
+        assert "event=image_file_missing caller=pdf" in caplog.text
 
 
 class TestGenerateQRCardGridPDF:
