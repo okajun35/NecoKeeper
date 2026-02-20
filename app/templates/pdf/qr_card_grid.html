@@ -145,8 +145,8 @@
     <div class="grid">
         {% for item in animals_with_qr %}
         <div class="card">
-            {% if item.animal.photo %}
-            <img src="{{ item.animal.photo }}" alt="{{ item.animal.name }}" class="animal-photo">
+            {% if item.photo_url %}
+            <img src="{{ item.photo_url }}" alt="{{ item.animal.name }}" class="animal-photo">
             {% else %}
             <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#e0e0e0{% endif %}; display: flex; align-items: center; justify-content: center;">
                 <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %}; font-size: 5pt;">{% if kiroween_mode %}NO{% elif locale == 'en' %}No{% else %}なし{% endif %}</span>

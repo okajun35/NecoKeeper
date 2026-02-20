@@ -10,6 +10,7 @@ Context7: /websites/doc_courtbouillon_weasyprint_stable
 from __future__ import annotations
 
 import base64
+import logging
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -23,9 +24,11 @@ from app.models.animal import Animal
 from app.services.medical_report_service import get_medical_summary_rows
 from app.utils.appetite import appetite_label
 from app.utils.i18n import tj
+from app.utils.media_path import build_media_url, resolve_media_file_path
 from app.utils.qr_code import generate_animal_qr_code_bytes
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 # Jinja2環境の設定
 template_dir = Path("app/templates/pdf")
@@ -61,6 +64,8 @@ def generate_qr_card_pdf(
         >>> with open("qr_card.pdf", "wb") as f:
         ...     f.write(pdf_bytes)
     """
+    current_settings = get_settings()
+
     # 猫情報を取得
     animal = db.query(Animal).filter(Animal.id == animal_id).first()
     if not animal:
@@ -68,7 +73,7 @@ def generate_qr_card_pdf(
 
     # ベースURLの設定
     if base_url is None:
-        base_url = settings.base_url
+        base_url = current_settings.base_url
 
     # QRコードを生成
     qr_code_bytes = generate_animal_qr_code_bytes(base_url, animal_id, box_size=8)
@@ -79,17 +84,9 @@ def generate_qr_card_pdf(
     photo_mime_type = "image/jpeg"  # デフォルト
     if animal.photo:
         try:
-            # photoパスから実際のファイルパスを構築
-            # DBに /media/animals/... と保存されている場合と animals/... の場合の両方に対応
-            photo_path_str = animal.photo.lstrip("/")
-
-            # /media/ で始まる場合は、そのまま使用
-            if photo_path_str.startswith("media/"):
-                photo_path = Path(photo_path_str)
-            else:
-                # media/ プレフィックスを追加
-                photo_path = Path("media") / photo_path_str
-
+            photo_path = resolve_media_file_path(
+                animal.photo, current_settings.media_dir
+            )
             if photo_path.exists():
                 photo_bytes = photo_path.read_bytes()
                 photo_base64 = base64.b64encode(photo_bytes).decode("utf-8")
@@ -104,8 +101,33 @@ def generate_qr_card_pdf(
                     photo_mime_type = "image/gif"
                 else:
                     photo_mime_type = "image/jpeg"
-        except Exception as e:
-            print(f"写真の読み込みに失敗: {e}")
+            else:
+                logger.warning(
+                    "event=image_file_missing caller=pdf animal_id=%s source=animal.photo "
+                    "db_path=%s resolved_path=%s media_dir=%s",
+                    animal.id,
+                    animal.photo,
+                    str(photo_path),
+                    current_settings.media_dir,
+                )
+        except ValueError as exc:
+            logger.warning(
+                "event=image_path_invalid caller=pdf animal_id=%s source=animal.photo "
+                "db_path=%s media_dir=%s error=%s",
+                animal.id,
+                animal.photo,
+                current_settings.media_dir,
+                str(exc),
+            )
+        except OSError as exc:
+            logger.warning(
+                "event=image_file_read_error caller=pdf animal_id=%s source=animal.photo "
+                "db_path=%s media_dir=%s error=%s",
+                animal.id,
+                animal.photo,
+                current_settings.media_dir,
+                str(exc),
+            )
 
     # テンプレートをレンダリング
     template = jinja_env.get_template("qr_card.html")
@@ -114,9 +136,9 @@ def generate_qr_card_pdf(
         photo_base64=photo_base64,
         photo_mime_type=photo_mime_type,
         qr_code_base64=qr_code_base64,
-        font_family=settings.pdf_font_family,
+        font_family=current_settings.pdf_font_family,
         base_url=base_url,
-        kiroween_mode=settings.kiroween_mode,
+        kiroween_mode=current_settings.kiroween_mode,
         locale=locale,
     )
 
@@ -153,9 +175,11 @@ def generate_qr_card_grid_pdf(
         >>> with open("qr_card_grid.pdf", "wb") as f:
         ...     f.write(pdf_bytes)
     """
+    current_settings = get_settings()
+
     # ベースURLの設定
     if base_url is None:
-        base_url = settings.base_url
+        base_url = current_settings.base_url
 
     # 枚数チェック
     if len(animal_ids) > 10:
@@ -170,11 +194,39 @@ def generate_qr_card_grid_pdf(
 
         qr_code_bytes = generate_animal_qr_code_bytes(base_url, animal_id, box_size=8)
         qr_code_base64 = base64.b64encode(qr_code_bytes).decode("utf-8")
+        photo_url: str | None = None
+
+        if animal.photo:
+            try:
+                photo_path = resolve_media_file_path(
+                    animal.photo, current_settings.media_dir
+                )
+                if photo_path.exists():
+                    photo_url = build_media_url(animal.photo)
+                else:
+                    logger.warning(
+                        "event=image_file_missing caller=pdf-grid animal_id=%s "
+                        "source=animal.photo db_path=%s resolved_path=%s media_dir=%s",
+                        animal.id,
+                        animal.photo,
+                        str(photo_path),
+                        current_settings.media_dir,
+                    )
+            except ValueError as exc:
+                logger.warning(
+                    "event=image_path_invalid caller=pdf-grid animal_id=%s "
+                    "source=animal.photo db_path=%s media_dir=%s error=%s",
+                    animal.id,
+                    animal.photo,
+                    current_settings.media_dir,
+                    str(exc),
+                )
 
         animals_with_qr.append(
             {
                 "animal": animal,
                 "qr_code_base64": qr_code_base64,
+                "photo_url": photo_url or "",
             }
         )
 
@@ -183,8 +235,8 @@ def generate_qr_card_grid_pdf(
     html_content = template.render(
         animals_with_qr=animals_with_qr,
         base_url=base_url,
-        font_family=settings.pdf_font_family,
-        kiroween_mode=settings.kiroween_mode,
+        font_family=current_settings.pdf_font_family,
+        kiroween_mode=current_settings.kiroween_mode,
         locale=locale,
     )
 

@@ -22,6 +22,7 @@ from app.schemas.animal import (
     AnimalUpdate,
     ConfirmationResponseData,
 )
+from app.utils.media_path import build_media_url, resolve_media_file_path
 
 logger = logging.getLogger(__name__)
 
@@ -456,16 +457,41 @@ def get_display_image(db: Session, animal_id: int) -> str:
     from app.config import get_settings
 
     settings = get_settings()
+    default_image = (
+        "/static/icons/halloween_logo_2.webp"
+        if settings.kiroween_mode
+        else "/static/images/default-cat.svg"
+    )
 
     try:
         animal = get_animal(db, animal_id)
 
         # 1. プロフィール画像が設定されている場合
         if animal.photo:
-            # photoが相対パスの場合は/media/プレフィックスを追加
-            if not animal.photo.startswith("/"):
-                return f"/media/{animal.photo}"
-            return animal.photo
+            try:
+                photo_path = resolve_media_file_path(animal.photo, settings.media_dir)
+                if photo_path.exists():
+                    photo_url = build_media_url(animal.photo)
+                    if photo_url:
+                        return photo_url
+                else:
+                    logger.warning(
+                        "event=image_file_missing caller=display animal_id=%s "
+                        "source=animal.photo db_path=%s resolved_path=%s media_dir=%s",
+                        animal_id,
+                        animal.photo,
+                        str(photo_path),
+                        settings.media_dir,
+                    )
+            except ValueError as exc:
+                logger.warning(
+                    "event=image_path_invalid caller=display animal_id=%s "
+                    "source=animal.photo db_path=%s media_dir=%s error=%s",
+                    animal_id,
+                    animal.photo,
+                    settings.media_dir,
+                    str(exc),
+                )
 
         # 2. 画像ギャラリーの1枚目を取得
         from app.services import image_service
@@ -473,20 +499,45 @@ def get_display_image(db: Session, animal_id: int) -> str:
         images = image_service.list_images(
             db, animal_id, sort_by="created_at", ascending=False
         )
-        if images:
-            return f"/media/{images[0].image_path}"
+        for image in images:
+            try:
+                image_path = resolve_media_file_path(
+                    image.image_path, settings.media_dir
+                )
+                if image_path.exists():
+                    image_url = build_media_url(image.image_path)
+                    if image_url:
+                        return image_url
+                else:
+                    logger.warning(
+                        "event=image_file_missing caller=display animal_id=%s "
+                        "source=gallery image_id=%s db_path=%s resolved_path=%s media_dir=%s",
+                        animal_id,
+                        image.id,
+                        image.image_path,
+                        str(image_path),
+                        settings.media_dir,
+                    )
+            except ValueError as exc:
+                logger.warning(
+                    "event=image_path_invalid caller=display animal_id=%s "
+                    "source=gallery image_id=%s db_path=%s media_dir=%s error=%s",
+                    animal_id,
+                    image.id,
+                    image.image_path,
+                    settings.media_dir,
+                    str(exc),
+                )
 
         # 3. デフォルト画像（Kiroween Modeの場合はHalloween画像）
-        if settings.kiroween_mode:
-            return "/static/icons/halloween_logo_2.webp"
-        return "/static/images/default-cat.svg"
+        return default_image
 
     except HTTPException:
         # 猫が見つからない場合もデフォルト画像を返す
-        return "/static/images/default-cat.svg"
+        return default_image
     except Exception as e:
         logger.error(f"画像パスの取得に失敗しました: animal_id={animal_id}, エラー={e}")
-        return "/static/images/default-cat.svg"
+        return default_image
 
 
 # === ヘルパー関数（issue #85: ステータス確認フロー） ===
