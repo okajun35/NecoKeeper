@@ -16,9 +16,9 @@
   },
   "energy": "Energy",
   "energy_levels": {
-    "1": "Lethargic",
-    "2": "Low activity",
-    "3": "Active"
+    "1": "No",
+    "2": "Unknown",
+    "3": "Yes"
   },
   "vomiting": "Vomiting",
   "vomiting_yes": "Yes",
@@ -43,12 +43,12 @@
   "stool_condition_desc_3": "Formed but slightly easy to flatten. Can be a temporary change.",
   "stool_condition_desc_4": "Hard to keep its shape. Soft and unformed.",
   "stool_condition_desc_5": "Almost liquid. Spreads easily with no shape.",
-  "cleaning": "Cage Cleaning",
+  "cleaning": "Litter Box Cleaning",
   "cleaning_done": "Done",
   "cleaning_not_done": "Not Done",
   "notes": "Notes",
   "notes_placeholder": "Please note if there are any concerns",
-  "care_image_optional": "Photo upload",
+  "care_image_optional": "Abnormality photo",
   "care_image_pick": "Add photo",
   "care_image_note_prefix": "Max",
   "care_image_note_receive_suffix": "accepted. Saved image is compressed to",

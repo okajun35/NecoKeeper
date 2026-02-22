@@ -18,7 +18,7 @@
     "energy": "Energy",
     "vomiting": "Vomiting",
     "urination": "Urination",
-    "cleaning": "Cage Cleaning",
+    "cleaning": "Litter Box Cleaning",
     "defecation": "Defecation",
     "stool_condition": "Stool Condition",
     "memo": "Notes",
@@ -41,9 +41,9 @@
     "3": "Almost finished"
   },
   "energy_levels": {
-    "1": "Lethargic",
-    "2": "Low activity",
-    "3": "Active"
+    "1": "No",
+    "2": "Unknown",
+    "3": "Yes"
   },
   "vomiting_status": {
     "yes": "Yes",

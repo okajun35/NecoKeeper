@@ -4,10 +4,24 @@
 endblock %}
 {% block title %}世話記録入力 - NecoKeeper{% endblock %}
 
-{% block extra_styles %}{% endblock %}
+{% block extra_styles %}
+<style>
+  :root {
+    --care-footer-height: 140px;
+  }
+
+  .care-form-container {
+    padding-bottom: calc(var(--care-footer-height) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  #successToast {
+    bottom: calc(var(--care-footer-height) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto p-4 pb-24">
+<div class="max-w-2xl mx-auto p-4 care-form-container">
     <!-- 言語切り替えボタン -->
     {% if not settings.kiroween_mode %}
     <div class="flex justify-end mb-4">
@@ -162,19 +176,19 @@ endblock %}
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
                     data-value="3" data-i18n="energy_levels.3" data-i18n-ns="care">
-                    元気
+                    有り
                 </button>
                 <button type="button"
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
                     data-value="2" data-i18n="energy_levels.2" data-i18n-ns="care">
-                    低活力
+                    分からない
                 </button>
                 <button type="button"
                     class="energy-btn rating-button flex-1 py-3 px-2 border-2 border-border rounded-xl text-center font-medium hover:border-brand-primary hover:bg-brand-primary/5 transition-all bg-bg-base"
                     style="border-radius: var(--radius-md); border-color: var(--color-border); background-color: var(--color-bg-base);"
                     data-value="1" data-i18n="energy_levels.1" data-i18n-ns="care">
-                    ぐったり
+                    無し
                 </button>
             </div>
             <input type="hidden" id="energy" name="energy" required>
@@ -318,7 +332,7 @@ endblock %}
             <div data-field="cleaning">
                 <label class="block text-sm font-medium text-text-muted mb-3 font-sans"
                     style="color: var(--color-text-muted);">
-                    <span data-i18n="cleaning" data-i18n-ns="care">清掃</span>
+            <span data-i18n="cleaning" data-i18n-ns="care">トイレの清掃</span>
                     <span class="text-red-500" data-i18n="required" data-i18n-ns="care">*</span>
                 </label>
                 <div class="flex gap-3">
@@ -358,7 +372,7 @@ endblock %}
             style="background-color: var(--color-bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border-color: var(--color-border);">
             <label for="careImage" class="block text-sm font-medium text-text-muted mb-3 font-sans"
                 style="color: var(--color-text-muted);" data-i18n="care_image_optional" data-i18n-ns="care">
-                写真登録
+                異常時の写真登録
             </label>
             <input type="file" id="careImage" name="image" accept="image/jpeg,image/png,image/webp" capture="environment"
                 class="sr-only"
@@ -429,7 +443,7 @@ endblock %}
 </div>
 
 <!-- 固定フッター: 保存ボタン -->
-<div class="fixed bottom-0 left-0 right-0 {% if settings.kiroween_mode %}border-green-500{% else %}bg-bg-surface border-border{% endif %} border-t p-4 shadow-lg-reverse"
+<div id="careFormFooter" class="fixed bottom-0 left-0 right-0 {% if settings.kiroween_mode %}border-green-500{% else %}bg-bg-surface border-border{% endif %} border-t p-4 shadow-lg-reverse"
     style="background-color: {% if settings.kiroween_mode %}#000000{% else %}var(--color-bg-surface){% endif %} !important; border-top-color: {% if settings.kiroween_mode %}#1a8000{% else %}var(--color-border){% endif %};">
     <div class="max-w-2xl mx-auto space-y-2">
         <div class="flex gap-3">

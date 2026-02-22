@@ -16,9 +16,9 @@
   },
   "energy": "元気",
   "energy_levels": {
-    "1": "ぐったり",
-    "2": "低活力",
-    "3": "元気"
+    "1": "無し",
+    "2": "分からない",
+    "3": "有り"
   },
   "vomiting": "嘔吐",
   "vomiting_yes": "あり",
@@ -43,12 +43,12 @@
   "stool_condition_desc_3": "形はあるが少しつぶれやすい。一時的な変化として見られることもあります。",
   "stool_condition_desc_4": "形がほとんど保てない。まとまりがなく柔らかい状態です。",
   "stool_condition_desc_5": "ほぼ液体に近い。広がりやすく形がない状態です。",
-  "cleaning": "清掃",
+  "cleaning": "トイレの清掃",
   "cleaning_done": "済",
   "cleaning_not_done": "未",
   "notes": "メモ",
   "notes_placeholder": "気になることがあれば記入してください",
-  "care_image_optional": "写真登録",
+  "care_image_optional": "異常時の写真登録",
   "care_image_pick": "写真を追加",
   "care_image_note_prefix": "最大",
   "care_image_note_receive_suffix": "まで受け付け、保存時に",

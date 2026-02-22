@@ -18,7 +18,7 @@
     "energy": "元気",
     "vomiting": "嘔吐",
     "urination": "排尿",
-    "cleaning": "清掃",
+    "cleaning": "トイレの清掃",
     "defecation": "排便",
     "stool_condition": "便の状態",
     "memo": "メモ",
@@ -41,9 +41,9 @@
     "3": "ほぼ完食"
   },
   "energy_levels": {
-    "1": "ぐったり",
-    "2": "低活力",
-    "3": "元気"
+    "1": "無し",
+    "2": "分からない",
+    "3": "有り"
   },
   "vomiting_status": {
     "yes": "あり",

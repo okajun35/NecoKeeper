@@ -118,6 +118,32 @@ function hideToast() {
   toast.dataset.visible = 'false';
 }
 
+function updateFooterHeightVar() {
+  const footer = document.getElementById('careFormFooter');
+  if (!footer) return;
+  const height = Math.ceil(footer.getBoundingClientRect().height || 0);
+  if (height <= 0) return;
+  document.documentElement.style.setProperty('--care-footer-height', `${height}px`);
+}
+
+function observeFooterHeight() {
+  const footer = document.getElementById('careFormFooter');
+  if (!footer) return;
+
+  updateFooterHeightVar();
+
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(() => updateFooterHeightVar());
+    observer.observe(footer);
+  } else {
+    window.addEventListener('resize', updateFooterHeightVar);
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateFooterHeightVar);
+  }
+}
+
 function getFieldContainer(fieldId) {
   return document.querySelector(`[data-field="${fieldId}"]`);
 }
@@ -1007,6 +1033,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updatePageTitle();
   document.addEventListener('languageChanged', updatePageTitle);
+  observeFooterHeight();
 
   // 各ボタングループを初期化
   setupButtonGroup('time-slot-btn', 'timeSlot');
