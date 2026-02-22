@@ -16,13 +16,18 @@
     "time_slot": "時点",
     "appetite": "食欲",
     "energy": "元気",
+    "vomiting": "嘔吐",
     "urination": "排尿",
-    "cleaning": "清掃",
+    "cleaning": "トイレの清掃",
     "defecation": "排便",
     "stool_condition": "便の状態",
     "memo": "メモ",
     "log_date": "記録日",
     "created_at": "登録日時"
+  },
+  "care_image": {
+    "label": "気になる写真",
+    "admin_only_notice": "管理画面のみで閲覧できます（public側には再表示されません）。"
   },
   "time_slots": {
     "morning": "朝",
@@ -31,18 +36,18 @@
     "evening": "夕"
   },
   "appetite_levels": {
-    "1": "1 (食べない)",
-    "2": "2 (少し)",
-    "3": "3 (普通)",
-    "4": "4 (よく食べる)",
-    "5": "5 (完食)"
+    "1": "ほぼ残す",
+    "2": "半分くらい",
+    "3": "ほぼ完食"
   },
   "energy_levels": {
-    "1": "1 (ぐったり)",
-    "2": "2 (元気がない)",
-    "3": "3 (普通)",
-    "4": "4 (元気)",
-    "5": "5 (とても元気)"
+    "1": "無し",
+    "2": "分からない",
+    "3": "有り"
+  },
+  "vomiting_status": {
+    "yes": "あり",
+    "no": "なし"
   },
   "urination_status": {
     "yes": "あり",
@@ -78,6 +83,11 @@
     "start_date": "開始日",
     "end_date": "終了日",
     "all_cats": "すべての猫"
+  },
+  "tabs": {
+    "daily": "日常記録",
+    "trial": "トライアル中",
+    "archive": "アーカイブ"
   },
   "messages": {
     "created": "世話記録を登録しました",
@@ -130,7 +140,9 @@
     "errors": {
       "missing_animal_id": "猫のIDが指定されていません",
       "load_list_failed": "記録一覧の取得に失敗しました",
-      "load_detail_failed": "記録詳細の取得に失敗しました"
+      "load_detail_failed": "記録詳細の取得に失敗しました",
+      "modal_error": "モーダルの作成に失敗しました",
+      "modal_missing_details": "記録詳細の表示に失敗しました。しばらくしてから再度お試しください。"
     },
     "unnamed_animal": "名前未設定"
   }

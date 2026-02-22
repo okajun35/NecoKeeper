@@ -125,7 +125,7 @@
     "add_new": "Initialize New Entity",
     "edit": "Modify Entity Data",
     "delete_confirm": "Execute purge protocol for this entity?",
-    "search_placeholder": "Scan by designation, pattern, features...",
+    "search_placeholder": "Scan by designation, coat color, features...",
     "filter_by_status": "Filter by state",
     "description": "Manage rescued entity information",
     "back_to_list": "Return to Index",
@@ -133,15 +133,15 @@
     "no_data": "VOID_DETECTED",
     "search": {
       "label": "SCAN",
-      "placeholder": "Scan by designation, pattern, features...",
+      "placeholder": "Scan by designation, coat color, features...",
       "advanced": "Deep Scan",
       "clear": "WIPE"
     },
     "filter": {
       "status": "STATE",
       "gender": "Classification",
-      "age_min": "Age (Min)",
-      "age_max": "Age (Max)",
+      "age_min": "Age (Months, Min)",
+      "age_max": "Age (Months, Max)",
       "rescue_date_from": "Rescue Timestamp (From)",
       "rescue_date_to": "Rescue Timestamp (To)",
       "ear_cut": "Ear Modification",
@@ -155,10 +155,11 @@
       "id": "ENTITY_ID",
       "name": "DESIGNATION",
       "photo": "Visual_Data",
-      "pattern": "Pattern",
+      "coat_color": "Coat Color",
       "tail_length": "Tail Configuration",
       "collar": "Collar Status",
-      "age": "Age",
+      "age": "Age (Months)",
+      "age_is_estimated": "Estimated",
       "gender": "Classification",
       "ear_cut": "Ear Modification",
       "features": "Characteristics",
@@ -190,6 +191,10 @@
       "adult": "Mature",
       "senior": "Veteran"
     },
+    "age_months_placeholder": "e.g., 12",
+    "age_months": "{{value}} mo",
+    "age_months_estimated": "{{value}} mo (est.)",
+    "age_unknown": "Unknown",
     "tabs": {
       "basic_info": "Core Data",
       "care_logs": "Maintenance Logs",
@@ -282,11 +287,11 @@
       "evening": "GAMMA"
     },
     "appetite_levels": {
-      "1": "1 (Consumption Failure)",
-      "2": "2 (Minimal)",
-      "3": "3 (Standard)",
-      "4": "4 (Optimal)",
-      "5": "5 (Maximum)"
+      "1": "NO INTAKE",
+      "2": "LEFT 3/4",
+      "3": "LEFT HALF",
+      "4": "LEFT 1/4",
+      "5": "CONSUMPTION COMPLETE"
     },
     "energy_levels": {
       "1": "1 (Critical Low)",

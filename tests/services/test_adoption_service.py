@@ -18,62 +18,8 @@ from app.models.status_history import StatusHistory
 from app.schemas.adoption import (
     AdoptionRecordCreate,
     AdoptionRecordUpdate,
-    ApplicantCreate,
-    ApplicantUpdate,
 )
 from app.services import adoption_service
-
-# ========================================
-# Applicant（里親希望者）テスト
-# ========================================
-
-
-class TestCreateApplicant:
-    """里親希望者登録のテスト"""
-
-    def test_create_applicant_with_valid_data_success(self, test_db, test_user):
-        """正常系: 有効なデータで里親希望者を登録できる"""
-        # Given
-        applicant_data = ApplicantCreate(
-            name="山田太郎",
-            contact="090-1234-5678",
-            address="東京都渋谷区",
-            family="夫婦2人",
-            environment="マンション、ペット可",
-            conditions="成猫希望",
-        )
-
-        # When
-        result = adoption_service.create_applicant(
-            test_db, applicant_data, user_id=test_user.id
-        )
-
-        # Then
-        assert result.id is not None
-        assert result.name == "山田太郎"
-        assert result.contact == "090-1234-5678"
-        assert result.address == "東京都渋谷区"
-        assert result.created_at is not None
-
-    def test_create_applicant_with_minimal_data_success(self, test_db, test_user):
-        """正常系: 必須項目のみで里親希望者を登録できる"""
-        # Given
-        applicant_data = ApplicantCreate(
-            name="佐藤花子",
-            contact="sato@example.com",
-        )
-
-        # When
-        result = adoption_service.create_applicant(
-            test_db, applicant_data, user_id=test_user.id
-        )
-
-        # Then
-        assert result.id is not None
-        assert result.name == "佐藤花子"
-        assert result.contact == "sato@example.com"
-        assert result.address is None
-        assert result.family is None
 
 
 class TestGetApplicant:
@@ -136,42 +82,6 @@ class TestListApplicants:
 
         # Then
         assert len(result) == 3
-
-
-class TestUpdateApplicant:
-    """里親希望者更新のテスト"""
-
-    def test_update_applicant_with_valid_data_success(self, test_db, test_user):
-        """正常系: 有効なデータで里親希望者を更新できる"""
-        # Given
-        applicant = Applicant(name="山田太郎", contact="090-1234-5678")
-        test_db.add(applicant)
-        test_db.commit()
-        test_db.refresh(applicant)
-
-        update_data = ApplicantUpdate(contact="090-9876-5432", address="大阪府大阪市")
-
-        # When
-        result = adoption_service.update_applicant(
-            test_db, applicant.id, update_data, user_id=test_user.id
-        )
-
-        # Then
-        assert result.contact == "090-9876-5432"
-        assert result.address == "大阪府大阪市"
-        assert result.name == "山田太郎"  # 変更されていない
-
-    def test_update_applicant_with_nonexistent_id_raises_404(self, test_db, test_user):
-        """異常系: 存在しないIDで404エラー"""
-        # Given
-        update_data = ApplicantUpdate(contact="090-9876-5432")
-
-        # When / Then
-        with pytest.raises(HTTPException) as exc_info:
-            adoption_service.update_applicant(
-                test_db, 99999, update_data, user_id=test_user.id
-            )
-        assert exc_info.value.status_code == 404
 
 
 # ========================================
@@ -262,7 +172,7 @@ class TestCreateAdoptionRecord:
     def test_create_adoption_record_updates_animal_status(
         self, test_db, test_animal, test_user
     ):
-        """正常系: 譲渡記録登録時に猫のステータスが「譲渡済み」に更新される"""
+        """正常系: 譲渡記録登録時に猫のステータスが「ADOPTED」に更新される"""
         # Given
         applicant = Applicant(name="山田太郎", contact="090-1234-5678")
         test_db.add(applicant)
@@ -287,7 +197,7 @@ class TestCreateAdoptionRecord:
 
         # 猫のステータスが更新されている
         test_db.refresh(test_animal)
-        assert test_animal.status == "譲渡済み"
+        assert test_animal.status == "ADOPTED"
 
         # ステータス変更履歴が記録されている
         history = (
@@ -298,7 +208,7 @@ class TestCreateAdoptionRecord:
         )
         assert history is not None
         assert history.old_status == old_status
-        assert history.new_status == "譲渡済み"
+        assert history.new_status == "ADOPTED"
         assert history.changed_by == test_user.id
 
     def test_create_adoption_record_with_nonexistent_animal_raises_404(
@@ -448,11 +358,11 @@ class TestListAdoptionRecords:
         # 別の猫を作成
         another_animal = Animal(
             name="別の猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(another_animal)
         test_db.commit()

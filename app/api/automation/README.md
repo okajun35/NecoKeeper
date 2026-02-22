@@ -54,7 +54,7 @@ ENABLE_AUTOMATION_API=true
 curl -X POST http://localhost:8000/api/automation/animals \
   -H "X-Automation-Key: xK9mP2nQ4rS6tU8vW0yZ1aB3cD5eF7gH9iJ" \
   -H "Content-Type: application/json" \
-  -d '{"name": "たま", "gender": "male", "pattern": "キジトラ", "tail_length": "長い", "age": "成猫"}'
+  -d '{"name": "たま", "gender": "male", "coat_color": "キジトラ", "tail_length": "長い", "age_months": 12, "age_is_estimated": false}'
 ```
 
 ## 利用可能なエンドポイント
@@ -70,9 +70,10 @@ curl -X POST http://localhost:8000/api/automation/animals \
 {
   "name": "たま",
   "gender": "male",
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "tail_length": "長い",
-  "age": "成猫",
+  "age_months": 12,
+  "age_is_estimated": false,
   "status": "保護中",
   "collar": "赤い首輪",
   "ear_cut": false,
@@ -84,9 +85,12 @@ curl -X POST http://localhost:8000/api/automation/animals \
 **必須フィールド**:
 - `name`: 猫の名前（1-100文字）
 - `gender`: 性別（`male`, `female`, `unknown`）
-- `pattern`: 柄・模様
+- `coat_color`: 毛色
 - `tail_length`: 尻尾の長さ
-- `age`: 年齢・大きさ
+
+**任意フィールド**:
+- `age_months`: 月齢（null=不明）
+- `age_is_estimated`: 推定月齢フラグ（`true`でも`age_months`がnullなら年齢不明扱い）
 
 **レスポンス** (201 Created):
 ```json
@@ -94,10 +98,11 @@ curl -X POST http://localhost:8000/api/automation/animals \
   "id": 42,
   "name": "たま",
   "photo": null,
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "tail_length": "長い",
   "collar": "赤い首輪",
-  "age": "成猫",
+  "age_months": 12,
+  "age_is_estimated": false,
   "gender": "male",
   "ear_cut": false,
   "features": "人懐っこい性格",
@@ -122,7 +127,7 @@ curl -X POST http://localhost:8000/api/automation/animals \
 {
   "id": 42,
   "name": "たま",
-  "pattern": "キジトラ",
+  "coat_color": "キジトラ",
   "status": "保護中",
   ...
 }
@@ -232,9 +237,10 @@ client = httpx.Client(
 response = client.post("/api/automation/animals", json={
     "name": "たま",
     "gender": "male",
-    "pattern": "キジトラ",
+    "coat_color": "キジトラ",
     "tail_length": "長い",
-    "age": "成猫",
+    "age_months": 12,
+    "age_is_estimated": False,
     "status": "保護中"
 })
 animal = response.json()
@@ -269,9 +275,10 @@ curl -X POST http://localhost:8000/api/automation/animals \
   -d '{
     "name": "たま",
     "gender": "male",
-    "pattern": "キジトラ",
+    "coat_color": "キジトラ",
     "tail_length": "長い",
-    "age": "成猫"
+    "age_months": 12,
+    "age_is_estimated": false
   }'
 
 # 2. 猫情報を取得
@@ -307,9 +314,10 @@ const response = await fetch(`${API_URL}/api/automation/animals`, {
   body: JSON.stringify({
     name: 'たま',
     gender: 'male',
-    pattern: 'キジトラ',
+    coat_color: 'キジトラ',
     tail_length: '長い',
-    age: '成猫'
+    age_months: 12,
+    age_is_estimated: false
   })
 });
 const animal = await response.json();

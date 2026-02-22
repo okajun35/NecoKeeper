@@ -535,6 +535,7 @@ git commit -m "your message"
 git push
 ```
 
+
 > ℹ️ Kiroween Modeでテストを実行する場合は `.env` で `KIROWEEN_MODE=true` を設定してください。英語固定仕様に合わせてテストも切り替わるため、テーマごとの挙動差分を確認しやすくなります。
 
 **重要**: `make all`は**コミット前に必ず実行**してください。これにより以下が保証されます：

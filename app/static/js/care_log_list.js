@@ -111,23 +111,49 @@ function updateTodayStatus(todayStatus = {}) {
     const statusEl = document.getElementById(slot.statusId);
 
     if (iconEl) {
-      iconEl.classList.remove('text-green-600', 'text-gray-400');
+      iconEl.classList.remove(
+        'text-green-600',
+        'text-gray-400',
+        'text-brand-secondary',
+        'text-text-muted'
+      );
+      // Reset inline
+      iconEl.style.color = '';
     }
     if (statusEl) {
-      statusEl.classList.remove('border-green-500', 'bg-green-50', 'border-gray-300');
+      statusEl.classList.remove(
+        'border-green-500',
+        'bg-green-50',
+        'border-gray-300',
+        'border-brand-secondary',
+        'bg-brand-secondary',
+        'border-border'
+      );
+      // Reset inline
+      statusEl.style.borderColor = '';
+      statusEl.style.backgroundColor = '';
     }
 
     const isCompleted = Boolean(todayStatus[slot.key]);
     if (iconEl) {
       iconEl.textContent = isCompleted ? '○' : '×';
-      iconEl.classList.add(isCompleted ? 'text-green-600' : 'text-gray-400');
+      if (isCompleted) {
+        iconEl.classList.add('text-brand-secondary');
+        iconEl.style.color = 'var(--color-brand-secondary)';
+      } else {
+        iconEl.classList.add('text-text-muted');
+        iconEl.style.color = 'var(--color-text-muted)';
+      }
     }
 
     if (statusEl) {
       if (isCompleted) {
-        statusEl.classList.add('border-green-500', 'bg-green-50');
+        statusEl.classList.add('border-brand-secondary');
+        statusEl.style.borderColor = 'var(--color-brand-secondary)';
+        statusEl.style.backgroundColor = 'rgba(129, 178, 154, 0.1)'; // brand-secondary with opacity
       } else {
-        statusEl.classList.add('border-gray-300');
+        statusEl.classList.add('border-border');
+        statusEl.style.borderColor = 'var(--color-border)';
       }
     }
   });
@@ -161,11 +187,39 @@ function getTimeSlotLabel(timeSlot) {
   return translateCareLogs(`public.time_slots.${timeSlot}`, fallback);
 }
 
-function formatScoreValue(value) {
+function formatScoreValue(value, max = 3) {
   if (value === null || value === undefined) {
     return '-';
   }
-  return `${value} / 5`;
+  return `${value} / ${max}`;
+}
+
+function getAppetiteLevelKey(value) {
+  const normalized = Math.round(Number(value) * 100) / 100;
+  const map = {
+    1: '3',
+    0.5: '2',
+    0: '1',
+  };
+  return map[normalized] || null;
+}
+
+function formatAppetiteValue(value) {
+  if (value === null || value === undefined) {
+    return '-';
+  }
+
+  const key = getAppetiteLevelKey(value);
+  if (!key) {
+    return `${value}`;
+  }
+
+  const fallbackMap = {
+    3: fallbackText('Almost finished', 'ほぼ完食'),
+    2: fallbackText('Half', '半分くらい'),
+    1: fallbackText('Mostly left', 'ほぼ残す'),
+  };
+  return translateCareLogs(`appetite_levels.${key}`, fallbackMap[key] || `${value}`);
 }
 
 function getDateFormatterOptions(lang) {
@@ -248,20 +302,147 @@ function getRelativeDayBadge(daySummary) {
   return '';
 }
 
-function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
-  const hasRecord = Boolean(slotInfo?.hasRecord);
-  const elementTag = hasRecord && slotInfo?.logId ? 'button' : 'div';
-  const element = document.createElement(elementTag);
-  if (elementTag === 'button') {
-    element.type = 'button';
-    element.addEventListener('click', () => {
-      if (slotInfo?.logId) {
-        showLogDetail(slotInfo.logId);
-      }
+const FALLBACK_TEMPLATE_DAILY_CARD = `
+    <div class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
+        <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+                    <div class="text-base font-semibold text-gray-800 js-date"></div>
+                    <span class="hidden inline-flex items-center rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-medium text-brand-primary-dark js-badge"></span>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 js-slots"></div>
+    </div>
+`;
+
+const FALLBACK_TEMPLATE_SLOT_CHIP = `
+    <button type="button" class="flex flex-col items-center rounded-xl border px-3 py-2 text-center transition-colors w-full js-chip-container hover:opacity-90">
+        <div class="text-2xl js-emoji"></div>
+        <div class="mt-1 text-xs font-medium js-label"></div>
+        <div class="mt-1 text-sm font-semibold js-status"></div>
+        <div class="text-xs mt-1 truncate w-full opacity-80 js-recorder hidden"></div>
+    </button>
+`;
+
+function cloneTemplate(templateId, fallbackHtml, requiredSelectors = []) {
+  const missingRequiredSelectors = element =>
+    requiredSelectors.filter(selector => {
+      const selfMatches = typeof element.matches === 'function' ? element.matches(selector) : false;
+      return !selfMatches && !element.querySelector(selector);
     });
+
+  const template = document.getElementById(templateId);
+  if (template) {
+    const clonedElement = template.content.cloneNode(true).firstElementChild;
+    if (clonedElement) {
+      const missingSelectors = missingRequiredSelectors(clonedElement);
+      if (!missingSelectors.length) {
+        return clonedElement;
+      }
+      console.error(
+        `[care_log_list] Template ${templateId} is missing required selectors: ${missingSelectors.join(', ')}`
+      );
+    } else {
+      console.error(`[care_log_list] Template ${templateId} has no root element`);
+    }
+  } else {
+    console.error(`[care_log_list] Template ${templateId} not found`);
   }
 
+  if (!fallbackHtml) {
+    return null;
+  }
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = fallbackHtml.trim();
+  const fallbackElement = tempDiv.firstElementChild;
+  if (!fallbackElement) {
+    console.error(`[care_log_list] Fallback template ${templateId} has no root element`);
+    return null;
+  }
+
+  const missingFallbackSelectors = missingRequiredSelectors(fallbackElement);
+  if (missingFallbackSelectors.length) {
+    console.error(
+      `[care_log_list] Fallback template ${templateId} is missing required selectors: ${missingFallbackSelectors.join(', ')}`
+    );
+    return null;
+  }
+
+  console.warn(`[care_log_list] Using fallback template for ${templateId}`);
+  return fallbackElement;
+}
+
+function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
+  const hasRecord = Boolean(slotInfo?.hasRecord);
   const slotLabel = getTimeSlotLabel(slotKey);
+
+  // For Table variant, we still build simple DOM because it's just a small button/icon
+  if (variant === 'table') {
+    const element = document.createElement(hasRecord && slotInfo?.logId ? 'button' : 'div');
+    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
+      hasRecord
+        ? 'border-brand-secondary text-brand-secondary'
+        : 'border-border bg-bg-surface text-text-muted'
+    }`;
+
+    if (hasRecord) {
+      element.style.borderColor = 'var(--color-brand-secondary)';
+      element.style.color = 'var(--color-brand-secondary)';
+      element.style.backgroundColor = 'rgba(129, 178, 154, 0.1)';
+    } else {
+      element.style.borderColor = 'var(--color-border)';
+      element.style.backgroundColor = 'var(--color-bg-surface)';
+      element.style.color = 'var(--color-text-muted)';
+    }
+
+    element.textContent = hasRecord ? '○' : '-';
+    if (hasRecord && slotInfo?.logId) {
+      element.addEventListener('click', () => showLogDetail(slotInfo.logId));
+    }
+    return element;
+  }
+
+  // Card Variant uses Template
+  const element = cloneTemplate('tmpl-slot-chip', FALLBACK_TEMPLATE_SLOT_CHIP, [
+    '.js-emoji',
+    '.js-label',
+    '.js-status',
+  ]);
+  if (!element) {
+    console.error('[care_log_list] Failed to clone tmpl-slot-chip');
+    const degraded = document.createElement(hasRecord && slotInfo?.logId ? 'button' : 'div');
+    degraded.className =
+      'mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold';
+    degraded.textContent = hasRecord ? '○' : '-';
+    return degraded;
+  }
+
+  // Interactive Container
+  const container = element; // The root is the button
+
+  // Apply Styles based on status
+  if (hasRecord) {
+    container.classList.add('border-brand-secondary', 'text-brand-secondary');
+    container.classList.remove('border-border', 'bg-bg-base', 'text-text-muted');
+    container.style.borderColor = 'var(--color-brand-secondary)';
+    container.style.color = 'var(--color-brand-secondary)';
+    container.style.backgroundColor = 'rgba(129, 178, 154, 0.1)';
+
+    if (slotInfo?.logId) {
+      container.addEventListener('click', () => showLogDetail(slotInfo.logId));
+    }
+  } else {
+    container.classList.add('border-border', 'bg-bg-base', 'text-text-muted');
+    container.classList.remove('border-brand-secondary', 'text-brand-secondary');
+    container.style.borderColor = 'var(--color-border)';
+    container.style.backgroundColor = 'var(--color-bg-base)';
+    container.style.color = 'var(--color-text-muted)';
+    // No click action for missing
+    container.style.cursor = 'default';
+    container.type = 'button';
+    container.disabled = true;
+  }
+
   const ariaLabel = translateCareLogs(
     hasRecord ? 'public.slot_chip.recorded' : 'public.slot_chip.missing',
     hasRecord
@@ -269,49 +450,27 @@ function createSlotStatusElement(slotKey, slotInfo = {}, variant = 'card') {
       : `${slotLabel}: ${fallbackText('Missing', '未記録')}`,
     { slot: slotLabel }
   );
-  element.setAttribute('aria-label', ariaLabel);
+  container.setAttribute('aria-label', ariaLabel);
 
-  if (variant === 'card') {
-    element.className = `flex flex-col items-center rounded-xl border px-3 py-2 text-center transition-colors ${
-      hasRecord
-        ? 'border-green-200 bg-green-50 text-green-800 hover:bg-green-100'
-        : 'border-gray-200 bg-gray-50 text-gray-500'
-    }`;
+  // Populate Data
+  const emojiEl = element.querySelector('.js-emoji');
+  if (emojiEl) emojiEl.textContent = TIME_SLOT_EMOJI[slotKey] || '📝';
 
-    const emojiEl = document.createElement('div');
-    emojiEl.className = 'text-2xl';
-    emojiEl.textContent = TIME_SLOT_EMOJI[slotKey] || '📝';
+  const labelEl = element.querySelector('.js-label');
+  if (labelEl) labelEl.textContent = slotLabel;
 
-    const labelEl = document.createElement('div');
-    labelEl.className = 'mt-1 text-xs font-medium text-gray-600';
-    labelEl.textContent = slotLabel;
-
-    const statusEl = document.createElement('div');
-    statusEl.className = `mt-1 text-sm font-semibold ${
-      hasRecord ? 'text-green-700' : 'text-gray-500'
-    }`;
+  const statusEl = element.querySelector('.js-status');
+  if (statusEl) {
     statusEl.textContent = translateCareLogs(
       hasRecord ? 'public.slot_status.recorded' : 'public.slot_status.missing',
       hasRecord ? fallbackText('Recorded', '記録あり') : fallbackText('Missing', '未記録')
     );
+  }
 
-    element.appendChild(emojiEl);
-    element.appendChild(labelEl);
-    element.appendChild(statusEl);
-
-    if (slotInfo?.recorder) {
-      const recorderEl = document.createElement('div');
-      recorderEl.className = 'text-xs text-gray-500 mt-1 truncate w-full';
-      recorderEl.textContent = slotInfo.recorder;
-      element.appendChild(recorderEl);
-    }
-  } else {
-    element.className = `mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
-      hasRecord
-        ? 'border-green-200 bg-green-50 text-green-700'
-        : 'border-gray-200 bg-white text-gray-400'
-    }`;
-    element.textContent = hasRecord ? '○' : '-';
+  const recorderEl = element.querySelector('.js-recorder');
+  if (recorderEl && slotInfo?.recorder) {
+    recorderEl.textContent = slotInfo.recorder;
+    recorderEl.classList.remove('hidden');
   }
 
   return element;
@@ -324,36 +483,38 @@ function renderDailyCards(summary = []) {
   container.innerHTML = '';
 
   summary.forEach(day => {
-    const card = document.createElement('div');
-    card.className = 'border border-gray-200 rounded-xl p-4 shadow-sm';
+    const card = cloneTemplate('tmpl-daily-card', FALLBACK_TEMPLATE_DAILY_CARD, [
+      '.js-date',
+      '.js-slots',
+    ]);
 
-    const header = document.createElement('div');
-    header.className = 'flex items-center justify-between gap-2 mb-3';
-
-    const title = document.createElement('div');
-    title.className = 'text-base font-semibold text-gray-800';
-    title.textContent = formatDate(day.isoDate);
-
-    const badgeText = getRelativeDayBadge(day);
-    if (badgeText) {
-      const badge = document.createElement('span');
-      badge.className =
-        'inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700';
-      badge.textContent = badgeText;
-      header.appendChild(badge);
+    // Safety check: card must not be null
+    if (!card) {
+      console.error('[care_log_list] Failed to clone tmpl-daily-card');
+      return;
     }
 
-    header.prepend(title);
-    card.appendChild(header);
+    // Date
+    const dateEl = card.querySelector('.js-date');
+    if (dateEl) dateEl.textContent = formatDate(day.isoDate);
 
-    const slotsWrapper = document.createElement('div');
-    slotsWrapper.className = 'grid grid-cols-3 gap-2';
-    SLOT_ORDER.forEach(slotKey => {
-      const slotEl = createSlotStatusElement(slotKey, day.slots[slotKey], 'card');
-      slotsWrapper.appendChild(slotEl);
-    });
+    // Badge
+    const badgeText = getRelativeDayBadge(day);
+    const badgeEl = card.querySelector('.js-badge');
+    if (badgeEl && badgeText) {
+      badgeEl.textContent = badgeText;
+      badgeEl.classList.remove('hidden');
+    }
 
-    card.appendChild(slotsWrapper);
+    // Slots
+    const slotsWrapper = card.querySelector('.js-slots');
+    if (slotsWrapper) {
+      SLOT_ORDER.forEach(slotKey => {
+        const slotEl = createSlotStatusElement(slotKey, day.slots[slotKey], 'card');
+        slotsWrapper.appendChild(slotEl);
+      });
+    }
+
     container.appendChild(card);
   });
 }
@@ -370,13 +531,15 @@ function renderDailyTable(summary = []) {
     dateCell.className = 'px-4 py-3 text-sm font-medium text-gray-800 whitespace-nowrap';
     dateCell.textContent = formatDate(day.isoDate);
     const badgeText = getRelativeDayBadge(day);
+
     if (badgeText) {
       const badge = document.createElement('span');
       badge.className =
-        'ml-2 inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700';
+        'ml-2 inline-flex items-center rounded-full bg-brand-primary-light px-2 py-0.5 text-xs font-medium text-brand-primary-dark';
       badge.textContent = badgeText;
       dateCell.appendChild(badge);
     }
+
     row.appendChild(dateCell);
 
     SLOT_ORDER.forEach(slotKey => {
@@ -421,106 +584,111 @@ function displayRecentLogs(logs = []) {
 
   logs.forEach(logItem => {
     const log = logItem || {};
-    const logDiv = document.createElement('div');
-    logDiv.className =
-      'flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer';
+    const logDiv = cloneTemplate('tmpl-log-item', null, [
+      '.js-emoji',
+      '.js-date',
+      '.js-meta',
+      '.js-check',
+    ]);
+
+    // Safety check: logDiv must not be null
+    if (!logDiv) {
+      console.error('[care_log_list] Failed to clone tmpl-log-item');
+      return;
+    }
+
+    // Highlight Effect
     if (highlightId && log.id === Number(highlightId)) {
-      logDiv.classList.add('border-indigo-400', 'bg-indigo-50');
+      logDiv.classList.add('border-brand-primary', 'bg-brand-primary-light');
       setTimeout(() => {
-        logDiv.classList.remove('border-indigo-400', 'bg-indigo-50');
+        logDiv.classList.remove('border-brand-primary', 'bg-brand-primary-light');
       }, 3200);
     }
+
+    // Click Handler through class
     if (log && log.id) {
+      // Note: In template, the root has js-log-container class usually
       logDiv.addEventListener('click', () => showLogDetail(log.id));
     }
 
-    const leftWrapper = document.createElement('div');
-    leftWrapper.className = 'flex items-center gap-3';
+    // Emoji
+    const emojiEl = logDiv.querySelector('.js-emoji');
+    if (emojiEl) emojiEl.textContent = TIME_SLOT_EMOJI[log.time_slot] || '📝';
 
-    const emojiEl = document.createElement('div');
-    emojiEl.className = 'text-2xl';
-    emojiEl.textContent = TIME_SLOT_EMOJI[log.time_slot] || '📝';
+    // Date
+    const dateEl = logDiv.querySelector('.js-date');
+    if (dateEl) dateEl.textContent = log.log_date ? formatDate(log.log_date) : '';
 
-    const textWrapper = document.createElement('div');
+    // Meta (Time Slot + Recorder)
+    const metaEl = logDiv.querySelector('.js-meta');
+    if (metaEl) {
+      const timeSlotLabel = getTimeSlotLabel(log.time_slot);
+      metaEl.textContent = log.recorder_name
+        ? `${timeSlotLabel} - ${log.recorder_name}`
+        : timeSlotLabel;
+    }
 
-    const dateEl = document.createElement('div');
-    dateEl.className = 'font-medium text-gray-800';
-    dateEl.textContent = log.log_date ? formatDate(log.log_date) : '';
-
-    const metaEl = document.createElement('div');
-    metaEl.className = 'text-sm text-gray-500';
-    const timeSlotLabel = getTimeSlotLabel(log.time_slot);
-    metaEl.textContent = log.recorder_name
-      ? `${timeSlotLabel} - ${log.recorder_name}`
-      : timeSlotLabel;
-
-    textWrapper.appendChild(dateEl);
-    textWrapper.appendChild(metaEl);
-    leftWrapper.appendChild(emojiEl);
-    leftWrapper.appendChild(textWrapper);
-
-    const statusEl = document.createElement('div');
-    statusEl.className = 'text-green-600 font-bold';
-    statusEl.textContent = '○';
-
-    logDiv.appendChild(leftWrapper);
-    logDiv.appendChild(statusEl);
+    // Check Mark
+    const checkEl = logDiv.querySelector('.js-check');
+    if (checkEl) {
+      checkEl.style.color = 'var(--color-brand-secondary)';
+    }
 
     container.appendChild(logDiv);
   });
 }
 
-function createDetailRow(label, value) {
-  const row = document.createElement('div');
-  row.className = 'flex justify-between py-2 border-b';
-  const labelEl = document.createElement('span');
-  labelEl.className = 'text-gray-600';
-  labelEl.textContent = label;
-  const valueEl = document.createElement('span');
-  valueEl.className = 'font-medium';
-  valueEl.textContent = value;
-  row.appendChild(labelEl);
-  row.appendChild(valueEl);
-  return row;
-}
-
 function renderLogDetailModal(log) {
-  const modal = document.createElement('div');
-  modal.className =
-    'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50';
-  modal.addEventListener('click', event => {
-    if (event.target === modal) {
-      modal.remove();
-    }
-  });
+  const modal = cloneTemplate('tmpl-log-detail-modal', null, [
+    '.js-modal-overlay',
+    '.js-details-container',
+  ]);
 
-  const content = document.createElement('div');
-  content.className = 'bg-white rounded-lg shadow-xl max-w-md w-full p-6';
+  // Safety check: modal must not be null
+  if (!modal) {
+    console.error('[care_log_list] Failed to clone tmpl-log-detail-modal template');
+    showError(translateCareLogs('public.errors.modal_error', 'モーダルの作成に失敗しました'));
+    return;
+  }
 
-  const header = document.createElement('div');
-  header.className = 'flex justify-between items-center mb-4';
+  // Close Logic
+  const closeModal = () => modal.remove();
+  const closeBtn = modal.querySelector('.js-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
 
-  const titleEl = document.createElement('h3');
-  titleEl.className = 'text-xl font-bold text-gray-800';
-  titleEl.textContent = translateCareLogs('public.modal_title', '記録詳細');
+  const footerCloseBtn = modal.querySelector('.js-footer-close-btn');
+  if (footerCloseBtn) {
+    footerCloseBtn.addEventListener('click', closeModal);
+    footerCloseBtn.textContent = translateCareLogs('public.modal_close', '閉じる');
+  }
 
-  const closeIconButton = document.createElement('button');
-  closeIconButton.type = 'button';
-  closeIconButton.className = 'text-gray-500 hover:text-gray-700';
-  closeIconButton.setAttribute('aria-label', translateCareLogs('public.modal_close', '閉じる'));
-  closeIconButton.innerHTML = `
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-    </svg>
-  `;
-  closeIconButton.addEventListener('click', () => modal.remove());
+  const modalOverlay = modal.querySelector('.js-modal-overlay');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', e => {
+      if (e.target.classList.contains('js-modal-overlay')) closeModal();
+    });
+  }
 
-  header.appendChild(titleEl);
-  header.appendChild(closeIconButton);
+  // Header
+  const modalTitle = modal.querySelector('.js-modal-title');
+  if (modalTitle) {
+    modalTitle.textContent = translateCareLogs('public.modal_title', '記録詳細');
+  }
 
-  const detailsContainer = document.createElement('div');
-  detailsContainer.className = 'space-y-3';
-
+  // Detail Rows
+  const container = modal.querySelector('.js-details-container');
+  if (!container) {
+    console.error('[care_log_list] Failed to find .js-details-container in modal');
+    showError(
+      translateCareLogs(
+        'public.errors.modal_missing_details',
+        '記録詳細の表示に失敗しました。しばらくしてから再度お試しください。'
+      )
+    );
+    return;
+  }
   const detailRows = [
     {
       label: translateCareLogs('fields.log_date', '記録日'),
@@ -536,7 +704,7 @@ function renderLogDetailModal(log) {
     },
     {
       label: translateCareLogs('fields.appetite', '食欲'),
-      value: formatScoreValue(log.appetite),
+      value: formatAppetiteValue(log.appetite),
     },
     {
       label: translateCareLogs('fields.energy', '元気'),
@@ -557,48 +725,40 @@ function renderLogDetailModal(log) {
   ];
 
   detailRows.forEach(row => {
-    detailsContainer.appendChild(createDetailRow(row.label, row.value));
+    const rowEl = cloneTemplate('tmpl-detail-row', null, ['.js-label', '.js-value']);
+    if (!rowEl) {
+      console.error('[care_log_list] Failed to clone tmpl-detail-row');
+      return;
+    }
+    const labelEl = rowEl.querySelector('.js-label');
+    const valueEl = rowEl.querySelector('.js-value');
+    if (labelEl) labelEl.textContent = row.label;
+    if (valueEl) valueEl.textContent = row.value;
+    container.appendChild(rowEl);
   });
 
+  // Memo
   if (log.memo) {
-    const memoWrapper = document.createElement('div');
-    memoWrapper.className = 'py-2';
-
-    const memoLabel = document.createElement('div');
-    memoLabel.className = 'text-gray-600 mb-1';
-    memoLabel.textContent = translateCareLogs('fields.memo', 'メモ');
-
-    const memoContent = document.createElement('div');
-    memoContent.className = 'text-sm text-gray-800 bg-gray-50 p-3 rounded';
-    memoContent.textContent = log.memo;
-
-    memoWrapper.appendChild(memoLabel);
-    memoWrapper.appendChild(memoContent);
-    detailsContainer.appendChild(memoWrapper);
+    const wrapper = modal.querySelector('.js-memo-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('hidden');
+      const memoLabel = wrapper.querySelector('.js-memo-label');
+      const memoContent = wrapper.querySelector('.js-memo-content');
+      if (memoLabel) memoLabel.textContent = translateCareLogs('fields.memo', 'メモ');
+      if (memoContent) memoContent.textContent = log.memo;
+    }
   }
 
-  const footerButton = document.createElement('button');
-  footerButton.type = 'button';
-  footerButton.className =
-    'mt-6 w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors';
-  footerButton.textContent = translateCareLogs('public.modal_close', '閉じる');
-  footerButton.addEventListener('click', () => modal.remove());
-
-  const editButton = document.createElement('a');
-  editButton.className =
-    'mt-3 w-full inline-flex justify-center py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors';
-  editButton.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
-  if (animalId && log?.id) {
-    editButton.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
-  } else {
-    editButton.classList.add('opacity-50', 'pointer-events-none');
+  // Edit Button
+  const editBtn = modal.querySelector('.js-edit-btn');
+  if (editBtn) {
+    editBtn.textContent = translateCareLogs('public.modal_edit', 'この記録を編集');
+    if (animalId && log?.id) {
+      editBtn.href = `/public/care?animal_id=${animalId}&log_id=${log.id}`;
+    } else {
+      editBtn.classList.add('opacity-50', 'pointer-events-none');
+    }
   }
-
-  content.appendChild(header);
-  content.appendChild(detailsContainer);
-  content.appendChild(editButton);
-  content.appendChild(footerButton);
-  modal.appendChild(content);
 
   document.body.appendChild(modal);
 }

@@ -145,8 +145,8 @@
     <div class="grid">
         {% for item in animals_with_qr %}
         <div class="card">
-            {% if item.animal.photo %}
-            <img src="{{ item.animal.photo }}" alt="{{ item.animal.name }}" class="animal-photo">
+            {% if item.photo_url %}
+            <img src="{{ item.photo_url }}" alt="{{ item.animal.name }}" class="animal-photo">
             {% else %}
             <div class="animal-photo" style="background-color: {% if kiroween_mode %}#222{% else %}#e0e0e0{% endif %}; display: flex; align-items: center; justify-content: center;">
                 <span style="color: {% if kiroween_mode %}#0f0{% else %}#999{% endif %}; font-size: 5pt;">{% if kiroween_mode %}NO{% elif locale == 'en' %}No{% else %}なし{% endif %}</span>
@@ -158,9 +158,9 @@
             <div class="animal-info">
                 {% if item.animal.gender == 'male' %}♂{% elif item.animal.gender == 'female' %}♀{% else %}?{% endif %}
                 {% if locale == 'en' %}
-                    {% if item.animal.age == '子猫' %}Kitten{% elif item.animal.age == '成猫' %}Adult{% elif item.animal.age == '老猫' %}Senior{% else %}{{ item.animal.age or '' }}{% endif %}
+                    {% if item.animal.age_months is not none %}{{ item.animal.age_months }} mo{% if item.animal.age_is_estimated %} (est.){% endif %}{% else %}Unknown{% endif %}
                 {% else %}
-                    {{ item.animal.age or '' }}
+                    {% if item.animal.age_months is not none %}{% if item.animal.age_is_estimated %}推定{% endif %}{{ item.animal.age_months }}ヶ月{% else %}不明{% endif %}
                 {% endif %}
             </div>
 

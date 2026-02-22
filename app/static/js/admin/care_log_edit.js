@@ -3,6 +3,7 @@
  */
 
 // API_BASEはcommon.jsで定義されています
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 // ページ読み込み時の処理
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,9 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const careLogId = container.dataset.careLogId;
 
   // 戻る・キャンセルボタンのリンク先を詳細ページに変更
-  const backLinks = document.querySelectorAll('a[href="/admin/care-logs"]');
+  const backLinks = document.querySelectorAll(`a[href="${adminBasePath}/care-logs"]`);
   backLinks.forEach(link => {
-    link.href = `/admin/care-logs/${careLogId}`;
+    link.href = `${adminBasePath}/care-logs/${careLogId}`;
   });
 
   // 猫一覧を読み込み
@@ -62,10 +63,20 @@ function setupStoolConditionHelpModal() {
 function setSelectedButton(buttons, selectedButton) {
   buttons.forEach(btn => {
     if (btn === selectedButton) {
-      btn.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.add(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.remove('border-gray-300');
     } else {
-      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.remove(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.add('border-gray-300');
     }
   });
@@ -73,7 +84,12 @@ function setSelectedButton(buttons, selectedButton) {
 
 function clearSelectedButtons(buttons) {
   buttons.forEach(btn => {
-    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+    btn.classList.remove(
+      'selected',
+      'border-brand-primary',
+      'bg-brand-primary-light',
+      'text-brand-primary-dark'
+    );
     btn.classList.add('border-gray-300');
   });
 }
@@ -94,9 +110,18 @@ function updateStoolConditionVisibility() {
 }
 
 function setupDefecationAndStoolConditionUI() {
+  const vomitingInput = document.getElementById('vomiting');
   const defecationInput = document.getElementById('defecation');
   const stoolInput = document.getElementById('stoolCondition');
-  if (!defecationInput || !stoolInput) return;
+  if (!vomitingInput || !defecationInput || !stoolInput) return;
+
+  const vomitingButtons = Array.from(document.querySelectorAll('.vomiting-btn'));
+  vomitingButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      vomitingInput.value = btn.dataset.value;
+      setSelectedButton(vomitingButtons, btn);
+    });
+  });
 
   const defecationButtons = Array.from(document.querySelectorAll('.defecation-btn'));
   defecationButtons.forEach(btn => {
@@ -151,6 +176,15 @@ async function loadCareLog(id) {
     document.getElementById('time_slot').value = data.time_slot;
     document.getElementById('appetite').value = data.appetite;
     document.getElementById('energy').value = data.energy;
+    const vomitingInput = document.getElementById('vomiting');
+    if (vomitingInput) {
+      vomitingInput.value = typeof data.vomiting === 'boolean' ? String(data.vomiting) : '';
+      const vomitingBtn = document.querySelector(
+        `.vomiting-btn[data-value="${vomitingInput.value}"]`
+      );
+      if (vomitingBtn)
+        setSelectedButton(Array.from(document.querySelectorAll('.vomiting-btn')), vomitingBtn);
+    }
     document.getElementById('urination').checked = data.urination;
     document.getElementById('cleaning').checked = data.cleaning;
     document.getElementById('memo').value = data.memo || '';
@@ -194,13 +228,15 @@ async function handleFormSubmit(e, id) {
       animal_id: parseInt(document.getElementById('animal_id').value),
       log_date: document.getElementById('log_date').value,
       time_slot: document.getElementById('time_slot').value,
-      appetite: parseInt(document.getElementById('appetite').value),
+      appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
+      vomiting: false,
       urination: document.getElementById('urination').checked,
       cleaning: document.getElementById('cleaning').checked,
       memo: document.getElementById('memo').value || null,
     };
 
+    const vomitingRaw = document.getElementById('vomiting')?.value;
     const defecationRaw = document.getElementById('defecation')?.value;
     const stoolConditionRaw = document.getElementById('stoolCondition')?.value;
 
@@ -209,14 +245,16 @@ async function handleFormSubmit(e, id) {
       !formData.animal_id ||
       !formData.log_date ||
       !formData.time_slot ||
-      !formData.appetite ||
+      Number.isNaN(formData.appetite) ||
       !formData.energy ||
+      (vomitingRaw !== 'true' && vomitingRaw !== 'false') ||
       (defecationRaw !== 'true' && defecationRaw !== 'false')
     ) {
       showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
       return;
     }
 
+    formData.vomiting = vomitingRaw === 'true';
     formData.defecation = defecationRaw === 'true';
 
     // 条件付き必須: defecation=true の場合は stool_condition 必須
@@ -238,7 +276,7 @@ async function handleFormSubmit(e, id) {
 
     // 成功メッセージをセッションストレージに保存して遷移
     sessionStorage.setItem('careLogUpdateSuccess', 'true');
-    window.location.href = `/admin/care-logs/${id}`;
+    window.location.href = `${adminBasePath}/care-logs/${id}`;
   } catch (error) {
     console.error('Failed to update care log:', error);
     showToast(translate('messages.update_failed', { ns: 'care_logs' }), 'error');

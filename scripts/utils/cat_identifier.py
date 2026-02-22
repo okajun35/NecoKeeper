@@ -158,7 +158,10 @@ class CatIdentifier:
         if len(matching_animals) > 1:
             # 複数の猫が見つかった場合
             cat_info = [
-                f"ID: {cat['id']}, 名前: {cat.get('name')}, 柄: {cat.get('pattern')}"
+                (
+                    f"ID: {cat['id']}, 名前: {cat.get('name')}, "
+                    f"毛色: {cat.get('coat_color')}"
+                )
                 for cat in matching_animals
             ]
             error_msg = (

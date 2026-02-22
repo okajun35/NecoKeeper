@@ -4,8 +4,12 @@
     "description": "Register and manage adoption applicants",
     "search_placeholder": "Search by name, contact...",
     "fields": {
+      "request_type": "Type",
       "name": "Name",
+      "phone": "Phone",
       "contact": "Contact",
+      "contact_method": "Contact Method",
+      "status": "Status",
       "address": "Address",
       "family": "Family",
       "environment": "Environment",
@@ -23,9 +27,41 @@
       "environment": "e.g., Apartment, pets allowed",
       "conditions": "e.g., Adult cat preferred, male preferred"
     },
+    "buttons": {
+      "new_intake": "Register Intake",
+      "detail": "Detail",
+      "convert_to_application": "Convert to Application"
+    },
+    "filters": {
+      "request_type": "Type"
+    },
+    "request_types": {
+      "all": "All",
+      "application": "Application",
+      "consultation": "Consultation",
+      "both": "Consultation/Application"
+    },
+    "statuses": {
+      "not_applicable": "-",
+      "applied_with_consultation": "Applied (from consultation)",
+      "applied_with_consultation_status": "Applied (consultation: {{status}})"
+    },
+    "consultation_status": {
+      "open": "Open",
+      "converted": "Converted",
+      "closed": "Closed"
+    },
+    "contact": {
+      "line": "LINE",
+      "email": "Email",
+      "phone": "Phone"
+    },
     "modal": {
       "title_new": "Register Applicant",
       "title_edit": "Edit Applicant"
+    },
+    "messages": {
+      "load_failed": "Failed to load data"
     }
   },
   "records": {
@@ -62,11 +98,16 @@
       "adoption_warning": "⚠️ Completing adoption will change the cat's status to 'Adopted'.",
       "registered": "Registered",
       "updated": "Updated",
-      "adoption_completed": "Adoption completed"
+      "adoption_completed": "Adoption completed",
+      "no_applicant_candidates": "No candidates found. Please register intake first.",
+      "applicant_not_selected": "Please select an applicant from the candidates."
     },
     "labels": {
       "interview_date_label": "Interview",
       "adoption_date_label": "Adopted"
+    },
+    "placeholders": {
+      "applicant_search": "Search by name, kana, phone, or contact (2+ chars)"
     }
   }
 }

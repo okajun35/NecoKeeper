@@ -4,16 +4,18 @@
 {% block title_ns %}medical_actions{% endblock %}
 {% block title %}診療行為マスター管理{% endblock %}
 {% block page_title %}<span data-i18n="title" data-i18n-ns="medical_actions">診療行為マスター管理</span>{% endblock %}
-{% block page_description %}<span data-i18n="description" data-i18n-ns="medical_actions">診療行為（薬剤・ワクチン・検査）のマスターデータ管理</span>{% endblock %}
+{% block page_description %}<span data-i18n="description"
+    data-i18n-ns="medical_actions">診療行為（薬剤・ワクチン・検査）のマスターデータ管理</span>{% endblock %}
 
 {% block extra_head %}
-    {% if settings.kiroween_mode %}
-    <link rel="stylesheet" href="{{ url_for('static', path='/css/kiroween_admin_modal.css') }}">
-    {% endif %}
+{% if settings.kiroween_mode %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/kiroween_admin_modal.css') }}">
+{% endif %}
 {% endblock %}
 
 {% block header_actions %}
-<button id="btnNewAction" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+<button id="btnNewAction"
+    class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors">
     <span class="hidden sm:inline">+</span> <span data-i18n="new_button" data-i18n-ns="medical_actions">新規登録</span>
 </button>
 {% endblock %}
@@ -25,20 +27,27 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
             <!-- 検索 -->
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.label" data-i18n-ns="medical_actions">検索</label>
-                <input type="text" id="searchName" data-i18n-placeholder="search.placeholder" data-i18n-ns="medical_actions" placeholder="診療名称で検索..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.label"
+                    data-i18n-ns="medical_actions">検索</label>
+                <input type="text" id="searchName" data-i18n-placeholder="search.placeholder"
+                    data-i18n-ns="medical_actions" placeholder="診療名称で検索..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
             <!-- 有効日フィルター -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.valid_on" data-i18n-ns="medical_actions">有効日</label>
-                <input type="date" id="filterValidOn" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.valid_on"
+                    data-i18n-ns="medical_actions">有効日</label>
+                <input type="date" id="filterValidOn"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
             <!-- 通貨 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.currency" data-i18n-ns="medical_actions">通貨</label>
-                <select id="filterCurrency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="search.currency"
+                    data-i18n-ns="medical_actions">通貨</label>
+                <select id="filterCurrency"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="search.all" data-i18n-ns="medical_actions">すべて</option>
                     <option value="JPY">JPY</option>
                     <option value="USD">USD</option>
@@ -47,10 +56,14 @@
         </div>
 
         <div class="mt-4 flex flex-col sm:flex-row gap-2">
-            <button id="btnSearch" class="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="search.button" data-i18n-ns="medical_actions">
+            <button id="btnSearch"
+                class="flex-1 sm:flex-none px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors"
+                data-i18n="search.button" data-i18n-ns="medical_actions">
                 検索
             </button>
-            <button id="btnClear" class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="search.clear" data-i18n-ns="medical_actions">
+            <button id="btnClear"
+                class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                data-i18n="search.clear" data-i18n-ns="medical_actions">
                 クリア
             </button>
         </div>
@@ -60,7 +73,7 @@
     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <!-- ローディング -->
         <div id="loading" class="p-8 text-center hidden">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
             <p class="mt-2 text-gray-600" data-i18n="messages.loading" data-i18n-ns="medical_actions">読み込み中...</p>
         </div>
 
@@ -73,15 +86,22 @@
         <!-- デスクトップ: テーブル表示 -->
         <div class="hidden lg:block overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+                <thead class="bg-brand-primary/5 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.name" data-i18n-ns="medical_actions">診療名称</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.period" data-i18n-ns="medical_actions">適用期間</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.cost_price" data-i18n-ns="medical_actions">原価</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.selling_price" data-i18n-ns="medical_actions">請求価格</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.procedure_fee" data-i18n-ns="medical_actions">処置料金</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.currency" data-i18n-ns="medical_actions">通貨</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider" data-i18n="table.actions" data-i18n-ns="medical_actions">操作</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.name" data-i18n-ns="medical_actions">診療名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.period" data-i18n-ns="medical_actions">適用期間</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.cost_price" data-i18n-ns="medical_actions">原価</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.selling_price" data-i18n-ns="medical_actions">請求価格</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.procedure_fee" data-i18n-ns="medical_actions">処置料金</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.currency" data-i18n-ns="medical_actions">通貨</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            data-i18n="table.actions" data-i18n-ns="medical_actions">操作</th>
                     </tr>
                 </thead>
                 <tbody id="desktopList" class="bg-white divide-y divide-gray-200">
@@ -90,14 +110,18 @@
         </div>
 
         <!-- ページネーション -->
-        <div id="pagination" class="px-4 py-3 bg-gray-50 border-t border-gray-200 sm:px-6">
+        <div id="pagination" class="px-4 py-3 bg-brand-primary/5 border-t border-gray-200 sm:px-6">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div id="paginationInfo" class="text-sm text-gray-700"></div>
                 <div class="flex gap-2">
-                    <button id="btnPrev" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" data-i18n="pagination.prev" data-i18n-ns="medical_actions">
+                    <button id="btnPrev"
+                        class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50"
+                        data-i18n="pagination.prev" data-i18n-ns="medical_actions">
                         前へ
                     </button>
-                    <button id="btnNext" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" data-i18n="pagination.next" data-i18n-ns="medical_actions">
+                    <button id="btnNext"
+                        class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-brand-primary/5 disabled:opacity-50"
+                        data-i18n="pagination.next" data-i18n-ns="medical_actions">
                         次へ
                     </button>
                 </div>
@@ -107,88 +131,120 @@
 </div>
 
 <!-- 新規登録/編集モーダル -->
-<div id="modalForm" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+<div id="modalForm"
+    class="modal-overlay fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
     <div class="modal bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="modal-content p-6">
-            <h2 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4" data-i18n="modal.title_new" data-i18n-ns="medical_actions">診療行為マスター登録</h2>
+            <h2 id="modalTitle" class="text-xl font-bold text-gray-900 mb-4" data-i18n="modal.title_new"
+                data-i18n-ns="medical_actions">診療行為マスター登録</h2>
 
             <form id="actionForm" class="space-y-4">
                 <input type="hidden" id="actionId">
 
                 <!-- 診療名称 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.name" data-i18n-ns="medical_actions">診療名称</span> <span class="text-red-500">*</span></label>
-                    <input type="text" id="name" required maxlength="100" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.name"
+                            data-i18n-ns="medical_actions">診療名称</span> <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required maxlength="100"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                 </div>
 
                 <!-- 適用期間 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.valid_from" data-i18n-ns="medical_actions">適用開始日</span> <span class="text-red-500">*</span></label>
-                        <input type="date" id="validFrom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.valid_from"
+                                data-i18n-ns="medical_actions">適用開始日</span> <span class="text-red-500">*</span></label>
+                        <input type="date" id="validFrom" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.valid_to" data-i18n-ns="medical_actions">適用終了日</label>
-                        <input type="date" id="validTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                        <p class="mt-1 text-xs text-gray-500" data-i18n="modal.valid_to_note" data-i18n-ns="medical_actions">未設定の場合は無期限</p>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.valid_to"
+                            data-i18n-ns="medical_actions">適用終了日</label>
+                        <input type="date" id="validTo"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <p class="mt-1 text-xs text-gray-500" data-i18n="modal.valid_to_note"
+                            data-i18n-ns="medical_actions">未設定の場合は無期限</p>
                     </div>
                 </div>
 
                 <!-- 料金 -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.cost_price" data-i18n-ns="medical_actions">原価</label>
-                        <input type="number" id="costPrice" step="0.01" min="0" value="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.cost_price"
+                            data-i18n-ns="medical_actions">原価</label>
+                        <input type="number" id="costPrice" step="0.01" min="0" value="0.00"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.selling_price" data-i18n-ns="medical_actions">請求価格</span> <span class="text-red-500">*</span></label>
-                        <input type="number" id="sellingPrice" step="0.01" min="0" value="0.00" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><span
+                                data-i18n="modal.selling_price" data-i18n-ns="medical_actions">請求価格</span> <span
+                                class="text-red-500">*</span></label>
+                        <input type="number" id="sellingPrice" step="0.01" min="0" value="0.00" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.procedure_fee" data-i18n-ns="medical_actions">処置料金</label>
-                        <input type="number" id="procedureFee" step="0.01" min="0" value="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.procedure_fee"
+                            data-i18n-ns="medical_actions">処置料金</label>
+                        <input type="number" id="procedureFee" step="0.01" min="0" value="0.00"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     </div>
                 </div>
 
                 <!-- 通貨と投薬単位 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2"><span data-i18n="modal.currency_unit" data-i18n-ns="medical_actions">通貨単位</span> <span class="text-red-500">*</span></label>
-                        <select id="currency" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2"><span
+                                data-i18n="modal.currency_unit" data-i18n-ns="medical_actions">通貨単位</span> <span
+                                class="text-red-500">*</span></label>
+                        <select id="currency" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                             {% if settings.kiroween_mode %}
-                            <option value="USD" selected data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            <option value="USD" selected data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">
+                                USD (米ドル)</option>
                             {% else %}
-                            <option value="JPY" data-i18n="modal.currency_jpy" data-i18n-ns="medical_actions">JPY (日本円)</option>
-                            <option value="USD" data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)</option>
+                            <option value="JPY" data-i18n="modal.currency_jpy" data-i18n-ns="medical_actions">JPY (日本円)
+                            </option>
+                            <option value="USD" data-i18n="modal.currency_usd" data-i18n-ns="medical_actions">USD (米ドル)
+                            </option>
                             {% endif %}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.unit" data-i18n-ns="medical_actions">投薬単位</label>
-                        <select id="unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            <option value="" data-i18n="modal.unit_placeholder" data-i18n-ns="medical_actions">選択してください</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="modal.unit"
+                            data-i18n-ns="medical_actions">投薬単位</label>
+                        <select id="unit"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                            <option value="" data-i18n="modal.unit_placeholder" data-i18n-ns="medical_actions">選択してください
+                            </option>
                             <option value="錠" data-i18n="modal.unit_pill" data-i18n-ns="medical_actions">錠</option>
                             <option value="本" data-i18n="modal.unit_bottle" data-i18n-ns="medical_actions">本</option>
                             <option value="回" data-i18n="modal.unit_time" data-i18n-ns="medical_actions">回</option>
                             <option value="mL" data-i18n="modal.unit_ml" data-i18n-ns="medical_actions">mL</option>
                         </select>
-                        <p class="mt-1 text-xs text-gray-500" data-i18n="modal.unit_note" data-i18n-ns="medical_actions">投薬量の単位（錠、本、回、mL）</p>
+                        <p class="mt-1 text-xs text-gray-500" data-i18n="modal.unit_note"
+                            data-i18n-ns="medical_actions">投薬量の単位（錠、本、回、mL）</p>
                     </div>
                 </div>
 
                 <!-- 料金計算式の説明 -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm text-blue-800">
-                        <strong data-i18n="modal.calculation_formula" data-i18n-ns="medical_actions">料金計算式:</strong> <span data-i18n="modal.calculation_note" data-i18n-ns="medical_actions">(請求価格 × 投薬量) + 処置料金</span>
+                <div class="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-4">
+                    <p class="text-sm text-brand-primary-dark">
+                        <strong data-i18n="modal.calculation_formula" data-i18n-ns="medical_actions">料金計算式:</strong>
+                        <span data-i18n="modal.calculation_note" data-i18n-ns="medical_actions">(請求価格 × 投薬量) +
+                            処置料金</span>
                     </p>
                 </div>
 
                 <!-- ボタン -->
                 <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="modal.save" data-i18n-ns="medical_actions">
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors"
+                        data-i18n="modal.save" data-i18n-ns="medical_actions">
                         保存
                     </button>
-                    <button type="button" id="btnCancel" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="modal.cancel" data-i18n-ns="medical_actions">
+                    <button type="button" id="btnCancel"
+                        class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                        data-i18n="modal.cancel" data-i18n-ns="medical_actions">
                         キャンセル
                     </button>
                 </div>

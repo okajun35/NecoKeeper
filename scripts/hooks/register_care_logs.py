@@ -38,7 +38,7 @@ JSON Format:
         "recorder_name": "David",    # 必須: 記録者名（文字列、最大100文字）
         "log_date": "2025-11-20",    # 必須: 記録日（YYYY-MM-DD形式）
         "time_slot": "morning",      # 必須: 時点（"morning", "noon", "evening" のみ）
-        "appetite": 5,               # 任意: 食欲（1-5、デフォルト3）
+        "appetite": 1.0,             # 任意: 食欲（1.0=完食, 0.0=食べない、デフォルト1.0）
         "energy": 5,                 # 任意: 元気（1-5、デフォルト3）
         "urination": true,           # 任意: 排尿有無（true/false、デフォルトfalse）
         "cleaning": false,           # 任意: 清掃済み（true/false、デフォルトfalse）
@@ -51,7 +51,8 @@ JSON Format:
     注意事項:
     - time_slot は必ず "morning", "noon", "evening" のいずれかを使用
     - "afternoon" は無効（"noon" を使用してください）
-    - appetite, energy は 1（悪い）〜 5（良い）の5段階評価
+    - appetite は 1.0/0.75/0.5/0.25/0.0 の5段階
+    - energy は 1（悪い）〜 5（良い）の5段階評価
 """
 
 from __future__ import annotations

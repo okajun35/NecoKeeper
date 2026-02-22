@@ -237,8 +237,8 @@ class TestGetActivityHistory:
                 recorder_id=test_volunteer.id,
                 recorder_name=test_volunteer.name,
                 time_slot="morning",
-                appetite=5,
-                energy=5,
+                appetite=1.0,
+                energy=3,
             )
             test_db.add(care_log)
         test_db.commit()

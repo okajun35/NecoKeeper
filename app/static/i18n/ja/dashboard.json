@@ -2,10 +2,11 @@
   "title": "ダッシュボード",
   "description": "保護猫管理システムの概要",
   "stats": {
-    "protected": "保護中",
+    "resident": "在籍中",
     "adoptable": "譲渡可能",
-    "today_logs": "今日の記録",
-    "volunteers": "ボランティア"
+    "fiv_positive": "FIV陽性",
+    "felv_positive": "FeLV陽性",
+    "today_logs": "今日の記録"
   },
   "recent_logs": "最近の世話記録",
   "needs_care": "記録が必要な猫",

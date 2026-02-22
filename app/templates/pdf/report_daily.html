@@ -93,7 +93,7 @@
                 <td>{{ record.log_date.strftime('%Y-%m-%d') }}</td>
                 <td>{{ record.animal_name }}</td>
                 <td>{{ record.time_slot_display }}</td>
-                <td>{{ record.appetite }}/5</td>
+                <td>{{ record.appetite_label }}</td>
                 <td>{{ record.energy }}/5</td>
                 <td>{{ t('boolean.yes' if record.urination else 'boolean.no', locale=locale) }}</td>
                 <td>{{ t('boolean.yes' if record.cleaning else 'boolean.no', locale=locale) }}</td>

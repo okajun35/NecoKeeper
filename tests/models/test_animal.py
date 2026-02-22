@@ -6,6 +6,8 @@ Animalモデルの単体テスト
 
 from datetime import date
 
+import pytest
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
@@ -18,9 +20,9 @@ class TestAnimalModel:
         """必須フィールドのみで猫を作成できることを確認"""
         animal = Animal(
             photo="/media/cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
         )
 
@@ -30,18 +32,18 @@ class TestAnimalModel:
 
         assert animal.id is not None
         assert animal.photo == "/media/cat1.jpg"
-        assert animal.pattern == "キジトラ"
+        assert animal.coat_color == "キジトラ"
         assert animal.tail_length == "長い"
-        assert animal.age == "成猫"
+        assert animal.age_months == 12
         assert animal.gender == "female"
 
     def test_animal_default_values(self, test_db: Session):
         """デフォルト値が正しく設定されることを確認"""
         animal = Animal(
             photo="/media/cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="male",
         )
 
@@ -50,7 +52,7 @@ class TestAnimalModel:
         test_db.refresh(animal)
 
         # デフォルト値の確認
-        assert animal.status == "保護中"
+        assert animal.status == "QUARANTINE"
         assert animal.ear_cut is False
         assert animal.protected_at is not None
         assert isinstance(animal.protected_at, date)
@@ -62,14 +64,17 @@ class TestAnimalModel:
         animal = Animal(
             name="たま",
             photo="/media/cat3.jpg",
-            pattern="黒猫",
+            coat_color="黒",
+            coat_color_note="淡い、パステル調",
             tail_length="長い",
             collar="赤い首輪",
-            age="老猫",
+            age_months=120,
             gender="female",
             ear_cut=True,
             features="左耳に傷あり、人懐っこい性格",
-            status="譲渡可能",
+            rescue_source="〇〇保健所",
+            breed="雑種",
+            status="TRIAL",
         )
 
         test_db.add(animal)
@@ -77,72 +82,76 @@ class TestAnimalModel:
         test_db.refresh(animal)
 
         assert animal.name == "たま"
+        assert animal.coat_color == "黒"
+        assert animal.coat_color_note == "淡い、パステル調"
         assert animal.collar == "赤い首輪"
         assert animal.ear_cut is True
         assert animal.features == "左耳に傷あり、人懐っこい性格"
-        assert animal.status == "譲渡可能"
+        assert animal.rescue_source == "〇〇保健所"
+        assert animal.breed == "雑種"
+        assert animal.status == "TRIAL"
 
     def test_animal_status_change(self, test_db: Session):
         """ステータスを変更できることを確認"""
         animal = Animal(
             photo="/media/cat4.jpg",
-            pattern="サバトラ",
+            coat_color="サバトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         test_db.add(animal)
         test_db.commit()
 
         # ステータスを変更
-        animal.status = "譲渡済み"
+        animal.status = "ADOPTED"
         test_db.commit()
         test_db.refresh(animal)
 
-        assert animal.status == "譲渡済み"
+        assert animal.status == "ADOPTED"
 
     def test_animal_str_representation(self, test_db: Session):
         """文字列表現が正しいことを確認"""
         animal = Animal(
             name="ミケ",
             photo="/media/cat5.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         test_db.add(animal)
         test_db.commit()
 
-        assert str(animal) == "ミケ（三毛、保護中）"
+        assert str(animal) == "ミケ（三毛、QUARANTINE）"
 
     def test_animal_str_representation_without_name(self, test_db: Session):
         """名前なしの猫の文字列表現が正しいことを確認"""
         animal = Animal(
             photo="/media/cat6.jpg",
-            pattern="白猫",
+            coat_color="白猫",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="unknown",
         )
 
         test_db.add(animal)
         test_db.commit()
 
-        assert str(animal) == "名前未設定（白猫、保護中）"
+        assert str(animal) == "名前未設定（白猫、QUARANTINE）"
 
     def test_animal_repr(self, test_db: Session):
         """repr表現が正しいことを確認"""
         animal = Animal(
             name="クロ",
             photo="/media/cat7.jpg",
-            pattern="黒猫",
+            coat_color="黒猫",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 
@@ -153,8 +162,8 @@ class TestAnimalModel:
         assert "Animal" in repr_str
         assert "id=" in repr_str
         assert "name='クロ'" in repr_str
-        assert "pattern='黒猫'" in repr_str
-        assert "status='保護中'" in repr_str
+        assert "coat_color='黒猫'" in repr_str
+        assert "status='QUARANTINE'" in repr_str
 
     def test_animal_gender_values(self, test_db: Session):
         """性別の値が正しく保存されることを確認"""
@@ -163,9 +172,9 @@ class TestAnimalModel:
         for gender in genders:
             animal = Animal(
                 photo=f"/media/cat_{gender}.jpg",
-                pattern="キジトラ",
+                coat_color="キジトラ",
                 tail_length="長い",
-                age="成猫",
+                age_months=12,
                 gender=gender,
             )
 
@@ -179,9 +188,9 @@ class TestAnimalModel:
         """更新時にupdated_atが変更されることを確認"""
         animal = Animal(
             photo="/media/cat8.jpg",
-            pattern="茶トラ",
+            coat_color="茶トラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 
@@ -201,3 +210,142 @@ class TestAnimalModel:
         # updated_atが更新されていることを確認
         # 注: SQLiteのタイムスタンプ精度の問題で、必ずしも変更されない場合があります
         assert animal.name == "チャトラ"
+
+    def test_microchip_number_optional(self, test_db: Session):
+        """マイクロチップ番号が任意項目であることを確認"""
+        animal = Animal(
+            name="テスト猫",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            # microchip_number なし
+        )
+        test_db.add(animal)
+        test_db.commit()
+
+        assert animal.microchip_number is None
+
+    def test_microchip_number_unique_constraint(self, test_db: Session):
+        """マイクロチップ番号の一意制約をテスト"""
+        animal1 = Animal(
+            name="テスト猫1",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal1)
+        test_db.commit()
+
+        # 同じマイクロチップ番号で登録を試みる
+        animal2 = Animal(
+            name="テスト猫2",
+            coat_color="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number="392123456789012",
+        )
+        test_db.add(animal2)
+
+        with pytest.raises(IntegrityError):
+            test_db.commit()
+
+    def test_microchip_number_null_not_unique(self, test_db: Session):
+        """NULL値は重複しても問題ないことを確認"""
+        animal1 = Animal(
+            name="テスト猫1",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+            microchip_number=None,
+        )
+        animal2 = Animal(
+            name="テスト猫2",
+            coat_color="三毛",
+            tail_length="短い",
+            age_months=24,
+            gender="female",
+            microchip_number=None,
+        )
+
+        test_db.add(animal1)
+        test_db.add(animal2)
+        test_db.commit()  # エラーにならない
+
+        assert animal1.microchip_number is None
+        assert animal2.microchip_number is None
+
+    def test_animal_with_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種を含む猫を作成できることを確認"""
+        animal = Animal(
+            name="ミケ",
+            photo="/media/cat9.jpg",
+            coat_color="三毛",
+            tail_length="長い",
+            age_months=6,
+            gender="female",
+            rescue_source="△△動物愛護団体",
+            breed="アメリカンショートヘア",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source == "△△動物愛護団体"
+        assert animal.breed == "アメリカンショートヘア"
+
+    def test_animal_without_rescue_source_and_breed(self, test_db: Session):
+        """レスキュー元と品種がnullでも猫を作成できることを確認"""
+        animal = Animal(
+            photo="/media/cat10.jpg",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.rescue_source is None
+        assert animal.breed is None
+
+    def test_animal_with_coat_color(self, test_db: Session):
+        """毛色フィールドを含む猫を作成できることを確認"""
+        animal = Animal(
+            name="みけ",
+            photo="/media/cat11.jpg",
+            coat_color="三毛",
+            coat_color_note="淡いパステル調、黒少なめ",
+            tail_length="長い",
+            age_months=24,
+            gender="female",
+        )
+
+        test_db.add(animal)
+        test_db.commit()
+        test_db.refresh(animal)
+
+        assert animal.coat_color == "三毛"
+        assert animal.coat_color_note == "淡いパステル調、黒少なめ"
+
+    def test_animal_without_coat_color(self, test_db: Session):
+        """毛色フィールドが必須であることを確認"""
+        animal = Animal(
+            name="くろ",
+            photo="/media/cat12.jpg",
+            tail_length="長い",
+            age_months=12,
+            gender="male",
+        )
+
+        test_db.add(animal)
+        with pytest.raises(IntegrityError):
+            test_db.commit()
+        test_db.rollback()

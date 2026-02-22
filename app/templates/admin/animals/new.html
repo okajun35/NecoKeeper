@@ -12,7 +12,7 @@
       <h2 class="text-2xl font-bold text-gray-900" data-i18n="new_title" data-i18n-ns="animals">猫新規登録</h2>
       <p class="mt-1 text-sm text-gray-500" data-i18n="new_description" data-i18n-ns="animals">新しい猫を登録します</p>
     </div>
-    <a href="/admin/animals"
+    <a href="{{ settings.admin_base_path }}/animals"
        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" data-i18n="cancel" data-i18n-ns="common">
       キャンセル
     </a>
@@ -47,7 +47,7 @@
                    class="sr-only">
             <div class="flex items-center gap-3">
               <label for="profile-image"
-                     class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 cursor-pointer text-sm font-semibold hover:bg-blue-100 transition-colors"
+                     class="inline-flex items-center px-4 py-2 bg-brand-primary/10 text-blue-700 rounded-lg border border-blue-100 cursor-pointer text-sm font-semibold hover:bg-blue-100 transition-colors"
                      data-i18n="file_input.choose"
                      data-i18n-ns="common">
                 ファイルを選択
@@ -79,11 +79,34 @@
         </div>
 
         <div>
-          <label for="pattern" class="block text-sm font-medium text-gray-700 mb-2">
-            <span data-i18n="fields.pattern" data-i18n-ns="animals">柄</span> <span class="text-red-500">*</span>
+          <label for="coat_color" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.coat_color" data-i18n-ns="animals">毛色</span> <span class="text-red-500">*</span>
           </label>
-          <input type="text" id="pattern" name="pattern" required
-                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <select id="coat_color" name="coat_color"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="三毛" data-i18n="coat_color.calico" data-i18n-ns="animals">三毛</option>
+            <option value="白黒" data-i18n="coat_color.black_white" data-i18n-ns="animals">白黒</option>
+            <option value="黒" data-i18n="coat_color.black" data-i18n-ns="animals">黒</option>
+            <option value="白" data-i18n="coat_color.white" data-i18n-ns="animals">白</option>
+            <option value="茶トラ" data-i18n="coat_color.brown_tabby" data-i18n-ns="animals">茶トラ</option>
+            <option value="キジトラ" data-i18n="coat_color.mackerel_tabby" data-i18n-ns="animals">キジトラ</option>
+            <option value="キジ" data-i18n="coat_color.mackerel" data-i18n-ns="animals">キジ</option>
+            <option value="サビ" data-i18n="coat_color.tortoiseshell" data-i18n-ns="animals">サビ</option>
+            <option value="グレー" data-i18n="coat_color.gray" data-i18n-ns="animals">グレー</option>
+            <option value="その他" data-i18n="coat_color.other" data-i18n-ns="animals">その他</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="coat_color_note" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.coat_color_note" data-i18n-ns="animals">毛色の補足</span>
+          </label>
+          <input type="text" id="coat_color_note" name="coat_color_note"
+                 data-i18n-placeholder="coat_color_note_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: 淡い、パステル、黒少なめ">
         </div>
 
         <div>
@@ -100,16 +123,29 @@
         </div>
 
         <div>
-          <label for="age" class="block text-sm font-medium text-gray-700 mb-2">
-            <span data-i18n="fields.age" data-i18n-ns="animals">年齢</span> <span class="text-red-500">*</span>
+          <label for="age_months" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.age" data-i18n-ns="animals">月齢</span>
           </label>
-          <select id="age" name="age" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
-            <option value="子猫" data-i18n="age.kitten" data-i18n-ns="animals">子猫</option>
-            <option value="成猫" data-i18n="age.adult" data-i18n-ns="animals">成猫</option>
-            <option value="老猫" data-i18n="age.senior" data-i18n-ns="animals">老猫</option>
-          </select>
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="number" id="age_months" name="age_months" min="0"
+                   data-i18n-placeholder="age_months_placeholder" data-i18n-ns="animals"
+                   class="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   placeholder="例: 12">
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" id="age_is_estimated" name="age_is_estimated">
+              <span data-i18n="fields.age_is_estimated" data-i18n-ns="animals">推定月齢</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label for="microchip_number" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.microchip_number" data-i18n-ns="animals">マイクロチップ番号</span>
+          </label>
+          <input type="text" id="microchip_number" name="microchip_number" maxlength="20"
+                 data-i18n-placeholder="microchip_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: 4A8F13BB23 (ISO形式)">
         </div>
 
         <div>
@@ -121,6 +157,7 @@
             <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
             <option value="長い" data-i18n="tail.long" data-i18n-ns="animals">長い</option>
             <option value="短い" data-i18n="tail.short" data-i18n-ns="animals">短い</option>
+            <option value="かぎしっぽ" data-i18n="tail.kinked" data-i18n-ns="animals">かぎしっぽ</option>
             <option value="なし" data-i18n="tail.none" data-i18n-ns="animals">なし</option>
           </select>
         </div>
@@ -136,9 +173,29 @@
         </div>
 
         <div>
+          <label for="rescue_source" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.rescue_source" data-i18n-ns="animals">
+            レスキュー元
+          </label>
+          <input type="text" id="rescue_source" name="rescue_source"
+                 data-i18n-placeholder="rescue_source_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: 〇〇保健所、△△動物愛護団体">
+        </div>
+
+        <div>
+          <label for="breed" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="fields.breed" data-i18n-ns="animals">
+            品種
+          </label>
+          <input type="text" id="breed" name="breed"
+                 data-i18n-placeholder="breed_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: 雑種、アメリカンショートヘア">
+        </div>
+
+        <div>
           <label class="flex items-center gap-2">
             <input type="checkbox" id="ear_cut" name="ear_cut"
-                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                   class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-blue-500">
             <span class="text-sm font-medium text-gray-700" data-i18n="fields.ear_cut" data-i18n-ns="animals">耳カット（TNR済み）</span>
           </label>
         </div>
@@ -150,10 +207,11 @@
           <select id="status" name="status" required
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
-            <option value="保護中" data-i18n="status.protected" data-i18n-ns="animals">保護中</option>
-            <option value="治療中" data-i18n="status.treatment" data-i18n-ns="animals">治療中</option>
-            <option value="譲渡可能" data-i18n="status.adoptable" data-i18n-ns="animals">譲渡可能</option>
-            <option value="譲渡済み" data-i18n="status.adopted" data-i18n-ns="animals">譲渡済み</option>
+            <option value="QUARANTINE" data-i18n="status.QUARANTINE" data-i18n-ns="animals">保護中</option>
+            <option value="IN_CARE" data-i18n="status.IN_CARE" data-i18n-ns="animals">治療中</option>
+            <option value="TRIAL" data-i18n="status.TRIAL" data-i18n-ns="animals">譲渡可能</option>
+            <option value="ADOPTED" data-i18n="status.ADOPTED" data-i18n-ns="animals">譲渡済み</option>
+            <option value="DECEASED" data-i18n="status.DECEASED" data-i18n-ns="animals">死亡</option>
           </select>
         </div>
 
@@ -163,6 +221,29 @@
           </label>
           <input type="date" id="protected_at" name="protected_at" required
                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+
+        <div>
+          <label for="location_type" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.location_type" data-i18n-ns="animals">所在地タイプ</span>
+          </label>
+          <select id="location_type" name="location_type"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="" data-i18n="please_select" data-i18n-ns="common">選択してください</option>
+            <option value="FACILITY" data-i18n="location_type.FACILITY" data-i18n-ns="animals">施設</option>
+            <option value="FOSTER_HOME" data-i18n="location_type.FOSTER_HOME" data-i18n-ns="animals">一時保護宅</option>
+            <option value="ADOPTER_HOME" data-i18n="location_type.ADOPTER_HOME" data-i18n-ns="animals">譲渡先</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="current_location_note" class="block text-sm font-medium text-gray-700 mb-2">
+            <span data-i18n="fields.current_location_note" data-i18n-ns="animals">所在地詳細</span>
+          </label>
+          <input type="text" id="current_location_note" name="current_location_note"
+                 data-i18n-placeholder="current_location_note_placeholder" data-i18n-ns="animals"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 placeholder="例: ケージAー4, 〇〇さんの家(TEL: 090-...)">
         </div>
       </div>
 
@@ -177,14 +258,66 @@
                   placeholder="外傷、特徴、性格などを記入"></textarea>
       </div>
 
+      <!-- 医療情報 -->
+      <div class="border-t-2 border-b-2 border-brand-primary/20 bg-brand-primary/10 p-6 rounded-lg">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          <span data-i18n="fields.medical_info" data-i18n-ns="animals">医療情報</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="fiv_positive" class="block text-sm font-medium text-gray-700 mb-2">
+              <span data-i18n="fields.fiv_positive" data-i18n-ns="animals">FIV</span>
+            </label>
+            <select id="fiv_positive" name="fiv_positive"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="" data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+              <option value="true" data-i18n="medical.positive" data-i18n-ns="animals">陽性</option>
+              <option value="false" data-i18n="medical.negative" data-i18n-ns="animals">陰性</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="felv_positive" class="block text-sm font-medium text-gray-700 mb-2">
+              <span data-i18n="fields.felv_positive" data-i18n-ns="animals">FeLV</span>
+            </label>
+            <select id="felv_positive" name="felv_positive"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="" data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+              <option value="true" data-i18n="medical.positive" data-i18n-ns="animals">陽性</option>
+              <option value="false" data-i18n="medical.negative" data-i18n-ns="animals">陰性</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="is_sterilized" class="block text-sm font-medium text-gray-700 mb-2">
+              <span data-i18n="fields.is_sterilized" data-i18n-ns="animals">避妊・去勢済み</span>
+            </label>
+            <select id="is_sterilized" name="is_sterilized"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="" data-i18n="medical.unknown" data-i18n-ns="animals">不明</option>
+              <option value="true" data-i18n="yes" data-i18n-ns="common">はい</option>
+              <option value="false" data-i18n="no" data-i18n-ns="common">いいえ</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="sterilized_on" class="block text-sm font-medium text-gray-700 mb-2">
+              <span data-i18n="fields.sterilized_on" data-i18n-ns="animals">避妊・去勢実施日</span>
+            </label>
+            <input type="date" id="sterilized_on" name="sterilized_on"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+        </div>
+      </div>
+
       <!-- 登録ボタン -->
       <div class="flex justify-end gap-3">
-        <a href="/admin/animals" data-i18n="cancel" data-i18n-ns="common"
+        <a href="{{ settings.admin_base_path }}/animals" data-i18n="cancel" data-i18n-ns="common"
            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
           キャンセル
         </a>
         <button type="submit" data-i18n="register" data-i18n-ns="animals"
-                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                class="px-6 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">
           登録
         </button>
       </div>

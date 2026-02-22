@@ -5,14 +5,19 @@
 {% block title %}診療記録詳細{% endblock %}
 
 {% block page_title %}<span data-i18n="detail_title" data-i18n-ns="medical_records">診療記録詳細</span>{% endblock %}
-{% block page_description %}<span data-i18n="detail_description" data-i18n-ns="medical_records">診療記録の詳細情報</span>{% endblock %}
+{% block page_description %}<span data-i18n="detail_description" data-i18n-ns="medical_records">診療記録の詳細情報</span>{%
+endblock %}
 
 {% block header_actions %}
 <div class="flex gap-2">
-    <a href="/admin/medical-records" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back" data-i18n-ns="common">
+    <a href="{{ settings.admin_base_path }}/medical-records"
+        class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+        data-i18n="back" data-i18n-ns="common">
         戻る
     </a>
-    <button id="editBtn" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors hidden" data-i18n="edit" data-i18n-ns="common">
+    <button id="editBtn"
+        class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors hidden"
+        data-i18n="edit" data-i18n-ns="common">
         編集
     </button>
 </div>
@@ -22,7 +27,7 @@
 <div class="space-y-4 lg:space-y-6">
     <!-- ローディング表示 -->
     <div id="loadingIndicator" class="bg-white rounded-lg shadow-sm p-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
         <p class="mt-2 text-gray-600" data-i18n="common.loading" data-i18n-ns="common">読み込み中...</p>
     </div>
 
@@ -33,80 +38,99 @@
 
     <!-- 診療記録詳細 -->
     <div id="recordDetail" class="hidden bg-white rounded-lg shadow-sm overflow-hidden">
+        <!-- JS rendered content -->
+    </div>
+
+    <template id="tmpl-medical-record-detail">
         <div class="p-4 lg:p-6 space-y-6">
             <!-- 基本情報 -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="basic_info" data-i18n-ns="medical_records">基本情報</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="basic_info"
+                    data-i18n-ns="medical_records">基本情報</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.date" data-i18n-ns="medical_records">診療日</label>
-                        <p id="recordDate" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.date"
+                            data-i18n-ns="medical_records">診療日</label>
+                        <p class="text-gray-900 js-date"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.time_slot" data-i18n-ns="medical_records">時間帯</label>
-                        <p id="recordTimeSlot" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.time_slot"
+                            data-i18n-ns="medical_records">時間帯</label>
+                        <p class="text-gray-900 js-time-slot"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.animal" data-i18n-ns="medical_records">猫</label>
-                        <p id="recordAnimal" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.animal"
+                            data-i18n-ns="medical_records">猫</label>
+                        <p class="text-gray-900 js-animal"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.vet" data-i18n-ns="medical_records">獣医師</label>
-                        <p id="recordVet" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.vet"
+                            data-i18n-ns="medical_records">獣医師</label>
+                        <p class="text-gray-900 js-vet"></p>
                     </div>
                 </div>
             </div>
 
             <!-- 測定値 -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="measurements" data-i18n-ns="medical_records">測定値</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="measurements"
+                    data-i18n-ns="medical_records">測定値</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.weight" data-i18n-ns="medical_records">体重</label>
-                        <p id="recordWeight" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.weight"
+                            data-i18n-ns="medical_records">体重</label>
+                        <p class="text-gray-900 js-weight"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.temperature" data-i18n-ns="medical_records">体温</label>
-                        <p id="recordTemperature" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.temperature"
+                            data-i18n-ns="medical_records">体温</label>
+                        <p class="text-gray-900 js-temperature"></p>
                     </div>
                 </div>
             </div>
 
             <!-- 症状 -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.symptoms" data-i18n-ns="medical_records">症状</h3>
-                <p id="recordSymptoms" class="text-gray-900 whitespace-pre-wrap"></p>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.symptoms"
+                    data-i18n-ns="medical_records">症状</h3>
+                <p class="text-gray-900 whitespace-pre-wrap js-symptoms"></p>
             </div>
 
             <!-- 診療行為 -->
-            <div id="medicalActionSection" class="hidden">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.medical_action" data-i18n-ns="medical_records">診療行為</h3>
+            <div class="js-medical-action-section hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.medical_action"
+                    data-i18n-ns="medical_records">診療行為</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.medical_action" data-i18n-ns="medical_records">診療行為</label>
-                        <p id="recordMedicalAction" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.medical_action"
+                            data-i18n-ns="medical_records">診療行為</label>
+                        <p class="text-gray-900 js-medical-action"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.dosage" data-i18n-ns="medical_records">投薬量・回数</label>
-                        <p id="recordDosage" class="text-gray-900"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="labels.dosage"
+                            data-i18n-ns="medical_records">投薬量・回数</label>
+                        <p class="text-gray-900 js-dosage"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.selling_price" data-i18n-ns="medical_records">請求価格</label>
-                        <p id="recordBilling" class="text-gray-900 font-semibold text-lg"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.selling_price"
+                            data-i18n-ns="medical_records">請求価格</label>
+                        <p class="text-gray-900 font-semibold text-lg js-billing"></p>
                     </div>
                 </div>
             </div>
 
             <!-- その他 -->
-            <div id="otherSection" class="hidden">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.other" data-i18n-ns="medical_records">その他</h3>
-                <p id="recordOther" class="text-gray-900 whitespace-pre-wrap"></p>
+            <div class="js-other-section hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.other"
+                    data-i18n-ns="medical_records">その他</h3>
+                <p class="text-gray-900 whitespace-pre-wrap js-other"></p>
             </div>
 
             <!-- コメント -->
-            <div id="commentSection" class="hidden">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.comment" data-i18n-ns="medical_records">コメント</h3>
-                <p id="recordComment" class="text-gray-900 whitespace-pre-wrap"></p>
+            <div class="js-comment-section hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="labels.comment"
+                    data-i18n-ns="medical_records">コメント</h3>
+                <p class="text-gray-900 whitespace-pre-wrap js-comment"></p>
             </div>
 
             <!-- タイムスタンプ -->
@@ -114,20 +138,21 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="details" data-i18n-ns="common">更新情報</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.created_at" data-i18n-ns="medical_records">作成日時</label>
-                        <p id="recordCreatedAt"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.created_at"
+                            data-i18n-ns="medical_records">作成日時</label>
+                        <p class="js-created-at"></p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.updated_at" data-i18n-ns="medical_records">最終更新日時</label>
-                        <p id="recordUpdatedAt"></p>
+                        <label class="block text-sm font-medium text-gray-500 mb-1" data-i18n="fields.updated_at"
+                            data-i18n-ns="medical_records">最終更新日時</label>
+                        <p class="js-updated-at"></p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </template>
+    {% endblock %}
 
-{% block extra_scripts %}
-<script src="/static/js/admin/medical_records_detail.js"></script>
-{% endblock %}
+    {% block extra_scripts %}
+    <script src="/static/js/admin/medical_records_detail.js"></script>
+    {% endblock %}

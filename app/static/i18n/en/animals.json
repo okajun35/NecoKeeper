@@ -8,12 +8,12 @@
   "edit": "Edit Cat Information",
   "edit_description": "Update cat information",
   "delete_confirm": "Are you sure you want to delete this cat?",
-  "search_placeholder": "Search by cat name...",
+  "search_placeholder": "Search by name, coat color, features...",
   "filter_by_status": "Filter by status",
   "description": "Manage rescued cat information",
   "search": {
     "label": "Search",
-    "placeholder": "Search by name, pattern, features...",
+    "placeholder": "Search by name, coat color, features...",
     "advanced": "Advanced Search",
     "clear": "Clear"
   },
@@ -22,14 +22,26 @@
     "all": "All",
     "page_size": "Items per page",
     "gender": "Gender",
-    "age_min": "Age (Min)",
-    "age_max": "Age (Max)",
+    "age_min": "Age (Months, Min)",
+    "age_max": "Age (Months, Max)",
     "rescue_date_from": "Rescue Date (From)",
     "rescue_date_to": "Rescue Date (To)",
     "ear_cut": "Ear Cut",
     "collar": "Collar",
     "with": "With",
-    "without": "Without"
+    "without": "Without",
+    "ready_for_adoption": "Ready for Adoption",
+    "fiv": "FIV",
+    "felv": "FeLV",
+    "sterilized": "Sterilized",
+    "location_type": "Location",
+    "positive": "Positive",
+    "negative": "Negative",
+    "unknown": "Unknown",
+    "done": "Done",
+    "not_done": "Not Done",
+    "yes": "Yes",
+    "no": "No"
   },
   "page_size": {
     "20": "20 items",
@@ -43,37 +55,92 @@
   "profile_image_optional": "Profile Image (Optional)",
   "image_format_note": "PNG, JPG, GIF (Max 5MB)",
   "image_gallery_note": "You can add or change images from the gallery after registration",
+  "age_months_placeholder": "e.g., 12",
+  "age_months": "{{value}} mo",
+  "age_months_estimated": "{{value}} mo (est.)",
+  "age_unknown": "Unknown",
   "collar_placeholder": "e.g., Red collar",
+  "coat_color_note_placeholder": "e.g., Light, pastel, fewer black patches",
+  "microchip_placeholder": "e.g., 4A8F13BB23 (ISO format)",
+  "current_location_note_placeholder": "e.g., Cage A-4, Name's home (TEL: 090-...)",
+  "reason_for_status_change_placeholder": "e.g., Adoption planned, Treatment completed",
   "features_placeholder": "Enter injuries, characteristics, personality, etc.",
+  "rescue_source_placeholder": "e.g., Shelter A",
+  "breed_placeholder": "e.g., American Shorthair",
   "back_to_list": "Back to list",
   "register": "Register",
   "fields": {
     "id": "ID",
     "name": "Name",
     "photo": "Photo",
-    "pattern": "Pattern",
+    "microchip_number": "Microchip Number",
+    "coat_color": "Coat Color",
+    "coat_color_note": "Coat Color Notes",
     "tail_length": "Tail Length",
     "collar": "Collar",
-    "age": "Age",
+    "age": "Age (Months)",
+    "age_is_estimated": "Estimated",
     "gender": "Gender",
     "ear_cut": "Ear Cut",
     "features": "Features",
     "status": "Status",
+    "location_type": "Location Type",
+    "current_location_note": "Location Details",
+    "reason_for_status_change": "Reason for Change (Optional)",
+    "rescue_source": "Rescue Source",
+    "breed": "Breed",
     "protected_at": "Protected Date",
     "created_at": "Created At",
-    "updated_at": "Updated At"
+    "updated_at": "Updated At",
+    "medical_info": "Medical Information",
+    "fiv_status": "FIV Test",
+    "felv_status": "FeLV Test",
+    "fiv_positive": "FIV",
+    "felv_positive": "FeLV",
+    "is_sterilized": "Sterilized",
+    "sterilized_on": "Sterilization Date",
+    "vaccination_records": "Vaccination Records",
+    "vaccine_type": "Vaccine Type",
+    "vaccine_date": "Vaccination Date",
+    "next_due_on": "Next Due Date",
+    "vaccine_memo": "Memo",
+    "sterilized": "Sterilized",
+    "location": "Location"
   },
   "status": {
-    "protected": "Protected",
-    "treatment": "Under Treatment",
-    "adoptable": "Adoptable",
-    "adopted": "Adopted",
-    "deceased": "Deceased"
+    "ACTIVE": "Currently Active",
+    "QUARANTINE": "Protected",
+    "IN_CARE": "In Care",
+    "TRIAL": "Trial",
+    "ADOPTED": "Adopted",
+    "DECEASED": "Deceased"
+  },
+  "location_type": {
+    "FACILITY": "Facility",
+    "FOSTER_HOME": "Foster Home",
+    "ADOPTER_HOME": "Adopter Home"
   },
   "gender": {
     "male": "Male",
     "female": "Female",
     "unknown": "Unknown"
+  },
+  "coat_color": {
+    "calico": "Calico",
+    "black_white": "Black and White",
+    "black": "Black",
+    "white": "White",
+    "brown_tabby": "Brown Tabby",
+    "mackerel_tabby": "Mackerel Tabby",
+    "mackerel": "Mackerel",
+    "tortoiseshell": "Tortoiseshell",
+    "gray": "Gray",
+    "other": "Other"
+  },
+  "vaccine_category": {
+    "3core": "3-in-1 (FVR+FCV+FPV)",
+    "4core": "4-in-1 (+FeLV)",
+    "5core": "5-in-1 (+Chlamydia)"
   },
   "age": {
     "kitten": "Kitten",
@@ -83,12 +150,35 @@
   "tail": {
     "long": "Long",
     "short": "Short",
-    "none": "None",
-    "bobtail": "Bobtail"
+    "kinked": "Bobtail",
+    "none": "None"
   },
   "collar_options": {
     "has": "Has collar",
     "none": "No collar"
+  },
+  "medical": {
+    "unknown": "Unknown",
+    "negative": "Negative (-)",
+    "positive": "Positive (+)",
+    "done": "Done",
+    "not_done": "Not Done"
+  },
+  "test_result": {
+    "positive": "Positive",
+    "negative": "Negative",
+    "unknown": "Unknown"
+  },
+  "sterilized": {
+    "done": "Done",
+    "not_done": "Not Done",
+    "unknown": "Unknown"
+  },
+  "badge": {
+    "ready_for_adoption": "Ready"
+  },
+  "sections": {
+    "detail_info": "Detail Information"
   },
   "tabs": {
     "basic_info": "Basic Info",
@@ -159,6 +249,7 @@
     "change_status": "Change Status",
     "generate_qr": "Generate QR Card",
     "generate_form": "Generate Paper Form",
+    "register_care_log": "Register Care Log",
     "change_photo": "Change Photo",
     "update_status": "Update Status",
     "upload_photo": "Upload Photo",
@@ -166,6 +257,10 @@
   },
   "pagination": {
     "summary": "Showing {{from}}-{{to}} of {{total}} cats"
+  },
+  "labels": {
+    "unset": "Not set",
+    "unregistered": "Not registered"
   },
   "fallbacks": {
     "no_name": "Unnamed"

@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Numeric,
     SmallInteger,
     String,
     Text,
@@ -42,8 +43,9 @@ class CareLog(Base):
         recorder_id: 記録者ID（外部キー、任意）
         recorder_name: 記録者名（必須）
         time_slot: 時点（morning/noon/evening）
-        appetite: 食欲（1〜5段階、5が最良、デフォルト: 3）
-        energy: 元気（1〜5段階、5が最良、デフォルト: 3）
+        appetite: 食欲（0.0〜1.0、1.0=完食、デフォルト: 1.0）
+        energy: 元気（1〜3段階、3が最良、デフォルト: 3）
+        vomiting: 嘔吐有無（True=有り、False=無し）
         urination: 排尿有無（True=有り、False=無し）
         defecation: 排便有無（True=有り、False=無し）
         stool_condition: 便の状態（1〜5、排便が有りの場合のみ）
@@ -97,12 +99,12 @@ class CareLog(Base):
         String(10), nullable=False, comment="時点（morning/noon/evening）"
     )
 
-    appetite: Mapped[int] = mapped_column(
-        Integer,
+    appetite: Mapped[float] = mapped_column(
+        Numeric(3, 2, asdecimal=False),
         nullable=False,
-        default=3,
-        server_default="3",
-        comment="食欲（1〜5段階、5が最良）",
+        default=1.0,
+        server_default="1.0",
+        comment="食欲（0.0〜1.0、1.0=完食）",
     )
 
     energy: Mapped[int] = mapped_column(
@@ -110,7 +112,15 @@ class CareLog(Base):
         nullable=False,
         default=3,
         server_default="3",
-        comment="元気（1〜5段階、5が最良）",
+        comment="元気（1〜3段階、3が最良）",
+    )
+
+    vomiting: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="0",
+        comment="嘔吐有無（True=有り、False=無し）",
     )
 
     urination: Mapped[bool] = mapped_column(
@@ -144,6 +154,26 @@ class CareLog(Base):
     )
 
     memo: Mapped[str | None] = mapped_column(Text, nullable=True, comment="メモ")
+    care_image_path: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="世話記録画像の保存キー（非公開ストレージ）",
+    )
+    care_image_uploaded_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像アップロード日時（JST）",
+    )
+    care_image_deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像論理削除日時（JST）",
+    )
+    care_image_missing_at: Mapped[datetime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="世話記録画像欠損検知日時（JST）",
+    )
 
     # メタデータ（記録時の情報）
     ip_address: Mapped[str | None] = mapped_column(
@@ -214,4 +244,13 @@ class CareLog(Base):
         return (
             f"{self.created_at.strftime('%Y-%m-%d %H:%M')} - "
             f"{self.recorder_name}（{self.time_slot}）"
+        )
+
+    @property
+    def has_image(self) -> bool:
+        """有効な画像を保持しているか判定する。"""
+        return bool(
+            self.care_image_path
+            and self.care_image_deleted_at is None
+            and self.care_image_missing_at is None
         )

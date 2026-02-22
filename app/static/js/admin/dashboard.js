@@ -20,17 +20,30 @@ async function loadStatistics() {
     // ダッシュボード統計APIを使用
     const stats = await apiRequest(`${API_BASE}/dashboard/stats`);
 
-    document.getElementById('stat-protected').textContent = stats.protected_count || 0;
-    document.getElementById('stat-adoptable').textContent = stats.adoptable_count || 0;
-    document.getElementById('stat-today-logs').textContent = stats.today_logs_count || 0;
-    document.getElementById('stat-volunteers').textContent = stats.active_volunteers_count || 0;
+    assertRequiredIds(
+      ['stat-resident', 'stat-adoptable', 'stat-today-logs', 'stat-fiv', 'stat-felv'],
+      'dashboard.stats'
+    );
+    requireElementById('stat-resident', 'dashboard.stats').textContent = stats.resident_count || 0;
+    requireElementById('stat-adoptable', 'dashboard.stats').textContent =
+      stats.adoptable_count || 0;
+    requireElementById('stat-today-logs', 'dashboard.stats').textContent =
+      stats.today_logs_count || 0;
+    requireElementById('stat-fiv', 'dashboard.stats').textContent = stats.fiv_positive_count || 0;
+    requireElementById('stat-felv', 'dashboard.stats').textContent = stats.felv_positive_count || 0;
   } catch (error) {
     console.error('Statistics load error:', error);
     // エラー時はデフォルト値を表示
-    document.getElementById('stat-protected').textContent = '0';
-    document.getElementById('stat-adoptable').textContent = '0';
-    document.getElementById('stat-today-logs').textContent = '0';
-    document.getElementById('stat-volunteers').textContent = '0';
+    const resident = document.getElementById('stat-resident');
+    const adoptable = document.getElementById('stat-adoptable');
+    const todayLogs = document.getElementById('stat-today-logs');
+    const fiv = document.getElementById('stat-fiv');
+    const felv = document.getElementById('stat-felv');
+    if (resident) resident.textContent = '0';
+    if (adoptable) adoptable.textContent = '0';
+    if (todayLogs) todayLogs.textContent = '0';
+    if (fiv) fiv.textContent = '0';
+    if (felv) felv.textContent = '0';
   }
 }
 
@@ -41,6 +54,7 @@ async function loadRecentLogs() {
     const logs = response.items || [];
 
     const container = document.getElementById('recent-logs');
+    if (!container) return; // Guard
 
     if (logs.length === 0) {
       const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
@@ -50,32 +64,35 @@ async function loadRecentLogs() {
 
     const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
 
-    container.innerHTML = logs
-      .map(
-        log => `
-            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="font-medium text-gray-900">${log.animal_name || '不明'}</span>
-                        <span class="text-sm text-gray-500">${getTimeSlotLabel(log.time_slot)}</span>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        ${log.recorder_name || '不明'} • ${formatDate(new Date(log.log_date))}
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">${t('dynamic.appetite')}: ${log.appetite}</span>
-                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">${t('dynamic.energy')}: ${log.energy}</span>
-                </div>
-            </div>
-        `
-      )
-      .join('');
+    container.innerHTML = '';
+    logs.forEach(log => {
+      const el = cloneTemplate('tmpl-recent-log');
+      assertRequiredSelectors(
+        el,
+        ['.js-animal-name', '.js-time-slot', '.js-details', '.js-appetite', '.js-energy'],
+        'dashboard.tmpl-recent-log'
+      );
+      requireSelector(el, '.js-animal-name', 'dashboard.tmpl-recent-log').textContent =
+        log.animal_name || '不明';
+      requireSelector(el, '.js-time-slot', 'dashboard.tmpl-recent-log').textContent =
+        getTimeSlotLabel(log.time_slot);
+      requireSelector(el, '.js-details', 'dashboard.tmpl-recent-log').textContent =
+        `${log.recorder_name || '不明'} • ${formatDate(new Date(log.log_date))}`;
+
+      requireSelector(el, '.js-appetite', 'dashboard.tmpl-recent-log').textContent =
+        `${t('dynamic.appetite')}: ${formatAppetiteLabel(log.appetite)}`;
+      requireSelector(el, '.js-energy', 'dashboard.tmpl-recent-log').textContent =
+        `${t('dynamic.energy')}: ${log.energy}`;
+
+      container.appendChild(el);
+    });
   } catch (error) {
     console.error('Recent logs load error:', error);
     const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
-    document.getElementById('recent-logs').innerHTML =
-      `<div class="text-center text-red-500 py-8">${t('no_logs')}</div>`;
+    const container = document.getElementById('recent-logs');
+    if (container) {
+      container.innerHTML = `<div class="text-center text-red-500 py-8">${t('no_logs')}</div>`;
+    }
   }
 }
 
@@ -91,6 +108,7 @@ async function loadNeedsCare() {
     );
 
     const container = document.getElementById('needs-care');
+    if (!container) return; // Guard
 
     const t = key => (typeof i18next !== 'undefined' ? i18next.t(key, { ns: 'dashboard' }) : key);
 
@@ -99,47 +117,57 @@ async function loadNeedsCare() {
       return;
     }
 
-    container.innerHTML = needsCare
-      .map(animal => {
-        const missing = [];
-        if (!animal.morning_recorded) missing.push(t('dynamic.morning'));
-        if (!animal.noon_recorded) missing.push(t('dynamic.noon'));
-        if (!animal.evening_recorded) missing.push(t('dynamic.evening'));
+    container.innerHTML = '';
+    needsCare.forEach(animal => {
+      const el = cloneTemplate('tmpl-needs-care');
+      assertRequiredSelectors(
+        el,
+        ['.js-animal-photo', '.js-animal-name', '.js-missing-items', '.js-record-link'],
+        'dashboard.tmpl-needs-care'
+      );
 
-        // Check for Kiroween mode
-        const isKiroween = document.body.classList.contains('kiroween-mode');
-        const defaultImage = isKiroween
-          ? '/static/icons/halloween_logo_2.webp'
-          : '/static/images/default.svg';
+      const missing = [];
+      if (!animal.morning_recorded) missing.push(t('dynamic.morning'));
+      if (!animal.noon_recorded) missing.push(t('dynamic.noon'));
+      if (!animal.evening_recorded) missing.push(t('dynamic.evening'));
 
-        const photoUrl =
-          animal.animal_photo && animal.animal_photo.trim() !== ''
-            ? animal.animal_photo
-            : defaultImage;
+      // Check for Kiroween mode
+      const isKiroween = document.body.classList.contains('kiroween-mode');
+      const defaultImage = isKiroween
+        ? '/static/icons/halloween_logo_2.webp'
+        : '/static/images/default.svg';
 
-        return `
-                <div class="flex items-center gap-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <img src="${photoUrl}"
-                         alt="${animal.animal_name}"
-                         onerror="this.onerror=null; this.src='${defaultImage}';"
-                         class="w-12 h-12 rounded-full object-cover">
-                    <div class="flex-1">
-                        <div class="font-medium text-gray-900">${animal.animal_name}</div>
-                        <div class="text-sm text-gray-600">${t('dynamic.not_recorded')}: ${missing.join(', ')}</div>
-                    </div>
-                    <a href="/public/care?animal_id=${animal.animal_id}"
-                       target="_blank"
-                       class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-                        ${t('dynamic.record')}
-                    </a>
-                </div>
-            `;
-      })
-      .join('');
+      const photoUrl =
+        animal.animal_photo && animal.animal_photo.trim() !== ''
+          ? animal.animal_photo
+          : defaultImage;
+
+      const img = requireSelector(el, '.js-animal-photo', 'dashboard.tmpl-needs-care');
+      img.src = photoUrl;
+      img.alt = animal.animal_name;
+      img.onerror = function () {
+        this.onerror = null;
+        this.src = defaultImage;
+      };
+
+      requireSelector(el, '.js-animal-name', 'dashboard.tmpl-needs-care').textContent =
+        animal.animal_name;
+      requireSelector(el, '.js-missing-items', 'dashboard.tmpl-needs-care').textContent =
+        `${t('dynamic.not_recorded')}: ${missing.join(', ')}`;
+
+      const link = requireSelector(el, '.js-record-link', 'dashboard.tmpl-needs-care');
+      link.href = `/public/care?animal_id=${animal.animal_id}`;
+      link.textContent = t('dynamic.record');
+
+      container.appendChild(el);
+    });
   } catch (error) {
     console.error('Needs care load error:', error);
-    document.getElementById('needs-care').innerHTML =
-      '<div class="text-center text-red-500 py-8">読み込みに失敗しました</div>';
+    const container = document.getElementById('needs-care');
+    if (container) {
+      container.innerHTML =
+        '<div class="text-center text-red-500 py-8">読み込みに失敗しました</div>';
+    }
   }
 }
 

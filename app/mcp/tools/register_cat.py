@@ -19,6 +19,7 @@ from pydantic import Field
 
 from app.mcp.api_client import NecoKeeperAPIClient
 from app.mcp.error_handler import handle_api_error, validate_non_empty_string
+from app.utils.enums import AnimalStatus
 
 logger = logging.getLogger(__name__)
 
@@ -42,23 +43,27 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
         name: Annotated[
             str, Field(description="猫の名前", min_length=1, max_length=100)
         ],
-        pattern: Annotated[
-            str, Field(description="柄・色（例: キジトラ、三毛、黒猫）")
-        ],
+        coat_color: Annotated[str, Field(description="毛色（選択肢から選択）")],
         tail_length: Annotated[
             str, Field(description="尻尾の長さ（例: 長い、短い、なし）")
         ],
-        age: Annotated[str, Field(description="年齢・大きさ（例: 子猫、成猫、老猫）")],
         gender: Annotated[
             str, Field(description="性別: male (オス), female (メス), unknown (不明)")
         ],
+        coat_color_note: Annotated[
+            str | None, Field(description="毛色の補足情報（任意）")
+        ] = None,
+        age_months: Annotated[
+            int | None, Field(description="月齢（null=不明）", ge=0)
+        ] = None,
+        age_is_estimated: Annotated[bool, Field(description="推定月齢フラグ")] = False,
         status: Annotated[
             str,
             Field(
-                description="ステータス（例: 保護中、譲渡可能、譲渡済み）",
-                default="保護中",
+                description="ステータス（QUARANTINE=保護中, IN_CARE=治療中, TRIAL=譲渡可能, ADOPTED=譲渡済み, DECEASED=他界）",
+                default=AnimalStatus.QUARANTINE.value,
             ),
-        ] = "保護中",
+        ] = AnimalStatus.QUARANTINE.value,
         photo: Annotated[
             str | None, Field(description="プロフィール画像のファイルパス（任意）")
         ] = None,
@@ -81,11 +86,13 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
 
         Args:
             name: 猫の名前（必須）
-            pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
+            coat_color: 毛色（必須、選択肢から選択）
+            coat_color_note: 毛色の補足情報（任意）
             tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
-            age: 年齢・大きさ（必須、例: 子猫、成猫、老猫）
+            age_months: 月齢（任意、null=不明）
+            age_is_estimated: 推定月齢フラグ（デフォルト: False）
             gender: 性別（必須、male/female/unknown）
-            status: ステータス（デフォルト: 保護中）
+            status: ステータス（デフォルト: QUARANTINE）
             photo: プロフィール画像のファイルパス（任意）
             collar: 首輪の有無と色（任意）
             ear_cut: 耳カットの有無（デフォルト: False）
@@ -104,11 +111,12 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
         Example:
             >>> result = await register_cat(
             ...     name="たま",
-            ...     pattern="キジトラ",
+            ...     coat_color="キジトラ",
             ...     tail_length="長い",
-            ...     age="成猫",
+            ...     age_months=12,
+            ...     age_is_estimated=False,
             ...     gender="male",
-            ...     status="保護中",
+            ...     status=AnimalStatus.QUARANTINE.value,
             ... )
             >>> print(result["id"])
             42
@@ -117,9 +125,8 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             # Validate required fields using centralized validation
             # Requirements 7.2: Specific validation error details
             validate_non_empty_string(name, "name")
-            validate_non_empty_string(pattern, "pattern")
+            validate_non_empty_string(coat_color, "coat_color")
             validate_non_empty_string(tail_length, "tail_length")
-            validate_non_empty_string(age, "age")
             validate_non_empty_string(gender, "gender")
 
             # Validate gender
@@ -133,9 +140,10 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
             # Build animal data payload
             animal_data: dict[str, Any] = {
                 "name": name,
-                "pattern": pattern,
+                "coat_color": coat_color,
                 "tail_length": tail_length,
-                "age": age,
+                "age_months": age_months,
+                "age_is_estimated": age_is_estimated,
                 "gender": gender,
                 "status": status,
                 "ear_cut": ear_cut,
@@ -146,13 +154,15 @@ def register_tool(mcp: FastMCP, api_client: NecoKeeperAPIClient) -> None:
                 animal_data["photo"] = photo
             if collar is not None:
                 animal_data["collar"] = collar
+            if coat_color_note is not None:
+                animal_data["coat_color_note"] = coat_color_note
             if features is not None:
                 animal_data["features"] = features
             if protected_at is not None:
                 animal_data["protected_at"] = protected_at
 
             logger.info(
-                f"Registering cat via MCP: name={name}, pattern={pattern}, gender={gender}"
+                f"Registering cat via MCP: name={name}, coat_color={coat_color}, gender={gender}"
             )
 
             # Call NecoKeeper API

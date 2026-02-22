@@ -6,14 +6,36 @@ Public APIエンドポイントのテスト
 
 from __future__ import annotations
 
+import io
+import os
 from datetime import date
 
 from fastapi.testclient import TestClient
+from PIL import Image
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
 from app.models.care_log import CareLog
 from app.models.volunteer import Volunteer
+
+
+def _create_image_bytes(fmt: str = "JPEG") -> bytes:
+    image = Image.new("RGB", (128, 128), color=(220, 120, 90))
+    buf = io.BytesIO()
+    image.save(buf, format=fmt)
+    return buf.getvalue()
+
+
+def _create_noisy_image_bytes(
+    width: int = 2200,
+    height: int = 1600,
+    fmt: str = "JPEG",
+    quality: int = 96,
+) -> bytes:
+    image = Image.frombytes("RGB", (width, height), os.urandom(width * height * 3))
+    buf = io.BytesIO()
+    image.save(buf, format=fmt, quality=quality)
+    return buf.getvalue()
 
 
 class TestGetAnimalInfo:
@@ -108,8 +130,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "memo": "元気です",
@@ -124,13 +147,266 @@ class TestCreateCareLogPublic:
         assert data["animal_id"] == test_animal.id
         assert data["recorder_id"] == volunteer.id
         assert data["time_slot"] == "morning"
-        assert data["appetite"] == 5
-        assert data["energy"] == 5
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is True
         assert data["memo"] == "元気です"
         assert data["ip_address"] is not None  # IPアドレスが記録される
         assert data["user_agent"] is not None  # User-Agentが記録される
+
+    def test_create_care_log_public_with_image_multipart_success(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """正常系: multipart/form-dataで画像付き世話記録を登録できる"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="画像テストボランティア",
+            contact="090-0000-0000",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "3",
+            "vomiting": "false",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+            "memo": "写真ありメモ",
+        }
+        files = {"image": ("concern.jpg", _create_image_bytes(), "image/jpeg")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["has_image"] is True
+        assert data["care_image_uploaded_at"] is not None
+
+        saved = (
+            test_db.query(CareLog)
+            .filter(CareLog.id == data["id"], CareLog.animal_id == test_animal.id)
+            .first()
+        )
+        assert saved is not None
+        assert saved.care_image_path is not None
+        assert saved.care_image_deleted_at is None
+
+    def test_create_care_log_public_with_spoofed_image_format_returns_400(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """異常系: content-type偽装で実データ形式が不正な画像は400"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="偽装画像テストボランティア",
+            contact="090-1111-2222",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "3",
+            "vomiting": "false",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+        }
+        files = {
+            # 実体はGIFだが filename/content-type をPNGに偽装
+            "image": ("spoofed.png", _create_image_bytes("GIF"), "image/png")
+        }
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 400
+        assert "JPEG/PNG/WebP" in response.json()["detail"]
+
+    def test_create_care_log_public_with_heic_returns_400(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """異常系: HEICは専用メッセージで拒否される"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+
+        volunteer = Volunteer(
+            name="HEICテストボランティア",
+            contact="090-3333-4444",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "3",
+            "vomiting": "false",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+        }
+        files = {"image": ("sample.heic", b"not-a-heic", "image/heic")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 400
+        assert "HEICは非対応" in response.json()["detail"]
+
+    def test_create_care_log_public_accepts_input_over_2mb_and_saves_under_limit(
+        self,
+        test_client: TestClient,
+        test_animal: Animal,
+        test_db: Session,
+        tmp_path,
+        monkeypatch,
+    ):
+        """正常系: 2MB超入力でも受信上限内なら圧縮後2MB以下で保存できる"""
+        from app.config import get_settings
+        from app.services import care_log_image_service
+
+        settings = get_settings()
+        image_dir = str(tmp_path / "care_log_images")
+        monkeypatch.setattr(settings, "care_log_image_dir", image_dir)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_dir", image_dir
+        )
+        monkeypatch.setattr(settings, "care_log_image_receive_max_size_mb", 10.0)
+        monkeypatch.setattr(
+            care_log_image_service.settings,
+            "care_log_image_receive_max_size_mb",
+            10.0,
+        )
+        monkeypatch.setattr(settings, "care_log_image_max_size_mb", 2.0)
+        monkeypatch.setattr(
+            care_log_image_service.settings,
+            "care_log_image_max_size_mb",
+            2.0,
+        )
+        monkeypatch.setattr(settings, "care_log_image_max_long_edge", 1920)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_max_long_edge", 1920
+        )
+        monkeypatch.setattr(settings, "care_log_image_fallback_long_edge", 1280)
+        monkeypatch.setattr(
+            care_log_image_service.settings, "care_log_image_fallback_long_edge", 1280
+        )
+
+        volunteer = Volunteer(
+            name="圧縮テストボランティア",
+            contact="090-5555-6666",
+            status="active",
+        )
+        test_db.add(volunteer)
+        test_db.commit()
+        test_db.refresh(volunteer)
+
+        original_bytes = _create_noisy_image_bytes()
+        assert len(original_bytes) > 2 * 1024 * 1024
+        assert len(original_bytes) <= settings.care_log_image_receive_max_size_bytes
+
+        payload = {
+            "animal_id": str(test_animal.id),
+            "recorder_id": str(volunteer.id),
+            "recorder_name": volunteer.name,
+            "log_date": "2026-02-08",
+            "time_slot": "morning",
+            "appetite": "1.0",
+            "energy": "3",
+            "vomiting": "false",
+            "urination": "true",
+            "defecation": "false",
+            "cleaning": "true",
+            "memo": "2MB超入力の圧縮確認",
+        }
+        files = {"image": ("large.jpg", original_bytes, "image/jpeg")}
+
+        response = test_client.post(
+            "/api/v1/public/care-logs", data=payload, files=files
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["has_image"] is True
+
+        saved = (
+            test_db.query(CareLog)
+            .filter(CareLog.id == data["id"], CareLog.animal_id == test_animal.id)
+            .first()
+        )
+        assert saved is not None
+        assert saved.care_image_path is not None
+        saved_path = care_log_image_service.get_care_log_image_path(
+            saved.care_image_path
+        )
+        assert saved_path.stat().st_size <= settings.care_log_image_max_size_bytes
 
     def test_create_care_log_public_with_defecation_and_stool_condition_success(
         self, test_client: TestClient, test_animal: Animal, test_db: Session
@@ -152,8 +428,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "defecation": True,
             "stool_condition": 2,
@@ -190,8 +467,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "defecation": True,
             "cleaning": True,
@@ -223,8 +501,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
             "notes": "notesでもOK",
@@ -259,8 +538,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 3,
+            "appetite": 0.5,
             "energy": 3,
+            "vomiting": False,
             "urination": False,
             "cleaning": False,
         }
@@ -294,8 +574,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "morning",
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
         }
@@ -327,8 +608,9 @@ class TestCreateCareLogPublic:
             "recorder_name": "テストボランティア",
             "log_date": "2025-11-15",
             "time_slot": "深夜",  # 不正な時点
-            "appetite": 5,
-            "energy": 5,
+            "appetite": 1.0,
+            "energy": 3,
+            "vomiting": False,
             "urination": True,
             "cleaning": True,
         }
@@ -363,7 +645,7 @@ class TestGetLatestCareLog:
             recorder_id=volunteer.id,
             recorder_name="テストボランティア",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=True,
             cleaning=True,
@@ -377,8 +659,8 @@ class TestGetLatestCareLog:
             recorder_id=volunteer.id,
             recorder_name="テストボランティア",
             time_slot="noon",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
             urination=False,
             defecation=True,
             stool_condition=2,
@@ -397,8 +679,8 @@ class TestGetLatestCareLog:
         data = response.json()
         assert data["id"] == new_log.id
         assert data["time_slot"] == "noon"
-        assert data["appetite"] == 5
-        assert data["energy"] == 5
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
         assert data["memo"] == "最新の記録"
 
 
@@ -423,7 +705,7 @@ class TestUpdateCareLogPublic:
             recorder_name=volunteer.name,
             log_date=date(2025, 11, 20),
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=True,
             cleaning=True,
@@ -441,7 +723,7 @@ class TestUpdateCareLogPublic:
         volunteer = self._make_volunteer(test_db)
         care_log = self._make_care_log(test_db, test_animal, volunteer)
 
-        payload = {"memo": "更新しました", "energy": 4, "cleaning": False}
+        payload = {"memo": "更新しました", "energy": 3, "cleaning": False}
 
         response = test_client.put(
             f"/api/v1/public/care-logs/animal/{test_animal.id}/{care_log.id}",
@@ -452,7 +734,7 @@ class TestUpdateCareLogPublic:
         assert response.status_code == 200
         data = response.json()
         assert data["memo"] == "更新しました"
-        assert data["energy"] == 4
+        assert data["energy"] == 3
         assert data["cleaning"] is False
         assert data["animal_id"] == test_animal.id
         assert data["time_slot"] == "morning"  # 時点は変更不可
@@ -484,7 +766,12 @@ class TestUpdateCareLogPublic:
         care_log = self._make_care_log(test_db, test_animal, volunteer)
 
         another_animal = Animal(
-            name="別猫", photo="", pattern="", tail_length="", age="", gender=""
+            name="別猫",
+            photo="",
+            coat_color="白",
+            tail_length="長い",
+            age_months=None,
+            gender="unknown",
         )
         test_db.add(another_animal)
         test_db.commit()
@@ -516,20 +803,20 @@ class TestUpdateCareLogPublic:
         animal1 = Animal(
             name="猫1",
             photo="cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         animal2 = Animal(
             name="猫2",
             photo="cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal1)
         test_db.add(animal2)
@@ -552,8 +839,8 @@ class TestUpdateCareLogPublic:
             recorder_id=volunteer.id,
             recorder_name="テストボランティア",
             time_slot="morning",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="猫1の記録",
@@ -564,7 +851,7 @@ class TestUpdateCareLogPublic:
             recorder_id=volunteer.id,
             recorder_name="テストボランティア",
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=False,
             cleaning=False,
@@ -613,8 +900,8 @@ class TestGetAnimalCareLogsList:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="morning",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
         )
@@ -624,8 +911,8 @@ class TestGetAnimalCareLogsList:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="evening",
-            appetite=4,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=False,
         )
@@ -637,7 +924,7 @@ class TestGetAnimalCareLogsList:
             recorder_name="テストボランティア",
             log_date=today - timedelta(days=3),
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=False,
             cleaning=True,
@@ -714,8 +1001,8 @@ class TestGetCareLogDetail:
             recorder_id=volunteer.id,
             recorder_name="テストボランティア",
             time_slot="morning",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="詳細テスト",
@@ -735,8 +1022,8 @@ class TestGetCareLogDetail:
         assert data["id"] == care_log.id
         assert data["animal_id"] == test_animal.id
         assert data["time_slot"] == "morning"
-        assert data["appetite"] == 5
-        assert data["energy"] == 5
+        assert data["appetite"] == 1.0
+        assert data["energy"] == 3
         assert data["urination"] is True
         assert data["cleaning"] is True
         assert data["memo"] == "詳細テスト"
@@ -775,35 +1062,35 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         animal1 = Animal(
             name="猫1",
             photo="cat1.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         animal2 = Animal(
             name="猫2",
             photo="cat2.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="治療中",
+            status="IN_CARE",
         )
         animal3 = Animal(
             name="猫3",
             photo="cat3.jpg",
-            pattern="白",
+            coat_color="白",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="譲渡済み",  # 譲渡済みは表示されない
+            status="ADOPTED",  # 譲渡済みは表示されない
         )
         test_db.add(animal1)
         test_db.add(animal2)
@@ -830,8 +1117,8 @@ class TestGetAllAnimalsStatusToday:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="morning",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
         )
@@ -841,8 +1128,8 @@ class TestGetAllAnimalsStatusToday:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="evening",
-            appetite=4,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=False,
         )
@@ -854,7 +1141,7 @@ class TestGetAllAnimalsStatusToday:
             recorder_name="テストボランティア",
             log_date=today,
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=False,
             cleaning=True,
@@ -882,6 +1169,9 @@ class TestGetAllAnimalsStatusToday:
         assert animal1_status["morning_recorded"] is True
         assert animal1_status["noon_recorded"] is False
         assert animal1_status["evening_recorded"] is True
+        assert animal1_status["morning_log_id"] == log1_morning.id
+        assert animal1_status["noon_log_id"] is None
+        assert animal1_status["evening_log_id"] == log1_evening.id
 
         # 猫2の記録状況
         animal2_status = next(
@@ -891,6 +1181,53 @@ class TestGetAllAnimalsStatusToday:
         assert animal2_status["morning_recorded"] is False
         assert animal2_status["noon_recorded"] is True
         assert animal2_status["evening_recorded"] is False
+        assert animal2_status["morning_log_id"] is None
+        assert animal2_status["noon_log_id"] == log2_noon.id
+        assert animal2_status["evening_log_id"] is None
+
+    def test_get_all_animals_status_today_excludes_trial(
+        self, test_client: TestClient, test_db: Session, test_animal: Animal
+    ):
+        """正常系: トライアル中の猫は対象外"""
+        from datetime import date
+
+        # Given
+        test_animal.status = "ADOPTED"
+        test_db.commit()
+
+        in_care_cat = Animal(
+            name="在籍中の猫",
+            photo="incare.jpg",
+            coat_color="キジトラ",
+            tail_length="長い",
+            age_months=12,
+            gender="female",
+            status="IN_CARE",
+        )
+        trial_cat = Animal(
+            name="トライアル中の猫",
+            photo="trial.jpg",
+            coat_color="黒",
+            tail_length="短い",
+            age_months=12,
+            gender="male",
+            status="TRIAL",
+        )
+        test_db.add(in_care_cat)
+        test_db.add(trial_cat)
+        test_db.commit()
+        test_db.refresh(in_care_cat)
+
+        # When
+        response = test_client.get("/api/v1/public/care-logs/status/today")
+
+        # Then
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_date"] == date.today().isoformat()
+        animal_ids = {a["animal_id"] for a in data["animals"]}
+        assert in_care_cat.id in animal_ids
+        assert trial_cat.id not in animal_ids
 
     def test_get_all_animals_status_today_no_records(
         self, test_client: TestClient, test_db: Session, test_animal: Animal
@@ -900,17 +1237,17 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         animal = Animal(
             name="猫",
             photo="cat.jpg",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -930,6 +1267,9 @@ class TestGetAllAnimalsStatusToday:
         assert animal_status["morning_recorded"] is False
         assert animal_status["noon_recorded"] is False
         assert animal_status["evening_recorded"] is False
+        assert animal_status["morning_log_id"] is None
+        assert animal_status["noon_log_id"] is None
+        assert animal_status["evening_log_id"] is None
 
     def test_get_all_animals_status_today_empty(
         self, test_client: TestClient, test_db: Session, test_animal: Animal
@@ -939,7 +1279,7 @@ class TestGetAllAnimalsStatusToday:
 
         # Given
         # test_animalのステータスを譲渡済みに変更（表示されないようにする）
-        test_animal.status = "譲渡済み"
+        test_animal.status = "ADOPTED"
         test_db.commit()
 
         # When

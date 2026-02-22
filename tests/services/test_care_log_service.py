@@ -34,8 +34,9 @@ class TestCreateCareLog:
             recorder_name="テスト記録者",
             log_date=date.today(),
             time_slot="morning",
-            appetite=4,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="元気です",
@@ -49,8 +50,8 @@ class TestCreateCareLog:
         assert result.animal_id == test_animal.id
         assert result.recorder_name == "テスト記録者"
         assert result.time_slot == "morning"
-        assert result.appetite == 4
-        assert result.energy == 5
+        assert result.appetite == 1.0
+        assert result.energy == 3
         assert result.urination is True
         assert result.cleaning is True
         assert result.memo == "元気です"
@@ -65,8 +66,9 @@ class TestCreateCareLog:
             recorder_name="記録者",
             log_date=date.today(),
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=False,
             cleaning=False,
         )
@@ -91,8 +93,9 @@ class TestCreateCareLog:
                 recorder_name="記録者",
                 log_date=date.today(),
                 time_slot=time_slot,
-                appetite=3,
+                appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -113,8 +116,9 @@ class TestCreateCareLog:
             recorder_name="記録者",
             log_date=date.today(),
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=False,
             stool_condition=2,
@@ -137,8 +141,9 @@ class TestCreateCareLog:
             recorder_name="記録者",
             log_date=date.today(),
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=None,
@@ -165,8 +170,9 @@ class TestCreateCareLog:
             recorder_name="記録者",
             log_date=date.today(),
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=stool_condition,
@@ -192,8 +198,9 @@ class TestGetCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=4,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -237,8 +244,9 @@ class TestUpdateCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -247,8 +255,9 @@ class TestUpdateCareLog:
         test_db.refresh(care_log)
 
         update_data = CareLogUpdate(
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             memo="更新されました",
         )
 
@@ -258,8 +267,8 @@ class TestUpdateCareLog:
         )
 
         # Then
-        assert result.appetite == 5
-        assert result.energy == 5
+        assert result.appetite == 1.0
+        assert result.energy == 3
         assert result.memo == "更新されました"
         assert result.last_updated_by == test_user.id
 
@@ -273,8 +282,9 @@ class TestUpdateCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="noon",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -283,7 +293,7 @@ class TestUpdateCareLog:
         test_db.refresh(care_log)
 
         original_appetite = care_log.appetite
-        update_data = CareLogUpdate(energy=5)
+        update_data = CareLogUpdate(energy=3)
 
         # When
         result = care_log_service.update_care_log(
@@ -291,7 +301,7 @@ class TestUpdateCareLog:
         )
 
         # Then
-        assert result.energy == 5
+        assert result.energy == 3
         assert result.appetite == original_appetite  # 変更されていない
 
     def test_update_care_log_defecation_true_without_stool_condition_raises_422(
@@ -304,8 +314,9 @@ class TestUpdateCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=False,
             stool_condition=None,
@@ -335,8 +346,9 @@ class TestUpdateCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=2,
@@ -367,8 +379,9 @@ class TestUpdateCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             defecation=True,
             stool_condition=2,
@@ -392,7 +405,7 @@ class TestUpdateCareLog:
         """異常系: 存在しない世話記録を更新しようとした場合"""
         # Given
         non_existent_id = 99999
-        update_data = CareLogUpdate(appetite=5)
+        update_data = CareLogUpdate(appetite=1.0)
 
         # When/Then
         with pytest.raises(HTTPException) as exc_info:
@@ -417,8 +430,9 @@ class TestListCareLogs:
                 animal_id=test_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
-                appetite=3,
+                appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -445,8 +459,9 @@ class TestListCareLogs:
                 animal_id=test_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
-                appetite=3,
+                appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -476,8 +491,9 @@ class TestListCareLogs:
                 animal_id=target_animal.id,
                 recorder_name=f"記録者{i}",
                 time_slot="morning",
-                appetite=3,
+                appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -489,8 +505,9 @@ class TestListCareLogs:
             animal_id=other_animal.id,
             recorder_name="他の記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -519,8 +536,9 @@ class TestListCareLogs:
             animal_id=test_animal.id,
             recorder_name="昨日の記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(yesterday, datetime.min.time()),
@@ -533,8 +551,9 @@ class TestListCareLogs:
             animal_id=test_animal.id,
             recorder_name="今日の記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(today, datetime.min.time()),
@@ -562,8 +581,9 @@ class TestListCareLogs:
                 animal_id=test_animal.id,
                 recorder_name=f"{time_slot}の記録者",
                 time_slot=time_slot,
-                appetite=3,
+                appetite=0.5,
                 energy=3,
+                vomiting=False,
                 urination=True,
                 cleaning=True,
             )
@@ -599,8 +619,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="テスト記録者",
             time_slot="morning",
-            appetite=4,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             memo="テストメモ",
@@ -634,8 +655,9 @@ class TestExportCareLogsCSV:
             animal_id=target_animal.id,
             recorder_name="対象記録者",
             time_slot="morning",
-            appetite=4,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -647,8 +669,9 @@ class TestExportCareLogsCSV:
             animal_id=other_animal.id,
             recorder_name="他の記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
         )
@@ -676,8 +699,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="昨日の記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(yesterday, datetime.min.time()),
@@ -690,8 +714,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="今日の記録者",
             time_slot="morning",
-            appetite=4,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.combine(today, datetime.min.time()),
@@ -728,8 +753,9 @@ class TestExportCareLogsCSV:
             animal_id=test_animal.id,
             recorder_name="記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=False,
         )
@@ -756,8 +782,9 @@ class TestGetLatestCareLog:
             animal_id=test_animal.id,
             recorder_name="古い記録者",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.now() - timedelta(hours=2),
@@ -771,8 +798,9 @@ class TestGetLatestCareLog:
             animal_id=test_animal.id,
             recorder_name="新しい記録者",
             time_slot="noon",
-            appetite=5,
-            energy=5,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=datetime.now(),
@@ -811,8 +839,9 @@ class TestGetLatestCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者1",
             time_slot="morning",
-            appetite=3,
+            appetite=0.5,
             energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=same_time,
@@ -825,8 +854,9 @@ class TestGetLatestCareLog:
             animal_id=test_animal.id,
             recorder_name="記録者2",
             time_slot="noon",
-            appetite=4,
-            energy=4,
+            appetite=1.0,
+            energy=3,
+            vomiting=False,
             urination=True,
             cleaning=True,
             created_at=same_time,
@@ -842,3 +872,173 @@ class TestGetLatestCareLog:
         # Then
         assert result is not None
         assert result.id == max(log1.id, log2.id)
+
+
+class TestGetDailyViewAnimalStatusFilter:
+    """get_daily_view の animal_status フィルターテスト
+
+    t-wada準拠:
+    - 各ステータスフィルターが正しく動作することを検証
+    - 境界条件（フィルターなし、無効な値）も検証
+    - 振る舞いを明示したテスト名
+    """
+
+    def test_daily_filter_returns_only_quarantine_and_in_care(self, test_db: Session):
+        """DAILY フィルター: QUARANTINE と IN_CARE の猫のみ表示"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        # テスト用の猫を各ステータスで作成
+        quarantine_cat = Animal(
+            name="検疫中の猫",
+            status=AnimalStatus.QUARANTINE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        in_care_cat = Animal(
+            name="在籍中の猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        trial_cat = Animal(
+            name="トライアル中の猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([quarantine_cat, in_care_cat, trial_cat])
+        test_db.commit()
+
+        # When
+        result = care_log_service.get_daily_view(
+            test_db,
+            start_date=date.today(),
+            end_date=date.today(),
+            animal_status="DAILY",
+        )
+
+        # Then
+        animal_names = [item["animal_name"] for item in result["items"]]
+        assert "検疫中の猫" in animal_names
+        assert "在籍中の猫" in animal_names
+        assert "トライアル中の猫" not in animal_names
+
+    def test_trial_filter_returns_only_trial_cats(self, test_db: Session):
+        """TRIAL フィルター: トライアル中の猫のみ表示"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        quarantine_cat = Animal(
+            name="検疫中の猫2",
+            status=AnimalStatus.QUARANTINE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        trial_cat = Animal(
+            name="トライアル中の猫2",
+            status=AnimalStatus.TRIAL.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+
+        test_db.add_all([quarantine_cat, trial_cat])
+        test_db.commit()
+
+        # When
+        result = care_log_service.get_daily_view(
+            test_db,
+            start_date=date.today(),
+            end_date=date.today(),
+            animal_status="TRIAL",
+        )
+
+        # Then
+        animal_names = [item["animal_name"] for item in result["items"]]
+        assert "トライアル中の猫2" in animal_names
+        assert "検疫中の猫2" not in animal_names
+
+    def test_archive_filter_returns_adopted_and_deceased(self, test_db: Session):
+        """ARCHIVE フィルター: 譲渡済みと死亡の猫のみ表示"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        in_care_cat = Animal(
+            name="在籍中の猫3",
+            status=AnimalStatus.IN_CARE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        adopted_cat = Animal(
+            name="譲渡済みの猫",
+            status=AnimalStatus.ADOPTED.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        deceased_cat = Animal(
+            name="死亡した猫",
+            status=AnimalStatus.DECEASED.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([in_care_cat, adopted_cat, deceased_cat])
+        test_db.commit()
+
+        # When
+        result = care_log_service.get_daily_view(
+            test_db,
+            start_date=date.today(),
+            end_date=date.today(),
+            animal_status="ARCHIVE",
+        )
+
+        # Then
+        animal_names = [item["animal_name"] for item in result["items"]]
+        assert "譲渡済みの猫" in animal_names
+        assert "死亡した猫" in animal_names
+        assert "在籍中の猫3" not in animal_names
+
+    def test_default_animal_status_is_daily(self, test_db: Session):
+        """デフォルト値: animal_status 未指定時は DAILY として動作"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        in_care_cat = Animal(
+            name="デフォルトテスト用猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="female",
+            coat_color="キジトラ",
+            tail_length="長い",
+        )
+        trial_cat = Animal(
+            name="デフォルトテスト用トライアル猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="male",
+            coat_color="茶トラ",
+            tail_length="短い",
+        )
+
+        test_db.add_all([in_care_cat, trial_cat])
+        test_db.commit()
+
+        # When - animal_status を指定しない（デフォルト値 "DAILY" を使用）
+        result = care_log_service.get_daily_view(
+            test_db,
+            start_date=date.today(),
+            end_date=date.today(),
+        )
+
+        # Then
+        animal_names = [item["animal_name"] for item in result["items"]]
+        assert "デフォルトテスト用猫" in animal_names
+        assert "デフォルトテスト用トライアル猫" not in animal_names

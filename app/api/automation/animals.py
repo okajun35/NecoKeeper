@@ -53,14 +53,15 @@ router = APIRouter()
                         "id": 13,
                         "name": "たま",
                         "photo": None,
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "collar": None,
-                        "age": "成猫",
+                        "age_months": 12,
+                        "age_is_estimated": False,
                         "gender": "male",
                         "ear_cut": False,
                         "features": None,
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                         "protected_at": "2025-11-24",
                         "created_at": "2025-11-24T10:00:00Z",
                         "updated_at": "2025-11-24T10:00:00Z",
@@ -112,7 +113,7 @@ def create_animal_automation(
 
         logger.info(
             f"Automation API: 猫を登録しました - "
-            f"id={animal.id}, name={animal.name}, pattern={animal.pattern}"
+            f"id={animal.id}, name={animal.name}, coat_color={animal.coat_color}"
         )
 
         return AnimalResponse.model_validate(animal)
@@ -152,14 +153,15 @@ def create_animal_automation(
                         "id": 13,
                         "name": "たま",
                         "photo": None,
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
                         "collar": None,
-                        "age": "成猫",
+                        "age_months": 12,
+                        "age_is_estimated": False,
                         "gender": "male",
                         "ear_cut": False,
                         "features": None,
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                         "protected_at": "2025-11-24",
                         "created_at": "2025-11-24T10:00:00Z",
                         "updated_at": "2025-11-24T10:00:00Z",

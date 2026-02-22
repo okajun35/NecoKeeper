@@ -100,6 +100,40 @@ class Settings(BaseSettings):
         gt=0,
         le=100.0,
     )
+    care_log_image_dir: str = Field(
+        default="./data/private/care_log_images",
+        description="世話記録画像（非公開）保存ディレクトリ",
+    )
+    care_log_image_max_size_mb: float = Field(
+        default=2.0,
+        description="世話記録画像の最大ファイルサイズ（MB）",
+        gt=0,
+        le=20.0,
+    )
+    care_log_image_receive_max_size_mb: float = Field(
+        default=10.0,
+        description="世話記録画像の受信時最大ファイルサイズ（MB）",
+        gt=0,
+        le=50.0,
+    )
+    care_log_image_max_long_edge: int = Field(
+        default=1920,
+        description="世話記録画像の長辺最大ピクセル",
+        ge=640,
+        le=4096,
+    )
+    care_log_image_fallback_long_edge: int = Field(
+        default=1280,
+        description="世話記録画像圧縮失敗時の再試行長辺ピクセル",
+        ge=640,
+        le=4096,
+    )
+    care_log_image_quality: int = Field(
+        default=82,
+        description="世話記録画像の圧縮品質（WebP/JPEG）",
+        ge=50,
+        le=95,
+    )
 
     # ログ設定
     log_level: Literal[
@@ -150,6 +184,16 @@ class Settings(BaseSettings):
     # 管理者設定
     admin_email: str = Field(
         default="admin@example.com", description="管理者メールアドレス"
+    )
+    admin_path: str = Field(
+        default="admin",
+        description="管理画面のパス（先頭/末尾の/は不要）",
+    )
+
+    # デモ機能設定
+    demo_features: bool = Field(
+        default=False,
+        description="LP等のデモ表示・デモ導線の有効化",
     )
 
     # アプリケーションURL設定
@@ -233,6 +277,12 @@ class Settings(BaseSettings):
         return datetime.now().strftime("%Y%m%d%H%M")
 
     @property
+    def admin_base_path(self) -> str:
+        """管理画面のベースパス（先頭/付き）"""
+
+        return f"/{self.admin_path}"
+
+    @property
     def is_automation_api_secure(self) -> bool:
         """
         Automation APIのセキュリティ検証
@@ -273,6 +323,18 @@ class Settings(BaseSettings):
 
         return self.max_image_size_bytes
 
+    @property
+    def care_log_image_max_size_bytes(self) -> int:
+        """世話記録画像アップロード制限（バイト）"""
+
+        return int(self.care_log_image_max_size_mb * 1024 * 1024)
+
+    @property
+    def care_log_image_receive_max_size_bytes(self) -> int:
+        """世話記録画像受信時の制限（バイト）"""
+
+        return int(self.care_log_image_receive_max_size_mb * 1024 * 1024)
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: Any) -> list[str]:
@@ -296,6 +358,39 @@ class Settings(BaseSettings):
         if value is None:
             return []
         raise ValueError("CORS_ORIGINS must be a string, JSON array, or list")
+
+    @field_validator("admin_path")
+    @classmethod
+    def normalize_admin_path(cls, value: str) -> str:
+        """
+        ADMIN_PATHを正規化してバリデーション
+
+        - 前後のスラッシュを除去
+        - 英数字とハイフンのみ許可
+        - 予約語をチェック
+        """
+        import re
+
+        normalized = value.strip().strip("/")
+
+        # 空文字チェック
+        if not normalized:
+            raise ValueError("ADMIN_PATH must not be empty")
+
+        # 英数字とハイフンのみ許可
+        if not re.match(r"^[a-zA-Z0-9-]+$", normalized):
+            raise ValueError(
+                "ADMIN_PATH must contain only alphanumeric characters and hyphens"
+            )
+
+        # 予約語チェック
+        reserved = {"api", "static", "public", "docs", "redoc", "media"}
+        if normalized.lower() in reserved:
+            raise ValueError(
+                f"ADMIN_PATH cannot be a reserved path: {', '.join(sorted(reserved))}"
+            )
+
+        return normalized
 
     @field_validator("secret_key")
     @classmethod

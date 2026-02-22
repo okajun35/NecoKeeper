@@ -1,0 +1,80 @@
+{% extends "admin/base.html" %}
+
+{% block title %}里親申込詳細{% endblock %}
+{% block page_title %}里親申込詳細{% endblock %}
+{% block page_description %}登録情報の閲覧{% endblock %}
+
+{% block header_actions %}
+<div class="flex gap-2">
+    <a href="{{ settings.admin_base_path }}/adoptions/applicants"
+        class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+        一覧へ戻る
+    </a>
+    <a href="{{ settings.admin_base_path }}/adoptions/applicants/{{ applicant.id }}/edit"
+        class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors">
+        編集
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <section class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900">基本情報</h3>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div><span class="text-gray-500">ふりがな</span><p class="mt-1">{{ applicant.name_kana or '-' }}</p></div>
+            <div><span class="text-gray-500">氏名</span><p class="mt-1">{{ applicant.name }}</p></div>
+            <div><span class="text-gray-500">年齢</span><p class="mt-1">{{ applicant.age or '-' }}</p></div>
+            <div><span class="text-gray-500">電話番号</span><p class="mt-1">{{ applicant.phone or '-' }}</p></div>
+            <div><span class="text-gray-500">連絡手段</span><p class="mt-1">{{ applicant.contact_type or '-' }}</p></div>
+            <div><span class="text-gray-500">LINE ID / メール</span>
+                <p class="mt-1">{{ applicant.contact_line_id or applicant.contact_email or '-' }}</p>
+            </div>
+            <div><span class="text-gray-500">郵便番号</span><p class="mt-1">{{ applicant.postal_code or '-' }}</p></div>
+            <div><span class="text-gray-500">住所</span><p class="mt-1">{{ applicant.address1 or '-' }} {{ applicant.address2 or '' }}</p></div>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900">飼育条件</h3>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div><span class="text-gray-500">職業</span><p class="mt-1">{{ applicant.occupation or '-' }} {{ applicant.occupation_other or '' }}</p></div>
+            <div><span class="text-gray-500">希望猫の仮名</span><p class="mt-1">{{ applicant.desired_cat_alias or '-' }}</p></div>
+            <div><span class="text-gray-500">家族の飼育意向</span><p class="mt-1">{{ applicant.family_intent or '-' }}</p></div>
+            <div><span class="text-gray-500">住居情報</span><p class="mt-1">{{ applicant.housing_type or '-' }} / {{ applicant.housing_ownership or '-' }}</p></div>
+            <div><span class="text-gray-500">月々の予算</span><p class="mt-1">{{ applicant.monthly_budget_yen or '-' }} 円</p></div>
+            <div><span class="text-gray-500">登録日</span><p class="mt-1">{{ applicant.created_at.strftime('%Y-%m-%d %H:%M') }}</p></div>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900">家族構成</h3>
+        {% if applicant.household_members %}
+        <ul class="mt-3 space-y-2 text-sm">
+            {% for member in applicant.household_members %}
+            <li class="border border-gray-200 rounded px-3 py-2">
+                {{ member.relation }}{% if member.relation_other %}（{{ member.relation_other }}）{% endif %} / {{ member.age }}歳
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mt-3 text-sm text-gray-500">登録なし</p>
+        {% endif %}
+    </section>
+
+    <section class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900">先住ペット</h3>
+        {% if applicant.pets %}
+        <ul class="mt-3 space-y-2 text-sm">
+            {% for pet in applicant.pets %}
+            <li class="border border-gray-200 rounded px-3 py-2">
+                {{ pet.pet_category }} / {{ pet.count }}頭 / {{ pet.breed_or_type or '-' }} / {{ pet.age_note or '-' }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="mt-3 text-sm text-gray-500">登録なし</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

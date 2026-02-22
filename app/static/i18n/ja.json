@@ -108,7 +108,7 @@
     "add_new": "新規登録",
     "edit": "猫情報を編集",
     "delete_confirm": "この猫を削除してもよろしいですか？",
-    "search_placeholder": "名前、柄、特徴で検索...",
+    "search_placeholder": "名前、毛色、特徴で検索...",
     "filter_by_status": "ステータスで絞り込み",
     "description": "保護猫の情報を管理します",
     "back_to_list": "一覧に戻る",
@@ -116,15 +116,15 @@
     "no_data": "データがありません",
     "search": {
       "label": "検索",
-      "placeholder": "名前、柄、特徴で検索...",
+      "placeholder": "名前、毛色、特徴で検索...",
       "advanced": "詳細検索",
       "clear": "クリア"
     },
     "filter": {
       "status": "ステータス",
       "gender": "性別",
-      "age_min": "年齢（最小）",
-      "age_max": "年齢（最大）",
+      "age_min": "月齢（最小）",
+      "age_max": "月齢（最大）",
       "rescue_date_from": "保護日（開始）",
       "rescue_date_to": "保護日（終了）",
       "ear_cut": "耳カット",
@@ -138,10 +138,11 @@
       "id": "ID",
       "name": "名前",
       "photo": "写真",
-      "pattern": "柄",
+      "coat_color": "毛色",
       "tail_length": "尻尾の長さ",
       "collar": "首輪",
-      "age": "年齢",
+      "age": "月齢",
+      "age_is_estimated": "推定月齢",
       "gender": "性別",
       "ear_cut": "耳カット済み",
       "features": "特徴",
@@ -173,6 +174,10 @@
       "adult": "成猫",
       "senior": "老猫"
     },
+    "age_months_placeholder": "例: 12",
+    "age_months": "{{value}}ヶ月",
+    "age_months_estimated": "推定{{value}}ヶ月",
+    "age_unknown": "月齢不明",
     "tabs": {
       "basic_info": "基本情報",
       "care_logs": "世話記録",
@@ -258,11 +263,11 @@
       "evening": "夕"
     },
     "appetite_levels": {
-      "1": "1 (食べない)",
-      "2": "2 (少し)",
-      "3": "3 (普通)",
-      "4": "4 (よく食べる)",
-      "5": "5 (完食)"
+      "1": "食べない",
+      "2": "3/4残し",
+      "3": "半分残し",
+      "4": "1/4残し",
+      "5": "完食"
     },
     "energy_levels": {
       "1": "1 (ぐったり)",
@@ -279,12 +284,18 @@
       "done": "済",
       "not_done": "未"
     },
+    "tabs": {
+      "daily": "日常記録",
+      "trial": "トライアル中",
+      "archive": "アーカイブ"
+    },
     "filter": {
       "by_animal": "猫で絞り込み",
       "by_date": "日付で絞り込み",
       "by_time_slot": "時点で絞り込み",
       "start_date": "開始日",
-      "end_date": "終了日"
+      "end_date": "終了日",
+      "all_cats": "すべての猫"
     },
     "messages": {
       "created": "世話記録を登録しました",

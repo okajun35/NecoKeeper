@@ -56,11 +56,11 @@ class TestRegisterCatTool:
         mock_api_client.create_animal.return_value = {
             "id": 42,
             "name": "たま",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
-            "status": "保護中",
+            "status": "QUARANTINE",
             "ear_cut": False,
         }
 
@@ -69,9 +69,9 @@ class TestRegisterCatTool:
                 "register_cat",
                 {
                     "name": "たま",
-                    "pattern": "キジトラ",
+                    "coat_color": "キジトラ",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "male",
                 },
             )
@@ -88,7 +88,7 @@ class TestRegisterCatTool:
         mock_api_client.create_animal.return_value = {
             "id": 43,
             "name": "みけ",
-            "pattern": "三毛",
+            "coat_color": "三毛",
             "collar": "赤い首輪",
             "ear_cut": True,
         }
@@ -98,9 +98,9 @@ class TestRegisterCatTool:
                 "register_cat",
                 {
                     "name": "みけ",
-                    "pattern": "三毛",
+                    "coat_color": "三毛",
                     "tail_length": "短い",
-                    "age": "子猫",
+                    "age_months": 6,
                     "gender": "female",
                     "collar": "赤い首輪",
                     "ear_cut": True,
@@ -123,9 +123,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "invalid",
                     },
                 )
@@ -148,9 +148,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -169,9 +169,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -190,9 +190,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -211,9 +211,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -232,9 +232,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )
@@ -245,7 +245,7 @@ class TestRegisterCatTool:
         self, mcp_server: FastMCP, mock_api_client: AsyncMock
     ) -> None:
         """Test when API response is missing required fields. Requirements: 1.3, 1.4"""
-        mock_api_client.create_animal.return_value = {"pattern": "キジトラ"}
+        mock_api_client.create_animal.return_value = {"coat_color": "キジトラ"}
 
         async with Client(mcp_server) as client:
             with pytest.raises(ToolError) as exc_info:
@@ -253,9 +253,9 @@ class TestRegisterCatTool:
                     "register_cat",
                     {
                         "name": "たま",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
                     },
                 )

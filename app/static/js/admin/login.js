@@ -4,6 +4,7 @@
  */
 
 const API_BASE = '/api/v1';
+const adminBasePath = window.__ADMIN_BASE_PATH__ || '/admin';
 
 // エラー表示
 function showError(message) {
@@ -56,7 +57,7 @@ async function login(email, password) {
     // ログイン成功後、自動的にCookieが送信されるようになります
 
     // ダッシュボードにリダイレクト
-    window.location.href = '/admin';
+    window.location.href = adminBasePath;
   } catch (error) {
     console.error('Login error:', error);
     throw error;

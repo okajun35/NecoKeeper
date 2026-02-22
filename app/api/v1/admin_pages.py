@@ -9,9 +9,10 @@ Context7参照: /fastapi/fastapi - Security Dependencies
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -24,7 +25,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models.user import User
 
-router = APIRouter(prefix="/admin", tags=["admin-pages"])
+router = APIRouter(tags=["admin-pages"])
 
 # テンプレートディレクトリを設定
 templates_dir = Path(__file__).parent.parent.parent / "templates"
@@ -32,6 +33,11 @@ templates = Jinja2Templates(directory=str(templates_dir))
 
 # 設定を取得
 settings = get_settings()
+admin_base_path = settings.admin_base_path
+admin_login_path = f"{admin_base_path}/login"
+
+# ロガー設定
+logger = logging.getLogger(__name__)
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -58,10 +64,10 @@ def login_page(
     """
     # 既にログイン済みの場合はダッシュボードにリダイレクト
     if current_user:
-        return RedirectResponse(url="/admin", status_code=302)
+        return RedirectResponse(url=admin_base_path, status_code=302)
 
     return templates.TemplateResponse(
-        "admin/login.html", {"request": request, "settings": settings}
+        request, "admin/login.html", {"request": request, "settings": settings}
     )
 
 
@@ -89,9 +95,10 @@ def dashboard_page(
         GET /admin
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/dashboard.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -119,9 +126,10 @@ def animals_list_page(
         GET /admin/animals
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -148,9 +156,10 @@ def animal_new_page(
         GET /admin/animals/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -181,7 +190,7 @@ def animal_detail_page(
         GET /admin/animals/123
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     from app.models.animal import Animal
     from app.services import animal_service
@@ -189,12 +198,13 @@ def animal_detail_page(
     animal = db.query(Animal).filter(Animal.id == animal_id).first()
     if not animal:
         # 猫が見つからない場合は一覧ページにリダイレクト
-        return RedirectResponse(url="/admin/animals", status_code=302)
+        return RedirectResponse(url=f"{admin_base_path}/animals", status_code=302)
 
     # 表示用の画像パスを取得
     display_image = animal_service.get_display_image(db, animal_id)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/detail.html",
         {
             "request": request,
@@ -227,9 +237,10 @@ def animal_edit_page(
         GET /admin/animals/123/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/animals/edit.html",
         {
             "request": request,
@@ -261,9 +272,10 @@ def care_logs_list_page(
         GET /admin/care-logs
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -289,9 +301,10 @@ def care_log_new_page(
         GET /admin/care-logs/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -319,9 +332,10 @@ def care_log_detail_page(
         GET /admin/care-logs/1
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/detail.html",
         {
             "request": request,
@@ -354,9 +368,10 @@ def care_log_edit_page(
         GET /admin/care-logs/1/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/care_logs/edit.html",
         {
             "request": request,
@@ -388,9 +403,10 @@ def volunteers_list_page(
         GET /admin/volunteers
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -403,9 +419,10 @@ def volunteer_new_page(
 ) -> Response:
     """ボランティア新規作成ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -419,9 +436,10 @@ def volunteer_edit_page(
 ) -> Response:
     """ボランティア編集ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/edit.html",
         {
             "request": request,
@@ -440,9 +458,10 @@ def volunteer_detail_page(
 ) -> Response:
     """ボランティア詳細ページ"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/volunteers/detail.html",
         {
             "request": request,
@@ -474,9 +493,10 @@ def medical_records_list_page(
         GET /admin/medical-records
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -502,9 +522,10 @@ def medical_record_new_page(
         GET /admin/medical-records/new
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/new.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -532,9 +553,10 @@ def medical_record_detail_page(
         GET /admin/medical-records/123
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/detail.html",
         {
             "request": request,
@@ -567,9 +589,10 @@ def medical_record_edit_page(
         GET /admin/medical-records/123/edit
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_records/edit.html",
         {
             "request": request,
@@ -601,9 +624,10 @@ def medical_actions_list_page(
         GET /admin/medical-actions
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/medical_actions/list.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -630,11 +654,281 @@ def adoptions_applicants_page(
         GET /admin/adoptions/applicants
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/applicants.html",
         {"request": request, "user": current_user, "settings": settings},
+    )
+
+
+@router.get("/adoptions/applicants/new", response_class=HTMLResponse)
+def adoptions_applicants_new_page(
+    request: Request,
+    consultation_id: int | None = None,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親申込フォーム（新規登録）ページを表示
+
+    詳細な申込情報を入力し、申込を登録する。
+
+    Args:
+        request: FastAPIリクエストオブジェクト
+
+    Returns:
+        HTMLResponse: 里親申込フォームページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants/new
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    consultation = None
+    if consultation_id is not None:
+        from app.schemas.adoption import AdoptionConsultationResponse
+        from app.services import adoption_service
+
+        try:
+            consultation_model = adoption_service.get_consultation(db, consultation_id)
+            consultation = AdoptionConsultationResponse.model_validate(
+                consultation_model
+            )
+        except HTTPException as e:
+            if e.status_code == 404:
+                return RedirectResponse(
+                    url=f"{admin_base_path}/adoptions/applicants", status_code=302
+                )
+            raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/applicant_extended_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "new",
+            "consultation": consultation,
+        },
+    )
+
+
+@router.get(
+    "/adoptions/applicants/{applicant_id}",
+    response_class=HTMLResponse,
+)
+def adoptions_applicants_detail_page(
+    applicant_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親申込詳細ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import ApplicantResponseExtended
+    from app.services import adoption_service
+
+    try:
+        applicant_model = adoption_service.get_applicant_extended(db, applicant_id)
+        applicant = ApplicantResponseExtended.model_validate(applicant_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/applicant_detail.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "applicant": applicant,
+        },
+    )
+
+
+@router.get(
+    "/adoptions/applicants/{applicant_id}/edit",
+    response_class=HTMLResponse,
+)
+def adoptions_applicants_edit_page(
+    applicant_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親申込フォーム（編集）ページを表示
+
+    既存の申込情報を編集する。
+
+    Args:
+        applicant_id: 申込者ID
+        request: FastAPIリクエストオブジェクト
+        db: データベースセッション
+
+    Returns:
+        HTMLResponse: 里親申込フォームページのHTML
+
+    Example:
+        GET /admin/adoptions/applicants/1/edit
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    # 申込者データを取得
+    from app.schemas.adoption import ApplicantResponseExtended
+    from app.services import adoption_service
+
+    try:
+        applicant_model = adoption_service.get_applicant_extended(db, applicant_id)
+        # スキーマに変換
+        applicant = ApplicantResponseExtended.model_validate(applicant_model)
+    except HTTPException as e:
+        # 404の場合は一覧ページにリダイレクト
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        # その他のHTTPExceptionは再送出
+        raise
+    except Exception as e:
+        # 予期しないエラーはログに記録して500エラー
+        logger.error(
+            f"Failed to load applicant {applicant_id} for edit: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="申込者データの取得に失敗しました",
+        ) from e
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/applicant_extended_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "edit",
+            "applicant": applicant,
+        },
+    )
+
+
+@router.get("/adoptions/consultations/new", response_class=HTMLResponse)
+def adoptions_consultations_new_page(
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+) -> Response:
+    """
+    里親相談フォーム（新規登録）ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "new",
+        },
+    )
+
+
+@router.get(
+    "/adoptions/consultations/{consultation_id}",
+    response_class=HTMLResponse,
+)
+def adoptions_consultations_detail_page(
+    consultation_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親相談詳細ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import AdoptionConsultationResponse
+    from app.services import adoption_service
+
+    try:
+        consultation_model = adoption_service.get_consultation(db, consultation_id)
+        consultation = AdoptionConsultationResponse.model_validate(consultation_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_detail.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "consultation": consultation,
+        },
+    )
+
+
+@router.get(
+    "/adoptions/consultations/{consultation_id}/edit",
+    response_class=HTMLResponse,
+)
+def adoptions_consultations_edit_page(
+    consultation_id: int,
+    request: Request,
+    current_user: User | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+) -> Response:
+    """
+    里親相談フォーム（編集）ページを表示
+    """
+    if not current_user:
+        return RedirectResponse(url=admin_login_path, status_code=302)
+
+    from app.schemas.adoption import AdoptionConsultationResponse
+    from app.services import adoption_service
+
+    try:
+        consultation_model = adoption_service.get_consultation(db, consultation_id)
+        consultation = AdoptionConsultationResponse.model_validate(consultation_model)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return RedirectResponse(
+                url=f"{admin_base_path}/adoptions/applicants", status_code=302
+            )
+        raise
+
+    return templates.TemplateResponse(
+        request,
+        "admin/adoptions/consultation_form.html",
+        {
+            "request": request,
+            "user": current_user,
+            "settings": settings,
+            "mode": "edit",
+            "consultation": consultation,
+        },
     )
 
 
@@ -659,9 +953,10 @@ def adoptions_records_page(
         GET /admin/adoptions/records
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/adoptions/records.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -688,9 +983,10 @@ def reports_page(
         GET /admin/reports
     """
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/index.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -703,9 +999,10 @@ def care_reports_page(
 ) -> Response:
     """世話記録帳票ページを表示（認証必須）"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/care.html",
         {"request": request, "user": current_user, "settings": settings},
     )
@@ -718,38 +1015,19 @@ def medical_reports_page(
 ) -> Response:
     """診療記録帳票ページを表示（認証必須）"""
     if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
+        return RedirectResponse(url=admin_login_path, status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "admin/reports/medical.html",
         {"request": request, "user": current_user, "settings": settings},
     )
 
 
-@router.get("/settings", response_class=HTMLResponse)
-def settings_page(
-    request: Request,
-    current_user: User | None = Depends(get_current_user_optional),
-) -> Response:
-    """
-    設定ページを表示
-
-    システム設定を管理。
-    画像制限、バックアップ設定などを含む。
-
-    Args:
-        request: FastAPIリクエストオブジェクト
-
-    Returns:
-        HTMLResponse: 設定ページのHTML
-
-    Example:
-        GET /admin/settings
-    """
-    if not current_user:
-        return RedirectResponse(url="/admin/login", status_code=302)
-
-    return templates.TemplateResponse(
-        "admin/settings/index.html",
-        {"request": request, "user": current_user, "settings": settings},
+@router.get("/settings")
+def settings_page() -> Response:
+    """設定ページは未提供のため404を返す。"""
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="設定ページは現在利用できません",
     )

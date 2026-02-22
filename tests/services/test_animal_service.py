@@ -10,11 +10,14 @@ t-wada準拠のテスト設計:
 
 from __future__ import annotations
 
+import logging
+
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.animal import Animal
+from app.models.animal_image import AnimalImage
 from app.models.status_history import StatusHistory
 from app.models.user import User
 from app.schemas.animal import AnimalCreate, AnimalUpdate
@@ -30,11 +33,11 @@ class TestCreateAnimal:
         animal_data = AnimalCreate(
             name="たま",
             photo="photo.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         # When
@@ -43,8 +46,8 @@ class TestCreateAnimal:
         # Then
         assert result.id is not None
         assert result.name == "たま"
-        assert result.pattern == "三毛"
-        assert result.status == "保護中"
+        assert result.coat_color == "三毛"
+        assert result.status == "QUARANTINE"
 
         # ステータス履歴が記録されていることを確認
         history = (
@@ -54,7 +57,7 @@ class TestCreateAnimal:
         )
         assert history is not None
         assert history.old_status is None
-        assert history.new_status == "保護中"
+        assert history.new_status == "QUARANTINE"
         assert history.changed_by == test_user.id
         assert history.reason == "初回登録"
 
@@ -66,14 +69,14 @@ class TestCreateAnimal:
         animal_data = AnimalCreate(
             name="みけ",
             photo="photo.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
             collar="赤い首輪",
-            age="子猫",
+            age_months=6,
             gender="female",
             ear_cut=True,
             features="人懐っこい",
-            status="保護中",
+            status="QUARANTINE",
         )
 
         # When
@@ -84,14 +87,32 @@ class TestCreateAnimal:
         assert result.ear_cut is True
         assert result.features == "人懐っこい"
 
+    def test_create_animal_with_coat_color(self, test_db: Session, test_user: User):
+        """正常系: 毛色フィールド付きで猫を登録できる"""
+        animal_data = AnimalCreate(
+            name="みけ",
+            photo="photo.jpg",
+            coat_color="三毛",
+            coat_color_note="淡いパステル調、黒少なめ",
+            tail_length="長い",
+            age_months=24,
+            gender="female",
+            status="QUARANTINE",
+        )
+
+        result = animal_service.create_animal(test_db, animal_data, test_user.id)
+
+        assert result.coat_color == "三毛"
+        assert result.coat_color_note == "淡いパステル調、黒少なめ"
+
     def test_create_animal_with_minimal_fields(self, test_db: Session, test_user: User):
         """正常系: 最小限のフィールドで猫を登録できる"""
         # Given
         animal_data = AnimalCreate(
             photo="photo.jpg",
-            pattern="黒",
+            coat_color="黒",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
         )
 
@@ -101,7 +122,7 @@ class TestCreateAnimal:
         # Then
         assert result.id is not None
         assert result.name is None  # オプションフィールド
-        assert result.pattern == "黒"
+        assert result.coat_color == "黒"
 
 
 class TestGetAnimal:
@@ -115,7 +136,7 @@ class TestGetAnimal:
         # Then
         assert result.id == test_animal.id
         assert result.name == test_animal.name
-        assert result.pattern == test_animal.pattern
+        assert result.coat_color == test_animal.coat_color
 
     def test_get_animal_not_found(self, test_db: Session):
         """異常系: 存在しない猫IDを指定した場合"""
@@ -135,14 +156,14 @@ class TestGetAnimal:
         animal = Animal(
             name="フルデータ猫",
             photo="full.jpg",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="長い",
             collar="青い首輪",
-            age="成猫",
+            age_months=12,
             gender="female",
             ear_cut=True,
             features="おとなしい",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -167,7 +188,7 @@ class TestUpdateAnimal:
         # Given
         update_data = AnimalUpdate(
             name="新しい名前",
-            pattern="新しい柄",
+            coat_color="新しい柄",
         )
 
         # When
@@ -177,7 +198,7 @@ class TestUpdateAnimal:
 
         # Then
         assert result.name == "新しい名前"
-        assert result.pattern == "新しい柄"
+        assert result.coat_color == "新しい柄"
         # 更新していないフィールドは変更されない
         assert result.gender == test_animal.gender
 
@@ -187,7 +208,7 @@ class TestUpdateAnimal:
         """正常系: ステータス更新時に履歴が記録される"""
         # Given
         old_status = test_animal.status
-        update_data = AnimalUpdate(status="譲渡可能")
+        update_data = AnimalUpdate(status="TRIAL")
 
         # When
         result = animal_service.update_animal(
@@ -195,20 +216,20 @@ class TestUpdateAnimal:
         )
 
         # Then
-        assert result.status == "譲渡可能"
+        assert result.status == "TRIAL"
 
         # ステータス履歴が記録されていることを確認
         history = (
             test_db.query(StatusHistory)
             .filter(
                 StatusHistory.animal_id == test_animal.id,
-                StatusHistory.new_status == "譲渡可能",
+                StatusHistory.new_status == "TRIAL",
             )
             .first()
         )
         assert history is not None
         assert history.old_status == old_status
-        assert history.new_status == "譲渡可能"
+        assert history.new_status == "TRIAL"
         assert history.changed_by == test_user.id
 
     def test_update_animal_status_no_change_no_history(
@@ -254,7 +275,7 @@ class TestUpdateAnimal:
     ):
         """正常系: 一部のフィールドのみ更新できる"""
         # Given
-        original_pattern = test_animal.pattern
+        original_coat_color = test_animal.coat_color
         update_data = AnimalUpdate(name="部分更新")
 
         # When
@@ -264,7 +285,23 @@ class TestUpdateAnimal:
 
         # Then
         assert result.name == "部分更新"
-        assert result.pattern == original_pattern  # 変更されていない
+        assert result.coat_color == original_coat_color  # 変更されていない
+
+    def test_update_animal_coat_color(
+        self, test_db: Session, test_animal: Animal, test_user: User
+    ):
+        """正常系: 毛色フィールドを更新できる"""
+        update_data = AnimalUpdate(
+            coat_color="キジ",
+            coat_color_note="濃いめの縞模様",
+        )
+
+        result = animal_service.update_animal(
+            test_db, test_animal.id, update_data, test_user.id
+        )
+
+        assert result.coat_color == "キジ"
+        assert result.coat_color_note == "濃いめの縞模様"
 
 
 class TestDeleteAnimal:
@@ -328,7 +365,7 @@ class TestListAnimals:
     ):
         """正常系: ステータスフィルターで絞り込める"""
         # Given
-        status_filter = "保護中"
+        status_filter = "QUARANTINE"
 
         # When
         result = animal_service.list_animals(test_db, status_filter=status_filter)
@@ -385,7 +422,7 @@ class TestSearchAnimals:
         assert len(result.items) > 0
         assert any(search_query in animal.name for animal in result.items)
 
-    def test_search_animals_by_pattern(
+    def test_search_animals_by_coat_color(
         self, test_db: Session, test_animals_bulk: list[Animal]
     ):
         """正常系: 柄で検索できる"""
@@ -396,7 +433,7 @@ class TestSearchAnimals:
         result = animal_service.search_animals(test_db, search_query)
 
         # Then
-        assert all("三毛" in animal.pattern for animal in result.items)
+        assert all("三毛" in animal.coat_color for animal in result.items)
 
     def test_search_animals_by_features(self, test_db: Session, test_animal: Animal):
         """正常系: 特徴で検索できる"""
@@ -458,3 +495,183 @@ class TestSearchAnimals:
         assert len(result.items) <= page_size
         assert result.page == 1
         assert result.page_size == page_size
+
+
+class TestGetAnimalsStatusFilter:
+    """list_animals のステータスフィルターテスト
+
+    t-wada準拠:
+    - 新しく追加された DAILY/ARCHIVE フィルターを検証
+    - 既存の ACTIVE フィルターとの違いを明確化
+    - 振る舞いを明示したテスト名
+    """
+
+    def test_daily_filter_excludes_trial(self, test_db: Session):
+        """DAILY フィルター: トライアル中を除いた保護中・在籍中のみ"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        quarantine_cat = Animal(
+            name="DAILYテスト検疫猫",
+            status=AnimalStatus.QUARANTINE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        in_care_cat = Animal(
+            name="DAILYテスト在籍猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        trial_cat = Animal(
+            name="DAILYテストトライアル猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([quarantine_cat, in_care_cat, trial_cat])
+        test_db.commit()
+
+        # When
+        result = animal_service.list_animals(test_db, status_filter="DAILY")
+
+        # Then
+        names = [a.name for a in result.items]
+        assert "DAILYテスト検疫猫" in names
+        assert "DAILYテスト在籍猫" in names
+        assert "DAILYテストトライアル猫" not in names
+
+    def test_archive_filter_returns_adopted_and_deceased(self, test_db: Session):
+        """ARCHIVE フィルター: 譲渡済みと死亡のみ"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        in_care_cat = Animal(
+            name="ARCHIVEテスト在籍猫",
+            status=AnimalStatus.IN_CARE.value,
+            gender="male",
+            coat_color="白",
+            tail_length="長い",
+        )
+        adopted_cat = Animal(
+            name="ARCHIVEテスト譲渡済み猫",
+            status=AnimalStatus.ADOPTED.value,
+            gender="female",
+            coat_color="黒",
+            tail_length="短い",
+        )
+        deceased_cat = Animal(
+            name="ARCHIVEテスト死亡猫",
+            status=AnimalStatus.DECEASED.value,
+            gender="male",
+            coat_color="三毛",
+            tail_length="中間",
+        )
+
+        test_db.add_all([in_care_cat, adopted_cat, deceased_cat])
+        test_db.commit()
+
+        # When
+        result = animal_service.list_animals(test_db, status_filter="ARCHIVE")
+
+        # Then
+        names = [a.name for a in result.items]
+        assert "ARCHIVEテスト譲渡済み猫" in names
+        assert "ARCHIVEテスト死亡猫" in names
+        assert "ARCHIVEテスト在籍猫" not in names
+
+    def test_daily_vs_active_filter_difference(self, test_db: Session):
+        """DAILY vs ACTIVE: DAILY はトライアル中を除外する違いを検証"""
+        # Given
+        from app.utils.enums import AnimalStatus
+
+        trial_cat = Animal(
+            name="フィルター比較テスト猫",
+            status=AnimalStatus.TRIAL.value,
+            gender="female",
+            coat_color="キジトラ",
+            tail_length="長い",
+        )
+
+        test_db.add(trial_cat)
+        test_db.commit()
+
+        # When
+        active_result = animal_service.list_animals(test_db, status_filter="ACTIVE")
+        daily_result = animal_service.list_animals(test_db, status_filter="DAILY")
+
+        # Then
+        active_names = [a.name for a in active_result.items]
+        daily_names = [a.name for a in daily_result.items]
+
+        assert "フィルター比較テスト猫" in active_names  # ACTIVE にはトライアル含む
+        assert (
+            "フィルター比較テスト猫" not in daily_names
+        )  # DAILY にはトライアル含まない
+
+
+class TestGetDisplayImage:
+    """表示画像のフォールバック挙動テスト"""
+
+    def test_fallbacks_to_gallery_when_profile_photo_file_is_missing(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        temp_media_dir,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """プロフィール画像欠損時はギャラリー画像へフォールバックする"""
+        test_animal.photo = f"/media/animals/{test_animal.id}/gallery/missing-photo.jpg"
+
+        relative_gallery_path = f"animals/{test_animal.id}/gallery/fallback-photo.jpg"
+        gallery_file = temp_media_dir / relative_gallery_path
+        gallery_file.parent.mkdir(parents=True, exist_ok=True)
+        gallery_file.write_bytes(b"fallback")
+
+        gallery_image = AnimalImage(
+            animal_id=test_animal.id,
+            image_path=relative_gallery_path,
+            description="fallback",
+            file_size=8,
+        )
+        test_db.add(gallery_image)
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.animal_service")
+
+        image_path = animal_service.get_display_image(test_db, test_animal.id)
+
+        assert image_path == f"/media/{relative_gallery_path}"
+        assert "event=image_file_missing caller=display" in caplog.text
+
+    def test_returns_default_when_all_images_are_missing(
+        self,
+        test_db: Session,
+        test_animal: Animal,
+        temp_media_dir,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """全画像欠損時も例外を出さずデフォルト画像を返す"""
+        from app.config import get_settings
+
+        test_animal.photo = f"/media/animals/{test_animal.id}/gallery/missing-photo.jpg"
+        test_db.commit()
+
+        caplog.clear()
+        caplog.set_level(logging.WARNING, logger="app.services.animal_service")
+
+        image_path = animal_service.get_display_image(test_db, test_animal.id)
+        settings = get_settings()
+        expected_default = (
+            "/static/icons/halloween_logo_2.webp"
+            if settings.kiroween_mode
+            else "/static/images/default-cat.svg"
+        )
+
+        assert image_path == expected_default
+        assert "event=image_file_missing caller=display" in caplog.text

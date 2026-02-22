@@ -2,6 +2,19 @@
  * 診療記録詳細ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
   // i18nが初期化されるまで待機
@@ -91,73 +104,179 @@ function renderMedicalRecord(record) {
     window.i18n && window.i18n.t ? window.i18n.t(key, { ns: 'medical_records' }) : key;
   const notAvailable = t('dynamic.not_available');
 
+  const container = requireElementById('recordDetail', 'medical_records_detail.page');
+  container.innerHTML = '';
+  const content = cloneTemplate('tmpl-medical-record-detail');
+  assertRequiredSelectors(
+    content,
+    [
+      '.js-date',
+      '.js-time-slot',
+      '.js-animal',
+      '.js-vet',
+      '.js-weight',
+      '.js-temperature',
+      '.js-symptoms',
+      '.js-medical-action-section',
+      '.js-medical-action',
+      '.js-dosage',
+      '.js-billing',
+      '.js-other-section',
+      '.js-other',
+      '.js-comment-section',
+      '.js-comment',
+      '.js-created-at',
+      '.js-updated-at',
+    ],
+    'medical_records_detail.tmpl-medical-record-detail'
+  );
+
   // 基本情報
-  document.getElementById('recordDate').textContent = record.date;
-  document.getElementById('recordTimeSlot').textContent = record.time_slot || notAvailable;
+  requireSelector(
+    content,
+    '.js-date',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.date;
+  requireSelector(
+    content,
+    '.js-time-slot',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.time_slot || notAvailable;
 
   // 猫名を表示（リンク付き）
   const animalText = record.animal_name || `${t('dynamic.cat_id')}: ${record.animal_id}`;
-  const animalLink = record.animal_name
-    ? `<a href="/admin/animals/${record.animal_id}" class="text-indigo-600 hover:text-indigo-900">${animalText}</a>`
-    : animalText;
-  document.getElementById('recordAnimal').innerHTML = animalLink;
+  if (record.animal_name) {
+    const animalLink = document.createElement('a');
+    animalLink.href = `${adminBasePath}/animals/${record.animal_id}`;
+    animalLink.className = 'text-brand-primary hover:text-brand-primary-dark';
+    animalLink.textContent = animalText;
+    requireSelector(
+      content,
+      '.js-animal',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).appendChild(animalLink);
+  } else {
+    requireSelector(
+      content,
+      '.js-animal',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = animalText;
+  }
 
   // 獣医師名を表示
-  document.getElementById('recordVet').textContent =
-    record.vet_name || `${t('dynamic.vet_id')}: ${record.vet_id}`;
+  requireSelector(
+    content,
+    '.js-vet',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.vet_name || `${t('dynamic.vet_id')}: ${record.vet_id}`;
 
   // 測定値
-  document.getElementById('recordWeight').textContent = record.weight
-    ? `${record.weight}${t('dynamic.kg')}`
-    : notAvailable;
-  document.getElementById('recordTemperature').textContent = record.temperature
+  requireSelector(
+    content,
+    '.js-weight',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.weight ? `${record.weight}${t('dynamic.kg')}` : notAvailable;
+  requireSelector(
+    content,
+    '.js-temperature',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.temperature
     ? `${record.temperature}${t('dynamic.celsius')}`
     : notAvailable;
 
   // 症状
-  document.getElementById('recordSymptoms').textContent = record.symptoms;
+  requireSelector(
+    content,
+    '.js-symptoms',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = record.symptoms;
 
   // 診療行為
   if (record.medical_action_name) {
-    document.getElementById('medicalActionSection').classList.remove('hidden');
-    document.getElementById('recordMedicalAction').textContent = record.medical_action_name;
+    const section = requireSelector(
+      content,
+      '.js-medical-action-section',
+      'medical_records_detail.tmpl-medical-record-detail'
+    );
+    section.classList.remove('hidden');
+    requireSelector(
+      content,
+      '.js-medical-action',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = record.medical_action_name;
 
     const dosageText = record.dosage ? `${record.dosage}${record.dosage_unit || ''}` : notAvailable;
-    document.getElementById('recordDosage').textContent = dosageText;
+    requireSelector(
+      content,
+      '.js-dosage',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = dosageText;
 
     // 請求価格
     const billingText = record.billing_amount
       ? `${t('dynamic.yen')}${Number(record.billing_amount).toLocaleString()}`
       : notAvailable;
-    document.getElementById('recordBilling').textContent = billingText;
+    requireSelector(
+      content,
+      '.js-billing',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = billingText;
   }
 
   // その他
   if (record.other) {
-    document.getElementById('otherSection').classList.remove('hidden');
-    document.getElementById('recordOther').textContent = record.other;
+    const section = requireSelector(
+      content,
+      '.js-other-section',
+      'medical_records_detail.tmpl-medical-record-detail'
+    );
+    section.classList.remove('hidden');
+    requireSelector(
+      content,
+      '.js-other',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = record.other;
   }
 
   // コメント
   if (record.comment) {
-    document.getElementById('commentSection').classList.remove('hidden');
-    document.getElementById('recordComment').textContent = record.comment;
+    const section = requireSelector(
+      content,
+      '.js-comment-section',
+      'medical_records_detail.tmpl-medical-record-detail'
+    );
+    section.classList.remove('hidden');
+    requireSelector(
+      content,
+      '.js-comment',
+      'medical_records_detail.tmpl-medical-record-detail'
+    ).textContent = record.comment;
   }
 
   // タイムスタンプ
-  document.getElementById('recordCreatedAt').textContent = formatDateTime(record.created_at);
-  document.getElementById('recordUpdatedAt').textContent = formatDateTime(record.last_updated_at);
+  requireSelector(
+    content,
+    '.js-created-at',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = formatDateTime(record.created_at);
+  requireSelector(
+    content,
+    '.js-updated-at',
+    'medical_records_detail.tmpl-medical-record-detail'
+  ).textContent = formatDateTime(record.last_updated_at);
 
-  // 詳細を表示
-  document.getElementById('recordDetail').classList.remove('hidden');
+  translateDynamicElement(content);
+  container.appendChild(content);
+  container.classList.remove('hidden');
 
-  // 修正ボタンを表示して、クリックイベントを設定
+  // 修正ボタンを表示設定（ボタン自体はheader_actionsにあるのでここではURLのみ更新）
   const editBtn = document.getElementById('editBtn');
   if (editBtn) {
     editBtn.classList.remove('hidden');
-    editBtn.addEventListener('click', () => {
-      window.location.href = `/admin/medical-records/${record.id}/edit`;
-    });
+    // 既存のリスナーを削除するために新しく作り直すか、単にクリック時リダイレクトにする
+    editBtn.onclick = () => {
+      window.location.href = `${adminBasePath}/medical-records/${record.id}/edit`;
+    };
   }
 }
 

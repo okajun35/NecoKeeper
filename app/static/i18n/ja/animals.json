@@ -8,12 +8,12 @@
   "edit": "猫情報を編集",
   "edit_description": "猫の情報を更新します",
   "delete_confirm": "この猫を削除してもよろしいですか？",
-  "search_placeholder": "猫の名前で検索...",
+  "search_placeholder": "名前、毛色、特徴で検索...",
   "filter_by_status": "ステータスで絞り込み",
   "description": "説明",
   "search": {
     "label": "検索",
-    "placeholder": "名前、柄、特徴で検索...",
+    "placeholder": "名前、毛色、特徴で検索...",
     "advanced": "詳細検索",
     "clear": "クリア"
   },
@@ -22,14 +22,26 @@
     "all": "すべて",
     "page_size": "表示件数",
     "gender": "性別",
-    "age_min": "年齢（最小）",
-    "age_max": "年齢（最大）",
+    "age_min": "月齢（最小）",
+    "age_max": "月齢（最大）",
     "rescue_date_from": "保護日（開始）",
     "rescue_date_to": "保護日（終了）",
     "ear_cut": "耳カット",
     "collar": "首輪",
     "with": "あり",
-    "without": "なし"
+    "without": "なし",
+    "ready_for_adoption": "譲渡可",
+    "fiv": "FIV",
+    "felv": "FeLV",
+    "sterilized": "避妊・去勢",
+    "location_type": "場所",
+    "positive": "陽性",
+    "negative": "陰性",
+    "unknown": "不明",
+    "done": "済",
+    "not_done": "未",
+    "yes": "はい",
+    "no": "いいえ"
   },
   "page_size": {
     "20": "20件",
@@ -43,37 +55,97 @@
   "profile_image_optional": "プロフィール画像（任意）",
   "image_format_note": "PNG, JPG, GIF（最大5MB）",
   "image_gallery_note": "※登録後、画像ギャラリーから追加・変更できます",
+  "age_months_placeholder": "例: 12",
+  "age_months": "{{value}}ヶ月",
+  "age_months_estimated": "推定{{value}}ヶ月",
+  "age_unknown": "月齢不明",
   "collar_placeholder": "例: 赤い首輪",
+  "coat_color_note_placeholder": "例: 淡い、パステル、黒少なめ",
+  "microchip_placeholder": "例: 4A8F13BB23 (ISO形式)",
+  "current_location_note_placeholder": "例: ケージAー4, 〇〇さんの家(TEL: 090-...)",
+  "reason_for_status_change_placeholder": "例: 譲渡予定、治療完了",
   "features_placeholder": "外傷、特徴、性格などを記入",
+  "rescue_source_placeholder": "例: シェルターA",
+  "breed_placeholder": "例: アメリカンショートヘア",
   "back_to_list": "一覧に戻る",
   "register": "登録",
   "fields": {
     "id": "ID",
     "name": "名前",
     "photo": "写真",
-    "pattern": "柄",
+    "microchip_number": "マイクロチップ番号",
+    "coat_color": "毛色",
+    "coat_color_note": "毛色の補足",
     "tail_length": "しっぽの長さ",
     "collar": "首輪",
-    "age": "年齢",
+    "age": "月齢",
+    "age_is_estimated": "推定月齢",
     "gender": "性別",
     "ear_cut": "耳カット",
     "features": "特徴",
     "status": "ステータス",
+    "location_type": "所在地タイプ",
+    "current_location_note": "所在地詳細",
+    "reason_for_status_change": "変更理由（オプション）",
+    "rescue_source": "レスキュー元",
+    "breed": "品種",
     "protected_at": "保護日",
     "created_at": "登録日",
-    "updated_at": "更新日"
+    "updated_at": "更新日",
+    "medical_info": "医療情報",
+    "fiv_status": "FIV検査",
+    "felv_status": "FeLV検査",
+    "fiv_positive": "FIV",
+    "felv_positive": "FeLV",
+    "is_sterilized": "避妊・去勢済み",
+    "sterilized_on": "避妊・去勢実施日",
+    "vaccination_records": "ワクチン接種記録",
+    "vaccine_type": "ワクチン種別",
+    "vaccine_date": "接種日",
+    "next_due_on": "次回接種予定日",
+    "vaccine_memo": "メモ",
+    "sterilized": "避妊/去勢",
+    "location": "場所"
   },
   "status": {
-    "protected": "保護中",
-    "treatment": "治療中",
-    "adoptable": "譲渡可能",
-    "adopted": "譲渡済み",
-    "deceased": "死亡"
+    "ACTIVE": "現在活動している猫",
+    "QUARANTINE": "保護中",
+    "IN_CARE": "在籍中",
+    "TRIAL": "トライアル中",
+    "ADOPTED": "譲渡済み",
+    "DECEASED": "死亡"
+  },
+  "location_type": {
+    "FACILITY": "施設",
+    "FOSTER_HOME": "一時保護宅",
+    "ADOPTER_HOME": "譲渡先"
+  },
+  "location": {
+    "facility": "施設",
+    "foster_home": "預かり宅",
+    "adopter_home": "里親候補宅"
   },
   "gender": {
     "male": "オス",
     "female": "メス",
     "unknown": "不明"
+  },
+  "coat_color": {
+    "calico": "三毛",
+    "black_white": "白黒",
+    "black": "黒",
+    "white": "白",
+    "brown_tabby": "茶トラ",
+    "mackerel_tabby": "キジトラ",
+    "mackerel": "キジ",
+    "tortoiseshell": "サビ",
+    "gray": "グレー",
+    "other": "その他"
+  },
+  "vaccine_category": {
+    "3core": "3種混合",
+    "4core": "4種混合（FeLV含む）",
+    "5core": "5種混合（クラミジア含む）"
   },
   "age": {
     "kitten": "子猫",
@@ -83,12 +155,35 @@
   "tail": {
     "long": "長い",
     "short": "短い",
-    "none": "なし",
-    "bobtail": "かぎしっぽ"
+    "kinked": "かぎしっぽ",
+    "none": "なし"
   },
   "collar_options": {
     "has": "あり",
     "none": "なし"
+  },
+  "medical": {
+    "unknown": "不明",
+    "negative": "陰性(-)",
+    "positive": "陽性(+)",
+    "done": "実施済み",
+    "not_done": "未実施"
+  },
+  "test_result": {
+    "positive": "陽性",
+    "negative": "陰性",
+    "unknown": "不明"
+  },
+  "sterilized": {
+    "done": "済",
+    "not_done": "未",
+    "unknown": "不明"
+  },
+  "badge": {
+    "ready_for_adoption": "譲渡可"
+  },
+  "sections": {
+    "detail_info": "詳細情報"
   },
   "tabs": {
     "basic_info": "基本情報",
@@ -159,13 +254,20 @@
     "change_status": "ステータス変更",
     "generate_qr": "QRカード生成",
     "generate_form": "紙記録フォーム生成",
+    "register_care_log": "世話記録を登録",
     "change_photo": "画像を変更",
     "update_status": "ステータス更新",
+    "update_location": "所在地更新",
+    "update_status_and_location": "更新",
     "upload_photo": "写真をアップロード",
     "delete_photo": "写真を削除"
   },
   "pagination": {
     "summary": "全{{total}}件中 {{from}} - {{to}} 件を表示"
+  },
+  "labels": {
+    "unset": "未設定",
+    "unregistered": "未登録"
   },
   "fallbacks": {
     "no_name": "名前なし"

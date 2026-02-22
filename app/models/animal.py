@@ -17,6 +17,7 @@ from app.utils.timezone import get_jst_date, get_jst_now
 
 if TYPE_CHECKING:
     from app.models.care_log import CareLog
+    from app.models.vaccination_record import VaccinationRecord
 
 
 class Animal(Base):
@@ -31,14 +32,17 @@ class Animal(Base):
         id: 主キー（自動採番）
         name: 猫の名前（任意）
         photo: 顔写真のファイルパス（必須）
-        pattern: 柄・色（必須、例: キジトラ、三毛、黒猫）
+        microchip_number: マイクロチップ番号（任意、15桁の半角数字または10桁の英数字）
+        coat_color: 毛色（必須、選択肢から選択）
+        coat_color_note: 毛色の補足情報（任意、例: 淡い、パステル、黒少なめ）
         tail_length: 尻尾の長さ（必須、例: 長い、短い、なし）
         collar: 首輪の有無と色（任意、例: 赤い首輪、首輪なし）
-        age: 年齢・大きさ（必須、例: 子猫、成猫、老猫）
+        age_months: 月齢（任意、null=不明）
+        age_is_estimated: 推定月齢フラグ（デフォルト: False）
         gender: 性別（必須、male/female/unknown）
         ear_cut: 耳カットの有無（デフォルト: False）
         features: 外傷・特徴・性格（任意、自由記述）
-        status: ステータス（デフォルト: '保護中'）
+        status: ステータス（デフォルト: QUARANTINE）
         protected_at: 保護日（デフォルト: 本日）
         created_at: 作成日時（自動設定）
         updated_at: 更新日時（自動更新）
@@ -60,9 +64,20 @@ class Animal(Base):
         String(255), nullable=True, comment="プロフィール画像のファイルパス（任意）"
     )
 
+    microchip_number: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        unique=True,
+        comment="マイクロチップ番号（15桁の半角数字、または10桁の英数字）",
+    )
+
     # 物理的特徴（識別情報）
-    pattern: Mapped[str] = mapped_column(
-        String(100), nullable=False, comment="柄・色（例: キジトラ、三毛、黒猫）"
+    coat_color: Mapped[str] = mapped_column(
+        String(100), nullable=False, comment="毛色（選択肢から選択）"
+    )
+
+    coat_color_note: Mapped[str | None] = mapped_column(
+        Text, nullable=True, comment="毛色の補足情報（例: 淡い、パステル、黒少なめ）"
     )
 
     tail_length: Mapped[str] = mapped_column(
@@ -73,8 +88,16 @@ class Animal(Base):
         String(100), nullable=True, comment="首輪の有無と色（例: 赤い首輪、首輪なし）"
     )
 
-    age: Mapped[str] = mapped_column(
-        String(50), nullable=False, comment="年齢・大きさ（例: 子猫、成猫、老猫）"
+    age_months: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, comment="月齢（null=不明）"
+    )
+
+    age_is_estimated: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="0",
+        comment="推定月齢フラグ",
     )
 
     gender: Mapped[str] = mapped_column(
@@ -93,13 +116,64 @@ class Animal(Base):
         Text, nullable=True, comment="外傷・特徴・性格（自由記述）"
     )
 
+    rescue_source: Mapped[str | None] = mapped_column(
+        String(200), nullable=True, comment="レスキュー元"
+    )
+
+    breed: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, comment="品種"
+    )
+
     # 管理情報
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="保護中",
-        server_default="保護中",
-        comment="ステータス（保護中、譲渡可能、譲渡済み、治療中など）",
+        default="QUARANTINE",
+        server_default="QUARANTINE",
+        comment="ステータス（QUARANTINE, IN_CARE, TRIAL, ADOPTED, DECEASED）",
+    )
+
+    location_type: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default="FACILITY",
+        server_default="FACILITY",
+        comment="ロケーションタイプ（FACILITY, FOSTER_HOME, ADOPTER_HOME）",
+    )
+
+    current_location_note: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="所在地詳細（「◯◯さん宅」「カフェ2F」「隔離室A」など）",
+    )
+
+    # 医療情報（Issue #83）
+    fiv_positive: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="FIV検査結果（True=陽性, False=陰性, None=不明）",
+    )
+
+    felv_positive: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="FeLV検査結果（True=陽性, False=陰性, None=不明）",
+    )
+
+    is_sterilized: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=None,
+        comment="避妊・去勢状態（True=済, False=未, None=不明）",
+    )
+
+    sterilized_on: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+        default=None,
+        comment="避妊・去勢実施日",
     )
 
     protected_at: Mapped[date] = mapped_column(
@@ -130,18 +204,30 @@ class Animal(Base):
         "CareLog", back_populates="animal", cascade="all, delete-orphan"
     )
 
+    vaccination_records: Mapped[list[VaccinationRecord]] = relationship(
+        "VaccinationRecord", back_populates="animal", cascade="all, delete-orphan"
+    )
+
     # インデックス定義
     __table_args__ = (
         Index("ix_animals_status", "status"),
+        Index("ix_animals_location_type", "location_type"),
         Index("ix_animals_protected_at", "protected_at"),
         Index("ix_animals_name", "name"),
+        Index("ix_animals_microchip_number", "microchip_number"),
+        Index("ix_animals_fiv_positive", "fiv_positive"),
+        Index("ix_animals_felv_positive", "felv_positive"),
+        Index("ix_animals_is_sterilized", "is_sterilized"),
     )
 
     def __repr__(self) -> str:
         """文字列表現"""
-        return f"<Animal(id={self.id}, name={self.name!r}, pattern={self.pattern!r}, status={self.status!r})>"
+        return (
+            f"<Animal(id={self.id}, name={self.name!r}, "
+            f"coat_color={self.coat_color!r}, status={self.status!r})>"
+        )
 
     def __str__(self) -> str:
         """人間が読みやすい文字列表現"""
         name_display = self.name if self.name else "名前未設定"
-        return f"{name_display}（{self.pattern}、{self.status}）"
+        return f"{name_display}（{self.coat_color}、{self.status}）"

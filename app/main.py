@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     HTMLResponse,
@@ -34,15 +34,18 @@ from app.api.v1 import (
     language,
     medical_actions,
     medical_records,
+    meta,
     pdf,
     public,
     public_pages,
     reports,
     users,
+    vaccinations,
     volunteers,
 )
 from app.config import get_settings
 from app.middleware.auth_redirect import AuthRedirectMiddleware
+from app.utils.path import is_admin_path
 
 # 設定を取得
 settings = get_settings()
@@ -141,7 +144,7 @@ if Path("app/static").exists():
 
 # ルートエンドポイント - ランディングページ
 @app.get("/", response_class=HTMLResponse, tags=["Root"])
-def root(request: Request) -> HTMLResponse:
+def root(request: Request) -> Response:
     """
     ルートエンドポイント - 公開ランディングページ
 
@@ -155,7 +158,11 @@ def root(request: Request) -> HTMLResponse:
     templates_dir = Path(__file__).parent / "templates"
     templates = Jinja2Templates(directory=str(templates_dir))
 
+    if not settings.demo_features:
+        return PlainTextResponse("Not Found", status_code=404)
+
     return templates.TemplateResponse(
+        request,
         "public/landing.html",
         {
             "request": request,
@@ -335,12 +342,10 @@ def http_exception_handler(
     """
     # 管理画面の401エラーはログインページにリダイレクト
     # ログインページ自体への401はリダイレクトしない（無限ループ防止）
-    if (
-        exc.status_code == 401
-        and request.url.path.startswith("/admin")
-        and not request.url.path.startswith("/admin/login")
-    ):
-        return RedirectResponse(url="/admin/login", status_code=302)
+    if exc.status_code == 401 and is_admin_path(request.url.path):
+        admin_login_path = f"{settings.admin_base_path}/login"
+        if not request.url.path.startswith(admin_login_path):
+            return RedirectResponse(url=admin_login_path, status_code=302)
 
     # APIエンドポイントはJSONエラーを返す
     return JSONResponse(
@@ -385,6 +390,9 @@ def global_exception_handler(request, exc: Exception) -> JSONResponse:  # type: 
 # Automation API（API Key認証）
 app.include_router(automation.router, prefix="/api")
 
+# メタエンドポイント（認証不要、i18n対応）
+app.include_router(meta.router)
+
 # User-Facing API（OAuth2認証）
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(animals.router, prefix="/api/v1")
@@ -394,11 +402,15 @@ app.include_router(images.router, prefix="/api/v1")
 app.include_router(language.router, prefix="/api/v1")  # 言語切り替えAPI
 app.include_router(medical_actions.router, prefix="/api/v1")
 app.include_router(medical_records.router, prefix="/api/v1")
+app.include_router(vaccinations.router, prefix="/api/v1")  # ワクチン接種記録API
 app.include_router(pdf.router, prefix="/api/v1")
 app.include_router(reports.router, prefix="/api/v1")  # 帳票出力API
 app.include_router(public.router, prefix="/api/v1")  # Public API（認証不要）
 app.include_router(public_pages.router)  # Public Pages（HTMLテンプレート）
-app.include_router(admin_pages.router)  # Admin Pages（管理画面）
+app.include_router(
+    admin_pages.router,
+    prefix=settings.admin_base_path,
+)  # Admin Pages（管理画面）
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(volunteers.router, prefix="/api/v1")
 app.include_router(adoptions.router, prefix="/api/v1")  # 里親管理API

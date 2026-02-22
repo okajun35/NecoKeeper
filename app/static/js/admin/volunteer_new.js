@@ -1,3 +1,5 @@
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('btnSave');
   const err = document.getElementById('formError');
@@ -29,14 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }),
       });
       if (res.status === 401) {
-        window.location.href = '/admin/login';
+        window.location.href = `${adminBasePath}/login`;
         return;
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || '保存に失敗しました');
       }
-      window.location.href = '/admin/volunteers';
+      window.location.href = `${adminBasePath}/volunteers`;
     } catch (e) {
       err.textContent = e.message || '保存に失敗しました';
       err.classList.remove('hidden');

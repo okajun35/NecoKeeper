@@ -195,11 +195,13 @@ necokeeper/
 |---------|-----|------|-----------|------|
 | id | INTEGER | NO | AUTO | Primary key |
 | name | VARCHAR(100) | YES | NULL | Cat name |
-| photo | VARCHAR(255) | NO | - | Face photo path |
+| photo | VARCHAR(255) | YES | NULL | Face photo path (optional) |
+| microchip_number | VARCHAR(20) | YES | NULL | Microchip number (15-digit numeric or 10-digit alphanumeric) |
 | pattern | VARCHAR(100) | NO | - | Coat pattern / color |
 | tail_length | VARCHAR(50) | NO | - | Tail length description |
 | collar | VARCHAR(100) | YES | NULL | Collar presence / color |
-| age | VARCHAR(50) | NO | - | Age / size description |
+| age_months | INTEGER | YES | NULL | Age in months (null=unknown) |
+| age_is_estimated | BOOLEAN | NO | FALSE | Whether age is estimated |
 | gender | VARCHAR(10) | NO | - | Gender (male/female/unknown) |
 | ear_cut | BOOLEAN | NO | FALSE | Whether ear-tipped |
 | features | TEXT | YES | NULL | Wounds, features, temperament |
@@ -208,7 +210,16 @@ necokeeper/
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | Created at |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | Updated at |
 
-**Indexes**: status, protected_at, name
+**Indexes**: status, protected_at, name, microchip_number (unique)
+
+**Microchip Number Details**:
+- Format: 15-digit numeric (ISO 11784/11785) or 10-digit alphanumeric (legacy)
+- Unique constraint: No duplicates (NULL values allowed)
+- Optional field
+- Examples:
+  - 392123456789012 (Japan country code: 392)
+  - 981234567890123 (Datamars manufacturer code: 981)
+  - ABC1234567 (Legacy 10-digit format)
 
 #### CareLog (Daily Care Log)
 
@@ -497,10 +508,10 @@ PUT    /api/v1/volunteers/{id}     # Update volunteer
 #### Adoption Management API
 
 ```
-GET    /api/v1/applicants          # List adoption applicants
-POST   /api/v1/applicants          # Create applicant
-GET    /api/v1/applicants/{id}     # Retrieve applicant detail
-PUT    /api/v1/applicants/{id}     # Update applicant
+GET    /api/v1/adoptions/applicants-extended          # List adoption applicants
+POST   /api/v1/adoptions/applicants-extended          # Create applicant (extended)
+GET    /api/v1/adoptions/applicants-extended/{id}     # Retrieve applicant detail (extended)
+PUT    /api/v1/adoptions/applicants-extended/{id}     # Update applicant (extended)
 POST   /api/v1/adoptions           # Create adoption record
 PUT    /api/v1/adoptions/{id}      # Update adoption record
 ```

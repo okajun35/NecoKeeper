@@ -26,7 +26,7 @@ with Session(engine) as db:
             photo="default.jpg",
             pattern="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
             status="保護中",
         )

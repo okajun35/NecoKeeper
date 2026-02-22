@@ -115,8 +115,11 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "female",
             "ear_cut": False,
             "features": "人懐っこい性格。おもちゃで遊ぶのが大好き。",
+            "rescue_source": "〇〇保健所",
+            "breed": "雑種",
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=30),
+            "microchip_number": "392123456789012",  # ISO規格の例
         },
         {
             "name": "ミケ",
@@ -128,8 +131,11 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "female",
             "ear_cut": True,
             "features": "少し警戒心が強いが、慣れると甘えん坊。",
+            "rescue_source": "△△動物愛護団体",
+            "breed": "日本猫",
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=15),
+            "microchip_number": "981234567890123",  # Datamarsメーカーコード
         },
         {
             "name": "クロ",
@@ -141,8 +147,11 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "gender": "male",
             "ear_cut": False,
             "features": "とても元気で活発。高いところが好き。",
+            "rescue_source": "個人保護",
+            "breed": "雑種",
             "status": "治療中",
             "protected_at": date.today() - timedelta(days=7),
+            "microchip_number": None,  # マイクロチップなしの例
         },
         {
             "name": "チビ",
@@ -156,6 +165,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "生後3ヶ月程度。ミルクから離乳食に移行中。",
             "status": "保護中",
             "protected_at": date.today() - timedelta(days=5),
+            "microchip_number": None,  # 子猫なのでまだ未登録
         },
         {
             "name": "シロ",
@@ -169,6 +179,7 @@ def seed_animals(db: Session, admin_user: User) -> list[Animal]:
             "features": "推定10歳以上。穏やかな性格で静かな環境を好む。",
             "status": "譲渡可能",
             "protected_at": date.today() - timedelta(days=60),
+            "microchip_number": "ABC1234567",  # 旧規格10桁の例
         },
         {
             "name": "ハチ",
@@ -289,13 +300,21 @@ def seed_care_logs(
                 volunteer = volunteers[care_logs_count % len(volunteers)]
 
                 # 食欲と元気は日によって変動
-                appetite = 3 + (days_ago % 3) - 1  # 2〜4
+                appetite = 3 + (days_ago % 3) - 1  # 2〜4（旧スケール）
                 energy = 3 + ((days_ago + 1) % 3) - 1  # 2〜4
 
                 # 治療中の猫は食欲・元気が低め
                 if animal.status == "治療中":
                     appetite = max(1, appetite - 1)
                     energy = max(1, energy - 1)
+
+                appetite = {
+                    5: 1.0,
+                    4: 0.75,
+                    3: 0.5,
+                    2: 0.25,
+                    1: 0.0,
+                }[appetite]
 
                 care_log = CareLog(
                     animal_id=animal.id,

@@ -26,6 +26,7 @@ warnings.filterwarnings("ignore", message="デフォルトのSECRET_KEYが使用
 from app.auth.password import hash_password
 from app.database import Base, get_db
 from app.main import app
+from app.models.adoption_consultation import AdoptionConsultation
 from app.models.adoption_record import AdoptionRecord
 from app.models.animal import Animal
 from app.models.animal_image import AnimalImage
@@ -34,6 +35,7 @@ from app.models.care_log import CareLog
 from app.models.setting import Setting
 from app.models.status_history import StatusHistory
 from app.models.user import User
+from app.models.vaccination_record import VaccinationRecord
 from app.models.volunteer import Volunteer
 
 # テスト用のインメモリデータベース（StaticPoolで接続を共有）
@@ -81,10 +83,16 @@ def test_db() -> Generator[Session, None, None]:
     # 既存のデータをクリア（外部キー制約の順序に注意）
     try:
         # 医療記録関連のインポート
+        # 里親申込関連のインポート（Issue #91）
+        from app.models.applicant import ApplicantHouseholdMember, ApplicantPet
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
+        db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
+        db.query(AdoptionConsultation).delete()
+        db.query(ApplicantHouseholdMember).delete()  # 家族構成
+        db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
@@ -114,11 +122,11 @@ def test_db() -> Generator[Session, None, None]:
     test_animal = Animal(
         name="テスト猫",
         photo="test.jpg",
-        pattern="キジトラ",
+        coat_color="キジトラ",
         tail_length="長い",
-        age="成猫",
+        age_months=12,
         gender="female",
-        status="保護中",
+        status="QUARANTINE",
     )
     db.add(test_animal)
 
@@ -129,10 +137,16 @@ def test_db() -> Generator[Session, None, None]:
     # テスト後のクリーンアップ
     try:
         # 医療記録関連のインポート
+        # 里親申込関連のインポート（Issue #91）
+        from app.models.applicant import ApplicantHouseholdMember, ApplicantPet
         from app.models.medical_action import MedicalAction
         from app.models.medical_record import MedicalRecord
 
+        db.query(VaccinationRecord).delete()
         db.query(AdoptionRecord).delete()
+        db.query(AdoptionConsultation).delete()
+        db.query(ApplicantHouseholdMember).delete()  # 家族構成
+        db.query(ApplicantPet).delete()  # 先住ペット
         db.query(Applicant).delete()
         db.query(AnimalImage).delete()
         db.query(CareLog).delete()
@@ -238,11 +252,11 @@ def test_animals_bulk(test_db: Session) -> list[Animal]:
         animal = Animal(
             name=f"猫{i}",
             photo=f"photo{i}.jpg",
-            pattern="三毛" if i % 2 == 0 else "キジトラ",
+            coat_color="三毛" if i % 2 == 0 else "キジトラ",
             tail_length="長い" if i % 2 == 0 else "短い",
-            age="成猫",
+            age_months=12,
             gender="female" if i % 2 == 0 else "male",
-            status="保護中" if i % 3 == 0 else "譲渡可能",
+            status="QUARANTINE" if i % 3 == 0 else "TRIAL",
         )
         test_db.add(animal)
         animals.append(animal)
@@ -281,8 +295,8 @@ def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
             animal_id=test_animal.id,
             time_slot="morning",
             recorder_name="テストユーザー",
-            appetite=4,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="朝の記録",
@@ -292,7 +306,7 @@ def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
             animal_id=test_animal.id,
             time_slot="noon",
             recorder_name="テストユーザー",
-            appetite=3,
+            appetite=0.5,
             energy=3,
             urination=False,
             cleaning=True,
@@ -303,8 +317,8 @@ def test_care_logs(test_db: Session, test_animal: Animal) -> list[CareLog]:
             animal_id=test_animal.id,
             time_slot="evening",
             recorder_name="テストユーザー",
-            appetite=5,
-            energy=4,
+            appetite=1.0,
+            energy=3,
             urination=True,
             cleaning=True,
             memo="夕方の記録",

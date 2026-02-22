@@ -50,18 +50,18 @@ class TestCompleteWorkflow:
             mock_create.return_value = {
                 "id": animal_id,
                 "name": "Tama",
-                "status": "保護中",
+                "status": "QUARANTINE",
             }
 
             # 猫を登録
             register_result = await api_client.create_animal(
                 {
                     "name": "Tama",
-                    "pattern": "三毛",
+                    "coat_color": "三毛",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "female",
-                    "status": "保護中",
+                    "status": "QUARANTINE",
                 }
             )
 
@@ -126,17 +126,17 @@ class TestCompleteWorkflow:
             mock_create.return_value = {
                 "id": animal_id,
                 "name": "TestCat",
-                "status": "保護中",
+                "status": "QUARANTINE",
             }
 
             register_result = await api_client.create_animal(
                 {
                     "name": "TestCat",
-                    "pattern": "キジトラ",
+                    "coat_color": "キジトラ",
                     "tail_length": "長い",
-                    "age": "成猫",
+                    "age_months": 12,
                     "gender": "male",
-                    "status": "保護中",
+                    "status": "QUARANTINE",
                 }
             )
             assert register_result["id"] == animal_id
@@ -184,11 +184,11 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                     }
                 )
 
@@ -229,11 +229,11 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                     }
                 )
 
@@ -275,11 +275,11 @@ class TestErrorHandling:
                 await api_client.create_animal(
                     {
                         "name": "TestCat",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                     }
                 )
 
@@ -438,11 +438,11 @@ class TestWorkflowErrorClarity:
                 await api_client.create_animal(
                     {
                         "name": "",
-                        "pattern": "キジトラ",
+                        "coat_color": "キジトラ",
                         "tail_length": "長い",
-                        "age": "成猫",
+                        "age_months": 12,
                         "gender": "male",
-                        "status": "保護中",
+                        "status": "QUARANTINE",
                     }
                 )
 

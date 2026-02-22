@@ -5,9 +5,37 @@
   <div id="volunteerDetail">
     <!-- JavaScriptで動的に表示 -->
   </div>
+
+  <template id="tmpl-volunteer-detail">
+    <div class="space-y-3">
+      <div>
+        <span class="font-bold text-gray-700" data-i18n="name" data-i18n-ns="volunteers">名前</span>:
+        <span class="ml-2 text-gray-900 js-name"></span>
+      </div>
+      <div>
+        <span class="font-bold text-gray-700" data-i18n="contact" data-i18n-ns="volunteers">連絡先</span>:
+        <span class="ml-2 text-gray-900 js-contact"></span>
+      </div>
+      <div>
+        <span class="font-bold text-gray-700" data-i18n="affiliation" data-i18n-ns="volunteers">所属</span>:
+        <span class="ml-2 text-gray-900 js-affiliation"></span>
+      </div>
+      <div>
+        <span class="font-bold text-gray-700" data-i18n="status" data-i18n-ns="common">ステータス</span>:
+        <span class="ml-2 text-gray-900 js-status"></span>
+      </div>
+      <div>
+        <span class="font-bold text-gray-700" data-i18n="start_date" data-i18n-ns="volunteers">開始日</span>:
+        <span class="ml-2 text-gray-900 js-start-date"></span>
+      </div>
+    </div>
+  </template>
   <div class="mt-6 flex gap-2">
-    <a href="/admin/volunteers" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-i18n="back" data-i18n-ns="common">戻る</a>
-    <a id="editBtn" href="#" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" data-i18n="edit" data-i18n-ns="common">編集</a>
+    <a href="{{ settings.admin_base_path }}/volunteers"
+      class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300" data-i18n="back"
+      data-i18n-ns="common">戻る</a>
+    <a id="editBtn" href="#" class="px-4 py-2 bg-brand-primary text-white rounded hover:opacity-90" data-i18n="edit"
+      data-i18n-ns="common">編集</a>
   </div>
 </div>
 {% endblock %}

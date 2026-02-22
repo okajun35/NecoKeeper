@@ -22,11 +22,11 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -60,11 +60,11 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="世話記録なし猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -93,11 +93,11 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="診療記録なし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -126,11 +126,11 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="画像なし猫",
-            pattern="三毛",
+            coat_color="三毛",
             tail_length="短い",
-            age="子猫",
+            age_months=6,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -158,11 +158,11 @@ class TestAnimalDetailEdgeCases:
 
         animal = Animal(
             name="体重データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -193,15 +193,20 @@ class TestNonExistentAnimal:
         # Given: 存在しないID
         nonexistent_id = 99999
         headers = {"Authorization": f"Bearer {auth_token}"}
+        from app.config import get_settings
+
+        settings = get_settings()
 
         # When: 猫詳細ページにアクセス（follow_redirects=False）
         response = test_client.get(
-            f"/admin/animals/{nonexistent_id}", headers=headers, follow_redirects=False
+            f"{settings.admin_base_path}/animals/{nonexistent_id}",
+            headers=headers,
+            follow_redirects=False,
         )
 
         # Then: 302リダイレクト
         assert response.status_code == 302
-        assert response.headers["location"] == "/admin/animals"
+        assert response.headers["location"] == f"{settings.admin_base_path}/animals"
 
 
 class TestAPIErrorHandling:

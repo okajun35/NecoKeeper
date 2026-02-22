@@ -16,13 +16,18 @@
     "time_slot": "Time Slot",
     "appetite": "Appetite",
     "energy": "Energy",
+    "vomiting": "Vomiting",
     "urination": "Urination",
-    "cleaning": "Cage Cleaning",
+    "cleaning": "Litter Box Cleaning",
     "defecation": "Defecation",
     "stool_condition": "Stool Condition",
     "memo": "Notes",
     "log_date": "Log Date",
     "created_at": "Created At"
+  },
+  "care_image": {
+    "label": "Concern photo",
+    "admin_only_notice": "Visible only in admin view (not shown again on the public side)."
   },
   "time_slots": {
     "morning": "Morning",
@@ -31,18 +36,18 @@
     "evening": "Evening"
   },
   "appetite_levels": {
-    "1": "1 (Not eating)",
-    "2": "2 (Little)",
-    "3": "3 (Normal)",
-    "4": "4 (Good)",
-    "5": "5 (Excellent)"
+    "1": "Mostly left",
+    "2": "Half",
+    "3": "Almost finished"
   },
   "energy_levels": {
-    "1": "1 (Lethargic)",
-    "2": "2 (Low energy)",
-    "3": "3 (Normal)",
-    "4": "4 (Energetic)",
-    "5": "5 (Very energetic)"
+    "1": "No",
+    "2": "Unknown",
+    "3": "Yes"
+  },
+  "vomiting_status": {
+    "yes": "Yes",
+    "no": "No"
   },
   "urination_status": {
     "yes": "Yes",
@@ -78,6 +83,11 @@
     "start_date": "Start date",
     "end_date": "End date",
     "all_cats": "All Cats"
+  },
+  "tabs": {
+    "daily": "Daily Care",
+    "trial": "Trial",
+    "archive": "Archive"
   },
   "messages": {
     "created": "Care log created successfully",
@@ -130,7 +140,9 @@
     "errors": {
       "missing_animal_id": "Animal ID was not specified",
       "load_list_failed": "Failed to load care logs",
-      "load_detail_failed": "Failed to load care log details"
+      "load_detail_failed": "Failed to load care log details",
+      "modal_error": "Failed to create the modal",
+      "modal_missing_details": "Failed to render care log details. Please try again in a moment."
     },
     "unnamed_animal": "Unnamed cat"
   }

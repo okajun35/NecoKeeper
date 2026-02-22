@@ -3,6 +3,7 @@
  */
 
 const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -261,7 +262,7 @@ async function handleSubmit(e) {
     }
 
     // 成功したら一覧画面に遷移
-    window.location.href = '/admin/medical-records';
+    window.location.href = `${adminBasePath}/medical-records`;
   } catch (error) {
     console.error('Error submitting form:', error);
     showError(error.message || i18n.t('medical_records.messages.save_error'));

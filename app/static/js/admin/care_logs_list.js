@@ -4,9 +4,12 @@
  * 1日×1匹を1行で表示する形式で世話記録を管理します。
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 // グローバル変数
 let currentPage = 1;
 let currentFilters = {};
+let currentAnimalStatus = 'DAILY'; // デフォルトは日常記録（保護中・在籍中）
 let animals = [];
 const isKiroweenMode = document.body && document.body.classList.contains('kiroween-mode');
 const fallbackText = (english, japanese) => (isKiroweenMode ? english : japanese);
@@ -17,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAnimals();
   loadDailyView();
   setupEventListeners();
+  setupTabListeners();
 
   // 言語切り替えで「すべての猫」を現在の言語に再設定
   window.addEventListener('languageChanged', () => {
@@ -72,11 +76,71 @@ function setupEventListeners() {
 }
 
 /**
+ * タブリスナーの設定
+ */
+function setupTabListeners() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newStatus = btn.dataset.status;
+      if (newStatus !== currentAnimalStatus) {
+        currentAnimalStatus = newStatus;
+        currentPage = 1;
+        updateTabStyles();
+        loadDailyView();
+        loadAnimals(); // タブ切り替え時に猫リストも更新
+      }
+    });
+  });
+}
+
+/**
+ * タブスタイルを更新
+ */
+function updateTabStyles() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  tabButtons.forEach(btn => {
+    const isActive = btn.dataset.status === currentAnimalStatus;
+    if (isActive) {
+      btn.classList.remove(
+        'border-transparent',
+        'text-gray-500',
+        'hover:text-gray-700',
+        'hover:border-gray-300'
+      );
+      btn.classList.add('border-brand-primary', 'text-brand-primary');
+    } else {
+      btn.classList.remove('border-brand-primary', 'text-brand-primary');
+      btn.classList.add(
+        'border-transparent',
+        'text-gray-500',
+        'hover:text-gray-700',
+        'hover:border-gray-300'
+      );
+    }
+  });
+}
+
+/**
  * 猫リストを取得
  */
 async function loadAnimals() {
   try {
-    const response = await fetch('/api/v1/animals?page=1&page_size=100', {
+    // 現在のタブに応じたステータスフィルターを設定
+    let statusParam = '';
+    if (currentAnimalStatus === 'DAILY') {
+      statusParam = 'DAILY'; // QUARANTINE + IN_CARE（トライアル中は除く）
+    } else if (currentAnimalStatus === 'TRIAL') {
+      statusParam = 'TRIAL';
+    } else if (currentAnimalStatus === 'ARCHIVE') {
+      statusParam = 'ARCHIVE'; // ADOPTED + DECEASED
+    }
+
+    const url = statusParam
+      ? `/api/v1/animals?page=1&page_size=100&status=${statusParam}`
+      : '/api/v1/animals?page=1&page_size=100';
+
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -146,6 +210,7 @@ async function loadDailyView() {
     const params = new URLSearchParams({
       page: currentPage,
       page_size: 20,
+      animal_status: currentAnimalStatus,
     });
 
     // フィルタ条件を追加
@@ -211,36 +276,48 @@ function renderDailyView(data) {
   });
 }
 
+function translateDynamicElement(element) {
+  if (!element) return;
+  if (window.i18n && typeof window.i18n.translateElement === 'function') {
+    window.i18n.translateElement(element);
+    return;
+  }
+  if (window.applyDynamicTranslations) {
+    window.applyDynamicTranslations(element);
+  }
+}
+
 /**
  * テーブル行を作成
  */
 function createDailyRow(item) {
-  const row = document.createElement('tr');
-  row.className = 'hover:bg-gray-50';
+  const row = cloneTemplate('tmpl-daily-row');
+  assertRequiredSelectors(
+    row,
+    ['.js-date', '.js-name', '.js-morning', '.js-noon', '.js-evening'],
+    'care_logs_list.tmpl-daily-row'
+  );
 
   // 日付
-  const dateCell = document.createElement('td');
-  dateCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-  dateCell.textContent = item.date;
-  row.appendChild(dateCell);
+  requireSelector(row, '.js-date', 'care_logs_list.tmpl-daily-row').textContent = item.date;
 
   // 猫名
-  const nameCell = document.createElement('td');
-  nameCell.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
-  nameCell.textContent = item.animal_name;
-  row.appendChild(nameCell);
+  requireSelector(row, '.js-name', 'care_logs_list.tmpl-daily-row').textContent = item.animal_name;
 
   // 朝・昼・夕
-  ['morning', 'noon', 'evening'].forEach(timeSlot => {
-    const cell = document.createElement('td');
-    cell.className = 'px-6 py-4 whitespace-nowrap text-center';
+  const timeSlots = {
+    morning: '.js-morning',
+    noon: '.js-noon',
+    evening: '.js-evening',
+  };
 
-    const link = createRecordLink(item, timeSlot);
+  Object.entries(timeSlots).forEach(([slot, selector]) => {
+    const cell = requireSelector(row, selector, 'care_logs_list.tmpl-daily-row');
+    const link = createRecordLink(item, slot);
     cell.appendChild(link);
-
-    row.appendChild(cell);
   });
 
+  translateDynamicElement(row);
   return row;
 }
 
@@ -248,45 +325,32 @@ function createDailyRow(item) {
  * モバイルカードを作成
  */
 function createDailyCard(item) {
-  const card = document.createElement('div');
-  card.className = 'p-4';
+  const card = cloneTemplate('tmpl-daily-card-mobile');
+  assertRequiredSelectors(
+    card,
+    ['.js-name', '.js-date', '.js-morning', '.js-noon', '.js-evening'],
+    'care_logs_list.tmpl-daily-card-mobile'
+  );
 
-  const timeSlotLabels = {
-    morning: fallbackText('Morning', '朝'),
-    noon: fallbackText('Noon', '昼'),
-    evening: fallbackText('Evening', '夕'),
+  requireSelector(card, '.js-name', 'care_logs_list.tmpl-daily-card-mobile').textContent =
+    item.animal_name;
+  requireSelector(card, '.js-date', 'care_logs_list.tmpl-daily-card-mobile').textContent =
+    item.date;
+
+  const timeSlots = {
+    morning: '.js-morning',
+    noon: '.js-noon',
+    evening: '.js-evening',
   };
 
-  card.innerHTML = `
-        <div class="flex justify-between items-start mb-3">
-            <div>
-                <div class="text-sm font-medium text-gray-900">${item.animal_name}</div>
-                <div class="text-xs text-gray-500">${item.date}</div>
-            </div>
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-            <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.morning}</div>
-                <div id="morning-${item.date}-${item.animal_id}"></div>
-            </div>
-            <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.noon}</div>
-                <div id="noon-${item.date}-${item.animal_id}"></div>
-            </div>
-            <div class="text-center">
-          <div class="text-xs text-gray-500 mb-1">${timeSlotLabels.evening}</div>
-                <div id="evening-${item.date}-${item.animal_id}"></div>
-            </div>
-        </div>
-    `;
-
   // リンクを追加
-  ['morning', 'noon', 'evening'].forEach(timeSlot => {
-    const container = card.querySelector(`#${timeSlot}-${item.date}-${item.animal_id}`);
-    const link = createRecordLink(item, timeSlot);
+  Object.entries(timeSlots).forEach(([slot, selector]) => {
+    const container = requireSelector(card, selector, 'care_logs_list.tmpl-daily-card-mobile');
+    const link = createRecordLink(item, slot);
     container.appendChild(link);
   });
 
+  translateDynamicElement(card);
   return card;
 }
 
@@ -295,22 +359,22 @@ function createDailyCard(item) {
  */
 function createRecordLink(item, timeSlot) {
   const record = item[timeSlot];
-  const link = document.createElement('a');
-  link.className = 'text-2xl font-bold hover:opacity-70 transition-opacity';
+  const link = cloneTemplate('tmpl-record-link');
 
   if (record.exists) {
     // 記録あり: ○ → 詳細/編集画面
-    link.textContent = '○';
-    link.href = `/admin/care-logs/${record.log_id}`;
-    link.className += ' text-green-600';
+    link.textContent = record.has_image ? '○📷' : '○';
+    link.href = `${adminBasePath}/care-logs/${record.log_id}`;
+    link.classList.add('text-green-600');
     const appetiteLabel = fallbackText('Appetite', '食欲');
     const energyLabel = fallbackText('Energy', '元気');
-    link.title = `${appetiteLabel}: ${record.appetite}, ${energyLabel}: ${record.energy}`;
+    const photoSuffix = record.has_image ? fallbackText(', Photo attached', '、写真あり') : '';
+    link.title = `${appetiteLabel}: ${formatAppetiteLabel(record.appetite)}, ${energyLabel}: ${record.energy}${photoSuffix}`;
   } else {
     // 記録なし: × → 新規登録画面
     link.textContent = '×';
-    link.href = `/admin/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
-    link.className += ' text-red-600';
+    link.href = `${adminBasePath}/care-logs/new?animal_id=${item.animal_id}&date=${item.date}&time_slot=${timeSlot}`;
+    link.classList.add('text-red-600');
     link.title = fallbackText('Add record', '記録を追加');
   }
 

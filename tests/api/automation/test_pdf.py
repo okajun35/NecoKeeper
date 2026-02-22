@@ -154,7 +154,7 @@ class TestGenerateQRCardGridAutomation:
         )
 
         # Then: Pydanticバリデーションエラー
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_generate_qr_card_grid_with_empty_list(
         self, test_client: TestClient, automation_api_key: str
@@ -175,7 +175,7 @@ class TestGenerateQRCardGridAutomation:
         )
 
         # Then
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     def test_generate_qr_card_grid_with_single_animal(
         self, test_client: TestClient, test_animal, automation_api_key: str
@@ -239,9 +239,9 @@ class TestPDFAutomationIntegration:
         # Given: 猫を登録
         animal_data = {
             "name": "PDF統合テスト猫",
-            "pattern": "キジトラ",
+            "coat_color": "キジトラ",
             "tail_length": "長い",
-            "age": "成猫",
+            "age_months": 12,
             "gender": "male",
         }
 

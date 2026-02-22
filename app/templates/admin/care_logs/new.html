@@ -8,7 +8,7 @@
 {% block page_description %}<span data-i18n="description" data-i18n-ns="care_logs">新しい世話記録を登録します</span>{% endblock %}
 
 {% block header_actions %}
-<a href="/admin/care-logs" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back" data-i18n-ns="common">
+<a href="{{ settings.admin_base_path }}/care-logs" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="back" data-i18n-ns="common">
     戻る
 </a>
 {% endblock %}
@@ -23,7 +23,7 @@
                 <label for="animal_id" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.animal" data-i18n-ns="care_logs">猫</span> <span class="text-red-500">*</span>
                 </label>
-                <select id="animal_id" name="animal_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select id="animal_id" name="animal_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
                 </select>
             </div>
@@ -33,7 +33,7 @@
                 <label for="log_date" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.log_date" data-i18n-ns="care_logs">記録日</span> <span class="text-red-500">*</span>
                 </label>
-                <input type="date" id="log_date" name="log_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <input type="date" id="log_date" name="log_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
             </div>
 
             <!-- 時点 -->
@@ -41,7 +41,7 @@
                 <label for="time_slot" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.time_slot" data-i18n-ns="care_logs">時点</span> <span class="text-red-500">*</span>
                 </label>
-                <select id="time_slot" name="time_slot" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select id="time_slot" name="time_slot" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
                     <option value="morning" data-i18n="time_slots.morning" data-i18n-ns="care_logs">朝</option>
                     <option value="noon" data-i18n="time_slots.afternoon" data-i18n-ns="care_logs">昼</option>
@@ -54,13 +54,11 @@
                 <label for="appetite" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.appetite" data-i18n-ns="care_logs">食欲</span> <span class="text-red-500">*</span>
                 </label>
-                <select id="appetite" name="appetite" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select id="appetite" name="appetite" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
-                    <option value="1" data-i18n="appetite_levels.1" data-i18n-ns="care_logs">1 (食べない)</option>
-                    <option value="2" data-i18n="appetite_levels.2" data-i18n-ns="care_logs">2 (少し)</option>
-                    <option value="3" data-i18n="appetite_levels.3" data-i18n-ns="care_logs">3 (普通)</option>
-                    <option value="4" data-i18n="appetite_levels.4" data-i18n-ns="care_logs">4 (よく食べる)</option>
-                    <option value="5" data-i18n="appetite_levels.5" data-i18n-ns="care_logs">5 (完食)</option>
+                    <option value="1" data-i18n="appetite_levels.3" data-i18n-ns="care_logs">ほぼ完食</option>
+                    <option value="0.5" data-i18n="appetite_levels.2" data-i18n-ns="care_logs">半分くらい</option>
+                    <option value="0" data-i18n="appetite_levels.1" data-i18n-ns="care_logs">ほぼ残す</option>
                 </select>
             </div>
 
@@ -69,20 +67,38 @@
                 <label for="energy" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.energy" data-i18n-ns="care_logs">元気</span> <span class="text-red-500">*</span>
                 </label>
-                <select id="energy" name="energy" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select id="energy" name="energy" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                     <option value="" data-i18n="select" data-i18n-ns="common">選択してください</option>
-                    <option value="1" data-i18n="energy_levels.1" data-i18n-ns="care_logs">1 (ぐったり)</option>
-                    <option value="2" data-i18n="energy_levels.2" data-i18n-ns="care_logs">2 (元気がない)</option>
-                    <option value="3" data-i18n="energy_levels.3" data-i18n-ns="care_logs">3 (普通)</option>
-                    <option value="4" data-i18n="energy_levels.4" data-i18n-ns="care_logs">4 (元気)</option>
-                    <option value="5" data-i18n="energy_levels.5" data-i18n-ns="care_logs">5 (とても元気)</option>
+                    <option value="3" data-i18n="energy_levels.3" data-i18n-ns="care_logs">有り</option>
+                    <option value="2" data-i18n="energy_levels.2" data-i18n-ns="care_logs">分からない</option>
+                    <option value="1" data-i18n="energy_levels.1" data-i18n-ns="care_logs">無し</option>
                 </select>
+            </div>
+
+            <!-- 嘔吐 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <span data-i18n="fields.vomiting" data-i18n-ns="care_logs">嘔吐</span> <span class="text-red-500">*</span>
+                </label>
+                <div class="flex gap-3">
+                    <button type="button"
+                            class="vomiting-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
+                            data-value="true"
+                            data-i18n="vomiting_status.yes"
+                            data-i18n-ns="care_logs">あり</button>
+                    <button type="button"
+                            class="vomiting-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
+                            data-value="false"
+                            data-i18n="vomiting_status.no"
+                            data-i18n-ns="care_logs">なし</button>
+                </div>
+                <input type="hidden" id="vomiting" name="vomiting">
             </div>
 
             <!-- 排尿 -->
             <div>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" id="urination" name="urination" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                    <input type="checkbox" id="urination" name="urination" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
                     <span class="text-sm font-medium text-gray-700" data-i18n="fields.urination" data-i18n-ns="care_logs">排尿あり</span>
                 </label>
             </div>
@@ -90,8 +106,8 @@
             <!-- 清掃 -->
             <div>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" id="cleaning" name="cleaning" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                    <span class="text-sm font-medium text-gray-700" data-i18n="fields.cleaning" data-i18n-ns="care_logs">清掃済み</span>
+                    <input type="checkbox" id="cleaning" name="cleaning" class="w-4 h-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary">
+                    <span class="text-sm font-medium text-gray-700" data-i18n="fields.cleaning" data-i18n-ns="care_logs">トイレの清掃</span>
                 </label>
             </div>
 
@@ -102,12 +118,12 @@
                 </label>
                 <div class="flex gap-3">
                     <button type="button"
-                            class="defecation-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="defecation-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="true"
                             data-i18n="defecation_status.yes"
                             data-i18n-ns="care_logs">あり</button>
                     <button type="button"
-                            class="defecation-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="defecation-btn flex-1 py-2 px-3 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="false"
                             data-i18n="defecation_status.no"
                             data-i18n-ns="care_logs">なし</button>
@@ -123,37 +139,37 @@
                     </label>
                     <button type="button"
                             id="stoolConditionHelpOpen"
-                            class="text-sm text-indigo-600 hover:text-indigo-800"
+                            class="text-sm text-brand-primary hover:opacity-80"
                             data-i18n="stool_condition_help"
                             data-i18n-ns="care_logs">ⓘ 判断に迷ったら</button>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <button type="button"
-                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="1">
                         <img src="/static/images/cat_poops/cat_poop_1.png" alt="Hard" class="w-14 h-14 mx-auto">
                         <div class="mt-1 text-xs text-gray-700" data-i18n="stool_condition_levels.1" data-i18n-ns="care_logs">硬い</div>
                     </button>
                     <button type="button"
-                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="2">
                         <img src="/static/images/cat_poops/cat_poop_2.png" alt="Good" class="w-14 h-14 mx-auto">
                         <div class="mt-1 text-xs text-gray-700" data-i18n="stool_condition_levels.2" data-i18n-ns="care_logs">良好</div>
                     </button>
                     <button type="button"
-                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="3">
                         <img src="/static/images/cat_poops/cat_poop_3.png" alt="Slightly soft" class="w-14 h-14 mx-auto">
                         <div class="mt-1 text-xs text-gray-700" data-i18n="stool_condition_levels.3" data-i18n-ns="care_logs">やや柔らかい</div>
                     </button>
                     <button type="button"
-                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="4">
                         <img src="/static/images/cat_poops/cat_poop_4.png" alt="Diarrhea" class="w-14 h-14 mx-auto">
                         <div class="mt-1 text-xs text-gray-700" data-i18n="stool_condition_levels.4" data-i18n-ns="care_logs">下痢</div>
                     </button>
                     <button type="button"
-                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                            class="stool-condition-btn py-2 px-2 border-2 border-gray-300 rounded-lg text-center font-medium hover:border-brand-primary hover:bg-brand-primary/10 transition-colors"
                             data-value="5">
                         <img src="/static/images/cat_poops/cat_poop_5.png" alt="Watery" class="w-14 h-14 mx-auto">
                         <div class="mt-1 text-xs text-gray-700" data-i18n="stool_condition_levels.5" data-i18n-ns="care_logs">水様</div>
@@ -167,15 +183,15 @@
                 <label for="memo" class="block text-sm font-medium text-gray-700 mb-2">
                     <span data-i18n="fields.memo" data-i18n-ns="care_logs">メモ</span>
                 </label>
-                <textarea id="memo" name="memo" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="特記事項があれば記入してください"></textarea>
+                <textarea id="memo" name="memo" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="特記事項があれば記入してください"></textarea>
             </div>
 
             <!-- ボタン -->
             <div class="flex justify-end gap-3">
-                <a href="/admin/care-logs" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
+                <a href="{{ settings.admin_base_path }}/care-logs" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" data-i18n="cancel" data-i18n-ns="common">
                     キャンセル
                 </a>
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors" data-i18n="submit" data-i18n-ns="common">
+                <button type="submit" class="px-6 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors" data-i18n="submit" data-i18n-ns="common">
                     保存
                 </button>
             </div>

@@ -33,11 +33,11 @@ class TestWeightChartAPI:
 
         animal = Animal(
             name="グラフテスト猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="male",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()
@@ -93,11 +93,11 @@ class TestWeightChartAPI:
 
         animal = Animal(
             name="体重データなし猫",
-            pattern="キジトラ",
+            coat_color="キジトラ",
             tail_length="長い",
-            age="成猫",
+            age_months=12,
             gender="female",
-            status="保護中",
+            status="QUARANTINE",
         )
         test_db.add(animal)
         test_db.commit()

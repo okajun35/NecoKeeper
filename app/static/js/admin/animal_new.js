@@ -2,6 +2,8 @@
  * 猫新規登録ページのJavaScript
  */
 
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
+
 document.addEventListener('DOMContentLoaded', () => {
   setupDefaultValues();
   setupImagePreview();
@@ -91,6 +93,14 @@ function setupImagePreview() {
   });
 }
 
+function parseOptionalInt(value) {
+  if (value === '' || value === null || value === undefined) {
+    return null;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
 /**
  * フォーム送信を設定
  */
@@ -118,15 +128,26 @@ function setupFormSubmit() {
       // 1. 猫の基本情報を登録
       const formData = {
         name: document.getElementById('name').value,
-        pattern: document.getElementById('pattern').value,
+        coat_color: document.getElementById('coat_color').value,
+        coat_color_note: document.getElementById('coat_color_note').value || null,
         gender: document.getElementById('gender').value,
-        age: document.getElementById('age').value,
+        age_months: parseOptionalInt(document.getElementById('age_months').value),
+        age_is_estimated: document.getElementById('age_is_estimated').checked,
+        microchip_number: document.getElementById('microchip_number').value || null,
         tail_length: document.getElementById('tail_length').value,
         collar: document.getElementById('collar').value || undefined,
         ear_cut: document.getElementById('ear_cut').checked,
+        rescue_source: document.getElementById('rescue_source').value || undefined,
+        breed: document.getElementById('breed').value || undefined,
         status: document.getElementById('status').value,
         protected_at: protectedAt,
+        location_type: document.getElementById('location_type').value || 'FACILITY',
+        current_location_note: document.getElementById('current_location_note').value || null,
         features: document.getElementById('features').value || undefined,
+        fiv_positive: parseBooleanSelect(document.getElementById('fiv_positive').value),
+        felv_positive: parseBooleanSelect(document.getElementById('felv_positive').value),
+        is_sterilized: parseBooleanSelect(document.getElementById('is_sterilized').value),
+        sterilized_on: document.getElementById('sterilized_on').value || null,
       };
 
       const animal = await apiRequest(`${API_BASE}/animals`, {
@@ -145,7 +166,7 @@ function setupFormSubmit() {
 
       // 詳細ページにリダイレクト
       setTimeout(() => {
-        window.location.href = `/admin/animals/${animal.id}`;
+        window.location.href = `${adminBasePath}/animals/${animal.id}`;
       }, 1000);
     } catch (error) {
       console.error('Error creating animal:', error);
@@ -155,6 +176,8 @@ function setupFormSubmit() {
         errorMessage = error.message;
       } else if (typeof error === 'string') {
         errorMessage = error;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
       }
       showError(errorMessage);
       submitButton.disabled = false;

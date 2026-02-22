@@ -1,0 +1,112 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if mode == 'edit' %}里親相談編集{% else %}里親相談登録{% endif %}{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}里親相談編集{% else %}里親相談登録{% endif %}{% endblock %}
+{% block page_description %}相談情報を管理します{% endblock %}
+
+{% block header_actions %}
+<a href="{{ settings.admin_base_path }}/adoptions/applicants" class="px-3 py-2 lg:px-4 lg:py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+    一覧へ戻る
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <div id="formError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"></div>
+
+    <form id="consultation-form" class="space-y-6">
+        {% if mode == 'new' %}
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">受付種別</h3>
+            <div class="mt-4 space-y-3">
+                <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="intake_type" value="consultation" checked class="mt-1">
+                    <div>
+                        <p class="font-medium text-gray-900">相談として登録</p>
+                        <p class="text-sm text-gray-600">相談テーブルに登録します（後で申込化可能）。</p>
+                    </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="intake_type" value="application" class="mt-1">
+                    <div>
+                        <p class="font-medium text-gray-900">譲渡申込として進める</p>
+                        <p class="text-sm text-gray-600">まず相談を登録し、続けて申込フォームへ遷移します。</p>
+                    </div>
+                </label>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">相談者情報</h3>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ふりがな <span class="text-red-500">*</span></label>
+                    <input type="text" id="name_kana" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">氏名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">電話番号 <span class="text-red-500">*</span></label>
+                    <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="090-1234-5678">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">連絡手段 <span class="text-red-500">*</span></label>
+                    <select id="contact_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <option value="">選択してください</option>
+                        <option value="line">LINE</option>
+                        <option value="email">メール</option>
+                    </select>
+                </div>
+                <div id="contact-line-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LINE ID <span class="text-red-500">*</span></label>
+                    <input type="text" id="contact_line_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                </div>
+                <div id="contact-email-wrapper" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">メールアドレス <span class="text-red-500">*</span></label>
+                    <input type="email" id="contact_email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900">相談内容</h3>
+            <div class="mt-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">相談内容 <span class="text-red-500">*</span></label>
+                    <textarea id="consultation_note" rows="6" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"></textarea>
+                </div>
+                {% if mode == 'edit' %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">相談ステータス <span class="text-red-500">*</span></label>
+                    <select id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <option value="open">open（受付中）</option>
+                        <option value="converted">converted（申込化済み）</option>
+                        <option value="closed">closed（対応終了）</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="flex justify-end gap-3">
+            <a href="{{ settings.admin_base_path }}/adoptions/applicants" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">キャンセル</a>
+            <button id="submitButton" type="submit" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90">{% if mode == 'edit' %}更新{% else %}登録{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    window.CONSULTATION_FORM_MODE = "{{ mode }}";
+    {% if mode == 'edit' and consultation %}
+    window.CONSULTATION_DATA = {{ consultation.model_dump_json()|safe }};
+    {% endif %}
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/admin/adoption_consultation_form.js?v=1"></script>
+{% endblock %}

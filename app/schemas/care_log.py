@@ -13,6 +13,16 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from app.utils.stool_condition import StoolCondition
 
+APPETITE_ALLOWED_VALUES = {1.0, 0.5, 0.0}
+
+
+def normalize_appetite_value(value: float) -> float:
+    """食欲の値を正規化して許容値か検証する。"""
+    normalized = round(float(value), 2)
+    if normalized not in APPETITE_ALLOWED_VALUES:
+        raise ValueError("食欲は 1.0/0.5/0.0 のいずれかである必要があります")
+    return normalized
+
 
 class CareLogBase(BaseModel):
     """世話記録の基本情報スキーマ"""
@@ -21,8 +31,11 @@ class CareLogBase(BaseModel):
     recorder_name: str = Field(..., max_length=100, description="記録者名")
     log_date: date_type = Field(..., description="記録日（年月日）")
     time_slot: str = Field(..., description="時点（morning/noon/evening）")
-    appetite: int = Field(3, ge=1, le=5, description="食欲（1〜5段階、5が最良）")
-    energy: int = Field(3, ge=1, le=5, description="元気（1〜5段階、5が最良）")
+    appetite: float = Field(
+        1.0, ge=0.0, le=1.0, description="食欲（1.0=完食, 0.0=食べない）"
+    )
+    energy: int = Field(3, ge=1, le=3, description="元気（1〜3段階、3が最良）")
+    vomiting: bool = Field(..., description="嘔吐有無")
     urination: bool = Field(False, description="排尿有無")
     defecation: bool = Field(False, description="排便有無")
     stool_condition: StoolCondition | None = Field(
@@ -54,6 +67,12 @@ class CareLogBase(BaseModel):
             )
         return v
 
+    @field_validator("appetite")
+    @classmethod
+    def validate_appetite(cls, v: float) -> float:
+        """食欲の検証"""
+        return normalize_appetite_value(v)
+
 
 class CareLogCreate(CareLogBase):
     """世話記録登録リクエストスキーマ"""
@@ -74,8 +93,9 @@ class CareLogUpdate(BaseModel):
     recorder_name: str | None = Field(None, max_length=100)
     log_date: date_type | None = None
     time_slot: str | None = None
-    appetite: int | None = Field(None, ge=1, le=5)
-    energy: int | None = Field(None, ge=1, le=5)
+    appetite: float | None = Field(None, ge=0.0, le=1.0)
+    energy: int | None = Field(None, ge=1, le=3)
+    vomiting: bool | None = None
     urination: bool | None = None
     defecation: bool | None = None
     stool_condition: StoolCondition | None = Field(
@@ -112,6 +132,14 @@ class CareLogUpdate(BaseModel):
                 )
         return v
 
+    @field_validator("appetite")
+    @classmethod
+    def validate_appetite(cls, v: float | None) -> float | None:
+        """食欲の検証"""
+        if v is None:
+            return None
+        return normalize_appetite_value(v)
+
 
 class CareLogResponse(CareLogBase):
     """世話記録レスポンススキーマ"""
@@ -127,6 +155,16 @@ class CareLogResponse(CareLogBase):
     created_at: datetime
     last_updated_at: datetime
     last_updated_by: int | None
+    has_image: bool = Field(False, description="有効な添付画像があるか")
+    care_image_uploaded_at: datetime | None = Field(
+        None, description="世話記録画像アップロード日時"
+    )
+    care_image_deleted_at: datetime | None = Field(
+        None, description="世話記録画像削除日時"
+    )
+    care_image_missing_at: datetime | None = Field(
+        None, description="世話記録画像欠損検知日時"
+    )
 
 
 class CareLogListResponse(BaseModel):
@@ -172,6 +210,9 @@ class AnimalStatusSummary(BaseModel):
     morning_recorded: bool = Field(..., description="朝の記録済みフラグ")
     noon_recorded: bool = Field(..., description="昼の記録済みフラグ")
     evening_recorded: bool = Field(..., description="夕の記録済みフラグ")
+    morning_log_id: int | None = Field(None, description="朝の記録ID（存在する場合）")
+    noon_log_id: int | None = Field(None, description="昼の記録ID（存在する場合）")
+    evening_log_id: int | None = Field(None, description="夕の記録ID（存在する場合）")
 
 
 class AllAnimalsStatusResponse(BaseModel):
@@ -186,10 +227,12 @@ class TimeSlotRecord(BaseModel):
 
     exists: bool = Field(..., description="記録の有無")
     log_id: int | None = Field(None, description="記録ID（記録がある場合）")
-    appetite: int | None = Field(None, ge=1, le=5, description="食欲")
-    energy: int | None = Field(None, ge=1, le=5, description="元気")
+    appetite: float | None = Field(None, ge=0.0, le=1.0, description="食欲")
+    energy: int | None = Field(None, ge=1, le=3, description="元気")
+    vomiting: bool | None = Field(None, description="嘔吐有無")
     urination: bool | None = Field(None, description="排尿有無")
     cleaning: bool | None = Field(None, description="清掃済み")
+    has_image: bool = Field(False, description="画像の有無")
 
 
 class DailyViewRecord(BaseModel):

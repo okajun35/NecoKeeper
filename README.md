@@ -144,6 +144,30 @@ USE_PROXY_HEADERS=true
 
 # Enable/disable Kiroween Mode
 KIROWEEN_MODE=false
+
+# Demo Features (Landing Page & Dev Account Display)
+# true: Show landing page at / and display dev account on login page
+# false: / returns 404, hide dev account info (recommended for production)
+DEMO_FEATURES=false
+
+# Admin Panel Path Customization (Security)
+# Default: admin (/admin/login)
+# Production: Use random string (e.g., secret-admin-2024)
+# Constraints:
+#   - Alphanumeric and hyphens only
+#   - Cannot use reserved paths (api, static, public, docs, redoc, media)
+ADMIN_PATH=admin
+```
+
+**Admin Path Examples:**
+```bash
+# Default setup
+ADMIN_PATH=admin
+# Access at: https://yoursite.com/admin/login
+
+# Production (obfuscated)
+ADMIN_PATH=secure-mgmt-x7y9
+# Access at: https://yoursite.com/secure-mgmt-x7y9/login
 ```
 
 ---

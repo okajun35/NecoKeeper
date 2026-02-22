@@ -4,6 +4,7 @@
  */
 
 // API_BASEはcommon.jsで定義されています
+const adminBasePath = window.ADMIN_BASE_PATH || window.__ADMIN_BASE_PATH__ || '/admin';
 
 // ページ読み込み時の処理
 document.addEventListener('DOMContentLoaded', async () => {
@@ -61,10 +62,20 @@ function setupStoolConditionHelpModal() {
 function setSelectedButton(buttons, selectedButton) {
   buttons.forEach(btn => {
     if (btn === selectedButton) {
-      btn.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.add(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.remove('border-gray-300');
     } else {
-      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+      btn.classList.remove(
+        'selected',
+        'border-brand-primary',
+        'bg-brand-primary-light',
+        'text-brand-primary-dark'
+      );
       btn.classList.add('border-gray-300');
     }
   });
@@ -72,7 +83,12 @@ function setSelectedButton(buttons, selectedButton) {
 
 function clearSelectedButtons(buttons) {
   buttons.forEach(btn => {
-    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
+    btn.classList.remove(
+      'selected',
+      'border-brand-primary',
+      'bg-brand-primary-light',
+      'text-brand-primary-dark'
+    );
     btn.classList.add('border-gray-300');
   });
 }
@@ -93,9 +109,18 @@ function updateStoolConditionVisibility() {
 }
 
 function setupDefecationAndStoolConditionUI() {
+  const vomitingInput = document.getElementById('vomiting');
   const defecationInput = document.getElementById('defecation');
   const stoolInput = document.getElementById('stoolCondition');
-  if (!defecationInput || !stoolInput) return;
+  if (!vomitingInput || !defecationInput || !stoolInput) return;
+
+  const vomitingButtons = Array.from(document.querySelectorAll('.vomiting-btn'));
+  vomitingButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      vomitingInput.value = btn.dataset.value;
+      setSelectedButton(vomitingButtons, btn);
+    });
+  });
 
   const defecationButtons = Array.from(document.querySelectorAll('.defecation-btn'));
   defecationButtons.forEach(btn => {
@@ -163,13 +188,15 @@ async function handleFormSubmit(e) {
       recorder_name: recorderName,
       log_date: document.getElementById('log_date').value,
       time_slot: document.getElementById('time_slot').value,
-      appetite: parseInt(document.getElementById('appetite').value),
+      appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
+      vomiting: false,
       urination: document.getElementById('urination').checked,
       cleaning: document.getElementById('cleaning').checked,
       memo: document.getElementById('memo').value || null,
     };
 
+    const vomitingRaw = document.getElementById('vomiting')?.value;
     const defecationRaw = document.getElementById('defecation')?.value;
     const stoolConditionRaw = document.getElementById('stoolCondition')?.value;
 
@@ -178,14 +205,16 @@ async function handleFormSubmit(e) {
       !formData.animal_id ||
       !formData.log_date ||
       !formData.time_slot ||
-      !formData.appetite ||
+      Number.isNaN(formData.appetite) ||
       !formData.energy ||
+      (vomitingRaw !== 'true' && vomitingRaw !== 'false') ||
       (defecationRaw !== 'true' && defecationRaw !== 'false')
     ) {
       showToast(translate('messages.required_fields', { ns: 'care_logs' }), 'error');
       return;
     }
 
+    formData.vomiting = vomitingRaw === 'true';
     formData.defecation = defecationRaw === 'true';
 
     // 条件付き必須: defecation=true の場合は stool_condition 必須
@@ -209,7 +238,7 @@ async function handleFormSubmit(e) {
 
     // 一覧ページにリダイレクト
     setTimeout(() => {
-      window.location.href = '/admin/care-logs';
+      window.location.href = `${adminBasePath}/care-logs`;
     }, 1500);
   } catch (error) {
     console.error('Failed to create care log:', error);

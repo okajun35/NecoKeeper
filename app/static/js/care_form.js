@@ -35,11 +35,14 @@ const REQUIRED_FIELD_CONFIG = [
   { id: 'timeSlot', key: 'time_slot' },
   { id: 'appetite', key: 'appetite' },
   { id: 'energy', key: 'energy' },
+  { id: 'vomiting', key: 'vomiting' },
   { id: 'urination', key: 'urination' },
   { id: 'defecation', key: 'defecation' },
   { id: 'cleaning', key: 'cleaning' },
   { id: 'volunteer', key: 'recorder' },
 ];
+const CARE_IMAGE_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const CARE_IMAGE_HEIC_MIME_TYPES = ['image/heic', 'image/heif'];
 
 function renderCareTemplate(template, options = {}) {
   if (typeof template !== 'string') return template;
@@ -115,6 +118,32 @@ function hideToast() {
   toast.dataset.visible = 'false';
 }
 
+function updateFooterHeightVar() {
+  const footer = document.getElementById('careFormFooter');
+  if (!footer) return;
+  const height = Math.ceil(footer.getBoundingClientRect().height || 0);
+  if (height <= 0) return;
+  document.documentElement.style.setProperty('--care-footer-height', `${height}px`);
+}
+
+function observeFooterHeight() {
+  const footer = document.getElementById('careFormFooter');
+  if (!footer) return;
+
+  updateFooterHeightVar();
+
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(() => updateFooterHeightVar());
+    observer.observe(footer);
+  } else {
+    window.addEventListener('resize', updateFooterHeightVar);
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateFooterHeightVar);
+  }
+}
+
 function getFieldContainer(fieldId) {
   return document.querySelector(`[data-field="${fieldId}"]`);
 }
@@ -180,8 +209,11 @@ function updateStoolConditionVisibility() {
     // defecation=false の場合は stool_condition を必ずクリア
     stoolInput.value = '';
     document.querySelectorAll('.stool-condition-btn.selected').forEach(btn => {
-      btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-      btn.classList.add('border-gray-300');
+      btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+      btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+      btn.style.backgroundColor = 'var(--color-bg-base)';
+      btn.style.borderColor = 'var(--color-border)';
+      btn.style.color = 'var(--color-text-main)';
     });
     setFieldErrorState('stoolCondition', false);
   }
@@ -331,6 +363,131 @@ function validateForm() {
   return { isValid: true, message: '' };
 }
 
+function getCareImageInput() {
+  return document.getElementById('careImage');
+}
+
+function getSelectedCareImage() {
+  const input = getCareImageInput();
+  if (!input || !input.files || input.files.length === 0) {
+    return null;
+  }
+  return input.files[0];
+}
+
+function getCareImageReceiveMaxSizeBytes() {
+  const form = document.getElementById('careForm');
+  const maxSizeMb = Number(form?.dataset?.imageReceiveMaxSizeMb || '10');
+  if (Number.isNaN(maxSizeMb) || maxSizeMb <= 0) {
+    return 10 * 1024 * 1024;
+  }
+  return maxSizeMb * 1024 * 1024;
+}
+
+function clearCareImageSelection() {
+  const input = getCareImageInput();
+  const previewContainer = document.getElementById('careImagePreviewContainer');
+  const preview = document.getElementById('careImagePreview');
+  const selectedFileName = document.getElementById('careImageSelectedFileName');
+
+  if (input) {
+    input.value = '';
+  }
+  if (preview) {
+    preview.src = '';
+  }
+  if (previewContainer) {
+    previewContainer.classList.add('hidden');
+  }
+  if (selectedFileName) {
+    selectedFileName.textContent = '';
+    selectedFileName.classList.add('hidden');
+  }
+}
+
+function updateCareImagePreview() {
+  const image = getSelectedCareImage();
+  const previewContainer = document.getElementById('careImagePreviewContainer');
+  const preview = document.getElementById('careImagePreview');
+  const selectedFileName = document.getElementById('careImageSelectedFileName');
+
+  if (!previewContainer || !preview) {
+    return;
+  }
+
+  if (!image) {
+    preview.src = '';
+    previewContainer.classList.add('hidden');
+    if (selectedFileName) {
+      selectedFileName.textContent = '';
+      selectedFileName.classList.add('hidden');
+    }
+    return;
+  }
+
+  if (selectedFileName) {
+    selectedFileName.textContent = image.name;
+    selectedFileName.classList.remove('hidden');
+  }
+
+  const objectUrl = URL.createObjectURL(image);
+  preview.onload = () => URL.revokeObjectURL(objectUrl);
+  preview.src = objectUrl;
+  previewContainer.classList.remove('hidden');
+}
+
+function validateCareImage(imageFile) {
+  if (!imageFile) {
+    return { isValid: true };
+  }
+
+  const fileType = (imageFile.type || '').toLowerCase();
+  if (CARE_IMAGE_HEIC_MIME_TYPES.includes(fileType)) {
+    return {
+      isValid: false,
+      message: fallbackText(
+        'HEIC is not supported. Please re-submit as JPEG.',
+        'HEICは非対応です。JPEGで再投稿してください。'
+      ),
+    };
+  }
+
+  if (!CARE_IMAGE_ALLOWED_MIME_TYPES.includes(fileType)) {
+    return {
+      isValid: false,
+      message: fallbackText(
+        'Only JPEG/PNG/WebP images are supported.',
+        '画像は JPEG / PNG / WebP のみ対応しています。'
+      ),
+    };
+  }
+
+  const maxSizeBytes = getCareImageReceiveMaxSizeBytes();
+  if (imageFile.size > maxSizeBytes) {
+    const maxSizeMb = (maxSizeBytes / (1024 * 1024)).toFixed(1);
+    return {
+      isValid: false,
+      message: fallbackText(
+        `Image file is too large (max ${maxSizeMb}MB).`,
+        `画像サイズが大きすぎます（最大 ${maxSizeMb}MB）。`
+      ),
+    };
+  }
+
+  return { isValid: true };
+}
+
+function buildMultipartPayload(formData) {
+  const payload = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value === null || typeof value === 'undefined') {
+      return;
+    }
+    payload.append(key, String(value));
+  });
+  return payload;
+}
+
 function setSubmitButtonState(isLoading) {
   const submitBtn = document.getElementById('submitBtn');
   if (!submitBtn) return;
@@ -400,7 +557,7 @@ async function loadCareLogForEdit() {
     }
 
     // 食欲/元気
-    if (log.appetite) {
+    if (log.appetite !== null && log.appetite !== undefined) {
       const btn = document.querySelector(`.appetite-btn[data-value="${log.appetite}"]`);
       if (btn) btn.click();
     }
@@ -409,7 +566,11 @@ async function loadCareLogForEdit() {
       if (btn) btn.click();
     }
 
-    // 排尿/排便/便状態
+    // 嘔吐/排尿/排便/便状態
+    if (typeof log.vomiting === 'boolean') {
+      const btn = document.querySelector(`.vomiting-btn[data-value="${log.vomiting}"]`);
+      if (btn) btn.click();
+    }
     if (typeof log.urination === 'boolean') {
       const btn = document.querySelector(`.urination-btn[data-value="${log.urination}"]`);
       if (btn) btn.click();
@@ -495,13 +656,23 @@ function setupButtonGroup(className, inputId) {
     button.addEventListener('click', () => {
       // 他のボタンの選択を解除
       buttons.forEach(btn => {
-        btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-        btn.classList.add('border-gray-300');
+        btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+        btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+
+        // Inline styles override classes, so we must update them too
+        btn.style.backgroundColor = 'var(--color-bg-base)';
+        btn.style.borderColor = 'var(--color-border)';
+        btn.style.color = 'var(--color-text-main)';
       });
 
       // クリックされたボタンを選択状態に
-      button.classList.add('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-      button.classList.remove('border-gray-300');
+      button.classList.add('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+      button.classList.remove('border-gray-300', 'bg-bg-base', 'text-text-main');
+
+      // Update inline styles for selection
+      button.style.backgroundColor = 'var(--color-brand-primary)';
+      button.style.borderColor = 'var(--color-brand-primary)';
+      button.style.color = '#ffffff';
 
       // hidden inputに値を設定
       input.value = button.dataset.value;
@@ -563,7 +734,7 @@ async function copyLastValues() {
       if (timeSlotBtn) timeSlotBtn.click();
     }
 
-    if (lastLog.appetite) {
+    if (lastLog.appetite !== null && lastLog.appetite !== undefined) {
       const appetiteBtn = document.querySelector(`.appetite-btn[data-value="${lastLog.appetite}"]`);
       if (appetiteBtn) appetiteBtn.click();
     }
@@ -571,6 +742,11 @@ async function copyLastValues() {
     if (lastLog.energy) {
       const energyBtn = document.querySelector(`.energy-btn[data-value="${lastLog.energy}"]`);
       if (energyBtn) energyBtn.click();
+    }
+
+    if (typeof lastLog.vomiting === 'boolean') {
+      const vomitingBtn = document.querySelector(`.vomiting-btn[data-value="${lastLog.vomiting}"]`);
+      if (vomitingBtn) vomitingBtn.click();
     }
 
     if (typeof lastLog.urination === 'boolean') {
@@ -627,14 +803,18 @@ function resetForm() {
   document.getElementById('logDate').value = getTodayString();
   // ボタンの選択状態をクリア
   document.querySelectorAll('.selected').forEach(btn => {
-    btn.classList.remove('selected', 'border-indigo-600', 'bg-indigo-100', 'text-indigo-700');
-    btn.classList.add('border-gray-300');
+    btn.classList.remove('selected', 'border-brand-primary', 'bg-brand-primary', 'text-white');
+    btn.classList.add('border-gray-300', 'bg-bg-base', 'text-text-main');
+    btn.style.backgroundColor = 'var(--color-bg-base)';
+    btn.style.borderColor = 'var(--color-border)';
+    btn.style.color = 'var(--color-text-main)';
   });
   // hidden inputをクリア
   [
     'timeSlot',
     'appetite',
     'energy',
+    'vomiting',
     'urination',
     'defecation',
     'stoolCondition',
@@ -644,6 +824,7 @@ function resetForm() {
   });
 
   updateStoolConditionVisibility();
+  clearCareImageSelection();
 
   clearAllFieldErrors();
   hideToast();
@@ -679,8 +860,14 @@ async function handleSubmit(e) {
       animal_id: parseInt(animalId),
       log_date: document.getElementById('logDate').value,
       time_slot: document.getElementById('timeSlot').value,
-      appetite: parseInt(document.getElementById('appetite').value),
+      appetite: parseFloat(document.getElementById('appetite').value),
       energy: parseInt(document.getElementById('energy').value),
+      vomiting:
+        document.getElementById('vomiting').value === 'true'
+          ? true
+          : document.getElementById('vomiting').value === 'false'
+            ? false
+            : null,
       urination:
         document.getElementById('urination').value === 'true'
           ? true
@@ -707,6 +894,13 @@ async function handleSubmit(e) {
       recorder_name: recorderName,
     };
 
+    const selectedImage = getSelectedCareImage();
+    const imageValidation = validateCareImage(selectedImage);
+    if (!imageValidation.isValid) {
+      showError(imageValidation.message);
+      return;
+    }
+
     const requestBody = (() => {
       if (!isEditMode) {
         // 作成時は全てのフィールドを送信
@@ -719,6 +913,15 @@ async function handleSubmit(e) {
     })();
 
     if (isEditMode) {
+      if (selectedImage) {
+        throw new Error(
+          fallbackText(
+            'Image upload is available only when creating a new record.',
+            '画像アップロードは新規登録時のみ対応しています。'
+          )
+        );
+      }
+
       const response = await fetch(`${API_BASE}/care-logs/animal/${animalId}/${logId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -745,13 +948,62 @@ async function handleSubmit(e) {
         window.location.href = `/public/care-logs?animal_id=${animalId}&highlight_id=${logId}`;
       }, 1200);
     } else {
-      // オフラインマネージャーを使用して保存
-      const result = await window.offlineManager.saveCareLog(formData);
+      if (selectedImage) {
+        if (!navigator.onLine) {
+          throw new Error(
+            fallbackText(
+              'Photo upload is not available offline.',
+              'オフライン時は写真を送信できません。通信可能な環境で再送してください。'
+            )
+          );
+        }
 
-      const successMessage = result.online
-        ? translateCare('save_success_online', fallbackText('Record saved.', '記録を保存しました'))
-        : translateCare('save_success_offline', OFFLINE_SAVE_FALLBACK);
-      showToast(successMessage);
+        const multipart = buildMultipartPayload(formData);
+        multipart.append('image', selectedImage);
+
+        const response = await fetch(`${API_BASE}/care-logs`, {
+          method: 'POST',
+          body: multipart,
+        });
+        if (!response.ok) {
+          const defaultMessage = translateCare(
+            'error_api_failed',
+            fallbackText(
+              'Submission failed. Please try again later.',
+              '送信に失敗しました。時間をおいて再度お試しください。'
+            )
+          );
+          let serverMessage = defaultMessage;
+          try {
+            const errorPayload = await response.json();
+            if (typeof errorPayload?.detail === 'string' && errorPayload.detail.trim() !== '') {
+              serverMessage = errorPayload.detail;
+            }
+          } catch {
+            // ignore JSON parse errors and keep default message
+          }
+          throw new Error(serverMessage);
+        }
+
+        showToast(
+          translateCare('save_success_online', fallbackText('Record saved.', '記録を保存しました')),
+          fallbackText(
+            'Uploaded photo is reviewed by admins and not shown on this screen.',
+            '画像は管理者確認用で、この画面には再表示されません。'
+          )
+        );
+      } else {
+        // オフラインマネージャーを使用して保存
+        const result = await window.offlineManager.saveCareLog(formData);
+
+        const successMessage = result.online
+          ? translateCare(
+              'save_success_online',
+              fallbackText('Record saved.', '記録を保存しました')
+            )
+          : translateCare('save_success_offline', OFFLINE_SAVE_FALLBACK);
+        showToast(successMessage);
+      }
 
       // フォームをリセット
       setTimeout(() => {
@@ -781,11 +1033,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updatePageTitle();
   document.addEventListener('languageChanged', updatePageTitle);
+  observeFooterHeight();
 
   // 各ボタングループを初期化
   setupButtonGroup('time-slot-btn', 'timeSlot');
   setupButtonGroup('appetite-btn', 'appetite');
   setupButtonGroup('energy-btn', 'energy');
+  setupButtonGroup('vomiting-btn', 'vomiting');
   setupButtonGroup('urination-btn', 'urination');
   setupButtonGroup('defecation-btn', 'defecation');
   setupButtonGroup('stool-condition-btn', 'stoolCondition');
@@ -812,6 +1066,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadAnimalInfo();
   await loadVolunteers();
   await loadCareLogForEdit();
+
+  const careImageInput = getCareImageInput();
+  if (careImageInput) {
+    careImageInput.addEventListener('change', updateCareImagePreview);
+  }
+
+  const clearCareImageBtn = document.getElementById('careImageClearBtn');
+  if (clearCareImageBtn) {
+    clearCareImageBtn.addEventListener('click', clearCareImageSelection);
+  }
+
+  if (isEditMode && careImageInput) {
+    careImageInput.disabled = true;
+  }
 
   // time_slot プリセット（新規作成時のみ）
   if (!isEditMode && presetTimeSlot) {

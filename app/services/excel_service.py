@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from app.models.care_log import CareLog
 from app.services.medical_report_service import get_medical_summary_rows
+from app.utils.appetite import appetite_label
 from app.utils.i18n import tj
 
 
@@ -122,7 +123,7 @@ def generate_care_log_excel(
             record.animal_id,
             animal_name,
             tj(f"time_slots.{record.time_slot}", locale=locale),
-            record.appetite,
+            appetite_label(record.appetite, locale=locale),
             record.energy,
             tj(
                 "boolean.yes" if record.urination else "boolean.no",
